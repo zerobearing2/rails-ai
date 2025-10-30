@@ -8,6 +8,9 @@ all
 # Disabled: Line length not enforced
 exclude_rule "MD013"
 
+# Exclude reversed link syntax (causes false positives in Ruby code blocks)
+exclude_rule "MD011"
+
 # Allow multiple headers with the same content
 exclude_rule "MD024"
 

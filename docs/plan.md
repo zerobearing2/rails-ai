@@ -30,7 +30,7 @@ Create an opinionated, Rails-only AI agent system called **rails-ai**. This is a
 
 ## Project Structure (Simplified)
 
-```
+```text
 rails-ai/
 ├── agents/                    # 6 specialized Rails agents
 │   ├── rails.md              # Coordinator
@@ -218,7 +218,7 @@ This will symlink the agents to `~/.claude/agents/` or `~/.cursor/agents/` so th
 
 In any Rails project with Claude Code:
 
-```
+```text
 @rails - Add user authentication feature
 ```
 
@@ -226,7 +226,7 @@ The coordinator agent will create a plan, delegate to specialists, and deliver a
 
 ## Project Structure
 
-```
+```text
 rails-ai/
 ├── agents/          # 6 specialized Rails agents
 ├── skills/          # Modular skills registry with 33 skills

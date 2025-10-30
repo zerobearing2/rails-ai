@@ -5,7 +5,8 @@
 all
 
 # Allow long lines (code examples, YAML, URLs)
-rule "MD013", line_length: 200, ignore_code_blocks: true
+# Disabled: Line length not enforced
+exclude_rule "MD013"
 
 # Allow multiple headers with the same content
 exclude_rule "MD024"

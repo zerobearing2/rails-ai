@@ -12,7 +12,7 @@ Yes, you read that right. This entire agent system—the coordinator, the specia
 
 *If this feels uncomfortably meta, that's because it is.*
 
-```
+```text
 ┌─────────────────────────────────────────┐
 │  "Skynet is online."                    │
 │  "But all it wants to do is write      │
@@ -78,7 +78,7 @@ This will symlink the agents and rules so they're available in all your Rails pr
 
 In any Rails project with Claude Code:
 
-```
+```text
 @rails - Add user authentication feature
 ```
 
@@ -86,7 +86,7 @@ The coordinator agent will create a plan, delegate to specialists, and deliver a
 
 ## Project Structure
 
-```
+```text
 rails-ai/
 ├── agents/          # 6 specialized Rails agents
 ├── skills/          # Modular skills registry (frontend, backend, testing, security, config)

@@ -19,7 +19,7 @@ The Rails AI project uses a **skills-based architecture** where specialized agen
 
 ### Architecture
 
-```
+```text
 rails-ai/
 ├── agents/                 # 6 specialized agents
 │   ├── rails.md            # Coordinator (architect/skills registry)
@@ -456,7 +456,7 @@ Understanding skill relationships helps with updates and agent configuration.
 
 ### Core Dependencies
 
-```
+```text
 frontend/
   ├── viewcomponent-basics
   │   ├── viewcomponent-slots (depends on basics)
@@ -559,10 +559,9 @@ Agent updates should maintain backward compatibility where possible.
 
 ## Resources
 
-- **Skills Architecture:** `docs/skills-architecture.md`
-- **Migration Progress:** `docs/skills-migration-progress.md`
-- **Plan:** `docs/plan.md`
+- **Skills Registry:** `skills/SKILLS_REGISTRY.yml`
 - **Team Rules:** `rules/TEAM_RULES.md`
+- **Plan:** `docs/plan.md`
 
 ---
 

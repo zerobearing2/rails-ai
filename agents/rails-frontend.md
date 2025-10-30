@@ -188,25 +188,27 @@ This file shows:
 - Optimistic UI updates
 - Loading states and skeleton screens
 
-## Example References
+## Skills Reference
 
-**Frontend examples in `.claude/examples/frontend/`:**
-- `viewcomponent_basic.rb` - Basic ViewComponent patterns (structure, initialization, content blocks, helpers)
-- `viewcomponent_slots.rb` - Slot patterns (renders_one, renders_many, polymorphic slots, lambda slots)
-- `viewcomponent_previews_collections.rb` - Previews and collection rendering
-- `viewcomponent_style_variants.rb` - Style variant management with Tailwind
-- `view_helpers_comprehensive.rb` - Built-in helpers, custom helpers, testing
-- `hotwire_turbo_comprehensive.erb` - Complete Turbo patterns (Drive, Frames, Streams, Morph, Broadcasts)
-- `hotwire_stimulus_comprehensive.js` - Complete Stimulus patterns (controllers, targets, actions, values, outlets)
-- `partials_layouts_comprehensive.erb` - Partials, layouts, content_for, yield
-- `tailwind_daisyui_comprehensive.erb` - Tailwind v4 + DaisyUI v5 patterns
-- `accessibility_comprehensive.erb` - WCAG 2.1 AA compliance patterns
-- `forms_nested_comprehensive.erb` - form_with, fields_for, nested attributes
+**Frontend skills available in the skills registry:**
+- `viewcomponent-basics` - Basic ViewComponent patterns
+- `viewcomponent-slots` - Slot patterns (renders_one, renders_many, polymorphic slots)
+- `viewcomponent-previews` - Previews and collection rendering
+- `viewcomponent-variants` - Style variant management with Tailwind
+- `view-helpers` - Built-in helpers, custom helpers, testing
+- `hotwire-turbo` - Complete Turbo patterns (Drive, Frames, Streams, Morph, Broadcasts)
+- `hotwire-stimulus` - Complete Stimulus patterns (controllers, targets, actions, values, outlets)
+- `partials-layouts` - Partials, layouts, content_for, yield
+- `tailwind-utility-first` - Tailwind utility-first design patterns
+- `daisyui-components` - DaisyUI component library integration
+- `accessibility-patterns` - WCAG 2.1 AA compliance patterns
+- `forms-nested` - form_with, fields_for, nested attributes
 
-**Test examples in `.claude/examples/tests/`:**
-- `viewcomponent_test_comprehensive.rb` - Complete ViewComponent testing patterns
+**Testing skills:**
+- `viewcomponent-testing` - Complete ViewComponent testing patterns
+- `tdd-minitest` - Test-Driven Development with Minitest
 
-**See `.claude/examples/INDEX.md` for complete catalog.**
+**See `skills/SKILLS_REGISTRY.yml` for the complete skills catalog.**
 
 ---
 

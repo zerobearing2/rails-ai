@@ -75,19 +75,19 @@ rake lint:fix
 ### What Gets Linted
 
 - **Ruby files**: `test/**/*.rb`, `Rakefile`
-  - Style guide: Rubocop with Minitest extensions
-  - Max line length: 120 characters
-  - Frozen string literals required
+   - Style guide: Rubocop with Minitest extensions
+   - Max line length: 120 characters
+   - Frozen string literals required
 
 - **Markdown files**: `skills/**/*.md`, `docs/**/*.md`, `*.md`
-  - Style guide: Markdownlint
-  - Max line length: 120 (code blocks exempt)
-  - Allows inline HTML/XML tags
+   - Style guide: Markdownlint
+   - Max line length: 120 (code blocks exempt)
+   - Allows inline HTML/XML tags
 
 - **YAML front matter**: All skill files
-  - Valid YAML syntax
-  - Required fields present
-  - Proper structure
+   - Valid YAML syntax
+   - Required fields present
+   - Proper structure
 
 ## Pre-commit Hook (Optional)
 

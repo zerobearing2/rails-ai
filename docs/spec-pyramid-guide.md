@@ -93,7 +93,7 @@ The Specification Pyramid is a four-layer documentation framework that inverts t
 
 ### Visual Representation
 
-```
+```text
                     ┌─────────────────┐
                     │  VISION DOC     │  ← Why & What (Strategic)
                     │   (5-10 pages)  │
@@ -147,13 +147,13 @@ Think of it as **progressive refinement**—each layer adds detail until you rea
 
 **Example Vision Statement:**
 ```
-Multi-Persona Chat is a desktop application that lets users create AI-powered 
-"chat rooms" where multiple Claude personas discuss topics together. Unlike 
-traditional single-AI chat, users get diverse perspectives by having personas 
-with different expertise, communication styles, and viewpoints collaborate 
+Multi-Persona Chat is a desktop application that lets users create AI-powered
+"chat rooms" where multiple Claude personas discuss topics together. Unlike
+traditional single-AI chat, users get diverse perspectives by having personas
+with different expertise, communication styles, and viewpoints collaborate
 on problems.
 
-Target user: Knowledge workers, writers, and decision-makers who want to 
+Target user: Knowledge workers, writers, and decision-makers who want to
 explore ideas from multiple angles without assembling actual human groups.
 ```
 
@@ -223,7 +223,7 @@ interface AppState {
 
 **Solution:** Split architecture into focused sub-documents organized in a directory:
 
-```
+```text
 docs/
 ├── architecture/
 │   ├── index.md              # Overview with links to all sub-docs
@@ -396,8 +396,8 @@ Feature: Message Composer (F-003)
 Title: Implement Token Counter Display
 
 Description:
-Add a real-time token counter to the message input that updates as the 
-user types. Counter should show current tokens and warn when approaching 
+Add a real-time token counter to the message input that updates as the
+user types. Counter should show current tokens and warn when approaching
 model limit (4000 tokens for Claude Sonnet).
 
 Files:
@@ -512,7 +512,7 @@ These principles underpin the entire framework:
 
 **Traditional:** "The interface should be intuitive and easy to navigate."
 
-**Specification Pyramid:** 
+**Specification Pyramid:**
 ```
 Navigation consists of:
 - Sidebar: 240px wide, fixed position, dark gray background (#1F2937)
@@ -557,7 +557,7 @@ Interactions:
 
 Every feature/task lists what must exist first:
 
-```
+```text
 Feature: Message Search
 Dependencies:
 - F-001: Database setup (messages table exists)
@@ -590,7 +590,7 @@ Each task should be:
 
 Happy path + error handling both get equal detail:
 
-```
+```text
 User Flow:
 1. User clicks "Create Room"
 2. System validates name (3-50 chars, alphanumeric + spaces)
@@ -732,8 +732,8 @@ $ npm run dev
 
 #### Option B: Claude Chat (Conversational)
 
-```
-You: I'm building [product name]. Here's my Architecture Doc and Feature Spec 
+```text
+You: I'm building [product name]. Here's my Architecture Doc and Feature Spec
 for [feature name]. [Paste docs]
 
 Can you implement [specific task/component]?
@@ -782,13 +782,13 @@ Let's walk through creating a Specification Pyramid for a simple feature: **User
 ```markdown
 ## Authentication Requirements
 
-Users need a way to securely access their private chat rooms and persona 
-configurations. Since this is a desktop app with no server component, we'll 
+Users need a way to securely access their private chat rooms and persona
+configurations. Since this is a desktop app with no server component, we'll
 use local authentication with encrypted storage.
 
 **Use Case:**
-Sarah launches the app for the first time. She creates a master password, 
-which encrypts her local database. On subsequent launches, she enters her 
+Sarah launches the app for the first time. She creates a master password,
+which encrypts her local database. On subsequent launches, she enters her
 password to unlock the app. If she forgets her password, there's no recovery—
 this is a security feature, not a bug.
 
@@ -826,7 +826,7 @@ CREATE TABLE app_config (
 
 -- Store bcrypt hash of password for change verification
 -- This is separate from SQLCipher encryption key
-INSERT INTO app_config (key, value) VALUES 
+INSERT INTO app_config (key, value) VALUES
   ('password_hash', '[bcrypt hash]');
 ```
 
@@ -845,16 +845,16 @@ INSERT INTO app_config (key, value) VALUES
 interface AuthService {
   // First-time setup
   initializeDatabase(password: string): Promise<void>;
-  
+
   // Unlock database
   unlockDatabase(password: string): Promise<boolean>;
-  
+
   // Change password
   changePassword(oldPassword: string, newPassword: string): Promise<boolean>;
-  
+
   // Lock app
   lockApp(): void;
-  
+
   // Check if locked
   isLocked(): boolean;
 }
@@ -874,7 +874,7 @@ interface AuthService {
 **Dependencies:** F-001 (Database Setup)
 
 ## User Story
-As a user, I need to enter my master password to access the app so that my 
+As a user, I need to enter my master password to access the app so that my
 chat history and personas remain private.
 
 ## Acceptance Criteria
@@ -931,7 +931,7 @@ interface LockScreenState {
 
 ### UI Layout
 
-```
+```text
 ┌─────────────────────────────────────────┐
 │                                         │
 │          🔒 Multi-Persona Chat          │
@@ -956,7 +956,7 @@ interface LockScreenState {
     <h1 className="text-2xl font-bold text-white text-center mb-6">
       🔒 Multi-Persona Chat
     </h1>
-    
+
     <form onSubmit={handleSubmit}>
       <div className="relative mb-4">
         <input
@@ -964,36 +964,36 @@ interface LockScreenState {
           value={password}
           onChange={handlePasswordChange}
           placeholder="Enter password"
-          className="w-full px-4 py-2 bg-gray-700 text-white rounded 
-                     border border-gray-600 focus:border-blue-500 
+          className="w-full px-4 py-2 bg-gray-700 text-white rounded
+                     border border-gray-600 focus:border-blue-500
                      focus:outline-none"
           autoFocus
         />
         <button
           type="button"
           onClick={toggleShowPassword}
-          className="absolute right-3 top-2.5 text-gray-400 
+          className="absolute right-3 top-2.5 text-gray-400
                      hover:text-white"
         >
           {showPassword ? "🙈" : "👁"}
         </button>
       </div>
-      
+
       {error && (
         <div className="text-red-400 text-sm mb-4">{error}</div>
       )}
-      
+
       <button
         type="submit"
         disabled={password.length < 8 || isUnlocking}
-        className="w-full py-2 bg-blue-600 text-white rounded 
-                   hover:bg-blue-700 disabled:bg-gray-600 
+        className="w-full py-2 bg-blue-600 text-white rounded
+                   hover:bg-blue-700 disabled:bg-gray-600
                    disabled:cursor-not-allowed"
       >
         {isUnlocking ? "Unlocking..." : "Unlock"}
       </button>
     </form>
-    
+
     <div className="mt-4 text-sm text-gray-400 text-center">
       ⚠️ No password recovery available<br/>
       Keep your password safe!
@@ -1116,7 +1116,7 @@ return (
       <h1 className="text-2xl font-bold text-white text-center mb-6">
         🔒 Multi-Persona Chat
       </h1>
-      
+
       <form onSubmit={handleSubmit}>
         <div className="relative mb-4">
           <input
@@ -1124,8 +1124,8 @@ return (
             value={state.password}
             onChange={handlePasswordChange}
             placeholder="Enter password"
-            className="w-full px-4 py-2 bg-gray-700 text-white rounded 
-                       border border-gray-600 focus:border-blue-500 
+            className="w-full px-4 py-2 bg-gray-700 text-white rounded
+                       border border-gray-600 focus:border-blue-500
                        focus:outline-none"
             autoFocus
             aria-label="Password"
@@ -1133,35 +1133,35 @@ return (
           <button
             type="button"
             onClick={toggleShowPassword}
-            className="absolute right-3 top-2.5 text-gray-400 
+            className="absolute right-3 top-2.5 text-gray-400
                        hover:text-white transition-colors"
             aria-label={state.showPassword ? "Hide password" : "Show password"}
           >
             {state.showPassword ? "🙈" : "👁"}
           </button>
         </div>
-        
+
         {state.error && (
-          <div 
+          <div
             className="text-red-400 text-sm mb-4 px-3 py-2 bg-red-900/20 rounded"
             role="alert"
           >
             {state.error}
           </div>
         )}
-        
+
         <button
           type="submit"
           disabled={state.password.length < 8 || state.isUnlocking}
-          className="w-full py-2 bg-blue-600 text-white rounded 
-                     hover:bg-blue-700 disabled:bg-gray-600 
+          className="w-full py-2 bg-blue-600 text-white rounded
+                     hover:bg-blue-700 disabled:bg-gray-600
                      disabled:cursor-not-allowed transition-colors
                      font-medium"
         >
           {state.isUnlocking ? "Unlocking..." : "Unlock"}
         </button>
       </form>
-      
+
       <div className="mt-4 text-sm text-gray-400 text-center">
         ⚠️ No password recovery available<br/>
         Keep your password safe!
@@ -1207,7 +1207,7 @@ import { authService } from '../services/auth';
 ```tsx
 const handleSubmit = async (e: FormEvent) => {
   e.preventDefault();
-  
+
   // Check rate limiting
   const now = Date.now();
   if (state.failedAttempts >= 3) {
@@ -1224,12 +1224,12 @@ const handleSubmit = async (e: FormEvent) => {
       setState(prev => ({ ...prev, failedAttempts: 0 }));
     }
   }
-  
+
   setState(prev => ({ ...prev, isUnlocking: true, error: null }));
-  
+
   try {
     const success = await authService.unlockDatabase(state.password);
-    
+
     if (success) {
       onUnlock();
     } else {
@@ -1307,7 +1307,7 @@ useEffect(() => {
       }));
     }
   };
-  
+
   checkDatabase();
 }, []);
 ```
@@ -1322,7 +1322,7 @@ useEffect(() => {
       toggleShowPassword();
     }
   };
-  
+
   window.addEventListener('keydown', handleKeyDown);
   return () => window.removeEventListener('keydown', handleKeyDown);
 }, []);
@@ -1364,131 +1364,131 @@ jest.mock('../../services/auth');
 
 describe('LockScreen', () => {
   const mockOnUnlock = jest.fn();
-  
+
   beforeEach(() => {
     jest.clearAllMocks();
   });
-  
+
   it('renders lock screen with password input', () => {
     render(<LockScreen onUnlock={mockOnUnlock} />);
-    
+
     expect(screen.getByPlaceholderText('Enter password')).toBeInTheDocument();
     expect(screen.getByText('🔒 Multi-Persona Chat')).toBeInTheDocument();
     expect(screen.getByText(/No password recovery available/)).toBeInTheDocument();
   });
-  
+
   it('disables submit button when password is too short', () => {
     render(<LockScreen onUnlock={mockOnUnlock} />);
-    
+
     const submitButton = screen.getByRole('button', { name: /unlock/i });
     expect(submitButton).toBeDisabled();
-    
+
     const input = screen.getByPlaceholderText('Enter password');
     fireEvent.change(input, { target: { value: 'short' } });
-    
+
     expect(submitButton).toBeDisabled();
   });
-  
+
   it('enables submit button when password is 8+ characters', () => {
     render(<LockScreen onUnlock={mockOnUnlock} />);
-    
+
     const input = screen.getByPlaceholderText('Enter password');
     fireEvent.change(input, { target: { value: 'password123' } });
-    
+
     const submitButton = screen.getByRole('button', { name: /unlock/i });
     expect(submitButton).not.toBeDisabled();
   });
-  
+
   it('toggles password visibility', async () => {
     render(<LockScreen onUnlock={mockOnUnlock} />);
-    
+
     const input = screen.getByPlaceholderText('Enter password') as HTMLInputElement;
     expect(input.type).toBe('password');
-    
+
     const toggleButton = screen.getByLabelText(/show password/i);
     fireEvent.click(toggleButton);
-    
+
     expect(input.type).toBe('text');
-    
+
     fireEvent.click(toggleButton);
     expect(input.type).toBe('password');
   });
-  
+
   it('calls onUnlock when correct password is entered', async () => {
     (authService.unlockDatabase as jest.Mock).mockResolvedValue(true);
-    
+
     render(<LockScreen onUnlock={mockOnUnlock} />);
-    
+
     const input = screen.getByPlaceholderText('Enter password');
     fireEvent.change(input, { target: { value: 'correctpassword' } });
-    
+
     const form = screen.getByRole('button', { name: /unlock/i }).closest('form');
     fireEvent.submit(form!);
-    
+
     await waitFor(() => {
       expect(authService.unlockDatabase).toHaveBeenCalledWith('correctpassword');
       expect(mockOnUnlock).toHaveBeenCalled();
     });
   });
-  
+
   it('shows error message for incorrect password', async () => {
     (authService.unlockDatabase as jest.Mock).mockResolvedValue(false);
-    
+
     render(<LockScreen onUnlock={mockOnUnlock} />);
-    
+
     const input = screen.getByPlaceholderText('Enter password');
     fireEvent.change(input, { target: { value: 'wrongpassword' } });
-    
+
     const form = screen.getByRole('button', { name: /unlock/i }).closest('form');
     fireEvent.submit(form!);
-    
+
     await waitFor(() => {
       expect(screen.getByText('Incorrect password')).toBeInTheDocument();
       expect(mockOnUnlock).not.toHaveBeenCalled();
     });
   });
-  
+
   it('implements rate limiting after 3 failed attempts', async () => {
     (authService.unlockDatabase as jest.Mock).mockResolvedValue(false);
-    
+
     render(<LockScreen onUnlock={mockOnUnlock} />);
-    
+
     const input = screen.getByPlaceholderText('Enter password');
     const form = screen.getByRole('button', { name: /unlock/i }).closest('form');
-    
+
     // Fail 3 times
     for (let i = 0; i < 3; i++) {
       fireEvent.change(input, { target: { value: 'wrong' + i } });
       fireEvent.submit(form!);
       await waitFor(() => screen.getByText('Incorrect password'));
     }
-    
+
     // 4th attempt should be rate limited
     fireEvent.change(input, { target: { value: 'wrong4' } });
     fireEvent.submit(form!);
-    
+
     await waitFor(() => {
       expect(screen.getByText(/Too many attempts/)).toBeInTheDocument();
     });
   });
-  
+
   it('clears error message when user types', async () => {
     (authService.unlockDatabase as jest.Mock).mockResolvedValue(false);
-    
+
     render(<LockScreen onUnlock={mockOnUnlock} />);
-    
+
     const input = screen.getByPlaceholderText('Enter password');
     fireEvent.change(input, { target: { value: 'wrongpassword' } });
-    
+
     const form = screen.getByRole('button', { name: /unlock/i }).closest('form');
     fireEvent.submit(form!);
-    
+
     await waitFor(() => {
       expect(screen.getByText('Incorrect password')).toBeInTheDocument();
     });
-    
+
     fireEvent.change(input, { target: { value: 'newattempt' } });
-    
+
     expect(screen.queryByText('Incorrect password')).not.toBeInTheDocument();
   });
 });
@@ -1531,7 +1531,7 @@ By the time you reach Task 5, an LLM has everything it needs to implement this f
 
 ❌ **Bad:** "The app should be fast and responsive."
 
-✅ **Good:** 
+✅ **Good:**
 ```
 Performance Requirements:
 - Message render time: < 50ms for 100 messages
@@ -1606,8 +1606,8 @@ Build Order:
 
 ✅ **Good:**
 ```tsx
-<button className="px-6 py-3 bg-blue-600 hover:bg-blue-700 
-                   text-white font-semibold rounded-lg 
+<button className="px-6 py-3 bg-blue-600 hover:bg-blue-700
+                   text-white font-semibold rounded-lg
                    transition-colors duration-200
                    disabled:bg-gray-400 disabled:cursor-not-allowed">
   Submit
@@ -1649,7 +1649,7 @@ Test Cases:
 
 ❌ **Bad:** Writing all 50 feature specs before building anything
 
-✅ **Good:** 
+✅ **Good:**
 - Write Vision and Architecture fully
 - Write 3-5 foundation feature specs
 - Build those features
@@ -1986,7 +1986,7 @@ Read levels in order. Skip levels only if you're sure you understand.
 
 Create a `/templates` directory:
 
-```
+```text
 templates/
 ├── vision-doc-template.md
 ├── architecture-template.md
@@ -2083,7 +2083,7 @@ export function estimateTokens(text: string): number {
 
 **Short answer:** Only if you're building a quick prototype you'll throw away.
 
-**Long answer:** 
+**Long answer:**
 
 The Specification Pyramid pays for itself when:
 - Your product will be maintained > 3 months
@@ -2135,9 +2135,9 @@ Primary button: bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg
 
 **Too detailed:**
 ```markdown
-The button should use RGB(37, 99, 235) with a hover state of RGB(29, 78, 216), 
-with padding-left of 16px, padding-right of 16px, padding-top of 8px, 
-padding-bottom of 8px, and border-radius of 8px, transitioning over 200ms 
+The button should use RGB(37, 99, 235) with a hover state of RGB(29, 78, 216),
+with padding-left of 16px, padding-right of 16px, padding-top of 8px,
+padding-bottom of 8px, and border-radius of 8px, transitioning over 200ms
 using cubic-bezier(0.4, 0, 0.2, 1)...
 ```
 
@@ -2697,10 +2697,10 @@ interface ElectronAPI {
   // File operations
   readFile: (path: string) => Promise<string>;
   writeFile: (path: string, content: string) => Promise<void>;
-  
+
   // Database operations
   query: (sql: string, params: any[]) => Promise<any[]>;
-  
+
   // Add all IPC methods here
 }
 ```
@@ -2709,7 +2709,7 @@ interface ElectronAPI {
 
 ## File Structure
 
-```
+```text
 project-root/
 ├── src/
 │   ├── main/                  # Electron main process (if applicable)
@@ -2756,17 +2756,17 @@ interface AppState {
   // Current user
   currentUser: User | null;
   setCurrentUser: (user: User | null) => void;
-  
+
   // Projects
   projects: Project[];
   addProject: (project: Project) => void;
   updateProject: (id: string, updates: Partial<Project>) => void;
   removeProject: (id: string) => void;
-  
+
   // UI state
   sidebarOpen: boolean;
   toggleSidebar: () => void;
-  
+
   // Add all state here
 }
 ```
@@ -2781,7 +2781,7 @@ interface AppState {
 class AppError extends Error {
   code: string;
   statusCode: number;
-  
+
   constructor(message: string, code: string, statusCode: number = 500) {
     super(message);
     this.code = code;
@@ -2875,13 +2875,13 @@ interface Props {
 export function MyComponent({ title }: Props) {
   // 4. State
   const [count, setCount] = useState(0);
-  
+
   // 5. Effects
   useEffect(() => {}, []);
-  
+
   // 6. Handlers
   const handleClick = () => {};
-  
+
   // 7. Render
   return <div>{title}</div>;
 }
@@ -2951,7 +2951,7 @@ npm run package          # Package for distribution
 
 **Decisions needed by:** [Date]
 
-```
+```text
 
 ---
 

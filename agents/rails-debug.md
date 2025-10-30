@@ -278,12 +278,15 @@ Core backend patterns for debugging data and controller issues:
 - Verify issues resolved
 - Document findings
 
-## Example References
+## Skills Reference
 
-**Test examples in `.claude/examples/tests/`:**
-- `minitest_best_practices.rb` - Comprehensive Minitest patterns (debugging test failures, TDD)
+**Testing and debugging skills available in the skills registry:**
+- `tdd-minitest` - Comprehensive Minitest patterns (debugging test failures, TDD)
+- `fixtures-test-data` - Fixture patterns for test data
+- `minitest-mocking` - Mocking and stubbing patterns
+- `test-helpers` - Test helper methods and custom assertions
 
-**See `.claude/examples/INDEX.md` for complete catalog.**
+**See `skills/SKILLS_REGISTRY.yml` for the complete skills catalog.**
 
 ---
 

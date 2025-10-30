@@ -54,9 +54,11 @@ The coordinator agent will create a plan, delegate to specialists, and deliver a
 ```
 rails-ai/
 ├── agents/          # 8 specialized Rails agents
-├── examples/        # ~39 Rails code examples
+├── skills/          # 33 modular skills (frontend, backend, testing, security, config)
 ├── rules/           # Team rules and decision matrices
-└── docs/            # Documentation and plan
+├── test/            # Minitest-based skill testing framework
+├── bin/             # Development scripts (setup, ci)
+└── docs/            # Documentation and guides
 ```
 
 ## Philosophy
@@ -68,6 +70,66 @@ This is an **opinionated** Rails agent system that follows:
 - Minitest (no RSpec)
 - TDD always (RED-GREEN-REFACTOR)
 - Peer review workflow
+
+## Development
+
+### Setup
+
+```bash
+# One-time setup
+bin/setup
+
+# Verify installation
+rake -T
+```
+
+### Testing
+
+We use a **two-tier Minitest strategy**:
+
+**Tier 1: Unit Tests** (fast, < 1 second)
+```bash
+rake test:skills:unit              # Run all unit tests
+ruby -Itest test/skills/unit/...   # Run specific test
+```
+
+**Tier 2: Integration Tests** (slow, requires LLM APIs)
+```bash
+export OPENAI_API_KEY="sk-..."
+INTEGRATION=1 rake test:skills:integration
+```
+
+### Quality Checks
+
+```bash
+# Run all checks (linting + unit tests)
+bin/ci
+
+# Run with integration tests
+INTEGRATION=1 bin/ci
+
+# Auto-fix linting issues
+rake lint:fix
+```
+
+### CI/CD
+
+GitHub Actions automatically runs on:
+- ✅ Every push to `master` (linting + unit tests)
+- ✅ Every pull request (linting + unit tests)
+- ❌ Draft PRs are skipped (to save CI time)
+- ❌ Integration tests disabled for now (manual only)
+
+**Note:** Integration tests are currently disabled for automated runs. They can be run manually via the Actions tab when needed.
+
+See [docs/github-actions-setup.md](docs/github-actions-setup.md) for setup instructions.
+
+### Documentation
+
+- [Skill Testing Methodology](docs/skill-testing-methodology.md) - Two-tier testing approach
+- [Development Setup](docs/development-setup.md) - Detailed setup instructions
+- [GitHub Actions Setup](docs/github-actions-setup.md) - CI/CD configuration
+- [Agents System](AGENTS.md) - Agent roles and skill management
 
 ## Roadmap
 

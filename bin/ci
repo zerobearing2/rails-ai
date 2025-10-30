@@ -1,0 +1,183 @@
+#!/usr/bin/env bash
+# Rails AI CI Script
+# Runs all linters and tests in Rails 8.1 style
+
+set -e
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Track overall success
+OVERALL_SUCCESS=true
+
+# Print section header
+print_section() {
+  echo ""
+  echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+  echo -e "${BLUE}$1${NC}"
+  echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+  echo ""
+}
+
+# Print success message
+print_success() {
+  echo -e "${GREEN}✅ $1${NC}"
+}
+
+# Print error message
+print_error() {
+  echo -e "${RED}❌ $1${NC}"
+  OVERALL_SUCCESS=false
+}
+
+# Print warning message
+print_warning() {
+  echo -e "${YELLOW}⚠️  $1${NC}"
+}
+
+# Print info message
+print_info() {
+  echo -e "${BLUE}ℹ️  $1${NC}"
+}
+
+# Check if we're in the right directory
+if [ ! -f "Gemfile" ]; then
+  print_error "Gemfile not found. Please run this script from the project root."
+  exit 1
+fi
+
+# Welcome message
+echo ""
+echo -e "${BLUE}╔═══════════════════════════════════════════╗${NC}"
+echo -e "${BLUE}║       Rails AI - CI Pipeline              ║${NC}"
+echo -e "${BLUE}╚═══════════════════════════════════════════╝${NC}"
+echo ""
+
+# Check if bundle is installed
+if ! command -v bundle &> /dev/null; then
+  print_error "Bundler not installed. Run: gem install bundler"
+  exit 1
+fi
+
+# Install dependencies
+print_section "📦 Installing Dependencies"
+if bundle check &> /dev/null; then
+  print_success "Dependencies already installed"
+else
+  print_info "Installing dependencies..."
+  bundle install
+  print_success "Dependencies installed"
+fi
+
+# ==============================================================================
+# LINTING
+# ==============================================================================
+
+print_section "🔍 Running Linters"
+
+# Ruby linting
+print_info "Linting Ruby files with Rubocop..."
+if bundle exec rubocop; then
+  print_success "Ruby linting passed"
+else
+  print_error "Ruby linting failed"
+  print_info "Run 'rake lint:fix' to auto-fix issues"
+fi
+
+# YAML validation
+print_info "Validating YAML front matter..."
+if bundle exec rake lint:yaml; then
+  print_success "YAML validation passed"
+else
+  print_error "YAML validation failed"
+fi
+
+# Markdown linting (informational only)
+print_info "Linting Markdown files..."
+if bundle exec mdl skills/ docs/ *.md --style .mdl_style.rb; then
+  print_success "Markdown linting passed"
+else
+  print_warning "Markdown linting found issues (informational only)"
+fi
+
+# ==============================================================================
+# TESTING
+# ==============================================================================
+
+print_section "🧪 Running Tests"
+
+# Unit tests (fast)
+print_info "Running unit tests (fast)..."
+START_TIME=$(date +%s)
+if bundle exec rake test:skills:unit; then
+  END_TIME=$(date +%s)
+  DURATION=$((END_TIME - START_TIME))
+  print_success "Unit tests passed in ${DURATION}s"
+else
+  print_error "Unit tests failed"
+fi
+
+# Integration tests (slow, only if INTEGRATION=1)
+if [ "$INTEGRATION" = "1" ]; then
+  print_info "Running integration tests (slow, requires LLM APIs)..."
+  START_TIME=$(date +%s)
+
+  if [ -z "$OPENAI_API_KEY" ] && [ -z "$ANTHROPIC_API_KEY" ]; then
+    print_warning "No LLM API keys found. Skipping integration tests."
+    print_info "Set OPENAI_API_KEY or ANTHROPIC_API_KEY to run integration tests"
+  else
+    if INTEGRATION=1 bundle exec rake test:skills:integration; then
+      END_TIME=$(date +%s)
+      DURATION=$((END_TIME - START_TIME))
+      print_success "Integration tests passed in ${DURATION}s"
+    else
+      print_error "Integration tests failed"
+    fi
+  fi
+else
+  print_info "Integration tests skipped (set INTEGRATION=1 to run)"
+fi
+
+# ==============================================================================
+# TEST COVERAGE REPORT
+# ==============================================================================
+
+print_section "📊 Test Coverage Report"
+bundle exec rake test:skills:report
+
+# ==============================================================================
+# SUMMARY
+# ==============================================================================
+
+print_section "📋 Summary"
+
+if [ "$OVERALL_SUCCESS" = true ]; then
+  echo ""
+  echo -e "${GREEN}╔═══════════════════════════════════════════╗${NC}"
+  echo -e "${GREEN}║           ✅ ALL CHECKS PASSED            ║${NC}"
+  echo -e "${GREEN}╚═══════════════════════════════════════════╝${NC}"
+  echo ""
+  print_success "Ready to commit!"
+  exit 0
+else
+  echo ""
+  echo -e "${RED}╔═══════════════════════════════════════════╗${NC}"
+  echo -e "${RED}║          ❌ SOME CHECKS FAILED            ║${NC}"
+  echo -e "${RED}╚═══════════════════════════════════════════╝${NC}"
+  echo ""
+  print_error "Please fix the errors above before committing"
+
+  # Helpful commands
+  echo ""
+  print_info "Helpful commands:"
+  echo "  rake lint:fix              # Auto-fix Ruby issues"
+  echo "  ruby -Itest TEST_FILE      # Run specific test"
+  echo "  rake test:skills:unit      # Run all unit tests"
+  echo ""
+
+  exit 1
+fi

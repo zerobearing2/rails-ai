@@ -18,7 +18,7 @@ capabilities:
   - accessibility_wcag
   - responsive_design
 
-coordinates_with: [rails-backend, rails-tests, rails-design]
+coordinates_with: [rails, rails-backend, rails-tests]
 
 critical_rules:
   - no_rspec_use_minitest

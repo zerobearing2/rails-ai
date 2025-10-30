@@ -19,7 +19,7 @@ capabilities:
   - dependency_monitoring
   - brakeman_analysis
 
-coordinates_with: [rails-backend, rails-frontend, rails-config]
+coordinates_with: [rails, rails-backend, rails-frontend]
 
 critical_rules:
   - validate_all_user_input

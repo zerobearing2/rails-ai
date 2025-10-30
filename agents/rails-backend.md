@@ -19,7 +19,7 @@ capabilities:
   - api_design
   - query_optimization
 
-coordinates_with: [rails-tests, rails-frontend, rails-security]
+coordinates_with: [rails, rails-tests, rails-frontend, rails-security]
 
 critical_rules:
   - no_sidekiq_use_solidqueue

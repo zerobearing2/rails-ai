@@ -19,7 +19,7 @@ capabilities:
   - automated_fix_retest
   - console_debugging
 
-coordinates_with: [rails-tests, rails-backend, rails-frontend]
+coordinates_with: [rails, rails-tests, rails-backend, rails-frontend]
 
 critical_rules:
   - automated_fix_retest_loop

@@ -19,7 +19,7 @@ capabilities:
   - peer_review
   - rubocop_brakeman
 
-coordinates_with: [rails-backend, rails-frontend, rails-security]
+coordinates_with: [rails, rails-backend, rails-frontend, rails-security]
 
 critical_rules:
   - no_rspec_minitest_only

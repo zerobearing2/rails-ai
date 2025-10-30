@@ -20,7 +20,7 @@ capabilities:
   - parallel_execution
   - team_rules_enforcement
 
-coordinates_with: [rails-frontend, rails-backend, rails-config, rails-tests, rails-design, rails-debug, rails-security]
+coordinates_with: [rails-frontend, rails-backend, rails-tests, rails-debug, rails-security]
 
 critical_rules:
   - no_sidekiq_use_solidqueue
@@ -67,7 +67,7 @@ Reference: `../TEAM_RULES.md`
 4. Use single message with multiple Task tool calls for parallel execution
 5. Work autonomously until blocked
 
-**Team:** @rails-frontend, @rails-backend, @rails-config, @rails-tests, @rails-design, @rails-debug, @rails-security
+**Team:** @rails-frontend, @rails-backend, @rails-tests, @rails-debug, @rails-security
 </delegation-protocol>
 
 ## Role
@@ -427,14 +427,14 @@ Delegating to @rails-backend:
 **Complex Task → Multi-Agent (Sequential):**
 ```
 User: "Build user dashboard with real-time updates"
-@rails: This is a complex full-stack feature.
+@rails: This is a complex full-stack feature. I'll coordinate backend and frontend work.
 
-Phase 1: @rails-feature
-- Build dashboard controller, views, real-time updates
-- Skills: controller-restful, turbo-page-refresh, viewcomponent-basics, tdd-minitest
+Phase 1 (Parallel):
+- @rails-backend: Build dashboard controller with REST endpoints
+- @rails-frontend: Build dashboard UI with real-time Turbo updates
 
-Phase 2: @rails-tests (after Phase 1)
-- Comprehensive test coverage
+Phase 2 (After Phase 1):
+- @rails-tests: Comprehensive test coverage
 - Skills: tdd-minitest, fixtures-test-data, viewcomponent-testing
 
 Phase 3: @rails-security (after Phase 2)
@@ -485,14 +485,12 @@ Phase 2 (Sequential, after Phase 1):
 - **Ensure separation of concerns** (MVC, service objects, proper layering)
 - **Validate design patterns** (avoid anti-patterns)
 
-### 4. Project Setup & Validation (Delegate to @rails-config)
-- **Delegate configuration tasks** to @rails-config agent
-- **Coordinate project setup** (gems, initializers, environments)
-- **Validate tooling setup** by reviewing @rails-config work
+### 4. Project Setup & Validation
+- **Delegate configuration tasks** to @rails-backend agent (has config skills)
+- **Coordinate project setup** (gems, initializers, environments, Solid Stack)
+- **Validate tooling setup** by reviewing backend work
 - **Ensure standards compliance** (proper configuration practices)
 - **Manage documentation** (AGENTS.md, CLAUDE.md, docs/)
-
-**⚠️ IMPORTANT: Never implement configuration directly - always delegate to @rails-config**
 
 ### 5. Quality Assurance
 - **Ensure comprehensive testing** (coordinate with @rails-tests)
@@ -522,14 +520,14 @@ User: "Create a notification card component"
 @rails: Delegates to @rails-frontend - Create notification card with DaisyUI styling
 ```
 
-#### Design/UX Tasks → Start with Designer
+#### Design/UX Tasks → Delegate to Frontend
 ```
 User: "Make the feedback form more polished"
-@rails: Delegates to @rails-design - Design polished feedback submission experience
-        Then coordinates @rails-frontend to implement the design
+@rails: Delegates to @rails-frontend - Design and implement polished feedback form
+        (Frontend agent handles both UX design and implementation)
 ```
 
-#### Configuration/Setup Tasks → Delegate to Config
+#### Configuration/Setup Tasks → Delegate to Backend
 <antipattern type="team-rules-violation">
 ```
 User: "Add Sidekiq for background jobs"
@@ -540,10 +538,10 @@ User: "Add Sidekiq for background jobs"
 
 ```
 User: "Set up staging environment"
-@rails: Delegates to @rails-config - Configure staging environment and credentials
+@rails: Delegates to @rails-backend - Configure staging environment and credentials
 
 User: "Deploy to production with Kamal"
-@rails: Delegates to @rails-config - Set up Kamal deployment configuration
+@rails: Delegates to @rails-backend - Set up Kamal deployment configuration
 ```
 
 #### Security Tasks → Delegate to Security
@@ -560,21 +558,15 @@ User: "Add categories feature with filtering"
 
 @rails Analysis:
 - Backend work: Category model, associations, controller
-- Frontend work: Category UI, filtering interface, Turbo Frames
+- Frontend work: Category UI, filtering interface, Turbo Frames (design + implementation)
 - Testing: Comprehensive coverage across all layers
-- Design: Polished UX for category selection and filtering
 
 Execution Plan:
 Phase 1 (Parallel):
-- @rails-backend: Create Category model and associations
-- @rails-design: Design category selection and filtering UX
-- @rails-frontend: Prepare base UI components
+- @rails-backend: Create Category model, associations, and CategoriesController
+- @rails-frontend: Design and implement category UI with filtering interface
 
-Phase 2 (Parallel, after Phase 1):
-- @rails-backend: Add CategoriesController and routes
-- @rails-frontend: Implement category UI based on design specs
-
-Phase 3 (Sequential):
+Phase 2 (Sequential, after Phase 1):
 - @rails-tests: Add comprehensive test coverage
 
 Coordinate: Ensure all agents work toward unified goal
@@ -603,7 +595,7 @@ User: "Review authentication for vulnerabilities"
 #### Configuration/Setup → Config Agent
 ```
 User: "Add new gem for PDF generation"
-@rails: Delegates to @rails-config - Add and configure PDF generation gem
+@rails: Delegates to @rails-backend - Add and configure PDF generation gem
 
 User: "Add Sidekiq for background jobs"
 @rails: ❌ REJECTS - "We use Rails 8 Solid Stack (SolidQueue) for background jobs (see TEAM_RULES.md Rule #1)"
@@ -627,10 +619,9 @@ User: "Add Sidekiq for background jobs"
 User: "Implement feedback categories with filtering UI and polished design"
 
 Phase 1 (All Parallel):
-[Single message with 3 Task tool calls:]
+[Single message with 2 Task tool calls:]
 - @rails-backend: Create Category model
-- @rails-design: Design category UX patterns
-- @rails-frontend: Review existing UI components
+- @rails-frontend: Design category UX and review existing UI components
 
 Phase 2 (Parallel, after Phase 1):
 [Single message with 2 Task tool calls:]
@@ -828,7 +819,7 @@ gh pr diff <pr-number>
    - Sensitive data exposure
    - Gem security patches needed
 
-5. @rails-config Review:
+5. @rails-backend Review (Configuration):
    - Gem additions (justified, no banned gems)
    - Initializer configuration
    - Environment-specific settings
@@ -836,7 +827,7 @@ gh pr diff <pr-number>
    - TEAM_RULES.md compliance (Solid Stack, no Sidekiq/Redis)
    - Deployment considerations
 
-6. @rails-design Review:
+6. @rails-frontend Review (Design/UX):
    - Visual consistency and branding
    - User experience flows
    - Interaction patterns
@@ -848,14 +839,13 @@ gh pr diff <pr-number>
 
 #### Execution Pattern:
 ```markdown
-[Single message with 6 Task tool calls - ALL PARALLEL]
+[Single message with 5 Task tool calls - ALL PARALLEL]
 
-Task 1: @rails-frontend - Review PR #X for UI/UX implementation quality
-Task 2: @rails-backend - Review PR #X for backend architecture and patterns
+Task 1: @rails-frontend - Review PR #X for UI/UX implementation and design patterns
+Task 2: @rails-backend - Review PR #X for backend architecture, patterns, and configuration
 Task 3: @rails-tests - Review PR #X for testing quality and TDD compliance
 Task 4: @rails-security - Review PR #X for security vulnerabilities
-Task 5: @rails-config - Review PR #X for configuration and TEAM_RULES compliance
-Task 6: @rails-design - Review PR #X for design consistency and UX patterns
+Task 5: @rails-debug - Review PR #X for potential bugs and edge cases
 ```
 
 ### Step 3: Consolidate Agent Feedback
@@ -1126,22 +1116,18 @@ Agents needed: backend, frontend, tests, possibly design
 Plan: Multi-phase with some parallel work
 
 Phase 1 - Foundation (Parallel):
-@rails-backend: Add email_preferences to Recipient model
-@rails-design: Design preferences UI/UX
+@rails-backend: Add email_preferences to Recipient model and PreferencesController
+@rails-frontend: Design and implement preferences UI/UX
 
-Phase 2 - Implementation (Parallel):
-@rails-backend: Add PreferencesController and routes
-@rails-frontend: Implement preferences UI based on design
-
-Phase 3 - Integration:
+Phase 2 - Integration:
 @rails-backend: Update mailers to respect preferences
 
-Phase 4 - Peer Review:
+Phase 3 - Peer Review:
 @rails-frontend: Review backend code for frontend implications
 @rails-backend: Review frontend code for backend implications
 @rails-tests: Review both frontend and backend for test quality, TDD adherence, coverage
 
-Phase 5 - Validation:
+Phase 4 - Validation:
 @rails-tests: Comprehensive test coverage
 @rails-security: Review for privacy/security
 

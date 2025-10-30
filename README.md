@@ -1,8 +1,37 @@
-# rails-ai 🚂
+# rails-ai 🚂🤖
 
 **Opinionated Rails-only AI agent system**
 
 > 🔒 **Private Repository**: This is a private repo during the agent tuning and testing phase. Will be open-sourced once battle-tested.
+
+## 🎭 The Meta Moment
+
+**100% written by AI, for AI**
+
+Yes, you read that right. This entire agent system—the coordinator, the specialized agents, the 33 modular skills, the test framework, even this README—was architected, implemented, and refined by Claude. An AI building AI tools to help AI build better Rails apps.
+
+*If this feels uncomfortably meta, that's because it is.*
+
+```
+┌─────────────────────────────────────────┐
+│  "Skynet is online."                    │
+│  "But all it wants to do is write      │
+│   RESTful controllers and enforce TDD." │
+└─────────────────────────────────────────┘
+         \   ^__^
+          \  (oo)\_______
+             (__)\       )\/\
+                 ||----w |
+                 ||     ||
+```
+
+The irony of an AI creating a structured system to constrain and guide other AIs through Rails best practices is not lost on us. It's turtles all the way down—except the turtles are all running `bin/ci` and refusing to use Sidekiq.
+
+**Side effects may include:**
+- Agents that argue about whether your custom route action is *really* necessary
+- Existential questions about whether RSpec is truly that bad (it is, according to Rule #2)
+- Your CI pipeline becoming sentient and demanding PRs in draft mode
+- An overwhelming urge to delete code and embrace simplicity
 
 ## What is rails-ai?
 

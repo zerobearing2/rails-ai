@@ -17,9 +17,9 @@ Automatically runs quality checks and tests on every PR and push to main.
 - ❌ Skipped on draft PRs (to save CI time)
 
 **Integration Tests** (slow, ~2-5 minutes, requires API keys):
-- ✅ On push to `master` branch only
-- ✅ Manually via workflow_dispatch
-- ❌ Not on PRs (to save API costs)
+- ❌ **Disabled for automated runs** (for now)
+- ✅ Only available via manual workflow_dispatch
+- 💡 Will be enabled later once LLM integration strategy is finalized
 
 #### What it Checks
 
@@ -59,17 +59,19 @@ Protect your `master` branch to require CI checks before merging:
    - Select required check: **All Checks Passed**
 3. Save changes
 
-### 3. Add API Keys for Integration Tests (Optional)
+### 3. Add API Keys for Integration Tests (Future)
+
+**Note:** Integration tests are currently disabled for automated runs. When enabled in the future, they will require API keys.
 
 Integration tests use LLM-as-judge pattern and require API keys.
 
-#### Add Secrets
+#### Add Secrets (when ready)
 
 1. Go to repository **Settings** → **Secrets and variables** → **Actions**
 2. Click **New repository secret**
 3. Add secrets:
 
-   **OpenAI API Key** (recommended):
+   **OpenAI API Key**:
    - Name: `OPENAI_API_KEY`
    - Value: `sk-...` (your OpenAI API key)
 
@@ -80,7 +82,8 @@ Integration tests use LLM-as-judge pattern and require API keys.
 #### Cost Considerations
 
 Integration tests cost ~$0.01 per test run:
-- Only run on `master` branch (not on PRs)
+- Currently: Only manual runs (when you trigger them)
+- Future: May run automatically on `master` branch
 - ~30 LLM API calls per full test suite
 - Use mock provider in development to avoid costs
 
@@ -101,9 +104,11 @@ You can manually trigger workflows from the GitHub UI:
 4. Choose branch
 5. Click **Run workflow**
 
+**Note:** This is currently the **only way to run integration tests**. They do not run automatically.
+
 Useful for:
 - Re-running failed tests
-- Running integration tests on a PR branch
+- Running integration tests manually (requires API keys)
 - Testing workflow changes
 
 ## Viewing Results
@@ -260,12 +265,11 @@ GitHub provides 2,000 CI minutes/month for free (public repos have unlimited).
 
 **Per CI run:**
 - Lint & Unit Tests: ~1 minute
-- Integration Tests: ~3 minutes
 
 **Monthly usage estimate:**
 - 100 PRs × 1 min = 100 minutes
-- 50 main pushes × 4 min (lint + integration) = 200 minutes
-- **Total: ~300 minutes/month** (well under free tier)
+- 50 master pushes × 1 min = 50 minutes
+- **Total: ~150 minutes/month** (well under free tier)
 
 ### LLM API Costs
 
@@ -273,10 +277,11 @@ GitHub provides 2,000 CI minutes/month for free (public repos have unlimited).
 - ~30 LLM API calls
 - ~$0.01 per run (using GPT-4o mini)
 
-**Monthly estimate:**
-- 50 master branch pushes × $0.01 = $0.50/month
-- Weekly manual runs × 4 × $0.01 = $0.04/month
-- **Total: ~$0.54/month**
+**Monthly estimate (manual runs only):**
+- Manual runs (occasional) × $0.01 = Variable
+- **Total: $0-0.10/month** (depends on how often you run them)
+
+**Note:** Integration tests are currently disabled for automated runs, so API costs are minimal and only occur when you manually trigger them.
 
 ## Best Practices
 

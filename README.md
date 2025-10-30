@@ -115,9 +115,12 @@ rake lint:fix
 ### CI/CD
 
 GitHub Actions automatically runs on:
-- ✅ Every push to `master` (full CI + integration tests)
-- ✅ Every pull request (linting + unit tests only)
+- ✅ Every push to `master` (linting + unit tests)
+- ✅ Every pull request (linting + unit tests)
 - ❌ Draft PRs are skipped (to save CI time)
+- ❌ Integration tests disabled for now (manual only)
+
+**Note:** Integration tests are currently disabled for automated runs. They can be run manually via the Actions tab when needed.
 
 See [docs/github-actions-setup.md](docs/github-actions-setup.md) for setup instructions.
 

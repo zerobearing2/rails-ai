@@ -2,8 +2,6 @@
 
 **Opinionated Rails-only AI agent system**
 
-> 🔒 **Private Repository**: This is a private repo during the agent tuning and testing phase. Will be open-sourced once battle-tested.
-
 ## 🎭 The Meta Moment
 
 **100% written by AI, for AI**
@@ -37,15 +35,9 @@ The irony of an AI creating a structured system to constrain and guide other AIs
 
 A **Claude Code plugin** providing 6 specialized AI agents for opinionated Ruby on Rails development. Agents work together following Rails conventions and 37signals-inspired best practices.
 
-## Current Status: Agent Tuning Phase
+## Current Status
 
-This project is currently **private** and in active development. We're:
-- 🔧 Tuning and refining the 6 specialized agents
-- 🧪 Testing across real Rails projects
-- 📝 Gathering examples and patterns
-- 🎯 Improving decision matrices and rules
-
-**Will open source** once the agents are refined and battle-tested.
+This project is **open source** and actively maintained. We welcome contributions!
 
 ## Features
 
@@ -215,20 +207,34 @@ See [docs/github-actions-setup.md](docs/github-actions-setup.md) for setup instr
 
 ## Roadmap
 
-### Phase 1: Private Tuning (Current)
-- ✅ Simplify directory structure
+### Current
 - ✅ Skills-based architecture with testing framework
-- 🔜 Create global installer
-- 🔜 Test across multiple Rails projects
-- 🔜 Refine agents based on real usage
-- 🔜 Document learnings
+- ✅ Claude Code plugin support
+- ✅ MIT License and open source
+- 🔜 Expand skill coverage
+- 🔜 Improve agent coordination
+- 🔜 Add more real-world examples
+- 🔜 Enhanced Cursor support
 
-### Phase 2: Open Source Release (Future)
-- Clean up and finalize agents
-- Complete documentation
-- Add MIT license
-- Public release with announcement
+## Contributing
+
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+Before contributing, please review:
+- [Code of Conduct](CODE_OF_CONDUCT.md)
+- [Security Policy](SECURITY.md)
+- Development setup instructions above
+
+## License
+
+MIT License - see [LICENSE](LICENSE) for details.
 
 ## Credits
 
 Inspired by 37signals' philosophy of simple, conventional Rails development.
+
+## Support
+
+- Report bugs or request features via [GitHub Issues](https://github.com/zerobearing2/rails-ai/issues)
+- Check the [documentation](docs/) for guides and help
+- Review [CONTRIBUTING.md](CONTRIBUTING.md) for development questions

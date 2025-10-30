@@ -289,21 +289,20 @@ Test examples
   - Establishes testing requirements
   - Shows skill dependency graph
 
-**8 Agents Defined:**
-1. **Coordinator** (`agents/rails.md`) - Skills registry/librarian, routes tasks
-2. **Feature** (`agents/feature.md`) - Full-stack feature development
-3. **Debugger** (`agents/debugger.md`) - Testing and debugging
-4. **Refactor** (`agents/refactor.md`) - Code quality and patterns
-5. **Security** (`agents/security.md`) - Security auditing and fixes
-6. **Test** (`agents/test.md`) - Test writing and coverage
-7. **UI** (`agents/ui.md`) - Frontend/UI development
-8. **API** (`agents/api.md`) - Backend API development
+**6 Agents Defined:**
+1. **Coordinator** (`agents/rails.md`) - Architect, skills registry, routes tasks
+2. **Backend** (`agents/rails-backend.md`) - Backend API + config + refactoring
+3. **Frontend** (`agents/rails-frontend.md`) - Frontend UI + design/UX
+4. **Security** (`agents/rails-security.md`) - Security auditing and fixes
+5. **Debugger** (`agents/rails-debug.md`) - Testing and debugging
+6. **Test** (`agents/rails-tests.md`) - Test writing and coverage
 
-**Agent Skill Presets (examples):**
-- Coordinator: ALL skills (registry)
-- Feature: 13 skills (frontend + backend + testing + security + config)
-- UI: 13 skills (all frontend)
-- API: 17 skills (backend + security)
+**Agent Skill Presets:**
+- Coordinator: ALL 33 skills (registry/librarian)
+- Backend: 19 skills (backend + security + config)
+- Frontend: 14 skills (all frontend + testing)
+- Security: 10 skills (all security + backend + config)
+- Debugger: 8 skills (testing + backend)
 - Test: 6 skills (all testing)
 
 **Key Decision: Coordinator as Registry**
@@ -584,7 +583,7 @@ INTEGRATION=1 bin/ci        # Include integration tests (requires API keys)
 
 ### Overview
 
-Update all 8 agents to dynamically load and use skills. The coordinator agent has been fully updated with machine-first optimization, external YAML registries, and bidirectional linking. Specialized agents are pending.
+Update all 6 agents to dynamically load and use skills. The coordinator agent has been fully updated with machine-first optimization, external YAML registries, and bidirectional linking. All specialized agents have been updated with skills-based architecture.
 
 ### Completed Tasks ✅
 
@@ -937,8 +936,8 @@ gh pr view 1                 # View PR details
 ✅ Coordinator agent has skills registry
 ✅ Coordinator can suggest skills for tasks
 ✅ Coordinator routes to appropriate agents
-✅ All 8 agents have skill loading instructions
-✅ All 8 agents reference their skill presets
+✅ All 6 agents have skill loading instructions
+✅ All 6 agents reference their skill presets
 ✅ Agents tested with real tasks
 ✅ Agent testing notes documented
 ✅ Test coverage increased (target: 20%+ = 7+ skills)

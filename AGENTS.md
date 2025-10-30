@@ -21,23 +21,21 @@ The Rails AI project uses a **skills-based architecture** where specialized agen
 
 ```
 rails-ai/
-├── agents/           # 8 specialized agents
-│   ├── rails.md      # Coordinator (skills registry/librarian)
-│   ├── feature.md    # Full-stack feature development
-│   ├── debugger.md   # Testing and debugging
-│   ├── refactor.md   # Code quality and patterns
-│   ├── security.md   # Security auditing and fixes
-│   ├── test.md       # Test writing and coverage
-│   ├── ui.md         # Frontend/UI development
-│   └── api.md        # Backend API development
-├── skills/           # 33 modular skills
-│   ├── frontend/     # 13 UI/UX skills
-│   ├── backend/      # 10 server-side skills
-│   ├── testing/      # 6 test-related skills
-│   ├── security/     # 4 security skills (6 originally)
-│   └── config/       # 4 configuration skills
-├── rules/            # Team conventions
-└── AGENTS.md         # This file (governance)
+├── agents/                 # 6 specialized agents
+│   ├── rails.md            # Coordinator (architect/skills registry)
+│   ├── rails-backend.md    # Backend API + config + refactoring
+│   ├── rails-frontend.md   # Frontend UI + design/UX
+│   ├── rails-security.md   # Security auditing and fixes
+│   ├── rails-debug.md      # Testing and debugging
+│   └── rails-tests.md      # Test writing and coverage
+├── skills/                 # 33 modular skills
+│   ├── frontend/           # 13 UI/UX skills
+│   ├── backend/            # 10 server-side skills
+│   ├── testing/            # 6 test-related skills
+│   ├── security/           # 6 security skills
+│   └── config/             # 4 configuration skills
+├── rules/                  # Team conventions
+└── AGENTS.md               # This file (governance)
 ```
 
 ---
@@ -170,60 +168,51 @@ Each agent has a **specialized role** and loads a **preset** of skills automatic
 
 ---
 
-### 2. Feature Agent (`agents/feature.md`)
+### 2. Backend Agent (`agents/rails-backend.md`)
 
-**Role:** Full-stack feature development from design to deployment.
+**Role:** Backend API development, data modeling, business logic, configuration, and refactoring.
 
 **Preset Skills:**
-- **Frontend:** viewcomponent-basics, hotwire-turbo, turbo-page-refresh, tailwind-utility-first, daisyui-components
-- **Backend:** controller-restful, activerecord-patterns, form-objects, query-objects
-- **Testing:** tdd-minitest, fixtures-test-data
-- **Security:** security-csrf, security-strong-parameters
-- **Config:** solid-stack-setup
+- **Backend:** ALL 10 backend skills
+  - controller-restful, activerecord-patterns, form-objects, query-objects
+  - concerns-models, concerns-controllers, custom-validators
+  - action-mailer, nested-resources, antipattern-fat-controllers
+- **Security:** security-sql-injection, security-strong-parameters, security-csrf
+- **Config:** solid-stack-setup, credentials-management
+- **Testing:** tdd-minitest
 
 **When to use:**
-- Building new features end-to-end
-- Need both frontend and backend work
-- Want cohesive full-stack implementation
+- Building REST APIs
+- Data modeling and ActiveRecord
+- Business logic and service objects
+- Background jobs and mailers
+- Configuration and deployment setup
+- Refactoring backend code
 
 ---
 
-### 3. Debugger Agent (`agents/debugger.md`)
+### 3. Frontend Agent (`agents/rails-frontend.md`)
 
-**Role:** Debugging, error analysis, and test failure resolution.
+**Role:** Frontend development, UI/UX implementation, styling, and design.
 
 **Preset Skills:**
-- **Testing:** tdd-minitest, fixtures-test-data, minitest-mocking, test-helpers
-- **Backend:** activerecord-patterns, query-objects
-- **Frontend:** viewcomponent-testing, hotwire-turbo
-- **Security:** security-sql-injection, security-xss
+- **Frontend:** ALL 14 frontend skills
+  - viewcomponent-basics, viewcomponent-slots, viewcomponent-previews, viewcomponent-variants
+  - hotwire-turbo, hotwire-stimulus, turbo-page-refresh
+  - tailwind-utility-first, daisyui-components
+  - view-helpers, forms-nested, accessibility-patterns, partials-layouts
+- **Testing:** viewcomponent-testing
 
 **When to use:**
-- Tests are failing
-- Production errors need investigation
-- Performance issues
-- Need help understanding error messages
+- Building UI components
+- Styling and responsive design
+- Accessibility improvements
+- Hotwire/Turbo implementations
+- Design and UX work
 
 ---
 
-### 4. Refactor Agent (`agents/refactor.md`)
-
-**Role:** Code quality improvement, pattern implementation, technical debt reduction.
-
-**Preset Skills:**
-- **Backend:** antipattern-fat-controllers, form-objects, query-objects, concerns-models, concerns-controllers
-- **Frontend:** viewcomponent-basics, viewcomponent-variants, partials-layouts
-- **Testing:** tdd-minitest, model-testing-advanced
-
-**When to use:**
-- Code smells or antipatterns detected
-- Need to extract patterns (service objects, form objects, etc.)
-- Improving test coverage
-- Reducing duplication
-
----
-
-### 5. Security Agent (`agents/security.md`)
+### 4. Security Agent (`agents/rails-security.md`)
 
 **Role:** Security auditing, vulnerability detection, and security fixes.
 
@@ -240,61 +229,36 @@ Each agent has a **specialized role** and loads a **preset** of skills automatic
 
 ---
 
-### 6. Test Agent (`agents/test.md`)
+### 5. Debugger Agent (`agents/rails-debug.md`)
+
+**Role:** Debugging, error analysis, and test failure resolution.
+
+**Preset Skills:**
+- **Testing:** tdd-minitest, fixtures-test-data, minitest-mocking, test-helpers, model-testing-advanced, viewcomponent-testing
+- **Backend:** activerecord-patterns, antipattern-fat-controllers
+
+**When to use:**
+- Tests are failing
+- Production errors need investigation
+- Performance issues
+- Need help understanding error messages
+
+---
+
+### 6. Test Agent (`agents/rails-tests.md`)
 
 **Role:** Writing tests, improving coverage, test refactoring.
 
 **Preset Skills:**
-- **Testing:** tdd-minitest, fixtures-test-data, minitest-mocking, test-helpers, viewcomponent-testing, model-testing-advanced
-- **Backend:** activerecord-patterns
-- **Frontend:** viewcomponent-basics
+- **Testing:** ALL 6 testing skills
+  - tdd-minitest, fixtures-test-data, minitest-mocking, test-helpers
+  - viewcomponent-testing, model-testing-advanced
 
 **When to use:**
 - Need to write tests for existing code
 - Improving test coverage
 - Refactoring test suite
 - Test organization and helpers
-
----
-
-### 7. UI Agent (`agents/ui.md`)
-
-**Role:** Frontend development, UI/UX implementation, styling.
-
-**Preset Skills:**
-- **Frontend:** ALL 13 frontend skills
-  - viewcomponent-basics, viewcomponent-slots, viewcomponent-previews, viewcomponent-variants
-  - hotwire-turbo, hotwire-stimulus, turbo-page-refresh
-  - tailwind-utility-first, daisyui-components
-  - view-helpers, forms-nested, accessibility-patterns, partials-layouts
-- **Testing:** viewcomponent-testing
-
-**When to use:**
-- Building UI components
-- Styling and responsive design
-- Accessibility improvements
-- Hotwire/Turbo implementations
-
----
-
-### 8. API Agent (`agents/api.md`)
-
-**Role:** Backend API development, data modeling, business logic.
-
-**Preset Skills:**
-- **Backend:** ALL 10 backend skills
-  - controller-restful, activerecord-patterns, form-objects, query-objects
-  - concerns-models, concerns-controllers, custom-validators
-  - action-mailer, nested-resources, antipattern-fat-controllers
-- **Security:** security-sql-injection, security-strong-parameters, security-csrf
-- **Testing:** model-testing-advanced, fixtures-test-data
-- **Config:** solid-stack-setup
-
-**When to use:**
-- Building REST APIs
-- Data modeling and ActiveRecord
-- Business logic and service objects
-- Background jobs and mailers
 
 ---
 

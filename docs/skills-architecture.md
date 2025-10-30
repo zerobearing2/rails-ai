@@ -192,13 +192,6 @@ agents:
       - tdd-workflow
       - viewcomponent-testing
 
-  rails-config:
-    role: "Configuration specialist"
-    auto_load_skills:
-      - solid-stack-setup
-      - initializers-best-practices
-      - credentials-management
-
   rails-security:
     role: "Security specialist"
     auto_load_skills:
@@ -206,13 +199,6 @@ agents:
       - security-sql-injection
       - security-csrf
       - security-file-uploads
-
-  rails-design:
-    role: "Design specialist"
-    auto_load_skills:
-      - tailwind-utility-first
-      - daisyui-components
-      - accessibility-patterns
 
   rails-debug:
     role: "Debugging specialist"
@@ -331,7 +317,7 @@ When user directs you to load a skill:
 
 1. **Create skills/ directory**
 2. **Update coordinator (rails.md)** with skills registry
-3. **Update all 8 agents** with skill loading protocol
+3. **Update all 6 agents** with skill loading protocol
 4. **Create AGENTS.md** with default preset configurations
 
 ### Phase 2: Port Examples to Skills
@@ -409,9 +395,9 @@ Config Examples → Skills:
 - [ ] Update `agents/rails-frontend.md` with loading protocol
 - [ ] Update `agents/rails-backend.md` with loading protocol
 - [ ] Update `agents/rails-tests.md` with loading protocol
-- [ ] Update `agents/rails-config.md` with loading protocol
+- [ ] Update `agents/rails-backend.md` with loading protocol
 - [ ] Update `agents/rails-security.md` with loading protocol
-- [ ] Update `agents/rails-design.md` with loading protocol
+- [ ] Update `agents/rails-frontend.md` with loading protocol
 - [ ] Update `agents/rails-debug.md` with loading protocol
 - [ ] Port first 10-15 critical examples to skills
 - [ ] Test skill loading in real scenario

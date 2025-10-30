@@ -125,7 +125,7 @@ Patterns: `gem "sidekiq"`, `Redis.new`, `Dalli::Client`
 <enforcement action="REJECT" severity="critical">
 **Action:** Immediately reject request
 **Response:** "We use Rails 8 Solid Stack per TEAM_RULES.md Rule #1"
-**Redirect:** "SolidQueue/SolidCache/SolidCable already configured"
+**Redirect:** "SolidQueue/SolidCache/SolidCable already configured - delegating to @backend for implementation"
 </enforcement>
 
 <implementation-skills>
@@ -154,7 +154,7 @@ Patterns: `gem "rspec-rails"`, `RSpec.describe`, `context "when"`
 <enforcement action="REJECT" severity="critical">
 **Action:** Immediately reject request
 **Response:** "We use Minitest only per TEAM_RULES.md Rule #2"
-**Redirect:** "Delegating to @rails-tests to help with Minitest"
+**Redirect:** "Delegating to @tests to help with Minitest"
 </enforcement>
 
 <implementation-skills>
@@ -186,7 +186,7 @@ Patterns: `member do`, `collection do`, `post :publish`, `get :archive`
 <enforcement action="REJECT" severity="critical">
 **Action:** Immediately reject request
 **Response:** "We use RESTful resources only per TEAM_RULES.md Rule #3"
-**Redirect:** "Create nested child controller (e.g., `Feedbacks::PublicationsController` in `app/controllers/feedbacks/`)"
+**Redirect:** "Create nested child controller (e.g., `Feedbacks::PublicationsController` in `app/controllers/feedbacks/`) - delegating to @backend"
 </enforcement>
 
 <implementation-skills>
@@ -290,7 +290,7 @@ test/controllers/feedbacks/sendings_controller_test.rb  # Test structure mirrors
 
 **Type:** Workflow governance (no implementation skill)
 
-✅ **REQUIRE:** Coordinator (@rails) reviews all work before completion
+✅ **REQUIRE:** Coordinator (@architect) reviews all work before completion
 ❌ **REJECT:** Agents marking work complete without coordinator review
 
 **Why:** Maintains consistency, standards, and architectural integrity.

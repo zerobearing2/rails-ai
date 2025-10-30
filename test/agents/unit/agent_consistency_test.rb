@@ -13,12 +13,12 @@ class AgentConsistencyTest < Minitest::Test
 
   def test_required_agents_exist
     required_agents = [
-      "rails.md",           # Coordinator
-      "rails-backend.md",   # Backend API + config + refactoring
-      "rails-frontend.md",  # Frontend UI + design/UX
-      "rails-security.md",  # Security audits
-      "rails-debug.md",     # Debugging
-      "rails-tests.md"      # Testing
+      "architect.md",  # Coordinator
+      "backend.md",    # Backend API + config + refactoring
+      "frontend.md",   # Frontend UI + design/UX
+      "security.md",   # Security audits
+      "debug.md",      # Debugging
+      "tests.md"       # Testing
     ]
 
     required_agents.each do |agent|
@@ -29,15 +29,21 @@ class AgentConsistencyTest < Minitest::Test
 
   def test_no_legacy_agents_exist
     legacy_agents = [
-      "rails-config.md",
-      "rails-design.md",
-      "rails-feature.md",
-      "rails-refactor.md"
+      "config.md",
+      "design.md",
+      "feature.md",
+      "refactor.md",
+      "rails.md",
+      "rails-backend.md",
+      "rails-frontend.md",
+      "rails-security.md",
+      "rails-debug.md",
+      "rails-tests.md"
     ]
 
     legacy_agents.each do |agent|
       refute_path_exists "agents/#{agent}",
-                         "Legacy agent '#{agent}' should not exist (removed in 6-agent refactor)"
+                         "Legacy agent '#{agent}' should not exist (renamed to new convention)"
     end
   end
 
@@ -64,9 +70,9 @@ class AgentConsistencyTest < Minitest::Test
     existing_agents = Dir.glob("agents/*.md").map { |f| File.basename(f, ".md") }
 
     keyword_lookup.each_value do |agent|
-      agent_name = agent.to_s.split.first # Handle "rails (orchestrate PR review)"
+      agent_name = agent.to_s.split.first # Handle "architect (orchestrate PR review)"
 
-      if agent_name.start_with?("rails")
+      if agent_name.match?(/^(architect|backend|frontend|tests|security|debug)$/)
         assert_includes existing_agents, agent_name,
                         "DECISION_MATRICES.yml references non-existent agent '#{agent_name}'"
       end

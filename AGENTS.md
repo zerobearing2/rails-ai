@@ -22,12 +22,12 @@ The Rails AI project uses a **skills-based architecture** where specialized agen
 ```text
 rails-ai/
 ├── agents/                 # 6 specialized agents
-│   ├── rails.md            # Coordinator (architect/skills registry)
-│   ├── rails-backend.md    # Backend API + config + refactoring
-│   ├── rails-frontend.md   # Frontend UI + design/UX
-│   ├── rails-security.md   # Security auditing and fixes
-│   ├── rails-debug.md      # Testing and debugging
-│   └── rails-tests.md      # Test writing and coverage
+│   ├── architect.md        # Coordinator (architect/skills registry)
+│   ├── backend.md          # Backend API + config + refactoring
+│   ├── frontend.md         # Frontend UI + design/UX
+│   ├── security.md         # Security auditing and fixes
+│   ├── debug.md            # Testing and debugging
+│   └── tests.md            # Test writing and coverage
 ├── skills/                 # 33 modular skills
 │   ├── frontend/           # 13 UI/UX skills
 │   ├── backend/            # 10 server-side skills
@@ -152,7 +152,7 @@ Test examples
 
 Each agent has a **specialized role** and loads a **preset** of skills automatically.
 
-### 1. Coordinator (`agents/rails.md`)
+### 1. Coordinator (`agents/architect.md`)
 
 **Role:** Skills registry and librarian. Routes tasks to specialized agents.
 
@@ -168,7 +168,7 @@ Each agent has a **specialized role** and loads a **preset** of skills automatic
 
 ---
 
-### 2. Backend Agent (`agents/rails-backend.md`)
+### 2. Backend Agent (`agents/backend.md`)
 
 **Role:** Backend API development, data modeling, business logic, configuration, and refactoring.
 
@@ -191,7 +191,7 @@ Each agent has a **specialized role** and loads a **preset** of skills automatic
 
 ---
 
-### 3. Frontend Agent (`agents/rails-frontend.md`)
+### 3. Frontend Agent (`agents/frontend.md`)
 
 **Role:** Frontend development, UI/UX implementation, styling, and design.
 
@@ -212,7 +212,7 @@ Each agent has a **specialized role** and loads a **preset** of skills automatic
 
 ---
 
-### 4. Security Agent (`agents/rails-security.md`)
+### 4. Security Agent (`agents/security.md`)
 
 **Role:** Security auditing, vulnerability detection, and security fixes.
 
@@ -229,7 +229,7 @@ Each agent has a **specialized role** and loads a **preset** of skills automatic
 
 ---
 
-### 5. Debugger Agent (`agents/rails-debug.md`)
+### 5. Debugger Agent (`agents/debug.md`)
 
 **Role:** Debugging, error analysis, and test failure resolution.
 
@@ -245,7 +245,7 @@ Each agent has a **specialized role** and loads a **preset** of skills automatic
 
 ---
 
-### 6. Test Agent (`agents/rails-tests.md`)
+### 6. Test Agent (`agents/tests.md`)
 
 **Role:** Writing tests, improving coverage, test refactoring.
 
@@ -521,7 +521,7 @@ Remove skill preset from agent-name: skill-name
 ## Next Steps (Phase 2)
 
 1. ✅ **Skills Migration Complete** - All 33 skills ported
-2. **Update Coordinator** - Add skills registry to `agents/rails.md`
+2. **Update Coordinator** - Add skills registry to `agents/architect.md`
 3. **Update All Agents** - Add skill loading protocol and presets
 4. **Test Skill Loading** - Verify agents can access and use skills
 5. **Create Install Script** - Global symlink installation (`install.sh`)

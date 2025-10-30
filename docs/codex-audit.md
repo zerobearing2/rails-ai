@@ -26,7 +26,7 @@
 **Status:** Fixed in commit 2fc153d
 
 **What was fixed:**
-- ✅ Updated README.md: 8 agents → 6 agents (Coordinator, Frontend, Backend, Tests, Security, Debug)
+- ✅ Updated README.md: 8 agents → 6 agents (Architect/Coordinator, Frontend, Backend, Tests, Security, Debug)
 - ✅ Removed references to non-existent "39+ Code Examples"
 - ✅ Updated project structure to show `skills/` (33 modular skills) instead of `examples/`
 - ✅ Fixed docs/plan.md to reflect 6 agents and skills-based architecture
@@ -43,7 +43,7 @@
 **Status:** Not started
 
 **Issues to address:**
-- Multiple agents tell the operator to call Anthropic MCP tools such as `mcp__context7__resolve-library-id` and `mcp__context7__get-library-docs` (`agents/rails.md:91-126`, `agents/rails-frontend.md:215-242`, `agents/rails-backend.md:311-335`, `agents/rails-tests.md:257-287`, `agents/rails-debug.md:290-317`, `agents/rails-security.md:224-249`). Codex and Cursor do not expose MCP, so these instructions will fail outright.
+- Multiple agents tell the operator to call Anthropic MCP tools such as `mcp__context7__resolve-library-id` and `mcp__context7__get-library-docs` (`agents/architect.md:91-126`, `agents/frontend.md:215-242`, `agents/backend.md:311-335`, `agents/tests.md:257-287`, `agents/debug.md:290-317`, `agents/security.md:224-249`). Codex and Cursor do not expose MCP, so these instructions will fail outright.
 - `rules/SHARED_CONTEXT.md` bakes the same MCP dependency into the shared context (`rules/SHARED_CONTEXT.md:423-460`).
 
 **Recommendation:** Abstract documentation lookups behind a neutral helper (e.g., "consult official docs/manual links") and gate MCP-specific guidance so Claude can still use it without breaking other runtimes.
@@ -59,15 +59,15 @@
 
 **What was fixed:**
 - ✅ Replaced all `.claude/examples/` references with `skills/SKILLS_REGISTRY.yml` references in agent files
-- ✅ Updated `agents/rails-frontend.md`: Changed examples references to skills registry (14+ skills listed)
-- ✅ Updated `agents/rails-backend.md`: Changed examples references to skills registry
-- ✅ Updated `agents/rails-tests.md`: Replaced 14+ occurrences of `.claude/examples/tests/` with skills references
-- ✅ Updated `agents/rails-debug.md`: Changed to reference skills registry
+- ✅ Updated `agents/frontend.md`: Changed examples references to skills registry (14+ skills listed)
+- ✅ Updated `agents/backend.md`: Changed examples references to skills registry
+- ✅ Updated `agents/tests.md`: Replaced 14+ occurrences of `.claude/examples/tests/` with skills references
+- ✅ Updated `agents/debug.md`: Changed to reference skills registry
 - ✅ Fixed `rules/SHARED_CONTEXT.md`: Changed `.claude/` import paths to repo-relative `rules/` paths
 - ✅ Added note about cross-platform compatibility (works in Claude Code, Cursor, and Codex)
 
 **Original Issues:**
-- Agents repeatedly cite `.claude/examples/...` even though the examples directory was removed (`agents/rails-frontend.md:193-209`, `agents/rails-backend.md:287-305`, `agents/rails-tests.md:236-605`, `agents/rails-debug.md:283-286`). Cursor/Codex installs will have no way to follow those references.
+- Agents repeatedly cite `.claude/examples/...` even though the examples directory was removed (`agents/frontend.md:193-209`, `agents/backend.md:287-305`, `agents/tests.md:236-605`, `agents/debug.md:283-286`). Cursor/Codex installs will have no way to follow those references.
 - Shared context instructs agents to `<import src=".claude/SHARED_CONTEXT.md#…">`, which points at a non-existent location for Cursor/Codex (`rules/SHARED_CONTEXT.md:598-608`).
 
 ### 4. Claude-Specific Operational Assumptions 🔜 TODO
@@ -75,8 +75,8 @@
 **Status:** Not started
 
 **Issues to address:**
-- Coordinator workflows assume Claude's "Task tool" for parallel dispatch (`agents/rails.md:67`, `rules/DECISION_MATRICES.yml:219`); Codex and Cursor do not expose that tool name or semantics.
-- Several docs reference a missing `CLAUDE.md` to source version info and workflow rules (`agents/rails.md:117-127`, `docs/STATUS.md:527`, `docs/STATUS.md:889`).
+- Coordinator workflows assume Claude's "Task tool" for parallel dispatch (`agents/architect.md:67`, `rules/DECISION_MATRICES.yml:219`); Codex and Cursor do not expose that tool name or semantics.
+- Several docs reference a missing `CLAUDE.md` to source version info and workflow rules (`agents/architect.md:117-127`, `docs/STATUS.md:527`, `docs/STATUS.md:889`).
 - Commit template hard-codes "🤖 Generated with Claude Code" (`rules/SHARED_CONTEXT.md:498-507`), which is inaccurate for Codex/Cursor usage.
 
 **Recommendation:** Rewrite operational guidance in tool-agnostic terms (e.g., "issue multiple requests in parallel when supported"), supply a vendor-neutral configuration file, and update commit templates to reflect the active assistant.

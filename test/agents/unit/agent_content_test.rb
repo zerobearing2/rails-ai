@@ -12,7 +12,7 @@ class AgentContentTest < Minitest::Test
 
   # Test that agents have required markdown sections
   def test_specialized_agents_have_required_sections
-    specialized_agents = @agent_files.reject { |f| f.include?("rails.md") }
+    specialized_agents = @agent_files.reject { |f| f.include?("architect.md") }
 
     required_sections = [
       /##\s+Role/i,
@@ -34,7 +34,7 @@ class AgentContentTest < Minitest::Test
 
   # Test that coordinator has appropriate sections
   def test_coordinator_has_required_sections
-    coordinator = @agent_files.find { |f| f.include?("rails.md") }
+    coordinator = @agent_files.find { |f| f.include?("architect.md") }
     content = File.read(coordinator)
 
     required_sections = [
@@ -50,7 +50,7 @@ class AgentContentTest < Minitest::Test
 
   # Test that skill names mentioned in preset sections exist in registry
   def test_skill_presets_reference_valid_skills
-    specialized_agents = @agent_files.reject { |f| f.include?("rails.md") }
+    specialized_agents = @agent_files.reject { |f| f.include?("architect.md") }
 
     specialized_agents.each do |file|
       content = File.read(file)
@@ -73,7 +73,7 @@ class AgentContentTest < Minitest::Test
 
   # Test that agents have valid YAML metadata fields
   def test_agents_have_complete_metadata
-    specialized_agents = @agent_files.reject { |f| f.include?("rails.md") }
+    specialized_agents = @agent_files.reject { |f| f.include?("architect.md") }
 
     specialized_agents.each do |file|
       yaml = extract_yaml_front_matter(file)
@@ -117,7 +117,7 @@ class AgentContentTest < Minitest::Test
 
   # Test that security agent has critical priority
   def test_security_agent_has_critical_priority
-    security_agent = @agent_files.find { |f| f.include?("rails-security.md") }
+    security_agent = @agent_files.find { |f| f.include?("security.md") }
     yaml = extract_yaml_front_matter(security_agent)
 
     assert_equal "critical", yaml["priority"],
@@ -136,8 +136,8 @@ class AgentContentTest < Minitest::Test
 
       integration_section = Regexp.last_match(1)
 
-      # Extract @agent references like @rails-backend, @rails-frontend
-      agent_refs = integration_section.scan(/@(rails(?:-\w+)?)/)
+      # Extract @agent references like @backend, @frontend, @architect
+      agent_refs = integration_section.scan(/@(architect|backend|frontend|tests|security|debug)/)
 
       agent_refs.flatten.uniq.each do |agent_name|
         assert_includes existing_agents, agent_name,
@@ -161,7 +161,7 @@ class AgentContentTest < Minitest::Test
 
   # Test that critical rules exist where appropriate
   def test_security_agent_has_critical_rules
-    security_agent = @agent_files.find { |f| f.include?("rails-security.md") }
+    security_agent = @agent_files.find { |f| f.include?("security.md") }
     yaml = extract_yaml_front_matter(security_agent)
     content = File.read(security_agent)
 
@@ -177,7 +177,7 @@ class AgentContentTest < Minitest::Test
 
   # Test that workflows are specified
   def test_specialized_agents_have_workflow
-    specialized_agents = @agent_files.reject { |f| f.include?("rails.md") }
+    specialized_agents = @agent_files.reject { |f| f.include?("architect.md") }
 
     specialized_agents.each do |file|
       yaml = extract_yaml_front_matter(file)

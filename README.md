@@ -74,12 +74,12 @@ Install rails-ai as a Claude Code plugin:
 
 3. **Start using agents:**
    ```
-   @rails - Main Rails coordinator
-   @rails-backend - Backend specialist
-   @rails-frontend - Frontend specialist
-   @rails-tests - Testing specialist
-   @rails-security - Security specialist
-   @rails-debug - Debugger specialist
+   @architect - Main Rails coordinator
+   @backend - Backend specialist
+   @frontend - Frontend specialist
+   @tests - Testing specialist
+   @security - Security specialist
+   @debug - Debugger specialist
    ```
 
 That's it! The agents are now available in all your Rails projects.
@@ -126,7 +126,7 @@ This will symlink the agents and rules so they're available in all your Rails pr
 In any Rails project with Claude Code:
 
 ```text
-@rails - Add user authentication feature
+@architect - Add user authentication feature
 ```
 
 The coordinator agent will create a plan, delegate to specialists, and deliver a complete implementation.
@@ -135,7 +135,7 @@ The coordinator agent will create a plan, delegate to specialists, and deliver a
 
 ```text
 rails-ai/
-├── agents/          # 6 specialized Rails agents
+├── agents/          # 6 specialized Rails agents (architect, backend, frontend, tests, security, debug)
 ├── skills/          # Modular skills registry (frontend, backend, testing, security, config)
 ├── rules/           # Team rules and decision matrices
 ├── test/            # Minitest-based skill testing framework

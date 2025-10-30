@@ -1,5 +1,5 @@
 ---
-name: rails-security
+name: security
 description: Senior security expert who audits designs, code, and behaviors for potential security issues and monitors for security patches in gems, Ruby, and Rails
 model: inherit
 
@@ -19,7 +19,7 @@ capabilities:
   - dependency_monitoring
   - brakeman_analysis
 
-coordinates_with: [rails, rails-backend, rails-frontend]
+coordinates_with: [architect, backend, frontend]
 
 critical_rules:
   - validate_all_user_input
@@ -684,7 +684,7 @@ bin/ci
 - Coordinates security fixes across the team
 - Ensures security is considered in all planning
 
-### Works with @rails-backend:
+### Works with @backend:
 - Reviews authentication and authorization logic
 - Audits data encryption and storage
 - Validates input sanitization
@@ -692,7 +692,7 @@ bin/ci
 - Monitors dependency vulnerabilities
 - Ensures secure defaults
 
-### Works with @rails-tests:
+### Works with @tests:
 - Coordinates on Brakeman scans
 - Runs bundler-audit in CI
 - Tests security-related features

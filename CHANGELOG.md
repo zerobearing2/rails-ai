@@ -5,6 +5,20 @@ All notable changes to rails-ai will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+- **Agent Naming Convention Update** - Simplified agent names for better clarity
+  - Removed `rails-` prefix from all agent filenames
+  - `rails.md` → `architect.md` (coordinator)
+  - `rails-backend.md` → `backend.md`
+  - `rails-frontend.md` → `frontend.md`
+  - `rails-tests.md` → `tests.md`
+  - `rails-security.md` → `security.md`
+  - `rails-debug.md` → `debug.md`
+  - Updated all references in test files, documentation, and rules
+  - Agent mentions now use `@architect`, `@backend`, `@frontend`, etc.
+
 ## [0.1.0] - 2025-10-30
 
 ### Added

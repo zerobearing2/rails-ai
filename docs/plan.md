@@ -33,12 +33,12 @@ Create an opinionated, Rails-only AI agent system called **rails-ai**. This is a
 ```text
 rails-ai/
 ├── agents/                    # 6 specialized Rails agents
-│   ├── rails.md              # Coordinator
-│   ├── rails-frontend.md     # Frontend specialist
-│   ├── rails-backend.md      # Backend specialist
-│   ├── rails-tests.md        # Test specialist
-│   ├── rails-security.md     # Security specialist
-│   └── rails-debug.md        # Debug specialist
+│   ├── architect.md          # Coordinator
+│   ├── frontend.md           # Frontend specialist
+│   ├── backend.md            # Backend specialist
+│   ├── tests.md              # Test specialist
+│   ├── security.md           # Security specialist
+│   └── debug.md              # Debug specialist
 ├── skills/                    # Skills registry and implementations
 │   └── SKILLS_REGISTRY.yml   # 33 modular skills catalog
 ├── rules/                     # Team rules and context
@@ -230,7 +230,7 @@ This project is currently **private** and in active development. We're:
 
 ## Features
 
-- 🎯 **6 Specialized Agents**: Coordinator, Frontend, Backend, Tests, Security, Debug
+- 🎯 **6 Specialized Agents**: Architect (coordinator), Frontend, Backend, Tests, Security, Debug
 - 🚂 **Rails-Only**: Focused exclusively on Ruby on Rails (no other frameworks)
 - 🤖 **LLM Support**: Works with Claude Code and OpenAI/Cursor
 - 🌍 **Global Install**: Symlinks to your home folder for use across all Rails projects
@@ -254,7 +254,7 @@ This will symlink the agents to `~/.claude/agents/` or `~/.cursor/agents/` so th
 In any Rails project with Claude Code:
 
 ```text
-@rails - Add user authentication feature
+@architect - Add user authentication feature
 ```
 
 The coordinator agent will create a plan, delegate to specialists, and deliver a complete implementation.
@@ -612,7 +612,7 @@ Same as above but verify `~/.cursor/` installation.
 ```bash
 # Make changes to agents
 cd ~/Projects/rails-ai
-# Edit agents/rails.md
+# Edit agents/architect.md
 git add .
 git commit -m "Improve coordinator agent"
 git push

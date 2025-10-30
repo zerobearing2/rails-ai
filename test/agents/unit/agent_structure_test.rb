@@ -9,7 +9,7 @@ class AgentStructureTest < Minitest::Test
   end
 
   def test_specialized_agents_have_skills_preset_section
-    specialized_agents = @agent_files.reject { |f| f.include?("rails.md") }
+    specialized_agents = @agent_files.reject { |f| f.include?("architect.md") }
 
     specialized_agents.each do |file|
       content = File.read(file)
@@ -31,7 +31,7 @@ class AgentStructureTest < Minitest::Test
   end
 
   def test_specialized_agents_have_role_description
-    specialized_agents = @agent_files.reject { |f| f.include?("rails.md") }
+    specialized_agents = @agent_files.reject { |f| f.include?("architect.md") }
 
     specialized_agents.each do |file|
       yaml = extract_yaml_front_matter(file)
@@ -41,23 +41,22 @@ class AgentStructureTest < Minitest::Test
     end
   end
 
-  def test_all_agents_have_rails_prefix_except_coordinator
-    specialized_agents = @agent_files.reject { |f| f.include?("rails.md") }
-
-    specialized_agents.each do |file|
+  def test_all_agents_have_descriptive_names
+    @agent_files.each do |file|
       basename = File.basename(file, ".md")
 
-      assert_match(/^rails-/, basename,
-                   "#{file}: should have 'rails-' prefix for global install compatibility")
+      # All agents should have simple, descriptive names
+      assert_match(/^(architect|backend|frontend|tests|security|debug)$/, basename,
+                   "#{file}: should have a descriptive name without 'rails-' prefix")
     end
   end
 
   def test_coordinator_has_unique_name
-    coordinator = @agent_files.find { |f| f.include?("rails.md") }
+    coordinator = @agent_files.find { |f| f.include?("architect.md") }
     basename = File.basename(coordinator, ".md")
 
-    assert_equal "rails", basename,
-                 "Coordinator should be named 'rails.md' (no prefix)"
+    assert_equal "architect", basename,
+                 "Coordinator should be named 'architect.md'"
   end
 
   private

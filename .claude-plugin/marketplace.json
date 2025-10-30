@@ -10,10 +10,10 @@
       "description": "Intelligent Rails development agents with skill-based architecture, team rules, and TDD enforcement for Rails 8 development",
       "version": "0.1.0",
       "author": {
-        "name": "Dave",
+        "name": "Dave B",
         "url": "https://github.com/zerobearing2"
       },
-      "source": ".",
+      "source": "./",
       "keywords": ["rails", "ruby", "agents", "tdd", "testing", "security", "hotwire"]
     }
   ]

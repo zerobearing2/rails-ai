@@ -35,7 +35,7 @@ The irony of an AI creating a structured system to constrain and guide other AIs
 
 ## What is rails-ai?
 
-An opinionated AI agent system specifically for Ruby on Rails development. Provides 6 specialized agents that work together following Rails conventions and 37signals-inspired best practices.
+A **Claude Code plugin** providing 6 specialized AI agents for opinionated Ruby on Rails development. Agents work together following Rails conventions and 37signals-inspired best practices.
 
 ## Current Status: Agent Tuning Phase
 
@@ -49,12 +49,12 @@ This project is currently **private** and in active development. We're:
 
 ## Features
 
-- 🎯 **6 Specialized Agents**: Coordinator, Frontend, Backend, Tests, Security, Debug
+- 🎯 **6 Specialized Agents**: Architect (coordinator), Frontend, Backend, Tests, Security, Debug
+- 🔌 **Claude Code Plugin**: One-command installation via plugin marketplace
 - 🚂 **Rails-Only**: Focused exclusively on Ruby on Rails (no other frameworks)
-- 🤖 **LLM Support**: Works with Claude Code and OpenAI/Cursor
-- 🌍 **Global Install**: Symlinks to your home folder for use across all Rails projects
 - 📋 **Team Rules**: Enforced conventions (Solid Stack, Minitest, REST-only, TDD)
-- 🧪 **Skills-Based**: Modular skill system with testing framework
+- 🧪 **Skills-Based**: 33 modular skills with comprehensive testing framework
+- 🤖 **Cursor Support**: Coming soon (manual installation available now)
 
 ## Installation
 
@@ -74,15 +74,15 @@ Install rails-ai as a Claude Code plugin:
 
 3. **Start using agents:**
    ```
-   @architect - Main Rails coordinator
-   @backend - Backend specialist
-   @frontend - Frontend specialist
-   @tests - Testing specialist
-   @security - Security specialist
-   @debug - Debugger specialist
+   @agent-rails-ai:architect - Main Rails coordinator
+   @agent-rails-ai:backend - Backend specialist
+   @agent-rails-ai:frontend - Frontend specialist
+   @agent-rails-ai:tests - Testing specialist
+   @agent-rails-ai:security - Security specialist
+   @agent-rails-ai:debug - Debugger specialist
    ```
 
-That's it! The agents are now available in all your Rails projects.
+That's it! The agents are now available globally in all your Rails projects.
 
 ### Local Development Install
 
@@ -126,10 +126,10 @@ This will symlink the agents and rules so they're available in all your Rails pr
 In any Rails project with Claude Code:
 
 ```text
-@architect - Add user authentication feature
+@agent-rails-ai:architect Add user authentication feature
 ```
 
-The coordinator agent will create a plan, delegate to specialists, and deliver a complete implementation.
+The architect coordinator will analyze requirements, create a plan, delegate to specialist agents, and deliver a complete implementation with tests.
 
 ## Project Structure
 

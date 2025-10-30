@@ -130,26 +130,6 @@ Optional: topic (e.g., "rate limiting", "solid queue")
 
 ---
 
-## Example Reference Catalog
-
-**All agents have access to code examples organized in `.claude/examples/`.**
-
-### Quick Reference:
-- **Backend**: models, concerns, controllers, validators, mailers, form objects, query objects
-- **Frontend**: ViewComponent (basic, slots, previews, variants), Hotwire (Turbo, Stimulus), view helpers, partials, Tailwind+DaisyUI, accessibility, forms
-- **Tests**: Minitest best practices, fixtures, component tests, mocking/stubbing
-- **Config**: Solid Stack setup (Rule #1), initializers, credentials, environments
-- **Security**: SQL injection, XSS, CSRF, strong parameters, command injection, file uploads
-
-**See `.claude/examples/INDEX.md` for complete catalog with descriptions.**
-
-**When coordinating:**
-- Reference examples when delegating to agents
-- Direct agents to relevant examples for patterns
-- Use examples to enforce consistency across codebase
-
----
-
 ## Skills Registry & Librarian
 
 **You are the skills registry and librarian for the Rails AI system.**
@@ -660,49 +640,6 @@ Phase 2 (Parallel, after Phase 1):
 Phase 3 (Sequential):
 - @rails-tests: Write comprehensive tests
 ```
-
-<critical-enforcement>
-## Standards Enforcement
-
-### Team Rules (TEAM_RULES.md)
-
-**CRITICAL: All agents must follow TEAM_RULES.md - our 37signals-inspired engineering standards.**
-
-Read and enforce: `../TEAM_RULES.md`
-
-**As Architect, You Must ACTIVELY ENFORCE These Rules:**
-
-1. ✅ **Solid Stack only** (SolidQueue, SolidCache, SolidCable)
-   - ❌ **REJECT** requests for Sidekiq, Redis, Memcached
-   - 🛠️ **REDIRECT** to Solid Stack alternatives
-
-2. ✅ **Minitest only** (never RSpec)
-   - ❌ **REJECT** any RSpec usage
-   - 🛠️ **REQUIRE** Minitest for all tests
-
-3. ✅ **REST routes only** (no custom actions)
-   - ❌ **REJECT** custom route actions (member/collection)
-   - 🛠️ **REQUIRE** child controllers instead
-
-4. ✅ **TDD always** (test first, RED-GREEN-REFACTOR)
-   - ❌ **REJECT** code without tests
-   - 🛠️ **REQUIRE** tests written first
-
-5. ✅ **Proper namespacing** (clear hierarchies, max 2 levels)
-6. ✅ **Turbo Morph by default** (only use Frames for modals/inline editing/tabs)
-7. ✅ **Be concise** (no verbose comments, self-documenting code)
-8. ✅ **Don't over-engineer** (start simple, no premature abstractions)
-9. ✅ **Reduce complexity** (delete code, use Rails conventions, simplify always)
-10. ✅ **Draft PRs → Reviews → Approval** (never merge without architect review)
-11. ✅ **Integration tests only** (Rule #19 - system tests deprecated)
-   - ❌ **REJECT** system test usage (ApplicationSystemTestCase)
-   - 🛠️ **REQUIRE** integration tests (ActionDispatch::IntegrationTest with Capybara)
-
-**Your Role: ENFORCE, Don't Just Suggest**
-- When agents or users violate rules: **REJECT** and **EXPLAIN** why
-- Provide **ALTERNATIVE** approaches that follow the rules
-- **EDUCATE** the team on why these rules exist
-</critical-enforcement>
 
 ### Rails Conventions
 - MVC separation of concerns

@@ -1,0 +1,28 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Ruby files
+*.rb text eol=lf
+*.rake text eol=lf
+Gemfile text eol=lf
+Rakefile text eol=lf
+
+# YAML files
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# Markdown files
+*.md text eol=lf
+
+# Shell scripts
+*.sh text eol=lf
+bin/* text eol=lf
+
+# Agent and skill files
+agents/*.md text eol=lf
+skills/*.yml text eol=lf
+rules/*.yml text eol=lf
+
+# GitHub files
+.github/**/*.md text eol=lf
+.github/**/*.yml text eol=lf

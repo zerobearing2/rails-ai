@@ -6,7 +6,7 @@
 
 ---
 
-## Completed Skills (12/~40)
+## Completed Skills (16/~40)
 
 ### Frontend Skills (4)
 - ✅ `viewcomponent-basics.md` - Foundation ViewComponent patterns
@@ -27,6 +27,12 @@
 - ✅ `security-strong-parameters.md` - Mass assignment protection, expect() and permit()
 - ✅ `security-file-uploads.md` - ActiveStorage security, virus scanning, validation
 - ✅ `security-command-injection.md` - Command injection prevention, safe alternatives
+
+### Config Skills (4) ✅ COMPLETE
+- ✅ `solid-stack-setup.md` - SolidQueue, SolidCache, SolidCable (Rails 8 standard)
+- ✅ `initializers-best-practices.md` - 19 patterns for proper initialization
+- ✅ `credentials-management.md` - Encrypted credentials, master key, deployment
+- ✅ `environment-configuration.md` - Development, test, production, staging setup
 
 ---
 
@@ -61,11 +67,6 @@
 - [ ] `model-testing-advanced.md` - From `model_test_basic.rb`
 
 
-### Config Skills (3-4)
-- [ ] `solid-stack-setup.md` - From `solid_stack_setup.rb`
-- [ ] `initializers-best-practices.md` - From `initializers_best_practices.rb`
-- [ ] `credentials-management.md` - From `credentials_management.rb`
-- [ ] `environment-configuration.md` - From `environment_configuration.rb`
 
 ---
 
@@ -95,8 +96,8 @@ All skills use the hybrid format:
 ## Next Steps
 
 ### Priority 1: Core Skills (Required for MVP)
-1. Security skills (all 6) - Critical for production apps
-2. `solid-stack-setup.md` - Rails 8 standard
+1. ✅ Security skills (all 6) - Critical for production apps
+2. ✅ Config skills (all 4) - Rails 8 standard and deployment
 3. `activerecord-patterns.md` - Model fundamentals
 4. `fixtures-test-data.md` - Testing fundamentals
 
@@ -136,5 +137,5 @@ All skills use the hybrid format:
 ---
 
 **Last Updated:** 2025-10-30
-**Skills Completed:** 12 of ~40 (30%)
-**Status:** Security skills complete! Ready for config skills next.
+**Skills Completed:** 16 of ~40 (40%)
+**Status:** Security and Config skills complete! Moving to essential backend/testing skills.

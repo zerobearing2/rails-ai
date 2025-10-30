@@ -3,7 +3,7 @@ name: CI
 on:
   push:
     branches:
-      - main
+      - master
   pull_request:
     types:
       - opened
@@ -49,13 +49,13 @@ jobs:
           path: test/reports/
           if-no-files-found: ignore
 
-  # Integration tests - only run on main branch pushes or manual trigger
+  # Integration tests - only run on master branch pushes or manual trigger
   # These are slow and require API keys
   integration-tests:
     name: Integration Tests (LLM Judge)
     runs-on: ubuntu-latest
-    # Only run on main branch or when manually triggered
-    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+    # Only run on master branch or when manually triggered
+    if: github.ref == 'refs/heads/master' || github.event_name == 'workflow_dispatch'
 
     steps:
       - name: Checkout code

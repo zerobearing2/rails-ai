@@ -11,13 +11,13 @@ Automatically runs quality checks and tests on every PR and push to main.
 #### When it Runs
 
 **Lint & Unit Tests** (fast, ~10 seconds):
-- ✅ On every push to `main` branch
+- ✅ On every push to `master` branch
 - ✅ On every pull request (when opened, updated, or marked ready)
 - ✅ Manually via workflow_dispatch
 - ❌ Skipped on draft PRs (to save CI time)
 
 **Integration Tests** (slow, ~2-5 minutes, requires API keys):
-- ✅ On push to `main` branch only
+- ✅ On push to `master` branch only
 - ✅ Manually via workflow_dispatch
 - ❌ Not on PRs (to save API costs)
 
@@ -49,10 +49,10 @@ GitHub Actions is enabled by default for all repositories. No setup needed.
 
 ### 2. Configure Branch Protection (Recommended)
 
-Protect your `main` branch to require CI checks before merging:
+Protect your `master` branch to require CI checks before merging:
 
 1. Go to repository **Settings** → **Branches**
-2. Add branch protection rule for `main`:
+2. Add branch protection rule for `master`:
    - ✅ Require a pull request before merging
    - ✅ Require status checks to pass before merging
    - ✅ Require branches to be up to date before merging
@@ -80,7 +80,7 @@ Integration tests use LLM-as-judge pattern and require API keys.
 #### Cost Considerations
 
 Integration tests cost ~$0.01 per test run:
-- Only run on `main` branch (not on PRs)
+- Only run on `master` branch (not on PRs)
 - ~30 LLM API calls per full test suite
 - Use mock provider in development to avoid costs
 
@@ -161,7 +161,7 @@ git commit -m "Fix failing tests"
 
 ### Integration Tests Failing
 
-**Problem:** Integration tests failing on main branch
+**Problem:** Integration tests failing on master branch
 
 **Solution:**
 1. Check API keys are set in GitHub Secrets
@@ -274,7 +274,7 @@ GitHub provides 2,000 CI minutes/month for free (public repos have unlimited).
 - ~$0.01 per run (using GPT-4o mini)
 
 **Monthly estimate:**
-- 50 main branch pushes × $0.01 = $0.50/month
+- 50 master branch pushes × $0.01 = $0.50/month
 - Weekly manual runs × 4 × $0.01 = $0.04/month
 - **Total: ~$0.54/month**
 

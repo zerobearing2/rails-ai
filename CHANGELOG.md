@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1] - 2025-10-30
+
 ### Changed
 - **Agent Naming Convention Update** - Simplified agent names for better clarity
   - Removed `rails-` prefix from all agent filenames
@@ -18,6 +20,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `rails-debug.md` → `debug.md`
   - Updated all references in test files, documentation, and rules
   - Agent mentions now use `@architect`, `@backend`, `@frontend`, etc.
+
+### Fixed
+- Removed `plugin.json` to fix local installation (cannot have both plugin.json and marketplace.json)
+- Marketplace.json now sole source for plugin definition
 
 ## [0.1.0] - 2025-10-30
 

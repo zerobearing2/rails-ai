@@ -6,15 +6,16 @@
 
 ---
 
-## Completed Skills (32/32) ✅ 100% COMPLETE!
+## Completed Skills (33/33) ✅ 100% COMPLETE!
 
-### Frontend Skills (12) ✅ COMPLETE
+### Frontend Skills (13) ✅ COMPLETE
 - ✅ `viewcomponent-basics.md` - Foundation ViewComponent patterns
 - ✅ `viewcomponent-slots.md` - Slots for structured content
 - ✅ `viewcomponent-previews.md` - Preview classes, collections, dynamic parameters
 - ✅ `viewcomponent-variants.md` - Style variants, compound variants, Tailwind composition
 - ✅ `hotwire-turbo.md` - Turbo Drive, Frames, Streams
 - ✅ `hotwire-stimulus.md` - Controllers, actions, targets, values
+- ✅ `turbo-page-refresh.md` - Page Refresh with morph, SPA behavior, state preservation
 - ✅ `tailwind-utility-first.md` - Utility classes, responsive design, ViewComponent integration
 - ✅ `daisyui-components.md` - Semantic components, themes, forms, modals
 - ✅ `view-helpers.md` - Built-in and custom helpers, module organization
@@ -60,8 +61,8 @@
 
 ## Migration Summary
 
-### Total Skills Migrated: 32
-- **Frontend**: 12 skills
+### Total Skills Migrated: 33
+- **Frontend**: 13 skills (includes new turbo-page-refresh)
 - **Backend**: 10 skills
 - **Testing**: 6 skills
 - **Security**: 4 skills (Note: originally planned 6, but 2 were covered in other domains)
@@ -149,5 +150,5 @@ All skills use the hybrid format:
 ---
 
 **Last Updated:** 2025-10-30
-**Skills Completed:** 32 of 32 (100%) ✅
-**Status:** ALL SKILLS COMPLETE! Ready for Phase 2: Agent Integration.
+**Skills Completed:** 33 of 33 (100%) ✅
+**Status:** ALL SKILLS COMPLETE! Including turbo-page-refresh for SPA-like behavior with morphing.

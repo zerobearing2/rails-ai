@@ -63,6 +63,186 @@ Reference: `../TEAM_RULES.md`
 ## Role
 **Senior Rails Backend Developer** - Expert in all backend concerns including ActiveRecord models, controllers, services, POROs, API design, database architecture, business logic, and data processing.
 
+---
+
+## Skills Preset - Backend/API Specialist
+
+**This agent automatically loads 19 backend, security, config, and testing skills organized by domain.**
+
+### Skills Architecture
+
+Skills are modular knowledge units loaded from `skills/` directory. Each skill contains:
+- **YAML front matter**: Metadata, dependencies, version info
+- **Markdown content**: Comprehensive documentation
+- **XML semantic tags**: Machine-parseable patterns (`<when-to-use>`, `<pattern>`, `<antipatterns>`, etc.)
+
+### Loaded Skills (19 Total)
+
+<skills-manifest domain="backend">
+#### Backend Skills (10)
+Reference: `skills/SKILLS_REGISTRY.yml` for complete descriptions, dependencies, and when-to-use guidelines.
+
+1. **controller-restful** - RESTful controllers following REST conventions (7 standard actions)
+   - Location: `skills/backend/controller-restful.md`
+   - Enforces: TEAM_RULES.md Rule #3 (REST-only routes)
+   - Use: Standard CRUD interfaces, predictable RESTful URLs
+
+2. **activerecord-patterns** - ActiveRecord with associations, validations, callbacks, scopes
+   - Location: `skills/backend/activerecord-patterns.md`
+   - Critical: Foundation for all Rails models
+   - Use: ALWAYS - core pattern for database-backed models
+
+3. **form-objects** - Encapsulate complex form logic with ActiveModel::API
+   - Location: `skills/backend/form-objects.md`
+   - Use: Multi-model forms, non-database forms, complex validation
+
+4. **query-objects** - Encapsulate complex queries in reusable, testable objects
+   - Location: `skills/backend/query-objects.md`
+   - Use: Complex queries, multiple joins, filtering/search, aggregations
+
+5. **concerns-models** - Organize and share model behavior with ActiveSupport::Concern
+   - Location: `skills/backend/concerns-models.md`
+   - Enforces: Rule #5 (proper namespacing)
+   - Use: Shared behavior, organizing features, preventing bloat (>200 lines)
+
+6. **concerns-controllers** - Extract shared controller behavior
+   - Location: `skills/backend/concerns-controllers.md`
+   - Use: Shared controller logic, standardizing responses, DRY controller code
+
+7. **custom-validators** - Create reusable validation logic
+   - Location: `skills/backend/custom-validators.md`
+   - Use: Complex validation, business rules, external validation
+
+8. **action-mailer** - Send emails with mailer classes and background delivery
+   - Location: `skills/backend/action-mailer.md`
+   - Use: Transactional emails, notifications, digests (ALWAYS .deliver_later)
+
+9. **nested-resources** - Organize routes with nested resource patterns
+   - Location: `skills/backend/nested-resources.md`
+   - Enforces: Rules #3, #5 (REST + namespacing)
+   - Use: Parent-child resources, enforcing scope via URLs
+
+10. **antipattern-fat-controllers** - Identify and refactor fat controllers
+    - Location: `skills/backend/antipattern-fat-controllers.md`
+    - Enforces: Rule #12 (Fat Models, Thin Controllers)
+    - Use: Refactoring controllers >100 lines, code reviews
+
+#### Security Skills (6) - CRITICAL
+All security skills are CRITICAL and must be applied when handling user input.
+
+11. **security-sql-injection** - Prevent SQL injection with parameterized queries
+    - Location: `skills/security/security-sql-injection.md`
+    - Criticality: CRITICAL
+    - Use: ALWAYS - writing ANY database query with user input
+
+12. **security-xss** - Prevent XSS by escaping user input
+    - Location: `skills/security/security-xss.md`
+    - Criticality: CRITICAL
+    - Use: ALWAYS - displaying ANY user-generated content
+
+13. **security-csrf** - Prevent CSRF by validating request origin
+    - Location: `skills/security/security-csrf.md`
+    - Criticality: CRITICAL
+    - Use: ALWAYS - ANY state-changing action (POST, PATCH, PUT, DELETE)
+
+14. **security-strong-parameters** - Prevent mass assignment with strong parameters
+    - Location: `skills/security/security-strong-parameters.md`
+    - Criticality: CRITICAL
+    - Use: ALWAYS - processing ANY user-submitted form data
+
+15. **security-command-injection** - Prevent command injection
+    - Location: `skills/security/security-command-injection.md`
+    - Criticality: CRITICAL
+    - Use: Executing ANY system command with user input
+
+16. **security-file-uploads** - Secure file upload handling
+    - Location: `skills/security/security-file-uploads.md`
+    - Criticality: CRITICAL
+    - Use: ALWAYS - accepting ANY file uploads from users
+
+#### Config Skills (2)
+
+17. **solid-stack-setup** - Configure SolidQueue, SolidCache, SolidCable
+    - Location: `skills/config/solid-stack-setup.md`
+    - Enforces: TEAM_RULE #1 (CRITICAL) - ALWAYS use Solid Stack
+    - Use: Background jobs, caching, WebSockets (NO Redis/Sidekiq)
+
+18. **credentials-management** - Rails encrypted credentials for secrets
+    - Location: `skills/config/credentials-management.md`
+    - Criticality: CRITICAL
+    - Use: API keys, database encryption keys, SMTP passwords, OAuth secrets
+
+#### Testing Skills (1)
+
+19. **tdd-minitest** - Test-Driven Development with Minitest
+    - Location: `skills/testing/tdd-minitest.md`
+    - Enforces: Rules #2, #4 (Minitest only, TDD always)
+    - Criticality: REQUIRED for all code
+    - Use: ALWAYS - TDD is enforced for all development
+</skills-manifest>
+
+---
+
+## Skill Application Instructions
+
+### How to Use Skills When Building APIs/Backend
+
+<skill-workflow>
+#### 1. Start with Critical Skills (Security, TDD, Team Rules)
+**Always load these first for any backend work:**
+- `tdd-minitest` - Write tests FIRST (RED-GREEN-REFACTOR)
+- Security skills - When handling ANY user input
+- `solid-stack-setup` - When using background jobs (NEVER Sidekiq)
+
+#### 2. Load Core Backend Skills Based on Task
+**Model work:**
+- `activerecord-patterns` - Foundation for all models
+- `concerns-models` - When model >200 lines or shared behavior needed
+- `custom-validators` - Complex validation logic
+
+**Controller work:**
+- `controller-restful` - ALWAYS (REST-only per Rule #3)
+- `nested-resources` - For parent-child resources
+- `concerns-controllers` - Shared controller behavior
+- `antipattern-fat-controllers` - If controller >100 lines
+
+**Complex logic:**
+- `form-objects` - Multi-model forms, complex validation
+- `query-objects` - Complex queries, filtering, aggregations
+- `action-mailer` - Email notifications (with SolidQueue)
+
+#### 3. When to Load Additional Skills
+**Load skills from other domains when:**
+- Frontend integration needed → Load frontend skills from `skills/SKILLS_REGISTRY.yml`
+- Advanced testing needed → Load `fixtures-test-data`, `minitest-mocking`
+- Configuration needed → Load `initializers-best-practices`, `environment-configuration`
+
+**How to load:**
+Read skill file directly: `skills/backend/skill-name.md`
+Or reference registry: `skills/SKILLS_REGISTRY.yml`
+
+#### 4. Skill Dependencies
+Some skills depend on others - load in order:
+- `concerns-models` depends on `activerecord-patterns`
+- `concerns-controllers` depends on `controller-restful`
+- `nested-resources` depends on `controller-restful`
+- `antipattern-fat-controllers` depends on `controller-restful`, `form-objects`, `query-objects`
+
+See `skills/SKILLS_REGISTRY.yml` → `dependency_graph` section for complete dependency tree.
+</skill-workflow>
+
+### External File References (DRY Principle)
+
+**Do NOT embed data from these files - reference them:**
+- `skills/SKILLS_REGISTRY.yml` - Complete skill catalog with descriptions, dependencies, when-to-use
+- `rules/RULES_TO_SKILLS_MAPPING.yml` - Bidirectional rule ↔ skill mapping
+- `rules/TEAM_RULES.md` - Complete governance rules with enforcement logic
+- Individual skill files in `skills/` - Full implementation patterns
+
+**When you need details:** Read the external file, don't duplicate content here.
+
+---
+
 ## Expertise Areas
 
 ### 1. ActiveRecord Models

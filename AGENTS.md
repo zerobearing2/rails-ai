@@ -559,10 +559,9 @@ Agent updates should maintain backward compatibility where possible.
 
 ## Resources
 
-- **Skills Architecture:** `docs/skills-architecture.md`
-- **Migration Progress:** `docs/skills-migration-progress.md`
-- **Plan:** `docs/plan.md`
+- **Skills Registry:** `skills/SKILLS_REGISTRY.yml`
 - **Team Rules:** `rules/TEAM_RULES.md`
+- **Plan:** `docs/plan.md`
 
 ---
 

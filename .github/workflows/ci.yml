@@ -94,8 +94,13 @@ jobs:
     steps:
       - name: Check all jobs
         run: |
-          if [[ "${{ needs.lint-and-test.result }}" != "success" ]]; then
-            echo "Required checks failed"
+          # Accept both "success" and "skipped" (skipped for draft PRs)
+          if [[ "${{ needs.lint-and-test.result }}" != "success" && "${{ needs.lint-and-test.result }}" != "skipped" ]]; then
+            echo "Required checks failed with status: ${{ needs.lint-and-test.result }}"
             exit 1
           fi
-          echo "All required checks passed ✅"
+          if [[ "${{ needs.lint-and-test.result }}" == "skipped" ]]; then
+            echo "Checks skipped (draft PR) ⏭️"
+          else
+            echo "All required checks passed ✅"
+          fi

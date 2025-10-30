@@ -56,13 +56,60 @@ This project is currently **private** and in active development. We're:
 - 📋 **Team Rules**: Enforced conventions (Solid Stack, Minitest, REST-only, TDD)
 - 🧪 **Skills-Based**: Modular skill system with testing framework
 
-## Installation (Local)
+## Installation
+
+### Quick Install (Recommended)
+
+Install rails-ai as a Claude Code plugin:
+
+1. **Add the marketplace:**
+   ```
+   /plugin marketplace add zerobearing2/rails-ai
+   ```
+
+2. **Install the plugin:**
+   ```
+   /plugin install rails-ai
+   ```
+
+3. **Start using agents:**
+   ```
+   @rails - Main Rails coordinator
+   @rails-backend - Backend specialist
+   @rails-frontend - Frontend specialist
+   @rails-tests - Testing specialist
+   @rails-security - Security specialist
+   @rails-debug - Debugger specialist
+   ```
+
+That's it! The agents are now available in all your Rails projects.
+
+### Local Development Install
+
+For testing changes to rails-ai itself:
+
+```bash
+# Clone the repo
+cd ~/Projects
+git clone https://github.com/zerobearing2/rails-ai.git
+cd rails-ai
+
+# Install locally for development
+# In Claude Code:
+/plugin marketplace add /home/dave/Projects/rails-ai
+/plugin install rails-ai
+```
+
+Changes to agent files will be available after restarting Claude Code (hot-reload testing in progress).
+
+### Manual Installation (Alternative)
+
+If you prefer not to use the plugin system:
 
 ```bash
 # Clone repo
 cd ~/Projects/rails-ai
 
-# Manual installation (installer coming in Phase 3)
 # For Claude Code:
 ln -s $(pwd)/agents ~/.claude/agents
 ln -s $(pwd)/rules ~/.claude/rules

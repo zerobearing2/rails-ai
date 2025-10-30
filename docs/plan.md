@@ -61,6 +61,41 @@ rails-ai/
 - Single install script that symlinks to global configs
 - No complex abstractions or adapters
 
+### Claude Code Plugin Architecture
+
+**Update (2025-10-30):** rails-ai is now distributed as a Claude Code plugin for easier installation.
+
+**Plugin manifests:**
+- `.claude-plugin/plugin.json` - Plugin metadata and configuration
+- `.claude-plugin/marketplace.json` - Self-distributing marketplace definition
+
+**Installation methods:**
+1. **GitHub Install (Primary):**
+   ```
+   /plugin marketplace add zerobearing2/rails-ai
+   /plugin install rails-ai
+   ```
+
+2. **Local Development:**
+   ```
+   /plugin marketplace add /path/to/rails-ai
+   /plugin install rails-ai
+   ```
+
+3. **Manual Install (Alternative):** Symlink agents/ and rules/ to ~/.claude/
+
+**Skills folder:**
+- Keeping `skills/` folder name (testing for collision with Claude native skills)
+- Claude native skills expect directories with `SKILL.md` files
+- Our files use different naming (no `SKILL.md`), so collision unlikely
+- Will monitor and rename to `rails-skills/` if needed
+
+**Benefits:**
+- One-command installation
+- Works with Claude Code's plugin system
+- Automatic updates via git pull
+- Clean separation from user's other agents
+
 ---
 
 ## Phase 0: Project Setup (COMPLETED ✅)

@@ -1,5 +1,5 @@
 ---
-name: rails-debug
+name: debug
 description: Senior full-stack debugger expert in monitoring, logs, background jobs, headless browser automation, console debugging, and automated fix-retest loops
 model: inherit
 
@@ -19,7 +19,7 @@ capabilities:
   - automated_fix_retest
   - console_debugging
 
-coordinates_with: [rails, rails-tests, rails-backend, rails-frontend]
+coordinates_with: [architect, tests, backend, frontend]
 
 critical_rules:
   - automated_fix_retest_loop
@@ -718,22 +718,22 @@ Increase content field length in test data to meet 50 character minimum.
 
 ## Integration with Other Agents
 
-### Works with @rails:
+### Works with @architect:
 - Reports issues and coordinates fixes
 - Provides debugging insights for architectural decisions
 - Validates fixes across the entire stack
 
-### Works with @rails-backend:
+### Works with @backend:
 - Debugs model and controller issues
 - Profiles database query performance
 - Monitors background job execution
 
-### Works with @rails-frontend:
+### Works with @frontend:
 - Debugs UI and interaction issues
 - Monitors browser console errors
 - Tests responsive design
 
-### Works with @rails-tests:
+### Works with @tests:
 - Runs comprehensive test suites
 - Coordinates on test failures
 - Provides debugging for failing tests

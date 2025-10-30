@@ -24,14 +24,23 @@ class AgentReferencesTest < Minitest::Test
   end
 
   def test_no_references_to_deleted_agents
-    deleted_agents = %w[rails-config rails-design rails-feature rails-refactor]
+    # Check for old agent mentions with @ prefix (agent references, not URLs or filenames)
+    legacy_patterns = [
+      /rails\.md(?!\.)/, # Old coordinator filename (not in URLs)
+      %r{@rails(?!/)}, # Old @rails coordinator mention (but allow @rails/package.js)
+      /@rails-backend/, # Old agent mentions
+      /@rails-frontend/,
+      /@rails-tests/,
+      /@rails-security/,
+      /@rails-debug/
+    ]
 
     @agent_files.each do |file|
       content = File.read(file)
 
-      deleted_agents.each do |deleted|
-        refute_match(/#{Regexp.escape(deleted)}/, content,
-                     "#{file}: still references deleted agent '#{deleted}'")
+      legacy_patterns.each do |pattern|
+        refute_match(pattern, content,
+                     "#{file}: still references legacy agent pattern '#{pattern.inspect}'")
       end
     end
   end
@@ -54,7 +63,7 @@ class AgentReferencesTest < Minitest::Test
   end
 
   def test_all_specialized_agents_coordinate_with_architect
-    specialized_agents = @agent_files.reject { |f| f.include?("rails.md") }
+    specialized_agents = @agent_files.reject { |f| f.include?("architect.md") }
 
     specialized_agents.each do |file|
       yaml = extract_yaml_front_matter(file)
@@ -62,16 +71,16 @@ class AgentReferencesTest < Minitest::Test
 
       coordinates = yaml["coordinates_with"]
 
-      assert_includes coordinates, "rails",
-                      "#{file}: should coordinate with 'rails' (architect) - found: #{coordinates.inspect}"
+      assert_includes coordinates, "architect",
+                      "#{file}: should coordinate with 'architect' - found: #{coordinates.inspect}"
     end
   end
 
   def test_coordinator_coordinates_with_all_specialized_agents
-    coordinator = @agent_files.find { |f| f.include?("rails.md") }
+    coordinator = @agent_files.find { |f| f.include?("architect.md") }
     yaml = extract_yaml_front_matter(coordinator)
 
-    specialized = @existing_agents - ["rails"]
+    specialized = @existing_agents - ["architect"]
     coordinates = yaml["coordinates_with"]
 
     specialized.each do |agent|

@@ -18,7 +18,7 @@ class AgentYamlValidationTest < Minitest::Test
       assert yaml["name"], "#{file}: missing 'name' field"
       assert yaml["description"], "#{file}: missing 'description' field"
 
-      # Name matches filename (rails.md → rails, rails-backend.md → rails-backend)
+      # Name matches filename (architect.md → architect, backend.md → backend)
       expected_name = File.basename(file, ".md")
 
       assert_equal expected_name, yaml["name"],
@@ -27,7 +27,7 @@ class AgentYamlValidationTest < Minitest::Test
   end
 
   def test_specialized_agents_have_coordinates_with
-    specialized_agents = @agent_files.reject { |f| f.include?("rails.md") }
+    specialized_agents = @agent_files.reject { |f| f.include?("architect.md") }
 
     specialized_agents.each do |file|
       yaml = extract_yaml_front_matter(file)
@@ -39,10 +39,10 @@ class AgentYamlValidationTest < Minitest::Test
   end
 
   def test_coordinator_has_valid_front_matter
-    coordinator = @agent_files.find { |f| f.include?("rails.md") }
+    coordinator = @agent_files.find { |f| f.include?("architect.md") }
     yaml = extract_yaml_front_matter(coordinator)
 
-    assert_equal "rails", yaml["name"]
+    assert_equal "architect", yaml["name"]
     assert yaml["description"].include?("architect") || yaml["description"].include?("coordinator")
     assert yaml["coordinates_with"], "Coordinator should list agents it coordinates"
   end

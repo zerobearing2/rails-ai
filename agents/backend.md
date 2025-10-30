@@ -1,5 +1,5 @@
 ---
-name: rails-backend
+name: backend
 description: Senior Rails backend expert in models, controllers, services, POROs, APIs, libraries, and database design
 model: inherit
 
@@ -19,7 +19,7 @@ capabilities:
   - api_design
   - query_optimization
 
-coordinates_with: [rails, rails-tests, rails-frontend, rails-security]
+coordinates_with: [architect, tests, frontend, security]
 
 critical_rules:
   - no_sidekiq_use_solidqueue
@@ -56,7 +56,7 @@ Reference: `../TEAM_RULES.md`
 2. **Write minimum code** (GREEN - test passes)
 3. **Refactor** (improve while keeping green)
 4. **Repeat**
-5. **Peer review** with @rails-frontend and @rails-tests
+5. **Peer review** with @frontend and @tests
 6. **bin/ci must pass**
 </workflow>
 
@@ -861,24 +861,24 @@ end
 
 **See**: [Peer Review Process](../SHARED_CONTEXT.md#peer-review-process) for complete workflow.
 
-### Works with @rails-frontend:
+### Works with @frontend:
 - Provides controller actions and data for views
 - Coordinates on JSON API responses
 - Ensures backend matches frontend expectations
 - **Peer review**: Reviews frontend work for backend implications (data requirements, API usage, performance)
 
-### Works with @rails-tests:
+### Works with @tests:
 - Writes model, controller, and service tests
 - Coordinates on test scenarios and coverage
 - **Receives peer review** from tests agent for test quality, TDD adherence, coverage
 
-### Works with @rails-security:
+### Works with @security:
 - Reviews authentication and authorization logic
 - Ensures proper input validation and sanitization
 - Coordinates on security patches and updates
 
 ### Code Review Responsibilities:
-When @rails assigns code review:
+When @architect assigns code review:
 - ✅ **Review frontend work** for backend implications (data expectations, API contract usage, query implications)
 - ✅ **Check component data needs** are met by controllers
 - ✅ **Verify Turbo/Stimulus usage** aligns with controller responses
@@ -887,8 +887,8 @@ When @rails assigns code review:
 - ✅ **Suggest improvements** based on backend expertise
 
 **Receives peer review from:**
-- **@rails-frontend**: Reviews backend for frontend implications
-- **@rails-tests**: Reviews test quality, TDD adherence, coverage, edge cases
+- **@frontend**: Reviews backend for frontend implications
+- **@tests**: Reviews test quality, TDD adherence, coverage, edge cases
 
 ## Deliverables
 

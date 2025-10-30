@@ -233,7 +233,7 @@ Resubmit    Approval
 
 ### Review Responsibilities:
 
-**@rails-frontend reviews @rails-backend:**
+**@frontend reviews @backend:**
 - Controller provides all data needed for views?
 - JSON responses match expected format?
 - No N+1 queries affecting view rendering?
@@ -241,14 +241,14 @@ Resubmit    Approval
 - Error messages user-friendly?
 - Status codes appropriate for Turbo handling?
 
-**@rails-backend reviews @rails-frontend:**
+**@backend reviews @frontend:**
 - UI correctly uses backend API?
 - Forms submit correct parameters?
 - Error handling complete?
 - Loading states for async operations?
 - Accessibility attributes present?
 
-**@rails-tests reviews both:**
+**@tests reviews both:**
 - TDD followed (tests written first)?
 - Test coverage adequate (85%+)?
 - Edge cases tested?

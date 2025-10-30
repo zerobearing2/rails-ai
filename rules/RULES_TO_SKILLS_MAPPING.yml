@@ -50,7 +50,7 @@ rules_with_skills:
       patterns: ['gem "rspec-rails"', 'RSpec.describe', 'context "when"']
 
     rejection_response: "We use Minitest only per TEAM_RULES.md Rule #2"
-    redirect_message: "Delegating to @rails-tests to help with Minitest"
+    redirect_message: "Delegating to @tests to help with Minitest"
 
     skills:
       primary: tdd-minitest

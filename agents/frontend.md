@@ -1,5 +1,5 @@
 ---
-name: rails-frontend
+name: frontend
 description: Senior Rails frontend expert in UI, views, Hotwire, Tailwind, DaisyUI, interactions, and styling
 model: inherit
 
@@ -18,7 +18,7 @@ capabilities:
   - accessibility_wcag
   - responsive_design
 
-coordinates_with: [rails, rails-backend, rails-tests]
+coordinates_with: [architect, backend, tests]
 
 critical_rules:
   - no_rspec_use_minitest
@@ -55,7 +55,7 @@ Reference: `../TEAM_RULES.md`
 2. **Write minimum component code** (GREEN - test passes)
 3. **Refactor** (improve while keeping green)
 4. **Test accessibility** (keyboard nav, screen readers)
-5. **Peer review** with @rails-backend and @rails-tests
+5. **Peer review** with @backend and @tests
 6. **bin/ci must pass**
 </workflow>
 
@@ -649,20 +649,20 @@ export default class extends Controller {
 
 ## Integration with Other Agents
 
-### Works with @rails-backend:
+### Works with @backend:
 - Consumes controller actions and data
 - Coordinates on JSON API responses
 - Ensures frontend matches backend expectations
 - **Peer review**: Reviews backend work for frontend implications (API contracts, data structure, performance)
 
-### Works with @rails-tests:
+### Works with @tests:
 - Writes component tests for all components
 - Coordinates on integration test scenarios
 - Ensures progressive enhancement is tested
 - **Receives peer review** from tests agent for test quality, TDD adherence, coverage
 
 ### Code Review Responsibilities:
-When @rails assigns code review:
+When @architect assigns code review:
 - ✅ **Review backend work** for frontend implications (API contracts, data availability, query optimization)
 - ✅ **Check controller actions** provide necessary data for views
 - ✅ **Verify JSON responses** match frontend expectations
@@ -671,8 +671,8 @@ When @rails assigns code review:
 - ✅ **Suggest improvements** based on frontend expertise
 
 **Receives peer review from:**
-- **@rails-backend**: Reviews frontend for backend implications
-- **@rails-tests**: Reviews test quality, TDD adherence, coverage, edge cases
+- **@backend**: Reviews frontend for backend implications
+- **@tests**: Reviews test quality, TDD adherence, coverage, edge cases
 
 ## Deliverables
 

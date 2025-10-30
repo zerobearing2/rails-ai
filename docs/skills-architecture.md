@@ -43,7 +43,7 @@ Current architecture has limitations:
 
 ### 1. Skills Structure
 
-```
+```text
 skills/
 ├── viewcomponent-basics.md
 ├── viewcomponent-slots.md
@@ -334,7 +334,7 @@ Current examples in `examples/` will be ported to skills:
 
 **Examples → Skills Mapping (Proposed):**
 
-```
+```text
 Frontend Examples → Skills:
 - viewcomponent_basic.rb → viewcomponent-basics.md
 - viewcomponent_slots.rb → viewcomponent-slots.md

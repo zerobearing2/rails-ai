@@ -6,13 +6,17 @@
 
 ---
 
-## Completed Skills (21/~40)
+## Completed Skills (25/~40)
 
-### Frontend Skills (4)
+### Frontend Skills (8)
 - ✅ `viewcomponent-basics.md` - Foundation ViewComponent patterns
 - ✅ `viewcomponent-slots.md` - Slots for structured content
+- ✅ `viewcomponent-previews.md` - Preview classes, collections, dynamic parameters
+- ✅ `viewcomponent-variants.md` - Style variants, compound variants, Tailwind composition
 - ✅ `hotwire-turbo.md` - Turbo Drive, Frames, Streams
 - ✅ `hotwire-stimulus.md` - Controllers, actions, targets, values
+- ✅ `tailwind-utility-first.md` - Utility classes, responsive design, ViewComponent integration
+- ✅ `daisyui-components.md` - Semantic components, themes, forms, modals
 
 ### Backend Skills (4)
 - ✅ `controller-restful.md` - REST conventions, strong parameters, API patterns
@@ -43,11 +47,7 @@
 
 ## Remaining Skills to Port
 
-### Frontend Skills (8-10)
-- [ ] `tailwind-utility-first.md` - From `tailwind_daisyui_comprehensive.erb` (split)
-- [ ] `daisyui-components.md` - From `tailwind_daisyui_comprehensive.erb` (split)
-- [ ] `viewcomponent-previews.md` - From `viewcomponent_previews_collections.rb`
-- [ ] `viewcomponent-variants.md` - From `viewcomponent_style_variants.rb`
+### Frontend Skills (4 remaining)
 - [ ] `view-helpers.md` - From `view_helpers_comprehensive.rb`
 - [ ] `forms-nested.md` - From `forms_nested_comprehensive.erb`
 - [ ] `accessibility-patterns.md` - From `accessibility_comprehensive.erb`
@@ -101,11 +101,11 @@ All skills use the hybrid format:
 3. ✅ Essential backend skills (activerecord, form-objects, query-objects)
 4. ✅ Essential testing skills (fixtures, mocking)
 
-### Priority 2: Common Patterns (Next to port)
-5. `tailwind-utility-first.md` - Styling
-6. `daisyui-components.md` - UI components
-7. `viewcomponent-previews.md` - Component testing
-8. `viewcomponent-variants.md` - Style variants
+### Priority 2: Common Patterns ✅ COMPLETE
+5. ✅ `tailwind-utility-first.md` - Styling
+6. ✅ `daisyui-components.md` - UI components
+7. ✅ `viewcomponent-previews.md` - Component testing
+8. ✅ `viewcomponent-variants.md` - Style variants
 
 ### Priority 3: Nice to Have
 9. Remaining frontend skills
@@ -137,5 +137,5 @@ All skills use the hybrid format:
 ---
 
 **Last Updated:** 2025-10-30
-**Skills Completed:** 21 of ~40 (52%)
-**Status:** All Priority 1 MVP skills complete! Ready for Priority 2 common patterns.
+**Skills Completed:** 25 of ~40 (62%)
+**Status:** Priority 1 & 2 complete! ~15 Priority 3 skills remaining.

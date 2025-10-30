@@ -1,0 +1,595 @@
+<%# Rails Forms & Nested Forms Comprehensive Patterns %>
+<%# Reference: Rails Guides - Form Helpers %>
+<%# Category: FRONTEND - FORMS %>
+
+<%#
+============================================================================
+What Are Rails Forms?
+============================================================================
+
+Rails provides powerful form helpers that:
+- Generate form HTML with proper attributes
+- Handle CSRF protection automatically
+- Support Turbo by default
+- Manage nested attributes
+- Integrate with ActiveRecord validations
+
+Key Helpers:
+- form_with: Main form helper (Turbo-enabled)
+- fields_for: Nested model fields
+- accept_nested_attributes_for: Model configuration
+
+Benefits:
+✅ Automatic CSRF protection
+✅ Turbo Drive compatible
+✅ Strong parameters support
+✅ Nested model forms
+✅ Custom form builders
+%>
+
+<%#
+============================================================================
+✅ BASIC FORMS WITH form_with
+============================================================================
+%>
+
+<%# Model-based form (RESTful) %>
+<%= form_with model: @feedback do |form| %>
+  <div class="form-control">
+    <%= form.label :content %>
+    <%= form.text_area :content, class: "textarea textarea-bordered", rows: 5 %>
+  </div>
+
+  <div class="form-control">
+    <%= form.label :recipient_email %>
+    <%= form.email_field :recipient_email, class: "input input-bordered" %>
+  </div>
+
+  <%= form.submit class: "btn btn-primary" %>
+<% end %>
+
+<%# URL-based form (non-RESTful) %>
+<%= form_with url: search_feedbacks_path, method: :get do |form| %>
+  <%= form.search_field :query, placeholder: "Search...", class: "input input-bordered" %>
+  <%= form.submit "Search", class: "btn btn-primary" %>
+<% end %>
+
+<%# Form with namespace %>
+<%= form_with model: [:admin, @feedback] do |form| %>
+  <%# Routes to admin_feedback_path %>
+<% end %>
+
+<%# Form options %>
+<%= form_with model: @feedback,
+              local: false,                    # AJAX submission
+              data: { turbo: false },          # Disable Turbo
+              html: { class: "my-form" } do |form| %>
+  <%# Form content %>
+<% end %>
+
+<%#
+============================================================================
+✅ FORM INPUT TYPES
+============================================================================
+%>
+
+<%# Text inputs %>
+<%= form.text_field :name, class: "input input-bordered" %>
+<%= form.email_field :email, class: "input input-bordered" %>
+<%= form.password_field :password, class: "input input-bordered" %>
+<%= form.url_field :website, class: "input input-bordered" %>
+<%= form.telephone_field :phone, class: "input input-bordered" %>
+<%= form.number_field :age, class: "input input-bordered" %>
+<%= form.search_field :query, class: "input input-bordered" %>
+<%= form.hidden_field :token %>
+
+<%# Textarea %>
+<%= form.text_area :content, rows: 5, class: "textarea textarea-bordered" %>
+
+<%# Select dropdown %>
+<%= form.select :status,
+                options_for_select(["pending", "reviewed", "responded"], @feedback.status),
+                {},
+                class: "select select-bordered" %>
+
+<%# Select with collection %>
+<%= form.collection_select :category_id,
+                           Category.all,
+                           :id,
+                           :name,
+                           { prompt: "Select a category" },
+                           class: "select select-bordered" %>
+
+<%# Checkboxes %>
+<div class="form-control">
+  <%= form.check_box :ai_improved, class: "checkbox" %>
+  <%= form.label :ai_improved, "Enable AI improvement" %>
+</div>
+
+<%# Multiple checkboxes %>
+<%= form.collection_check_boxes :tag_ids, Tag.all, :id, :name do |b| %>
+  <div class="form-control">
+    <%= b.check_box class: "checkbox" %>
+    <%= b.label class: "label" %>
+  </div>
+<% end %>
+
+<%# Radio buttons %>
+<%= form.radio_button :status, "pending", class: "radio" %>
+<%= form.label :status_pending, "Pending" %>
+
+<%= form.radio_button :status, "reviewed", class: "radio" %>
+<%= form.label :status_reviewed, "Reviewed" %>
+
+<%# Radio buttons with collection %>
+<%= form.collection_radio_buttons :status, ["pending", "reviewed", "responded"], :to_s, :titleize do |b| %>
+  <div class="form-control">
+    <%= b.radio_button class: "radio" %>
+    <%= b.label class: "label" %>
+  </div>
+<% end %>
+
+<%# Date/Time inputs %>
+<%= form.date_field :submitted_on, class: "input input-bordered" %>
+<%= form.time_field :submitted_at, class: "input input-bordered" %>
+<%= form.datetime_field :scheduled_for, class: "input input-bordered" %>
+
+<%# File upload %>
+<%= form.file_field :attachment, class: "file-input file-input-bordered" %>
+
+<%# Multiple file upload %>
+<%= form.file_field :attachments, multiple: true, class: "file-input file-input-bordered" %>
+
+<%# Range slider %>
+<%= form.range_field :priority, in: 1..10, class: "range" %>
+
+<%# Color picker %>
+<%= form.color_field :highlight_color, class: "input" %>
+
+<%#
+============================================================================
+✅ NESTED FORMS (has_many relationship)
+============================================================================
+%>
+
+<%# Model setup %>
+<%# class Feedback < ApplicationRecord
+  has_many :attachments, dependent: :destroy
+  accepts_nested_attributes_for :attachments,
+    allow_destroy: true,
+    reject_if: :all_blank
+end
+
+class Attachment < ApplicationRecord
+  belongs_to :feedback
+end %>
+
+<%# Controller setup %>
+<%# def feedback_params
+  params.expect(feedback: [
+    :content,
+    :recipient_email,
+    attachments_attributes: [:id, :file, :caption, :_destroy]
+  ])
+end %>
+
+<%# Form with nested attributes %>
+<%= form_with model: @feedback do |form| %>
+  <div class="form-control">
+    <%= form.label :content %>
+    <%= form.text_area :content, class: "textarea textarea-bordered" %>
+  </div>
+
+  <div class="space-y-4">
+    <h3 class="text-lg font-semibold">Attachments</h3>
+
+    <%= form.fields_for :attachments do |attachment_form| %>
+      <div class="card bg-base-100 border">
+        <div class="card-body">
+          <%= attachment_form.label :file %>
+          <%= attachment_form.file_field :file, class: "file-input file-input-bordered" %>
+
+          <%= attachment_form.label :caption %>
+          <%= attachment_form.text_field :caption, class: "input input-bordered" %>
+
+          <%# Hidden field for existing record ID %>
+          <%= attachment_form.hidden_field :id %>
+
+          <%# Checkbox to mark for deletion %>
+          <div class="form-control">
+            <%= attachment_form.check_box :_destroy, class: "checkbox" %>
+            <%= attachment_form.label :_destroy, "Remove this attachment" %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <%= form.submit class: "btn btn-primary" %>
+<% end %>
+
+<%#
+============================================================================
+✅ DYNAMIC NESTED FORMS (Add/Remove with Stimulus)
+============================================================================
+%>
+
+<%# Form with Stimulus controller for dynamic fields %>
+<div data-controller="nested-form">
+  <%= form_with model: @feedback do |form| %>
+    <div class="form-control">
+      <%= form.label :content %>
+      <%= form.text_area :content, class: "textarea textarea-bordered" %>
+    </div>
+
+    <div class="space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-semibold">Attachments</h3>
+        <button type="button"
+                class="btn btn-sm btn-primary"
+                data-action="nested-form#add">
+          Add Attachment
+        </button>
+      </div>
+
+      <div data-nested-form-target="container">
+        <%= form.fields_for :attachments do |attachment_form| %>
+          <%= render "attachment_fields", form: attachment_form %>
+        <% end %>
+      </div>
+
+      <%# Template for new attachment %>
+      <template data-nested-form-target="template">
+        <%= form.fields_for :attachments, Attachment.new, child_index: "NEW_RECORD" do |attachment_form| %>
+          <%= render "attachment_fields", form: attachment_form %>
+        <% end %>
+      </template>
+    </div>
+
+    <%= form.submit class: "btn btn-primary" %>
+  <% end %>
+</div>
+
+<%# Partial: _attachment_fields.html.erb %>
+<div class="card bg-base-100 border nested-fields" data-nested-form-target="field">
+  <div class="card-body">
+    <%= form.label :file %>
+    <%= form.file_field :file, class: "file-input file-input-bordered" %>
+
+    <%= form.label :caption %>
+    <%= form.text_field :caption, class: "input input-bordered" %>
+
+    <%= form.hidden_field :_destroy %>
+
+    <button type="button"
+            class="btn btn-sm btn-error"
+            data-action="nested-form#remove">
+      Remove
+    </button>
+  </div>
+</div>
+
+<%# Stimulus Controller %>
+<%# app/javascript/controllers/nested_form_controller.js
+import { Controller } from "@hotwired/stimulus"
+
+export default class extends Controller {
+  static targets = ["container", "template", "field"]
+
+  add(event) {
+    event.preventDefault()
+
+    const content = this.templateTarget.innerHTML
+      .replace(/NEW_RECORD/g, new Date().getTime())
+
+    this.containerTarget.insertAdjacentHTML("beforeend", content)
+  }
+
+  remove(event) {
+    event.preventDefault()
+
+    const field = event.target.closest(".nested-fields")
+    const destroyInput = field.querySelector("input[name*='_destroy']")
+
+    if (destroyInput) {
+      // Existing record: mark for deletion
+      destroyInput.value = "1"
+      field.style.display = "none"
+    } else {
+      // New record: remove from DOM
+      field.remove()
+    }
+  }
+} %>
+
+<%#
+============================================================================
+✅ NESTED FORMS (has_one relationship)
+============================================================================
+%>
+
+<%# Model setup %>
+<%# class User < ApplicationRecord
+  has_one :profile, dependent: :destroy
+  accepts_nested_attributes_for :profile
+end
+
+class Profile < ApplicationRecord
+  belongs_to :user
+end %>
+
+<%# Form %>
+<%= form_with model: @user do |form| %>
+  <%= form.label :name %>
+  <%= form.text_field :name, class: "input input-bordered" %>
+
+  <h3 class="text-lg font-semibold mt-4">Profile</h3>
+
+  <%= form.fields_for :profile do |profile_form| %>
+    <%= profile_form.label :bio %>
+    <%= profile_form.text_area :bio, class: "textarea textarea-bordered" %>
+
+    <%= profile_form.label :website %>
+    <%= profile_form.url_field :website, class: "input input-bordered" %>
+  <% end %>
+
+  <%= form.submit class: "btn btn-primary" %>
+<% end %>
+
+<%# Controller - build profile if not exists %>
+<%# def new
+  @user = User.new
+  @user.build_profile
+end %>
+
+<%#
+============================================================================
+✅ FORM VALIDATION & ERRORS
+============================================================================
+%>
+
+<%# Display errors %>
+<% if @feedback.errors.any? %>
+  <div class="alert alert-error" role="alert">
+    <h3 class="font-bold">
+      <%= pluralize(@feedback.errors.count, "error") %> prohibited this feedback from being saved:
+    </h3>
+    <ul class="list-disc list-inside">
+      <% @feedback.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
+
+<%# Field-level errors %>
+<div class="form-control">
+  <%= form.label :content, class: "label" %>
+  <%= form.text_area :content,
+                     class: ["textarea textarea-bordered", ("input-error" if @feedback.errors[:content].any?)] %>
+
+  <% if @feedback.errors[:content].any? %>
+    <label class="label">
+      <span class="label-text-alt text-error">
+        <%= @feedback.errors[:content].first %>
+      </span>
+    </label>
+  <% end %>
+</div>
+
+<%# Helper for field errors %>
+<%# app/helpers/form_helper.rb
+module FormHelper
+  def form_errors_for(object, field)
+    return unless object.errors[field].any?
+
+    content_tag(:span, object.errors[field].first,
+                class: "label-text-alt text-error")
+  end
+end %>
+
+<%# Usage %>
+<div class="form-control">
+  <%= form.label :content %>
+  <%= form.text_area :content, class: "textarea textarea-bordered" %>
+  <%= form_errors_for(@feedback, :content) %>
+</div>
+
+<%#
+============================================================================
+✅ CUSTOM FORM BUILDERS
+============================================================================
+%>
+
+<%# app/helpers/daisyui_form_builder.rb
+class DaisyuiFormBuilder < ActionView::Helpers::FormBuilder
+  def text_field_with_label(attribute, options = {})
+    label_options = options.delete(:label) || {}
+    input_options = options.merge(class: "input input-bordered w-full")
+
+    @template.content_tag(:div, class: "form-control") do
+      label(attribute, label_options.merge(class: "label")) +
+      text_field(attribute, input_options) +
+      error_message(attribute)
+    end
+  end
+
+  def text_area_with_label(attribute, options = {})
+    label_options = options.delete(:label) || {}
+    input_options = options.merge(class: "textarea textarea-bordered")
+
+    @template.content_tag(:div, class: "form-control") do
+      label(attribute, label_options.merge(class: "label")) +
+      text_area(attribute, input_options) +
+      error_message(attribute)
+    end
+  end
+
+  private
+
+  def error_message(attribute)
+    return unless @object.errors[attribute].any?
+
+    @template.content_tag(:label, class: "label") do
+      @template.content_tag(:span,
+        @object.errors[attribute].first,
+        class: "label-text-alt text-error")
+    end
+  end
+end %>
+
+<%# Usage %>
+<%= form_with model: @feedback, builder: DaisyuiFormBuilder do |form| %>
+  <%= form.text_field_with_label :content %>
+  <%= form.text_area_with_label :details %>
+  <%= form.submit class: "btn btn-primary" %>
+<% end %>
+
+<%#
+============================================================================
+✅ MULTI-STEP FORMS (Wizard)
+============================================================================
+%>
+
+<%# Form with step tracking %>
+<%= form_with model: @feedback, url: wizard_feedbacks_path, method: :post do |form| %>
+  <%= form.hidden_field :current_step, value: @current_step %>
+
+  <% case @current_step %>
+  <% when "step_1" %>
+    <h2>Step 1: Recipient Information</h2>
+    <%= form.label :recipient_email %>
+    <%= form.email_field :recipient_email, class: "input input-bordered" %>
+
+  <% when "step_2" %>
+    <h2>Step 2: Your Feedback</h2>
+    <%= form.label :content %>
+    <%= form.text_area :content, class: "textarea textarea-bordered" %>
+
+  <% when "step_3" %>
+    <h2>Step 3: Optional Details</h2>
+    <%= form.label :sender_name %>
+    <%= form.text_field :sender_name, class: "input input-bordered" %>
+
+    <%= form.label :sender_email %>
+    <%= form.email_field :sender_email, class: "input input-bordered" %>
+  <% end %>
+
+  <div class="flex justify-between mt-6">
+    <% if @current_step != "step_1" %>
+      <%= form.button "Back", name: :back, class: "btn btn-ghost" %>
+    <% end %>
+
+    <% if @current_step == "step_3" %>
+      <%= form.submit "Submit", class: "btn btn-primary" %>
+    <% else %>
+      <%= form.submit "Next", class: "btn btn-primary" %>
+    <% end %>
+  </div>
+<% end %>
+
+<%# Controller %>
+<%# def wizard
+  @feedback = Feedback.find_or_initialize_by(session_id: session.id)
+  @current_step = params[:current_step] || "step_1"
+
+  if params[:back]
+    @current_step = previous_step(@current_step)
+  elsif @feedback.update(feedback_params)
+    if @current_step == "step_3"
+      redirect_to @feedback, notice: "Feedback submitted!"
+    else
+      @current_step = next_step(@current_step)
+    end
+  end
+
+  render :wizard
+end %>
+
+<%#
+============================================================================
+✅ FORM WITH FILE UPLOADS (ActiveStorage)
+============================================================================
+%>
+
+<%# Single file upload %>
+<%= form.label :avatar %>
+<%= form.file_field :avatar, direct_upload: true, class: "file-input file-input-bordered" %>
+
+<%# Multiple file upload %>
+<%= form.label :documents %>
+<%= form.file_field :documents, multiple: true, direct_upload: true, class: "file-input file-input-bordered" %>
+
+<%# Display existing attachments %>
+<% if @feedback.documents.attached? %>
+  <div class="mt-4">
+    <h4 class="font-semibold">Attached Documents:</h4>
+    <ul class="list-disc list-inside">
+      <% @feedback.documents.each do |document| %>
+        <li>
+          <%= link_to document.filename, rails_blob_path(document, disposition: "attachment") %>
+          <%= button_to "Remove",
+                       delete_attachment_feedback_path(@feedback, attachment_id: document.id),
+                       method: :delete,
+                       class: "btn btn-xs btn-error" %>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
+
+<%#
+============================================================================
+✅ TESTING FORMS
+============================================================================
+%>
+
+<%# System test %>
+<%# test "submits feedback with nested attachments" do
+  visit new_feedback_path
+
+  fill_in "Content", with: "Test feedback"
+  fill_in "Recipient email", with: "recipient@example.com"
+
+  # Add attachment
+  click_button "Add Attachment"
+
+  within ".nested-fields", match: :first do
+    attach_file "File", Rails.root.join("test/fixtures/files/document.pdf")
+    fill_in "Caption", with: "Important document"
+  end
+
+  click_button "Create Feedback"
+
+  assert_text "Feedback was successfully created"
+  assert_equal 1, Feedback.last.attachments.count
+end %>
+
+<%# Integration test %>
+<%# test "creates feedback with nested attributes" do
+  assert_difference "Feedback.count" => 1, "Attachment.count" => 2 do
+    post feedbacks_path, params: {
+      feedback: {
+        content: "Test",
+        recipient_email: "test@example.com",
+        attachments_attributes: {
+          "0" => { file: "doc1.pdf", caption: "Doc 1" },
+          "1" => { file: "doc2.pdf", caption: "Doc 2" }
+        }
+      }
+    }
+  end
+
+  assert_redirected_to feedback_path(Feedback.last)
+end %>
+
+<%#
+============================================================================
+RULE: Use form_with for all forms (Turbo-enabled by default)
+PREFER: Model-based forms over URL-based forms
+USE: fields_for for nested attributes
+TEST: Test forms with system tests
+VALIDATE: Always validate on both client and server
+CSRF: CSRF protection is automatic with Rails forms
+============================================================================
+%>

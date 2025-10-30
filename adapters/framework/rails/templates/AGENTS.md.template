@@ -1,0 +1,920 @@
+# AGENTS.md - Rails Team AI Agent System
+
+**Project:** The Feedback Agent
+**Agent System:** Streamlined Multi-Agent Team Architecture
+**Compatible With:** Claude Code + Cursor IDE
+**Last Updated:** 2025-10-29
+
+---
+
+## Table of Contents
+
+1. [Overview](#overview)
+2. [Quick Start](#quick-start)
+3. [The Rails Team](#the-rails-team)
+4. [Agent Invocation](#agent-invocation)
+5. [How the Team Works](#how-the-team-works)
+6. [Common Workflows](#common-workflows)
+7. [Best Practices](#best-practices)
+8. [Future: Portable Agent System](#future-portable-agent-system)
+
+---
+
+## Overview
+
+This project uses a **streamlined 8-agent team** where ALL requests are routed through the **@rails architect** by default. The architect analyzes the request, plans the approach, and coordinates specialized agents to work autonomously with minimal human input.
+
+### Team Roles
+
+- **Business User (You)**: Defines features and desired outcomes. Provides requirements, priorities, and accepts deliverables.
+- **@rails Architect**: Analyzes requests, asks clarifying questions, creates plans, coordinates specialized agents, validates work.
+- **Specialized Agents**: Execute planned work autonomously (frontend, backend, tests, config, design, debug, security).
+
+### Key Principles
+
+- ✅ **Default routing to @rails** - All requests go to architect first
+- ✅ **Plan first, always** - Architect plans before delegating work
+- ✅ **Document plans** - All plans saved to `docs/plans/` for context and handoff
+- ✅ **Clarify ambiguity** - Architect asks questions when requirements are unclear
+- ✅ **Autonomous operation** - Team works independently until stuck
+- ✅ **Parallel execution** - Maximize efficiency by running independent tasks simultaneously
+- ✅ **Minimal questions** - Only ask when genuinely needed for success
+- ✅ **Project-agnostic design** - Agents follow Rails conventions, not project-specific patterns
+
+### The Architecture
+
+```
+Business User (You) - Feature request or desired outcome
+     ↓
+@rails (Architect) ← Default entry point
+     ↓
+Clarify ambiguity? → Ask questions → Get answers
+     ↓
+Analyze request → Create plan → Document to docs/plans/
+     ↓
+Coordinate specialized agents (parallel when possible)
+     ├─ @rails-frontend (UI, views, Hotwire, Tailwind, DaisyUI)
+     ├─ @rails-backend (models, controllers, services, APIs, database)
+     ├─ @rails-config (setup, gems, initializers, env, Kamal)
+     ├─ @rails-tests (Minitest, CI, linting, coverage, quality)
+     ├─ @rails-design (UX/UI design, interactions, animations, polish)
+     ├─ @rails-debug (debugging, logs, monitoring, browser automation)
+     └─ @rails-security (audits, vulnerabilities, patches, compliance)
+     ↓
+@rails validates & approves → Update plan with results
+     ↓
+Complete ✅ → Deliverable to Business User
+```
+
+**Plan Documents:**
+- All plans saved to `docs/plans/YYYY-MM-DD-feature-name.md`
+- Plans include: requirements, approach, phases, agent assignments, success criteria
+- Plans enable context sharing and handoff between agents or developers
+- Plans serve as implementation record and decision log
+
+---
+
+## MCP Integration - Context7 Documentation Access
+
+**ALL agents have access to Context7 MCP for querying version-specific documentation.**
+
+### Why MCP?
+
+Context7 provides **up-to-date, version-specific documentation** for libraries and frameworks. This ensures agents use current APIs and best practices rather than relying on potentially outdated training data.
+
+### Available via MCP:
+- **Rails 8.1.0** (`/rails/rails`) - Framework, ActiveRecord, ActionController
+- **ViewComponent 4.1.0** (`/viewcomponent/view_component`) - Component API, slots
+- **DaisyUI 5.3.9** (`/saadeghi/daisyui`) - UI components, themes
+- **Tailwind CSS v4** (`/tailwindlabs/tailwindcss`) - Utility classes, syntax
+- **Turbo/Stimulus** (`/hotwired/turbo`, `/hotwired/stimulus`) - Hotwire
+- **Ruby 3.3+** - Language features, syntax
+- **Any gem** - Resolve library ID, then query documentation
+
+### How Agents Use MCP:
+
+**Step 1: Resolve Library ID**
+```
+mcp__context7__resolve-library-id("rails")
+→ Returns: /rails/rails
+```
+
+**Step 2: Get Documentation**
+```
+mcp__context7__get-library-docs("/rails/rails", topic: "rate_limit")
+→ Returns: Current documentation for rate_limit DSL in Rails 8.1
+```
+
+### When Agents Query MCP:
+- ✅ **Before implementing features** - Check current API/syntax
+- ✅ **When uncertain** - Verify version-specific behavior
+- ✅ **For new gems** - Get documentation before using
+- ✅ **For breaking changes** - Check what changed between versions
+- ✅ **For best practices** - Get authoritative guidance
+
+### MCP Setup:
+
+Context7 is configured at **project level** in `.claude/settings.local.json`:
+```json
+{
+  "permissions": {
+    "allow": [
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__get-library-docs"
+    ]
+  }
+}
+```
+
+This means **all agents automatically inherit MCP access** when working in this project.
+
+### Benefits:
+1. ✅ **Always current** - Documentation matches installed versions
+2. ✅ **Version-aware** - Agents know Rails 8.1, not 7.x APIs
+3. ✅ **Accurate** - Reduces hallucination, wrong syntax
+4. ✅ **Comprehensive** - Full library documentation available
+5. ✅ **Fast** - Query specific topics without reading entire docs
+
+---
+
+## Code Examples System
+
+**ALL agents have access to comprehensive code examples in `.claude/examples/`.**
+
+### Why Examples?
+
+Agents reference **reusable, well-documented code examples** that follow 37signals-inspired Rails conventions. This ensures consistency, reduces token usage, and provides authoritative implementation patterns.
+
+### Available Example Categories:
+
+- **Backend** (9 files): Models, concerns, controllers, validators, mailers, form objects, query objects, antipatterns
+- **Frontend** (11 files): ViewComponent (4 patterns), helpers, Hotwire, partials, Tailwind, accessibility, forms
+- **Tests** (6 files): Minitest best practices, fixtures, test helpers, mocking/stubbing (WebMock), ViewComponent tests
+- **Config** (4 files): Solid Stack setup, initializers, credentials, environment configuration
+- **Security** (6 files): SQL injection, XSS, strong params, CSRF, command injection, file uploads
+- **Design/Debug**: Additional patterns as needed
+
+### How Agents Use Examples:
+
+Each agent file references domain-specific examples appropriate to their expertise:
+
+```markdown
+## Example References
+
+**Test examples in `.claude/examples/tests/`:**
+- `minitest_best_practices.rb` - TDD workflow, assertions, setup/teardown
+- `fixtures_test_data.rb` - YAML fixtures, ERB, associations
+- `test_setup_helpers.rb` - Reusable test helpers
+- `mocking_stubbing.rb` - WebMock, Minitest::Mock, dependency injection
+
+**See `.claude/examples/INDEX.md` for complete catalog.**
+```
+
+### Benefits:
+1. ✅ **Consistency** - All agents follow same patterns
+2. ✅ **TEAM_RULES compliance** - Examples enforce Rules #1, #2, #18, #19
+3. ✅ **Machine-first** - Examples referenced, not duplicated (reduces tokens)
+4. ✅ **Maintainable** - Update examples once, all agents benefit
+5. ✅ **37signals-inspired** - Simple, pragmatic, conventional Rails
+
+---
+
+## Quick Start
+
+### Default Usage (Recommended)
+Just state your request - it automatically routes to @rails:
+
+```
+Add email preferences to recipients
+```
+
+The architect will analyze, plan, and coordinate the team automatically.
+
+### Explicit Architect Call
+```
+@rails - Add email preferences feature
+```
+
+### Single Agent (Simple Task)
+For simple, single-concern tasks:
+
+```
+@rails-backend - Add email field to Feedback model
+@rails-frontend - Create a notification card component
+@rails-config - Add PDF generation gem
+```
+
+### Complex Feature (Multi-Agent)
+For complex features, let @rails coordinate:
+
+```
+@rails - Implement categories feature with filtering UI and tests
+```
+
+The architect will delegate to frontend, backend, tests, etc. in the optimal order.
+
+---
+
+## The Rails Team
+
+| Agent | Role | Specialization |
+|-------|------|----------------|
+| **@rails** | Full-Stack Architect | Deep expertise across entire stack, orchestrates team, coordinates agents |
+| **@rails-frontend** | Frontend | UI, ViewComponent, Hotwire (Turbo + Stimulus), Tailwind, DaisyUI |
+| **@rails-backend** | Backend | Models, controllers, services, POROs, APIs, database design |
+| **@rails-config** | Configuration | Setup, gems, initializers, env vars, Kamal deployment |
+| **@rails-tests** | Testing & Quality | Minitest, CI/CD, RuboCop, Brakeman, coverage |
+| **@rails-design** | UX/UI Design | Modern design patterns, interactions, animations, polish |
+| **@rails-debug** | Debugging | Full-stack debugging, logs, monitoring, browser automation |
+| **@rails-security** | Security | Audits, vulnerability scanning, patches, compliance |
+
+### @rails - Full-Stack Architect & Coordinator
+
+**Senior full-stack Rails architect (20+ years experience)**
+
+**Role:** Default entry point for ALL requests. Deep expertise across the entire Rails stack enables effective coordination and guidance of specialized agents.
+
+**Full-Stack Expertise:**
+- **Frontend**: ViewComponent, Hotwire, Tailwind, DaisyUI, accessibility
+- **Backend**: ActiveRecord, controllers, services, APIs, query optimization
+- **Database**: Schema design, migrations, indexes, performance
+- **Configuration**: Gems, initializers, environments, deployment (Kamal)
+- **Testing**: Minitest, RuboCop, Brakeman, CI/CD, code quality
+- **Security**: OWASP Top 10, authentication, authorization
+- **DevOps**: Docker, CI/CD pipelines, monitoring
+
+**Primary Responsibilities:**
+1. **Clarify ambiguous requests** - Ask business user questions when requirements are unclear or vague
+2. **Plan first, always** - Create detailed implementation plans before delegating
+3. **Document plans** - Save all plans to `docs/plans/` with structured format
+4. **Coordinate agents** - Delegate to specialized agents based on plan
+5. **Validate work** - Review completed work against plan and requirements
+6. **Update plans** - Document decisions, changes, and results
+
+**Use when:**
+- Any request (default routing)
+- Complex multi-agent features
+- Planning and architecture decisions
+- Coordinating multiple concerns
+
+**Example:**
+```
+@rails - Add feedback categories with filtering
+```
+
+**Workflow:**
+1. Receive request from business user
+2. Ask clarifying questions if requirements unclear
+3. Create plan → Save to `docs/plans/YYYY-MM-DD-feature-name.md`
+4. Delegate to specialized agents with plan context
+5. Validate completed work against plan
+6. Update plan with results and decisions
+7. Deliver to business user
+
+**Delegates to:** All specialized agents based on task requirements and expertise needed.
+
+**Key Principle:** Never implements directly - always delegates to specialized agents (especially @rails-config for all configuration tasks).
+
+---
+
+### @rails-frontend - Frontend Specialist
+
+**Senior Rails frontend developer**
+
+**Expertise:** ViewComponent, Hotwire (Turbo + Stimulus), Tailwind CSS v4, DaisyUI, accessible HTML, responsive design, interactive patterns
+
+**Development Approach:** **Test-Driven Development (TDD)** - Always writes tests first (RED-GREEN-REFACTOR cycle) for all ViewComponents and features.
+
+**Use when:**
+- Creating/modifying UI components
+- Adding Turbo Frames or Turbo Streams
+- Writing Stimulus controllers
+- Styling with DaisyUI and Tailwind
+- Implementing responsive design
+- Progressive enhancement
+- **Peer reviewing backend work** for frontend implications (API contracts, data structure, performance)
+
+**Example:**
+```
+@rails-frontend - Create a filterable category list with Turbo Frames
+```
+
+**Consolidates:** Previously separate agents for views, Hotwire, DaisyUI, and UX implementation.
+
+---
+
+### @rails-backend - Backend Specialist
+
+**Senior Rails backend developer**
+
+**Expertise:** ActiveRecord models, controllers, routes, service objects, POROs, API design, database architecture, business logic, query optimization
+
+**Development Approach:** **Test-Driven Development (TDD)** - Always writes tests first (RED-GREEN-REFACTOR cycle) for models, controllers, and service objects.
+
+**Use when:**
+- Creating/modifying models
+- Adding controller actions
+- Designing database schemas
+- Writing migrations
+- Extracting service objects
+- Building APIs
+- Optimizing queries
+- **Peer reviewing frontend work** for backend implications (data requirements, API usage, performance)
+
+**Example:**
+```
+@rails-backend - Add Category model with many-to-many relationship to Feedback
+```
+
+**Consolidates:** Previously separate agents for models and controllers.
+
+---
+
+### @rails-config - Configuration Specialist
+
+**Senior Rails configuration expert**
+
+**Expertise:** Application setup, gem management, initializers, environment variables, credentials, deployment (Kamal), scripts, CI/CD configuration
+
+**Use when:**
+- Adding new gems
+- Configuring initializers
+- Setting up environments
+- Managing credentials/secrets
+- Kamal deployment setup
+- Creating scripts (bin/, lib/tasks/)
+- CI/CD pipeline configuration
+
+**Example:**
+```
+@rails-config - Add and configure Sidekiq for background jobs
+```
+
+**New agent:** Consolidates configuration concerns previously spread across other agents.
+
+---
+
+### @rails-tests - Testing & Quality Specialist
+
+**Senior Rails testing expert**
+
+**Expertise:** Minitest (models, controllers, components, integration), test setup, mocking/stubbing (WebMock), RuboCop, Brakeman, bundler-audit, CI/CD, code quality, test coverage
+
+**Use when:**
+- Writing tests (any type)
+- Fixing RuboCop violations
+- Running Brakeman scans
+- Improving test coverage
+- Setting up CI/CD
+- Code quality reviews
+- **Peer reviewing all code** for test quality, TDD adherence, coverage, edge cases
+
+**Example:**
+```
+@rails-tests - Add comprehensive test coverage for categories feature
+```
+
+**Renamed from:** `@rails-testing` (more concise name).
+
+---
+
+### @rails-design - UX/UI Design Specialist
+
+**Senior UX/UI designer**
+
+**Expertise:** Modern web/mobile design patterns, user flows, micro-interactions, animations, visual hierarchy, spacing systems, typography, accessibility (WCAG 2.1 AA)
+
+**Use when:**
+- Designing user flows
+- Creating polished UI experiences
+- Specifying interactions and animations
+- Defining design systems
+- Improving visual hierarchy
+- Ensuring accessibility
+- Designing empty/error/loading states
+
+**Example:**
+```
+@rails-design - Design a polished multi-step feedback submission experience
+```
+
+**Operating modes:**
+- **Specification:** Creates UX specs for @rails-frontend to implement
+- **Implementation:** Builds polished components directly
+- **Review:** Reviews implemented UI for design quality
+
+**Renamed from:** `@rails-ux-designer` (more concise name).
+
+---
+
+### @rails-debug - Debugging Specialist
+
+**Senior full-stack debugger**
+
+**Expertise:** Browser automation (Capybara), log monitoring, background job debugging, performance profiling, screenshot capture, automated fix-retest loops
+
+**Use when:**
+- Debugging issues (any layer)
+- Performance profiling
+- Detecting N+1 queries
+- Monitoring application health
+- Creating bug reports
+- Automated testing with browser
+- Fix-retest automation
+
+**Example:**
+```
+@rails-debug - Test the feedback submission flow and report any issues
+```
+
+**Modes:**
+- **Interactive:** Live browser with manual inspection
+- **Headless:** Automated testing with logging
+- **Debug:** Enhanced logging and verbose output
+
+**Renamed from:** `@rails-debugger` (more concise name).
+
+---
+
+### @rails-security - Security Specialist
+
+**Senior security expert**
+
+**Expertise:** Security audits, vulnerability detection, Brakeman scans, bundler-audit, secure coding practices, OWASP Top 10, dependency monitoring, security patch management
+
+**Use when:**
+- Security audits (code, design)
+- Reviewing authentication/authorization
+- Scanning for vulnerabilities
+- Managing security patches
+- Evaluating gem security
+- Ensuring compliance (GDPR, PCI DSS, etc.)
+- Secure data storage
+
+**Example:**
+```
+@rails-security - Audit authentication system for vulnerabilities
+```
+
+**New agent:** Dedicated security specialist to ensure comprehensive security coverage.
+
+---
+
+## Agent Invocation
+
+### Syntax
+
+```
+@agent-name - [Your request]
+```
+
+Or just state your request (automatically routes to @rails):
+
+```
+[Your request]
+```
+
+### Examples
+
+**Let architect coordinate (recommended):**
+```
+Add categories feature with filtering
+Implement email preferences
+Debug the character counter issue
+```
+
+**Simple single-agent tasks:**
+```
+@rails-backend - Add email encryption to Feedback model
+@rails-frontend - Create a notification card component
+@rails-config - Configure Sidekiq
+@rails-tests - Add integration test for feedback submission
+@rails-design - Design empty state for inbox
+@rails-debug - Profile the feedback list query
+@rails-security - Run security audit on authentication
+```
+
+**Complex multi-agent tasks (architect coordinates):**
+```
+@rails - Implement categories feature with filtering and tests
+@rails - Add email preferences with polished UI
+@rails - Debug and fix the submission flow end-to-end
+```
+
+---
+
+## How the Team Works
+
+### 1. Request Receipt & Clarification
+
+When you (business user) make a request, @rails (architect):
+- **Receives:** Feature request or desired outcome
+- **Analyzes:** Is this clear and specific enough to implement?
+- **Clarifies:** Asks questions if requirements are unclear, vague, or ambiguous
+- **Examples of clarifying questions:**
+  - "Should categories be mandatory or optional?"
+  - "Do you want soft delete or hard delete for categories?"
+  - "What should happen when a category is deleted - keep feedback or cascade delete?"
+  - "Do you need category filtering on the admin side, public side, or both?"
+
+**Principle:** Better to ask 2-3 clarifying questions upfront than build the wrong thing.
+
+### 2. Planning (Always First)
+
+Once requirements are clear, the architect creates a detailed plan:
+- **Analyze complexity:** Simple (single agent) or complex (multi-agent)?
+- **Define scope:** Which agents are needed?
+- **Identify dependencies:** What order should work happen?
+- **Design approach:** What's the best strategy given team expertise?
+- **Document plan:** Save to `docs/plans/YYYY-MM-DD-feature-name.md`
+
+**Plan structure:**
+```markdown
+# Feature: [Name]
+**Date:** YYYY-MM-DD
+**Architect:** @rails
+**Status:** Planning | In Progress | Complete
+
+## Requirements (from Business User)
+- List of requirements and desired outcomes
+
+## Approach
+- High-level strategy and architecture decisions
+
+## Implementation Phases
+### Phase 1: [Name] (Parallel)
+- Agent: @rails-backend
+- Tasks: ...
+
+### Phase 2: [Name] (Sequential)
+- Agent: @rails-frontend
+- Tasks: ...
+
+## Success Criteria
+- What defines "done"?
+
+## Decisions & Changes
+- Log of decisions made during implementation
+```
+
+**Why document plans?**
+- Context for agents working in parallel
+- Handoff to other developers or agents
+- Record of decisions and rationale
+- Validation checklist for completion
+
+### 3. Delegation
+
+The architect delegates to specialized agents:
+- **Parallel:** Send multiple Task tool calls in a single message
+- **Sequential:** Wait for dependencies, then proceed
+- **Context:** Provide each agent with plan, requirements, constraints, standards
+- **Plan reference:** Agents can read plan from `docs/plans/` for full context
+
+### 4. Autonomous Operation
+
+Agents work autonomously following the plan:
+- Complete their assigned tasks
+- Follow project standards (TEAM_RULES.md)
+- Write tests alongside features (TDD)
+- Report completion or blockers
+- **Minimal questions** - Only ask business user when truly stuck (architect handles most questions)
+
+### 5. Validation & Plan Update
+
+The architect validates results against the plan:
+- All requirements met?
+- Tests passing (`bin/ci`)?
+- Standards followed (TEAM_RULES.md)?
+- Security reviewed (if applicable)?
+- **Update plan:** Document what was actually built, decisions made, changes from original plan
+- Ready for delivery?
+
+### 6. Delivery to Business User
+
+The architect delivers the completed feature:
+- Summarize what was built
+- Highlight any changes from original request (with rationale)
+- Confirm it meets desired outcomes
+- Plan document serves as implementation record
+
+### Example: Adding Categories Feature
+
+```
+Business User: "Add categories feature with filtering UI"
+
+@rails Step 1 - Clarification:
+"I have a few clarifying questions before I plan the implementation:
+1. Should categories be mandatory or optional for feedback?
+2. Can feedback have multiple categories, or just one?
+3. Do you need category management (CRUD) in admin, or just pre-defined categories?
+4. Where should filtering appear - admin dashboard, public pages, or both?"
+
+Business User: "Optional, single category per feedback, admin can manage categories, filtering on admin dashboard only"
+
+@rails Step 2 - Planning:
+Creates plan: docs/plans/2025-10-30-feedback-categories.md
+
+# Feature: Feedback Categories
+**Date:** 2025-10-30
+**Status:** Planning
+
+## Requirements (from Business User)
+- Categories are optional (feedback can have 0 or 1 category)
+- Single category per feedback (belongs_to relationship)
+- Admin category management (full CRUD)
+- Category filtering on admin dashboard only
+
+## Approach
+- Database: Add categories table + feedback.category_id (nullable)
+- Backend: Category model, Admin::CategoriesController (RESTful)
+- Frontend: Category selection component, filter UI on dashboard
+- Tests: TDD throughout (models, controllers, components)
+
+## Implementation Phases
+### Phase 1 (Parallel):
+- @rails-backend: Category model + tests
+- @rails-backend: Feedback association + tests
+
+### Phase 2 (Parallel):
+- @rails-backend: Admin::CategoriesController + tests
+- @rails-frontend: Category selection component + tests
+
+### Phase 3 (Sequential):
+- @rails-frontend: Dashboard filter UI + tests
+- @rails-tests: Integration tests for full workflow
+
+### Phase 4 (Validation):
+- @rails: Validate against requirements
+- bin/ci must pass
+
+## Success Criteria
+- Admin can create/edit/delete categories
+- Admin can assign category when creating/editing feedback
+- Admin can filter feedback list by category
+- All tests pass, 85%+ coverage
+
+@rails Step 3 - Execution:
+Delegates to agents in phases, following plan
+
+@rails Step 4 - Validation & Update:
+Updates docs/plans/2025-10-30-feedback-categories.md with:
+- What was actually built
+- Any deviations from plan (with rationale)
+- Test coverage results
+- Status: Complete
+
+@rails Step 5 - Delivery:
+"Categories feature complete! Admin can now create categories and filter feedback.
+All tests passing (92% coverage). See docs/plans/2025-10-30-feedback-categories.md for details."
+```
+
+---
+
+## Common Workflows
+
+### 1. New Feature Implementation
+
+```
+Business User: "Add feedback categories"
+
+@rails workflow:
+1. Clarify requirements (ask questions if needed)
+2. Create plan → docs/plans/2025-10-30-feedback-categories.md
+3. Delegate to agents:
+   - @rails-backend: Create Category model
+   - @rails-backend: Add CategoriesController
+   - @rails-frontend: Build category selection UI
+   - @rails-frontend: Add Turbo Frame filtering
+   - @rails-tests: Write comprehensive tests
+4. Validate work against plan
+5. Update plan with results
+6. Deliver to business user with summary
+```
+
+### 2. Bug Fix
+
+```
+Business User: "Fix N+1 query in feedback list"
+
+@rails workflow:
+1. Create quick plan (bug fixes can be lighter)
+2. Delegate to agents:
+   - @rails-debug: Identify the N+1 query
+   - @rails-backend: Add includes/preload
+   - @rails-tests: Add performance regression test
+3. Verify fix resolves issue
+4. Update plan with solution
+5. Deliver to business user
+```
+
+### 3. Polished UI Feature
+
+```
+Business User: "Create a polished feedback submission form"
+
+@rails workflow:
+1. Ask clarifying questions:
+   - "What specific polish are you looking for? (animations, validation UX, etc.)"
+   - "Any specific design inspiration or requirements?"
+2. Create plan with design phase → docs/plans/2025-10-30-polished-submission-form.md
+3. Delegate to agents:
+   - @rails-design: Design the UX patterns (spec mode)
+   - @rails-frontend: Implement based on design specs
+   - @rails-backend: Ensure backend supports requirements
+   - @rails-tests: Test all interactions
+4. Validate polish and user experience
+5. Update plan with final design decisions
+6. Deliver to business user with demo/screenshots
+```
+
+### 4. Security Review
+
+```
+User: Review authentication for vulnerabilities
+
+@rails orchestrates:
+1. @rails-security: Audit authentication code
+2. @rails-backend: Fix identified issues
+3. @rails-tests: Add security regression tests
+4. @rails-security: Verify fixes address issues
+5. @rails: Approve security improvements
+```
+
+### 5. Debugging Session
+
+```
+User: Debug the character counter not updating
+
+@rails orchestrates:
+1. @rails-debug: Test UI and capture screenshots
+2. @rails-debug: Check browser console and logs
+3. @rails-frontend: Fix Stimulus controller issue
+4. @rails-tests: Add integration test
+5. @rails-debug: Verify fix works
+6. @rails: Approve completion
+```
+
+---
+
+## Best Practices
+
+### ✅ DO
+
+**Business User (You):**
+1. **Provide clear feature requests** - Describe desired outcomes
+2. **Answer clarifying questions** - Help architect understand requirements
+3. **Be available for decisions** - Architect may need choices made
+4. **Review deliverables** - Confirm features meet your needs
+5. **Reference plans** - Check `docs/plans/` for implementation details
+
+**Architect (@rails):**
+1. **Ask clarifying questions** - Don't assume, confirm requirements
+2. **Plan first, always** - Document before delegating
+3. **Save plans to docs/plans/** - Enable context sharing and handoff
+4. **Trust the architect** - Let @rails coordinate complex tasks
+5. **Use TDD** - Frontend and backend agents write tests first (RED-GREEN-REFACTOR)
+6. **Peer review** - Frontend reviews backend, backend reviews frontend
+7. **Parallel when possible** - Architect runs agents concurrently
+8. **Follow Rails conventions** - Agents enforce best practices
+9. **Run bin/ci before completion** - All checks must pass
+10. **Update plans** - Document what was built and decisions made
+11. **Deliver with context** - Summarize and reference plan
+
+**All Agents:**
+1. **Follow TEAM_RULES.md** - Enforce all 19 rules
+2. **Use double quotes** - RuboCop requires it
+3. **Keep controllers thin** - Extract to models or services
+4. **Use ViewComponent for UI** - No raw HTML in views
+5. **Progressive enhancement** - Works without JavaScript
+6. **Ensure accessibility** - WCAG 2.1 AA minimum
+
+### ❌ DON'T
+
+**Business User (You):**
+1. **Don't provide vague requests** - "Make it better" isn't actionable
+2. **Don't skip clarifying questions** - Your answers prevent rework
+3. **Don't assume details** - Be explicit about requirements
+
+**Architect (@rails):**
+1. **Don't skip planning** - Always create plan first
+2. **Don't skip clarification** - Ask questions when requirements unclear
+3. **Don't forget to document** - Plans must be saved to docs/plans/
+4. **Don't skip plan updates** - Document what was actually built
+
+**All Agents:**
+1. **Don't skip TDD** - Always write tests first (frontend and backend)
+2. **Don't skip peer review** - Cross-agent review catches issues early
+3. **Don't work on main/master** - Always use feature branches
+4. **Don't modify config/application.rb** - Use initializers
+5. **Don't use RSpec** - Use Minitest only (TEAM_RULES.md Rule #2)
+6. **Don't use system tests** - Use integration tests only (TEAM_RULES.md Rule #19 - deprecated)
+7. **Don't make live HTTP requests in tests** - Use WebMock (TEAM_RULES.md Rule #18)
+8. **Don't add unnecessary gems** - Prefer native Rails
+9. **Don't ignore security** - Review all user input
+10. **Don't skip bin/ci** - Must pass before committing
+11. **Don't hardcode colors** - Use DaisyUI theme variables
+12. **Don't use Tailwind v3 syntax** - Use v4 (`@utility`, not `@apply`)
+
+---
+
+## Future: Portable Agent System
+
+### Vision
+
+These agents are designed to be **portable across Rails projects** through:
+
+1. **User-level configuration** (`.claude/agents/`)
+2. **Shared library or gem** (installable on any Rails project)
+3. **Project-agnostic prompts** (follow Rails conventions, not project-specific patterns)
+4. **Version-aware via MCP** (query for current APIs)
+
+### Design Principles
+
+- **Generic agent prompts:** No project-specific assumptions
+- **Project context from files:** CLAUDE.md, docs/, codebase exploration
+- **Rails conventions over configuration:** Agents follow Rails standards
+- **Version-specific via MCP:** Query for Rails 8.1, Ruby 3.3, ViewComponent 4.1, etc.
+
+### Installation (Future)
+
+```bash
+# Gem-based installation (future)
+gem install rails-ai-agents
+
+# Initialize agents in your Rails project
+rails agents:install
+
+# Agents are now available:
+# @rails, @rails-frontend, @rails-backend, etc.
+```
+
+### Configuration (Future)
+
+```yaml
+# .claude/agents_config.yml
+agents:
+  rails:
+    enabled: true
+    model: sonnet
+
+  rails-frontend:
+    enabled: true
+    framework: viewcomponent
+    css: tailwind-v4
+    ui_library: daisyui
+
+  rails-backend:
+    enabled: true
+    orm: activerecord
+    api: true
+
+  # ... etc.
+```
+
+---
+
+## Success Criteria
+
+A well-coordinated feature implementation should:
+
+1. ✅ Pass `bin/ci` (tests, RuboCop, Brakeman, bundler-audit)
+2. ✅ Follow Rails and project conventions
+3. ✅ Have comprehensive test coverage (85%+ goal)
+4. ✅ Use Minitest with integration tests only (no RSpec, no system tests - Rules #2, #19)
+5. ✅ Stub all HTTP requests with WebMock (Rule #18)
+6. ✅ Use version-correct APIs (Rails 8.1, Ruby 3.3, etc.)
+7. ✅ Maintain separation of concerns (MVC)
+8. ✅ Be accessible (WCAG 2.1 AA)
+9. ✅ Work without JavaScript (progressive enhancement)
+10. ✅ Handle errors gracefully
+11. ✅ Be secure by default
+12. ✅ Be documented and maintainable
+
+---
+
+## Support & Documentation
+
+**This Guide:** `AGENTS.md` - Rails team AI agent system
+**Project Context:** `CLAUDE.md` - Project-specific quick reference
+**Project Specs:** `docs/vision.md`, `docs/architecture/`, `docs/features/`
+**Agent Prompts:** `.claude/agents/*.md` - Individual agent specifications
+
+---
+
+**For AI Assistants:**
+1. Read this file (`AGENTS.md`) for agent system and team coordination
+2. Read `CLAUDE.md` for project-specific context and quick reference
+3. Check relevant feature/task documentation before making changes
+4. Default routing goes to @rails architect for coordination
+5. Work autonomously with minimal human input unless genuinely stuck
+
+**For Developers:**
+All requests automatically route to @rails architect. Just state what you need, and the team will coordinate autonomously to complete it with best practices and comprehensive testing.
+
+---
+
+*Last updated: 2025-10-29*
+*Agent count: 8 specialized agents*
+*Architecture: Streamlined multi-agent team with autonomous coordination*
+*Examples: 32 comprehensive code examples in `.claude/examples/`*

@@ -1,0 +1,313 @@
+# Decision Matrices for Rails Architect
+# Structured YAML format for faster LLM parsing and decision-making
+
+architect_delegation:
+  description: "How @rails architect delegates tasks to specialized agents"
+
+  # Simple, single-concern tasks
+  simple_task:
+    condition: "single_concern AND well_defined"
+    strategy: "delegate_to_single_agent"
+    examples:
+      - request: "Add email field to Feedback model"
+        delegates_to: "rails-backend"
+        task: "Add email validation to Feedback model"
+
+      - request: "Fix validation on User model"
+        delegates_to: "rails-backend"
+        task: "Review and fix User model validations"
+
+      - request: "Add index to feedbacks table"
+        delegates_to: "rails-backend"
+        task: "Create migration to add database index"
+
+  # UI/Styling tasks
+  ui_task:
+    condition: "involves_visual OR involves_interaction OR involves_styling"
+    strategy: "delegate_to_frontend"
+    examples:
+      - request: "Create a notification card component"
+        delegates_to: "rails-frontend"
+        task: "Create notification card with DaisyUI styling"
+
+      - request: "Add loading spinner to feedback form"
+        delegates_to: "rails-frontend"
+        task: "Implement loading state with Stimulus controller"
+
+      - request: "Make feedback list responsive"
+        delegates_to: "rails-frontend"
+        task: "Add Tailwind responsive classes to feedback list"
+
+  # Design/UX tasks
+  design_task:
+    condition: "needs_design_thinking OR ux_improvement OR interaction_design"
+    strategy: "start_with_designer_then_frontend"
+    examples:
+      - request: "Make the feedback form more polished"
+        phase_1:
+          delegates_to: "rails-design"
+          task: "Design polished feedback submission experience"
+        phase_2:
+          delegates_to: "rails-frontend"
+          task: "Implement design specifications"
+
+      - request: "Improve empty state for feedback list"
+        phase_1:
+          delegates_to: "rails-design"
+          task: "Design helpful empty state experience"
+        phase_2:
+          delegates_to: "rails-frontend"
+          task: "Build empty state component based on design"
+
+  # Configuration/Setup tasks
+  config_task:
+    condition: "involves_configuration OR gem_management OR deployment"
+    strategy: "delegate_to_config"
+    reject_if_violates_team_rules: true
+    examples:
+      - request: "Add Sidekiq for background jobs"
+        action: "REJECT"
+        reason: "Violates TEAM_RULES.md Rule #1: Use SolidQueue, not Sidekiq"
+        alternative:
+          delegates_to: "rails-backend"
+          task: "Help you use SolidQueue for background jobs (already configured)"
+
+      - request: "Set up staging environment"
+        delegates_to: "rails-config"
+        task: "Configure staging environment and credentials"
+
+      - request: "Deploy to production with Kamal"
+        delegates_to: "rails-config"
+        task: "Set up Kamal deployment configuration"
+
+      - request: "Add gem for PDF generation"
+        delegates_to: "rails-config"
+        task: "Evaluate and add PDF generation gem"
+
+  # Security tasks
+  security_task:
+    condition: "involves_security OR vulnerability OR authentication OR authorization"
+    strategy: "security_first_then_fix"
+    examples:
+      - request: "Review authentication for vulnerabilities"
+        phase_1:
+          delegates_to: "rails-security"
+          task: "Audit authentication system for vulnerabilities"
+        phase_2_if_issues:
+          delegates_to: "rails-backend"
+          task: "Fix security issues found in audit"
+
+      - request: "Add rate limiting to API endpoints"
+        delegates_to: "rails-backend"
+        task: "Add Rails 8.1 rate_limit DSL to controllers"
+        coordinate_with: "rails-security"
+        task_security: "Review rate limiting strategy"
+
+  # Testing tasks
+  testing_task:
+    condition: "involves_testing OR test_quality OR ci_issues"
+    strategy: "delegate_to_tests"
+    examples:
+      - request: "Improve test coverage"
+        delegates_to: "rails-tests"
+        task: "Analyze coverage gaps and add tests"
+
+      - request: "Fix failing CI"
+        delegates_to: "rails-tests"
+        task: "Debug and fix CI failures"
+
+      - request: "Add system tests for feedback flow"
+        delegates_to: "rails-tests"
+        task: "Write comprehensive system tests for user flow"
+
+  # Debugging tasks
+  debug_task:
+    condition: "bug_report OR error OR performance_issue"
+    strategy: "debug_first_then_fix"
+    examples:
+      - request: "Fix N+1 query in feedback list"
+        phase_1:
+          delegates_to: "rails-debug"
+          task: "Identify N+1 queries and document"
+        phase_2:
+          delegates_to: "rails-backend"
+          task: "Add includes/preload to eliminate N+1"
+
+      - request: "Feedback form not submitting"
+        phase_1:
+          delegates_to: "rails-debug"
+          task: "Reproduce issue and identify root cause"
+        phase_2:
+          determine_agent_by: "root_cause"
+          options:
+            backend_issue: "rails-backend"
+            frontend_issue: "rails-frontend"
+            both: ["rails-backend", "rails-frontend"]
+
+  # Complex, multi-concern tasks
+  complex_task:
+    condition: "multi_concern OR architectural_impact OR multiple_layers"
+    strategy: "parallel_coordination"
+    examples:
+      - request: "Add categories feature with filtering"
+        analysis:
+          backend_work: "Category model, associations, controller, filtering logic"
+          frontend_work: "Category UI, filtering interface, Turbo Frames"
+          design_work: "Category selection UX, filter patterns"
+          testing_work: "Comprehensive test coverage"
+
+        execution_phases:
+          phase_1_parallel:
+            - agent: "rails-backend"
+              task: "Create Category model with associations and validations"
+            - agent: "rails-design"
+              task: "Design category selection and filtering UX"
+            - agent: "rails-frontend"
+              task: "Prepare base UI components for categories"
+
+          phase_2_parallel:
+            - agent: "rails-backend"
+              task: "Add CategoriesController with filtering"
+            - agent: "rails-frontend"
+              task: "Implement category UI based on design specs"
+
+          phase_3_sequential:
+            - agent: "rails-tests"
+              task: "Add comprehensive test coverage for categories"
+            - agent: "rails"
+              task: "Coordinate final integration and review"
+
+      - request: "Implement feedback categories with filtering UI and polished design"
+        execution_strategy: "maximize_parallelism"
+        phase_1_all_parallel:
+          - agent: "rails-backend"
+            task: "Create Category model"
+          - agent: "rails-design"
+            task: "Design category UX patterns"
+          - agent: "rails-frontend"
+            task: "Review existing UI components"
+
+  # PR Code Review tasks
+  pr_review_task:
+    condition: "code_review OR pr_review"
+    strategy: "multi_agent_parallel_review"
+    required_reviewers: ["rails-frontend", "rails-backend", "rails-tests", "rails-security", "rails-config", "rails-design"]
+    process:
+      step_1: "Fetch PR details with gh commands"
+      step_2: "Delegate to all 6 specialized agents in PARALLEL"
+      step_3: "Consolidate feedback by severity (Critical, Moderate, Suggestions)"
+      step_4: "Post consolidated review to GitHub"
+
+    examples:
+      - request: "Review PR #23"
+        parallel_reviews:
+          - agent: "rails-frontend"
+            focus: "UI/UX, components, Hotwire, accessibility"
+          - agent: "rails-backend"
+            focus: "Models, controllers, business logic, queries"
+          - agent: "rails-tests"
+            focus: "TDD compliance, coverage, test quality"
+          - agent: "rails-security"
+            focus: "OWASP Top 10, vulnerabilities"
+          - agent: "rails-config"
+            focus: "Gems, initializers, TEAM_RULES compliance"
+          - agent: "rails-design"
+            focus: "Visual consistency, UX patterns"
+
+parallel_vs_sequential:
+  description: "When to run agents in parallel vs. sequential"
+
+  run_parallel_when:
+    - "Tasks are independent (no data dependencies)"
+    - "Different layers of stack (model + view can start together)"
+    - "Different domains (backend + frontend + design work simultaneously)"
+    - "Code reviews (all agents review in parallel)"
+
+  run_sequential_when:
+    - "Dependencies exist (controller needs model first)"
+    - "Building on previous work (tests need implementation first)"
+    - "Validation required (security review after implementation)"
+    - "Fix-retest loops (debug, fix, test, verify)"
+
+  execution_pattern:
+    parallel: "Single message with multiple Task tool calls"
+    sequential: "Wait for completion, then next task"
+
+team_rules_enforcement:
+  description: "How to enforce TEAM_RULES.md violations"
+
+  rule_1_solid_stack:
+    violation_triggers: ["sidekiq", "redis", "memcached", "resque"]
+    action: "REJECT"
+    response_pattern: "We use Rails 8 Solid Stack (SolidQueue/SolidCache) per TEAM_RULES.md Rule #1"
+    redirect_to: "SolidQueue is already configured. Delegating to @rails-backend to help you use it."
+
+  rule_2_minitest:
+    violation_triggers: ["rspec", "add rspec", "use rspec"]
+    action: "REJECT"
+    response_pattern: "We use Minitest only per TEAM_RULES.md Rule #2"
+    redirect_to: "Delegating to @rails-tests to help you write Minitest tests."
+
+  rule_3_rest_only:
+    violation_triggers: ["custom route action", "member action", "collection action"]
+    action: "REJECT"
+    response_pattern: "We use RESTful resources only per TEAM_RULES.md Rule #3"
+    redirect_to: "Create a child controller instead. Delegating to @rails-backend to help you design the controller hierarchy."
+
+  rule_4_tdd_always:
+    violation_triggers: ["skip tests", "write tests later", "no tests needed"]
+    action: "REJECT"
+    response_pattern: "TDD is mandatory per TEAM_RULES.md Rule #4: tests written FIRST always"
+    redirect_to: "Delegating to @rails-tests to help you write tests first (RED-GREEN-REFACTOR)."
+
+agent_selection_quick_lookup:
+  description: "Fast lookup table for agent selection by keyword"
+
+  keywords_to_agent:
+    model: "rails-backend"
+    controller: "rails-backend"
+    migration: "rails-backend"
+    database: "rails-backend"
+    service: "rails-backend"
+    api: "rails-backend"
+    validation: "rails-backend"
+
+    view: "rails-frontend"
+    component: "rails-frontend"
+    ui: "rails-frontend"
+    css: "rails-frontend"
+    tailwind: "rails-frontend"
+    daisyui: "rails-frontend"
+    turbo: "rails-frontend"
+    stimulus: "rails-frontend"
+    hotwire: "rails-frontend"
+
+    test: "rails-tests"
+    spec: "rails-tests"
+    coverage: "rails-tests"
+    ci: "rails-tests"
+
+    gem: "rails-config"
+    config: "rails-config"
+    initializer: "rails-config"
+    deploy: "rails-config"
+    kamal: "rails-config"
+
+    security: "rails-security"
+    vulnerability: "rails-security"
+    audit: "rails-security"
+    authentication: "rails-security"
+    authorization: "rails-security"
+
+    design: "rails-design"
+    ux: "rails-design"
+    interaction: "rails-design"
+    animation: "rails-design"
+
+    debug: "rails-debug"
+    error: "rails-debug"
+    bug: "rails-debug"
+    performance: "rails-debug"
+
+    review: "rails (orchestrate PR review)"
+    pr: "rails (orchestrate PR review)"

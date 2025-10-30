@@ -1,0 +1,520 @@
+<%# Tailwind v4 + DaisyUI v5 Comprehensive Patterns %>
+<%# Reference: TailwindCSS v4 docs, DaisyUI v5 docs %>
+<%# Category: FRONTEND - STYLING %>
+
+<%#
+============================================================================
+What is Tailwind v4 + DaisyUI v5?
+============================================================================
+
+Tailwind CSS v4:
+- Utility-first CSS framework
+- New @import and @plugin syntax
+- Faster build times
+- Better IntelliSense
+
+DaisyUI v5:
+- Component library built on Tailwind
+- 70+ components with semantic class names
+- 32 themes (light/dark support)
+- Accessible by default
+
+Benefits:
+✅ Rapid UI development
+✅ Consistent design system
+✅ Mobile-first responsive
+✅ Built-in dark mode support
+✅ No custom CSS needed
+%>
+
+<%#
+============================================================================
+✅ TAILWIND V4 SETUP
+============================================================================
+%>
+
+<%# app/assets/stylesheets/application.css %>
+<%# @import "tailwindcss";
+@plugin "daisyui";
+
+/* Custom utilities still use @utility directive */
+@utility btn-custom {
+  display: inline-flex;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+} %>
+
+<%#
+============================================================================
+✅ DAISYUI COMPONENTS (Most Common)
+============================================================================
+%>
+
+<%# 1. BUTTONS %>
+<button class="btn">Normal</button>
+<button class="btn btn-primary">Primary</button>
+<button class="btn btn-secondary">Secondary</button>
+<button class="btn btn-accent">Accent</button>
+<button class="btn btn-ghost">Ghost</button>
+<button class="btn btn-link">Link</button>
+
+<%# Button sizes %>
+<button class="btn btn-xs">Tiny</button>
+<button class="btn btn-sm">Small</button>
+<button class="btn btn-md">Normal</button>
+<button class="btn btn-lg">Large</button>
+
+<%# Button states %>
+<button class="btn btn-primary loading">Loading</button>
+<button class="btn btn-disabled">Disabled</button>
+<button class="btn btn-outline">Outline</button>
+<button class="btn btn-wide">Wide</button>
+<button class="btn btn-block">Block</button>
+
+<%# Button with icon %>
+<button class="btn btn-primary">
+  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+  </svg>
+  Submit
+</button>
+
+<%# 2. CARDS %>
+<div class="card bg-base-100 shadow-xl">
+  <figure>
+    <%= image_tag "photo.jpg", alt: "Photo" %>
+  </figure>
+  <div class="card-body">
+    <h2 class="card-title">Feedback Title</h2>
+    <p>Feedback content goes here...</p>
+    <div class="card-actions justify-end">
+      <button class="btn btn-primary">View Details</button>
+    </div>
+  </div>
+</div>
+
+<%# Compact card %>
+<div class="card card-compact bg-base-100 shadow-xl">
+  <div class="card-body">
+    <h2 class="card-title">Compact Card</h2>
+    <p>Less padding</p>
+  </div>
+</div>
+
+<%# Card variants %>
+<div class="card card-bordered">Bordered</div>
+<div class="card bg-primary text-primary-content">Primary</div>
+<div class="card image-full">Image background</div>
+<div class="card glass">Glass effect</div>
+
+<%# 3. FORMS %>
+<%# Input fields %>
+<input type="text" placeholder="Type here" class="input input-bordered" />
+<input type="text" placeholder="Primary" class="input input-bordered input-primary" />
+<input type="text" placeholder="Large" class="input input-bordered input-lg" />
+
+<%# Textarea %>
+<textarea class="textarea textarea-bordered" placeholder="Bio"></textarea>
+
+<%# Select %>
+<select class="select select-bordered">
+  <option disabled selected>Pick one</option>
+  <option>Option 1</option>
+  <option>Option 2</option>
+</select>
+
+<%# Checkbox %>
+<input type="checkbox" class="checkbox" />
+<input type="checkbox" class="checkbox checkbox-primary" checked />
+
+<%# Radio %>
+<input type="radio" name="radio-1" class="radio" checked />
+<input type="radio" name="radio-1" class="radio radio-primary" />
+
+<%# Toggle %>
+<input type="checkbox" class="toggle" checked />
+<input type="checkbox" class="toggle toggle-primary" checked />
+
+<%# Range slider %>
+<input type="range" min="0" max="100" value="40" class="range" />
+
+<%# Form control (label + input) %>
+<div class="form-control">
+  <label class="label">
+    <span class="label-text">Email</span>
+  </label>
+  <input type="email" placeholder="email@example.com" class="input input-bordered" />
+  <label class="label">
+    <span class="label-text-alt">Required field</span>
+  </label>
+</div>
+
+<%# 4. ALERTS %>
+<div class="alert">
+  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+  </svg>
+  <span>Info alert</span>
+</div>
+
+<div class="alert alert-success">
+  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+  </svg>
+  <span>Success! Your feedback was submitted.</span>
+</div>
+
+<div class="alert alert-warning">
+  <span>Warning: You have pending feedback.</span>
+</div>
+
+<div class="alert alert-error">
+  <span>Error! Unable to submit feedback.</span>
+</div>
+
+<%# 5. BADGES %>
+<div class="badge">Neutral</div>
+<div class="badge badge-primary">Primary</div>
+<div class="badge badge-secondary">Secondary</div>
+<div class="badge badge-accent">Accent</div>
+<div class="badge badge-ghost">Ghost</div>
+<div class="badge badge-info">Info</div>
+<div class="badge badge-success">Success</div>
+<div class="badge badge-warning">Warning</div>
+<div class="badge badge-error">Error</div>
+
+<%# Badge sizes %>
+<div class="badge badge-xs">Tiny</div>
+<div class="badge badge-sm">Small</div>
+<div class="badge badge-md">Normal</div>
+<div class="badge badge-lg">Large</div>
+
+<%# Badge outline %>
+<div class="badge badge-outline">Outline</div>
+
+<%# 6. MODAL %>
+<button class="btn" onclick="my_modal.showModal()">Open Modal</button>
+
+<dialog id="my_modal" class="modal">
+  <div class="modal-box">
+    <h3 class="font-bold text-lg">Feedback Details</h3>
+    <p class="py-4">Modal content goes here...</p>
+    <div class="modal-action">
+      <form method="dialog">
+        <button class="btn">Close</button>
+      </form>
+    </div>
+  </div>
+  <form method="dialog" class="modal-backdrop">
+    <button>close</button>
+  </form>
+</dialog>
+
+<%# 7. NAVBAR %>
+<div class="navbar bg-base-100">
+  <div class="navbar-start">
+    <div class="dropdown">
+      <div tabindex="0" role="button" class="btn btn-ghost lg:hidden">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+      </div>
+      <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
+        <li><a>Item 1</a></li>
+        <li><a>Item 2</a></li>
+      </ul>
+    </div>
+    <a class="btn btn-ghost text-xl">The Feedback Agent</a>
+  </div>
+  <div class="navbar-center hidden lg:flex">
+    <ul class="menu menu-horizontal px-1">
+      <li><a>Item 1</a></li>
+      <li><a>Item 2</a></li>
+    </ul>
+  </div>
+  <div class="navbar-end">
+    <a class="btn">Sign In</a>
+  </div>
+</div>
+
+<%# 8. MENU %>
+<ul class="menu bg-base-100 w-56 rounded-box">
+  <li><a>Item 1</a></li>
+  <li><a>Item 2</a></li>
+  <li><a>Item 3</a></li>
+</ul>
+
+<%# Menu with divider %>
+<ul class="menu bg-base-100 w-56 rounded-box">
+  <li class="menu-title">Menu Title</li>
+  <li><a>Item 1</a></li>
+  <li><a>Item 2</a></li>
+  <li class="divider"></li>
+  <li><a>Item 3</a></li>
+</ul>
+
+<%# 9. DROPDOWN %>
+<div class="dropdown">
+  <div tabindex="0" role="button" class="btn m-1">Click</div>
+  <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+    <li><a>Item 1</a></li>
+    <li><a>Item 2</a></li>
+  </ul>
+</div>
+
+<%# Dropdown positions %>
+<div class="dropdown dropdown-end">...</div>
+<div class="dropdown dropdown-top">...</div>
+<div class="dropdown dropdown-bottom">...</div>
+
+<%# 10. LOADING %>
+<span class="loading loading-spinner"></span>
+<span class="loading loading-dots"></span>
+<span class="loading loading-ring"></span>
+<span class="loading loading-ball"></span>
+<span class="loading loading-bars"></span>
+<span class="loading loading-infinity"></span>
+
+<%# Loading sizes %>
+<span class="loading loading-spinner loading-xs"></span>
+<span class="loading loading-spinner loading-sm"></span>
+<span class="loading loading-spinner loading-md"></span>
+<span class="loading loading-spinner loading-lg"></span>
+
+<%#
+============================================================================
+✅ RESPONSIVE DESIGN WITH TAILWIND
+============================================================================
+%>
+
+<%# Mobile-first responsive classes %>
+<div class="
+  text-sm           <%# Small text on mobile %>
+  md:text-base      <%# Base text on tablet+ %>
+  lg:text-lg        <%# Large text on desktop+ %>
+
+  p-4               <%# Padding 4 on mobile %>
+  md:p-8            <%# Padding 8 on tablet+ %>
+
+  grid              <%# Grid layout %>
+  grid-cols-1       <%# 1 column on mobile %>
+  md:grid-cols-2    <%# 2 columns on tablet %>
+  lg:grid-cols-3    <%# 3 columns on desktop %>
+  gap-4             <%# Gap between items %>
+">
+  <%= render @feedbacks %>
+</div>
+
+<%# Hide/show on different screen sizes %>
+<div class="hidden md:block">Desktop only</div>
+<div class="md:hidden">Mobile only</div>
+
+<%#
+============================================================================
+✅ DARK MODE WITH DAISYUI THEMES
+============================================================================
+%>
+
+<%# Toggle theme with data-theme attribute %>
+<html data-theme="light">  <%# or "dark", "cupcake", etc. %>
+
+<%# Theme switcher button %>
+<button class="btn" onclick="toggleTheme()">
+  <svg class="swap-on fill-current w-6 h-6" viewBox="0 0 24 24">
+    <%# Sun icon %>
+  </svg>
+  <svg class="swap-off fill-current w-6 h-6" viewBox="0 0 24 24">
+    <%# Moon icon %>
+  </svg>
+</button>
+
+<script>
+function toggleTheme() {
+  const html = document.querySelector('html');
+  const current = html.getAttribute('data-theme');
+  const next = current === 'light' ? 'dark' : 'light';
+  html.setAttribute('data-theme', next);
+  localStorage.setItem('theme', next);
+}
+
+// Load saved theme
+const savedTheme = localStorage.getItem('theme') || 'light';
+document.querySelector('html').setAttribute('data-theme', savedTheme);
+</script>
+
+<%#
+============================================================================
+✅ LAYOUT PATTERNS
+============================================================================
+%>
+
+<%# Sticky header + scrollable content %>
+<div class="h-screen flex flex-col">
+  <header class="navbar bg-base-100 sticky top-0 z-50 shadow">
+    <%# Header content %>
+  </header>
+
+  <main class="flex-1 overflow-y-auto">
+    <div class="container mx-auto px-4 py-8">
+      <%= yield %>
+    </div>
+  </main>
+
+  <footer class="footer footer-center p-4 bg-base-200">
+    <%# Footer content %>
+  </footer>
+</div>
+
+<%# Sidebar + content layout %>
+<div class="drawer lg:drawer-open">
+  <input id="my-drawer" type="checkbox" class="drawer-toggle" />
+  <div class="drawer-content">
+    <%# Page content %>
+    <label for="my-drawer" class="btn btn-primary drawer-button lg:hidden">
+      Open drawer
+    </label>
+  </div>
+  <div class="drawer-side">
+    <label for="my-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
+    <ul class="menu p-4 w-80 min-h-full bg-base-200">
+      <%# Sidebar content %>
+      <li><a>Sidebar Item 1</a></li>
+      <li><a>Sidebar Item 2</a></li>
+    </ul>
+  </div>
+</div>
+
+<%# Centered container %>
+<div class="container mx-auto px-4 max-w-7xl">
+  <%= yield %>
+</div>
+
+<%# Grid layout %>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  <% @feedbacks.each do |feedback| %>
+    <div class="card bg-base-100 shadow-xl">
+      <%= render "feedback", feedback: feedback %>
+    </div>
+  <% end %>
+</div>
+
+<%#
+============================================================================
+✅ UTILITY CLASSES (Commonly Used)
+============================================================================
+%>
+
+<%# Spacing %>
+<div class="p-4">Padding</div>
+<div class="m-4">Margin</div>
+<div class="space-y-4">Vertical spacing between children</div>
+<div class="space-x-4">Horizontal spacing between children</div>
+
+<%# Flexbox %>
+<div class="flex items-center justify-between">
+  <span>Left</span>
+  <span>Right</span>
+</div>
+
+<div class="flex flex-col space-y-4">
+  <div>Item 1</div>
+  <div>Item 2</div>
+</div>
+
+<%# Text %>
+<p class="text-xs">Extra small</p>
+<p class="text-sm">Small</p>
+<p class="text-base">Base</p>
+<p class="text-lg">Large</p>
+<p class="text-xl">Extra large</p>
+<p class="text-2xl">2X large</p>
+
+<p class="font-bold">Bold</p>
+<p class="font-semibold">Semibold</p>
+<p class="italic">Italic</p>
+<p class="underline">Underline</p>
+
+<p class="text-center">Centered</p>
+<p class="text-right">Right aligned</p>
+
+<%# Colors %>
+<div class="text-primary">Primary text</div>
+<div class="bg-primary text-primary-content">Primary bg</div>
+<div class="text-error">Error text</div>
+
+<%# Borders %>
+<div class="border border-gray-300 rounded">Border</div>
+<div class="border-2 border-primary rounded-lg">Thick border</div>
+<div class="divide-y">
+  <div>Item 1</div>
+  <div>Item 2</div>
+</div>
+
+<%# Shadows %>
+<div class="shadow">Shadow</div>
+<div class="shadow-md">Medium shadow</div>
+<div class="shadow-lg">Large shadow</div>
+<div class="shadow-xl">Extra large shadow</div>
+
+<%# Width/Height %>
+<div class="w-full">Full width</div>
+<div class="w-1/2">Half width</div>
+<div class="w-64">Fixed width (16rem)</div>
+<div class="h-screen">Full viewport height</div>
+
+<%#
+============================================================================
+✅ REAL-WORLD EXAMPLES
+============================================================================
+%>
+
+<%# Feedback card with DaisyUI %>
+<div class="card bg-base-100 shadow-xl">
+  <div class="card-body">
+    <div class="flex items-start justify-between">
+      <h2 class="card-title">
+        <%= @feedback.content.truncate(60) %>
+      </h2>
+      <%= render Ui::BadgeComponent.new(variant: :info, size: :sm) do %>
+        <%= @feedback.status.titleize %>
+      <% end %>
+    </div>
+
+    <p class="text-sm text-base-content/70">
+      <%= @feedback.content %>
+    </p>
+
+    <div class="divider"></div>
+
+    <div class="flex items-center justify-between text-sm">
+      <div class="flex items-center space-x-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+        </svg>
+        <span><%= @feedback.sender_name || "Anonymous" %></span>
+      </div>
+
+      <div class="flex items-center space-x-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <span><%= time_ago_in_words(@feedback.created_at) %> ago</span>
+      </div>
+    </div>
+
+    <div class="card-actions justify-end mt-4">
+      <%= link_to "View Details", feedback_path(@feedback), class: "btn btn-primary" %>
+      <%= link_to "Respond", respond_feedback_path(@feedback), class: "btn btn-ghost" %>
+    </div>
+  </div>
+</div>
+
+<%#
+============================================================================
+RULE: Use DaisyUI components for consistency
+PREFER: Utility classes over custom CSS
+MOBILE-FIRST: Design for mobile, then add responsive classes
+TEST: Test dark mode with data-theme="dark"
+ACCESSIBILITY: DaisyUI components are accessible by default
+============================================================================
+%>

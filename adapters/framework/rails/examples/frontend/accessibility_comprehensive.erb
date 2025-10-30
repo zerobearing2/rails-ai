@@ -1,0 +1,602 @@
+<%# Web Accessibility (a11y) Comprehensive Patterns %>
+<%# Reference: WCAG 2.1, WAI-ARIA, Rails Accessibility Guidelines %>
+<%# Category: FRONTEND - ACCESSIBILITY %>
+
+<%#
+============================================================================
+What is Web Accessibility (a11y)?
+============================================================================
+
+Web accessibility ensures that websites are usable by everyone, including
+people with disabilities who use assistive technologies like screen readers,
+keyboard navigation, voice control, etc.
+
+WCAG 2.1 Four Principles (POUR):
+- Perceivable: Information must be presentable to users
+- Operable: UI components must be operable
+- Understandable: Information and operation must be understandable
+- Robust: Content must be robust enough for assistive technologies
+
+Benefits:
+✅ Inclusive for all users
+✅ Better SEO
+✅ Legal compliance (ADA, Section 508)
+✅ Improved UX for everyone
+✅ Future-proof code
+%>
+
+<%#
+============================================================================
+✅ SEMANTIC HTML (Foundation of Accessibility)
+============================================================================
+%>
+
+<%# Use correct heading hierarchy %>
+<h1>Main Page Title</h1>
+<section>
+  <h2>Section Title</h2>
+  <h3>Subsection</h3>
+</section>
+
+<%# Use semantic HTML elements %>
+<header>Page header</header>
+<nav>Navigation</nav>
+<main>Main content</main>
+<aside>Sidebar</aside>
+<footer>Page footer</footer>
+
+<%# Articles and sections %>
+<article>
+  <h2>Feedback Article</h2>
+  <p>Content...</p>
+</article>
+
+<%#
+============================================================================
+✅ ARIA LABELS AND ROLES
+============================================================================
+%>
+
+<%# aria-label for elements without visible text %>
+<button aria-label="Close modal">×</button>
+<button aria-label="Edit feedback"><%= icon("edit") %></button>
+<button aria-label="Delete feedback"><%= icon("trash") %></button>
+
+<%# aria-labelledby references another element's ID %>
+<div id="modal-title">Feedback Details</div>
+<dialog aria-labelledby="modal-title">
+  <%# Modal content %>
+</dialog>
+
+<%# aria-describedby for additional description %>
+<input type="email"
+       id="email"
+       aria-describedby="email-hint" />
+<span id="email-hint">We'll never share your email</span>
+
+<%# aria-live regions for dynamic content %>
+<div aria-live="polite" aria-atomic="true" id="status-message">
+  <%# Status messages appear here %>
+</div>
+
+<div aria-live="assertive">
+  <%# Urgent announcements (interrupts screen reader) %>
+</div>
+
+<%# aria-current for active navigation %>
+<nav>
+  <a href="/" aria-current="page">Home</a>
+  <a href="/feedbacks">Feedbacks</a>
+  <a href="/about">About</a>
+</nav>
+
+<%#
+============================================================================
+✅ KEYBOARD NAVIGATION
+============================================================================
+%>
+
+<%# Ensure all interactive elements are keyboard accessible %>
+<button type="button">Accessible by default</button>
+
+<%# Make non-button elements keyboard accessible %>
+<div tabindex="0"
+     role="button"
+     data-action="click->controller#action keydown.enter->controller#action"
+     class="custom-button">
+  Click or press Enter
+</div>
+
+<%# Skip to main content link %>
+<a href="#main-content" class="sr-only focus:not-sr-only">
+  Skip to main content
+</a>
+
+<main id="main-content">
+  <%= yield %>
+</main>
+
+<%# Focus management in modals %>
+<dialog id="feedback-modal"
+        role="dialog"
+        aria-modal="true"
+        data-controller="modal">
+  <button data-action="modal#close" data-modal-target="closeButton">
+    Close
+  </button>
+  <%# Modal content %>
+</dialog>
+
+<%# Stimulus controller for focus trap %>
+<%# app/javascript/controllers/modal_controller.js
+export default class extends Controller {
+  static targets = ["closeButton"]
+
+  open() {
+    this.element.showModal()
+    this.closeButtonTarget.focus()  // Focus first element
+  }
+
+  close() {
+    this.element.close()
+    this.previousActiveElement?.focus()  // Return focus
+  }
+} %>
+
+<%#
+============================================================================
+✅ FORMS ACCESSIBILITY
+============================================================================
+%>
+
+<%# Always label form inputs %>
+<%= form_with model: @feedback do |form| %>
+  <div class="form-control">
+    <%# Explicit label association %>
+    <%= form.label :content, "Your Feedback", class: "label" %>
+    <%= form.text_area :content,
+                       class: "textarea textarea-bordered",
+                       required: true,
+                       "aria-required": "true",
+                       "aria-describedby": "content-hint" %>
+    <span id="content-hint" class="label-text-alt">
+      Minimum 10 characters required
+    </span>
+
+    <%# Show errors accessibly %>
+    <% if form.object.errors[:content].any? %>
+      <span id="content-error"
+            class="label-text-alt text-error"
+            role="alert">
+        <%= form.object.errors[:content].first %>
+      </span>
+    <% end %>
+  </div>
+
+  <%# Fieldset for grouped inputs %>
+  <fieldset>
+    <legend class="text-lg font-semibold">Sender Information</legend>
+
+    <div class="form-control">
+      <%= form.label :sender_name %>
+      <%= form.text_field :sender_name, class: "input input-bordered" %>
+    </div>
+
+    <div class="form-control">
+      <%= form.label :sender_email %>
+      <%= form.email_field :sender_email, class: "input input-bordered" %>
+    </div>
+  </fieldset>
+
+  <%# Required field indicator %>
+  <div class="form-control">
+    <%= form.label :recipient_email do %>
+      Recipient Email
+      <abbr title="required" aria-label="required">*</abbr>
+    <% end %>
+    <%= form.email_field :recipient_email,
+                         required: true,
+                         "aria-required": "true" %>
+  </div>
+
+  <%# Accessible submit button %>
+  <%= form.submit "Submit Feedback",
+                  class: "btn btn-primary",
+                  data: { disable_with: "Submitting..." } %>
+<% end %>
+
+<%# Error summary %>
+<% if @feedback.errors.any? %>
+  <div role="alert"
+       class="alert alert-error"
+       tabindex="-1"
+       id="error-summary">
+    <h2>
+      <%= pluralize(@feedback.errors.count, "error") %>
+      prohibited this feedback from being saved:
+    </h2>
+    <ul>
+      <% @feedback.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+    </ul>
+  </div>
+
+  <%# Focus error summary on page load %>
+  <script>
+    document.getElementById('error-summary')?.focus();
+  </script>
+<% end %>
+
+<%#
+============================================================================
+✅ BUTTONS & LINKS
+============================================================================
+%>
+
+<%# Descriptive link text (avoid "click here") %>
+<%# ❌ BAD %>
+<%= link_to "Click here", feedback_path(@feedback) %>
+
+<%# ✅ GOOD %>
+<%= link_to "View feedback details", feedback_path(@feedback) %>
+
+<%# Button vs Link %>
+<%# Buttons for actions, links for navigation %>
+<button type="button" data-action="modal#open">
+  Open Modal
+</button>
+
+<%= link_to "Go to Feedback Page", feedback_path(@feedback) %>
+
+<%# Icon-only buttons need aria-label %>
+<button aria-label="Close" class="btn btn-ghost btn-sm">
+  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+  </svg>
+</button>
+
+<%# Disabled buttons %>
+<button disabled aria-disabled="true" class="btn">
+  Can't click me
+</button>
+
+<%#
+============================================================================
+✅ IMAGES & MEDIA
+============================================================================
+%>
+
+<%# Always provide alt text %>
+<%= image_tag "feedback-illustration.png",
+              alt: "Person submitting feedback on a computer" %>
+
+<%# Decorative images %>
+<%= image_tag "decorative-pattern.svg",
+              alt: "",
+              role: "presentation" %>
+
+<%# Complex images with longdesc %>
+<%= image_tag "chart.png",
+              alt: "Feedback statistics chart",
+              "aria-describedby": "chart-description" %>
+<div id="chart-description" class="sr-only">
+  Detailed description: The chart shows...
+</div>
+
+<%# Video/audio with captions %>
+<video controls>
+  <source src="feedback-tutorial.mp4" type="video/mp4">
+  <track kind="captions"
+         src="captions.vtt"
+         srclang="en"
+         label="English">
+  Your browser doesn't support video.
+</video>
+
+<%#
+============================================================================
+✅ TABLES
+============================================================================
+%>
+
+<%# Accessible data table %>
+<table class="table">
+  <caption class="sr-only">Feedback submissions list</caption>
+  <thead>
+    <tr>
+      <th scope="col">Date</th>
+      <th scope="col">Sender</th>
+      <th scope="col">Content</th>
+      <th scope="col">Status</th>
+      <th scope="col">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @feedbacks.each do |feedback| %>
+      <tr>
+        <td><%= l(feedback.created_at, format: :short) %></td>
+        <td><%= feedback.sender_name || "Anonymous" %></td>
+        <td><%= feedback.content.truncate(50) %></td>
+        <td><%= feedback.status.titleize %></td>
+        <td>
+          <%= link_to "View", feedback_path(feedback),
+                      aria-label: "View feedback from #{feedback.sender_name || 'anonymous sender'}" %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<%#
+============================================================================
+✅ MODALS & DIALOGS
+============================================================================
+%>
+
+<%# Accessible modal with focus trap %>
+<dialog id="feedback-dialog"
+        class="modal"
+        aria-labelledby="dialog-title"
+        aria-modal="true"
+        data-controller="modal-a11y">
+
+  <div class="modal-box" role="document">
+    <%# Close button should be first focusable element %>
+    <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+            aria-label="Close dialog"
+            data-action="modal-a11y#close">
+      ✕
+    </button>
+
+    <h3 id="dialog-title" class="font-bold text-lg">
+      Feedback Details
+    </h3>
+
+    <div class="py-4">
+      <%= @feedback.content %>
+    </div>
+
+    <div class="modal-action">
+      <button class="btn" data-action="modal-a11y#close">
+        Close
+      </button>
+      <button class="btn btn-primary">
+        Respond
+      </button>
+    </div>
+  </div>
+
+  <%# Backdrop %>
+  <form method="dialog" class="modal-backdrop">
+    <button>close</button>
+  </form>
+</dialog>
+
+<%# Stimulus controller for modal accessibility %>
+<%# app/javascript/controllers/modal_a11y_controller.js
+export default class extends Controller {
+  connect() {
+    this.previousFocus = null
+    this.focusableElements = null
+  }
+
+  open() {
+    // Save current focus
+    this.previousFocus = document.activeElement
+
+    // Get all focusable elements
+    this.focusableElements = this.element.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    )
+
+    // Show modal
+    this.element.showModal()
+
+    // Focus first element (close button)
+    this.focusableElements[0]?.focus()
+
+    // Trap focus
+    this.element.addEventListener('keydown', this.trapFocus.bind(this))
+  }
+
+  close() {
+    this.element.close()
+
+    // Return focus to trigger element
+    this.previousFocus?.focus()
+  }
+
+  trapFocus(event) {
+    if (event.key !== 'Tab') return
+
+    const firstFocusable = this.focusableElements[0]
+    const lastFocusable = this.focusableElements[this.focusableElements.length - 1]
+
+    if (event.shiftKey && document.activeElement === firstFocusable) {
+      event.preventDefault()
+      lastFocusable.focus()
+    } else if (!event.shiftKey && document.activeElement === lastFocusable) {
+      event.preventDefault()
+      firstFocusable.focus()
+    }
+  }
+} %>
+
+<%#
+============================================================================
+✅ COLOR & CONTRAST
+============================================================================
+%>
+
+<%# Ensure sufficient color contrast (WCAG AA: 4.5:1 for normal text) %>
+<div class="bg-gray-900 text-white">
+  <%# Good contrast %>
+</div>
+
+<div class="bg-gray-100 text-gray-300">
+  <%# ❌ Poor contrast %>
+</div>
+
+<%# Don't rely on color alone %>
+<%# ❌ BAD - color only %>
+<span class="text-error">Error</span>
+
+<%# ✅ GOOD - color + icon/text %>
+<span class="text-error">
+  <svg class="w-4 h-4 inline" fill="currentColor" viewBox="0 0 20 20">
+    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+  </svg>
+  Error: Invalid input
+</span>
+
+<%#
+============================================================================
+✅ SCREEN READER UTILITIES
+============================================================================
+%>
+
+<%# Hide visually but keep for screen readers %>
+<span class="sr-only">
+  This text is only for screen readers
+</span>
+
+<%# Show only on focus (skip links) %>
+<a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:top-0">
+  Skip to main content
+</a>
+
+<%# Hide from screen readers but show visually %>
+<span aria-hidden="true">Decorative text</span>
+
+<%#
+============================================================================
+✅ LOADING & DYNAMIC CONTENT
+============================================================================
+%>
+
+<%# Loading state with announcement %>
+<div role="status" aria-live="polite">
+  <% if loading? %>
+    <span class="loading loading-spinner"></span>
+    <span class="sr-only">Loading feedback...</span>
+  <% end %>
+</div>
+
+<%# Status messages %>
+<div role="status" aria-live="polite" aria-atomic="true" id="status">
+  <%= flash[:notice] %>
+</div>
+
+<%# Progress indicator %>
+<div role="progressbar"
+     aria-valuenow="<%= @progress %>"
+     aria-valuemin="0"
+     aria-valuemax="100"
+     aria-label="Upload progress">
+  <div class="w-full bg-gray-200 rounded-full h-2.5">
+    <div class="bg-blue-600 h-2.5 rounded-full"
+         style="width: <%= @progress %>%"></div>
+  </div>
+  <span class="sr-only"><%= @progress %>% complete</span>
+</div>
+
+<%#
+============================================================================
+✅ TESTING ACCESSIBILITY
+============================================================================
+%>
+
+<%# System test with accessibility assertions %>
+<%# test/system/feedbacks_test.rb
+class FeedbacksTest < ApplicationSystemTestCase
+  test "feedback form is accessible" do
+    visit new_feedback_path
+
+    # Check for label
+    assert_selector "label[for='feedback_content']"
+
+    # Check for required attribute
+    assert_selector "textarea[required][aria-required='true']"
+
+    # Check for error messages
+    fill_in "Content", with: ""
+    click_button "Submit"
+
+    assert_selector "[role='alert']"
+  end
+
+  test "modal is keyboard accessible" do
+    visit feedbacks_path
+
+    # Tab to button
+    page.execute_script("document.querySelector('button').focus()")
+
+    # Press Enter
+    page.send_keys(:enter)
+
+    # Modal should be open
+    assert_selector "dialog[open]"
+
+    # Press Escape
+    page.send_keys(:escape)
+
+    # Modal should be closed
+    assert_no_selector "dialog[open]"
+  end
+end %>
+
+<%#
+============================================================================
+✅ ACCESSIBILITY CHECKLIST
+============================================================================
+
+Page Structure:
+☐ Semantic HTML elements (header, nav, main, footer)
+☐ Proper heading hierarchy (h1, h2, h3...)
+☐ Landmark regions for navigation
+
+Keyboard:
+☐ All interactive elements keyboard accessible
+☐ Visible focus indicators
+☐ Skip to main content link
+☐ No keyboard traps
+
+Forms:
+☐ All inputs have labels
+☐ Error messages associated with fields
+☐ Required fields marked
+☐ Error summary at top of form
+
+Images:
+☐ All images have alt text
+☐ Decorative images marked with alt=""
+
+Color:
+☐ Sufficient contrast (4.5:1 minimum)
+☐ Information not conveyed by color alone
+
+Dynamic Content:
+☐ aria-live regions for updates
+☐ Focus management for modals
+☐ Loading states announced
+
+Testing:
+☐ Test with keyboard only
+☐ Test with screen reader (NVDA, JAWS, VoiceOver)
+☐ Test with browser zoom (200%+)
+☐ Run automated tools (axe, Lighthouse)
+
+============================================================================
+%>
+
+<%#
+============================================================================
+RULE: Always use semantic HTML as foundation
+TEST: Test with keyboard navigation and screen readers
+CONTRAST: Ensure WCAG AA compliance (4.5:1 ratio)
+LABELS: All form inputs must have associated labels
+ANNOUNCE: Use aria-live for dynamic content updates
+FOCUS: Manage focus for modals and dynamic content
+============================================================================
+%>

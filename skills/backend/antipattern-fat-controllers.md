@@ -4,6 +4,13 @@ domain: backend
 dependencies: [controller-restful, form-objects, query-objects]
 version: 1.0
 rails_version: 8.1+
+
+# Team rules enforcement
+enforces_team_rule:
+  - rule_id: 12
+    rule_name: "Fat Models, Thin Controllers"
+    severity: moderate
+    enforcement_action: SUGGEST
 ---
 
 # Fat Controllers Antipattern

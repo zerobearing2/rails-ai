@@ -4,6 +4,13 @@ domain: backend
 dependencies: [activerecord-patterns]
 version: 1.0
 rails_version: 8.1+
+
+# Team rules enforcement
+enforces_team_rule:
+  - rule_id: 5
+    rule_name: "Proper Namespacing"
+    severity: moderate
+    enforcement_action: SUGGEST
 ---
 
 # Model Concerns

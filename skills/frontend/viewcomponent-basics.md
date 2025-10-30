@@ -6,6 +6,13 @@ version: 1.0
 rails_version: 8.1+
 gem_requirements:
   - view_component: 4.1.0+
+
+# Team rules enforcement
+enforces_team_rule:
+  - rule_id: 15
+    rule_name: "ViewComponent for All UI"
+    severity: high
+    enforcement_action: SUGGEST
 ---
 
 # ViewComponent Basics

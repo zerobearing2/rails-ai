@@ -4,6 +4,14 @@ domain: frontend
 dependencies: []
 version: 1.0
 rails_version: 8.1+
+
+# Team rules enforcement
+enforces_team_rule:
+  - rule_id: 13
+    rule_name: "Progressive Enhancement"
+    severity: moderate
+    enforcement_action: SUGGEST
+    note: "Keyboard navigation and fallbacks required"
 ---
 
 # Web Accessibility (a11y) Patterns

@@ -4,6 +4,18 @@ domain: backend
 dependencies: [controller-restful]
 version: 1.0
 rails_version: 8.1+
+
+# Team rules enforcement
+enforces_team_rule:
+  - rule_id: 3
+    rule_name: "RESTful Routes Only"
+    severity: critical
+    enforcement_action: REJECT
+    note: "Provides alternative to custom route actions"
+  - rule_id: 5
+    rule_name: "Proper Namespacing"
+    severity: moderate
+    enforcement_action: SUGGEST
 ---
 
 # Nested Resources

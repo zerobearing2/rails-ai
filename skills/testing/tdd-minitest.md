@@ -4,6 +4,17 @@ domain: testing
 dependencies: []
 version: 1.0
 rails_version: 8.1+
+
+# Team rules enforcement
+enforces_team_rule:
+  - rule_id: 2
+    rule_name: "Minitest Only"
+    severity: critical
+    enforcement_action: REJECT
+  - rule_id: 4
+    rule_name: "TDD Always"
+    severity: critical
+    enforcement_action: REJECT
 ---
 
 # TDD with Minitest

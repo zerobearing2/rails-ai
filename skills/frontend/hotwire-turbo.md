@@ -6,6 +6,18 @@ version: 1.0
 rails_version: 8.1+
 gem_requirements:
   - turbo-rails: 2.0.0+
+
+# Team rules enforcement
+enforces_team_rule:
+  - rule_id: 7
+    rule_name: "Turbo Morph by Default"
+    severity: high
+    enforcement_action: SUGGEST
+    note: "Turbo Frames valid for modals, inline editing, tabs"
+  - rule_id: 13
+    rule_name: "Progressive Enhancement"
+    severity: moderate
+    enforcement_action: SUGGEST
 ---
 
 # Hotwire Turbo

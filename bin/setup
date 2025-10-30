@@ -1,0 +1,114 @@
+#!/usr/bin/env bash
+# Rails AI Setup Script
+# Sets up the project for development
+
+set -e
+
+# Colors for output
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Print section header
+print_section() {
+  echo ""
+  echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+  echo -e "${BLUE}$1${NC}"
+  echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+  echo ""
+}
+
+# Print success message
+print_success() {
+  echo -e "${GREEN}✅ $1${NC}"
+}
+
+# Print info message
+print_info() {
+  echo -e "${BLUE}ℹ️  $1${NC}"
+}
+
+# Welcome message
+echo ""
+echo -e "${BLUE}╔═══════════════════════════════════════════╗${NC}"
+echo -e "${BLUE}║       Rails AI - Setup Script            ║${NC}"
+echo -e "${BLUE}╚═══════════════════════════════════════════╝${NC}"
+echo ""
+
+# Check Ruby version
+print_section "🔍 Checking Ruby Version"
+if command -v ruby &> /dev/null; then
+  RUBY_VERSION=$(ruby -v)
+  print_info "$RUBY_VERSION"
+
+  RUBY_MAJOR=$(ruby -e 'puts RUBY_VERSION.split(".")[0..1].join(".")')
+  if (( $(echo "$RUBY_MAJOR >= 3.3" | bc -l) )); then
+    print_success "Ruby version is compatible"
+  else
+    echo "⚠️  Warning: Ruby 3.3+ recommended, you have $RUBY_MAJOR"
+  fi
+else
+  echo "❌ Ruby not found. Please install Ruby 3.3+"
+  exit 1
+fi
+
+# Check Bundler
+print_section "📦 Checking Bundler"
+if command -v bundle &> /dev/null; then
+  BUNDLER_VERSION=$(bundle -v)
+  print_info "$BUNDLER_VERSION"
+  print_success "Bundler installed"
+else
+  print_info "Installing Bundler..."
+  gem install bundler
+  print_success "Bundler installed"
+fi
+
+# Install dependencies
+print_section "📦 Installing Dependencies"
+print_info "Running bundle install..."
+bundle install
+print_success "Dependencies installed"
+
+# Verify installation
+print_section "🧪 Verifying Installation"
+
+print_info "Checking Minitest..."
+if bundle exec ruby -e "require 'minitest'" 2>/dev/null; then
+  print_success "Minitest available"
+else
+  echo "❌ Minitest not available"
+  exit 1
+fi
+
+print_info "Checking Rubocop..."
+if bundle exec rubocop --version &>/dev/null; then
+  print_success "Rubocop available"
+else
+  echo "❌ Rubocop not available"
+  exit 1
+fi
+
+# Run quick test
+print_section "🧪 Running Quick Test"
+print_info "Running unit tests..."
+if bundle exec rake test:skills:unit; then
+  print_success "Unit tests passed"
+else
+  echo "❌ Unit tests failed"
+  exit 1
+fi
+
+# Summary
+print_section "✅ Setup Complete!"
+
+echo ""
+echo "You're all set! Next steps:"
+echo ""
+echo "  bin/ci                           # Run full CI pipeline"
+echo "  rake test:skills:unit            # Run unit tests"
+echo "  rake lint                        # Run linters"
+echo "  rake -T                          # See all tasks"
+echo ""
+echo "See docs/development-setup.md for more information."
+echo ""

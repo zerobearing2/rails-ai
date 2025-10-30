@@ -45,6 +45,10 @@ Metrics/ClassLength:
   Exclude:
     - 'test/**/*'
 
+Metrics/AbcSize:
+  Exclude:
+    - 'test/**/*'
+
 # Minitest specific
 Minitest/MultipleAssertions:
   Enabled: false # Allow multiple assertions in tests

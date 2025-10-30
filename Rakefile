@@ -92,7 +92,7 @@ namespace :test do
 
       raise "Usage: rake test:skills:new[skill-name,domain]" unless skill_name
 
-      test_class = skill_name.split("-").map(&:capitalize).join + "Test"
+      test_class = "#{skill_name.split('-').map(&:capitalize).join}Test"
       unit_test_file = "test/skills/unit/#{skill_name}_test.rb"
 
       # Create unit test template
@@ -193,6 +193,7 @@ namespace :lint do
 end
 
 # Alias for convenience
+desc "Run all linters (alias for lint:all)"
 task lint: "lint:all"
 
 desc "Show available tasks"

@@ -319,21 +319,87 @@ Each agent has a **specialized role** and loads a **preset** of skills automatic
 5. **Test with real tasks** - Give agent actual work to verify changes
 6. **Commit** - Clear message: "Update agent-name: description of changes"
 
-### Testing Changes
+### Testing Skills
 
-**Before committing:**
-1. Read the modified skill/agent file
-2. Ask the agent to use the skill on a real task
-3. Verify the output matches expectations
-4. Check for any confusion or errors
-5. Iterate if needed
+We use a **two-tier Minitest strategy** for testing skills:
 
-**Quality checks:**
-- Code examples are syntactically correct
-- Examples use Rails 8.1+ conventions
-- XML tags are properly closed
-- Related skills are linked
-- No broken dependencies
+#### Tier 1: Unit Tests (Fast - Required)
+**Purpose:** Validate skill structure and content
+**Speed:** < 1 second per skill
+**When:** Every skill change, every commit
+
+```bash
+# Run all unit tests
+rake test:skills:unit
+
+# Run specific skill test
+ruby -Itest test/skills/unit/turbo_page_refresh_test.rb
+
+# Generate test for new skill
+rake test:skills:new[skill-name,domain]
+```
+
+**What unit tests validate:**
+- ✅ Valid YAML front matter
+- ✅ Required metadata (name, domain, version, rails_version)
+- ✅ Required sections (when-to-use, benefits, standards, antipatterns, testing, related-skills, resources)
+- ✅ Named patterns present
+- ✅ Code examples exist
+- ✅ Good (✅) and bad (❌) examples marked
+- ✅ Key patterns documented (attributes, methods, callbacks)
+
+#### Tier 2: Integration Tests (Slow - Optional)
+**Purpose:** Validate agents apply skills correctly using LLM-as-judge
+**Speed:** ~2-5 seconds per test case
+**When:** Before commits, weekly, or on major changes
+
+```bash
+# Run all integration tests (requires LLM APIs)
+INTEGRATION=1 rake test:skills:integration
+
+# Set API keys
+export OPENAI_API_KEY="sk-..."
+export ANTHROPIC_API_KEY="sk-ant-..."
+
+# Run with cross-validation
+INTEGRATION=1 CROSS_VALIDATE=1 rake test:skills:integration
+```
+
+**What integration tests validate:**
+- ✅ Generated code contains expected patterns
+- ✅ Generated code avoids antipatterns
+- ✅ LLM judge scores >= 4.0/5.0
+- ✅ Multiple LLMs agree (cross-validation)
+
+#### Linting & Quality
+
+```bash
+# Run all quality checks
+rake                # Default: lint + unit tests
+
+# Run linters
+rake lint           # Ruby, Markdown, YAML
+rake lint:ruby      # Rubocop
+rake lint:markdown  # Markdown linting
+rake lint:yaml      # YAML validation
+rake lint:fix       # Auto-fix Ruby issues
+```
+
+#### Before Committing
+
+**Required:**
+1. ✅ Unit tests pass (`rake test:skills:unit`)
+2. ✅ Linters pass (`rake lint`)
+3. ✅ YAML front matter valid
+4. ✅ Code examples syntactically correct
+5. ✅ XML tags properly closed
+
+**Recommended:**
+6. Integration tests pass (`INTEGRATION=1 rake test:skills:integration`)
+7. Manual test: Ask an agent to use the skill on a real task
+8. Verify output matches expectations
+
+**See:** `docs/skill-testing-methodology.md` for full testing documentation
 
 ---
 

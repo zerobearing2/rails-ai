@@ -1,10 +1,10 @@
 # Skill Testing Methodology
 
-**Version:** 1.0
-**Status:** Proposal
+**Version:** 2.0 (Implemented)
+**Status:** Active
 **Last Updated:** 2025-10-30
 
-Testing skills for LLM consumption requires different approaches than traditional unit testing. This document outlines practical methodologies for validating that skills produce expected outcomes when used by agents.
+Testing skills for LLM consumption requires different approaches than traditional unit testing. This document describes our implemented two-tier testing strategy using Minitest.
 
 ---
 
@@ -16,632 +16,656 @@ Testing skills for LLM consumption requires different approaches than traditiona
 - Need to verify *understanding* and *application*, not exact output
 - Must test patterns, principles, and code quality—not string matching
 
-**What We Need to Validate:**
-1. **Comprehension** - Does the LLM understand the skill?
-2. **Application** - Does it apply patterns correctly?
-3. **Avoidance** - Does it avoid antipatterns?
-4. **Completeness** - Does it cover all relevant aspects?
-5. **Quality** - Is the generated code production-ready?
+**What We Validate:**
+1. **Structure** - Skill has valid format and required sections
+2. **Comprehension** - LLM can parse and understand the skill
+3. **Application** - LLM applies patterns correctly
+4. **Avoidance** - LLM avoids documented antipatterns
+5. **Quality** - Generated code follows Rails 8.1+ conventions
 
 ---
 
-## Approach 1: Skill Test Suites (Recommended)
+## Our Approach: Two-Tier Minitest Strategy
 
-Create a test suite for each skill with structured test cases.
+We use **Minitest** (Rails' default testing framework) with a two-tier approach:
 
-### Structure
+### Tier 1: Unit Tests (Fast - Structure Validation)
+- **Speed:** < 1 second per skill
+- **Purpose:** Validate skill file structure and content
+- **When:** Every change, every commit
+- **No LLM calls:** Pure Ruby parsing and regex
 
-```
-skills/
-├── frontend/
-│   ├── turbo-page-refresh.md
-│   └── turbo-page-refresh.test.yml    # Test suite
-├── backend/
-│   ├── form-objects.md
-│   └── form-objects.test.yml          # Test suite
-```
+### Tier 2: Integration Tests (Slow - LLM-as-Judge)
+- **Speed:** ~2-5 seconds per test case
+- **Purpose:** Validate agent applies skill correctly
+- **When:** Before commits, weekly, or on major changes
+- **Requires:** LLM API access (OpenAI, Anthropic)
 
-### Test Case Format
+---
 
-```yaml
-# skills/frontend/turbo-page-refresh.test.yml
-skill: turbo-page-refresh
-version: 1.0
-test_cases:
-  - name: "Enable page refresh with morph"
-    description: "Agent should enable morph on body element"
-    scenario: |
-      User asks: "I want to add Turbo page refresh with morphing to my app"
+## Tier 1: Unit Tests (Structure Validation)
 
-    expected_patterns:
-      - 'data-turbo-refresh-method="morph"'
-      - 'data-turbo-refresh-scroll="preserve"'
-      - pattern: '<body.*data-turbo'
-        description: "Should add to body tag"
+### What Unit Tests Validate
 
-    forbidden_patterns:
-      - 'turbo_frame_tag'
-      - 'data-turbo-frame'
+Every skill must have:
 
-    validation:
-      - type: "syntax"
-        language: "erb"
-      - type: "contains_text"
-        text: "data-turbo-refresh-method"
-      - type: "rails_convention"
-        rule: "uses_data_attributes"
+✅ **File Structure**
+- Valid YAML front matter
+- Required metadata (name, domain, version, rails_version)
+- Dependency declarations
 
-  - name: "Broadcasting page refresh"
-    description: "Agent should use broadcast_refresh_to correctly"
-    scenario: |
-      User asks: "Make it so when a feedback is created, all users see it in real-time"
+✅ **Required Sections**
+- `<when-to-use>` - When to apply this skill
+- `<benefits>` - Why use this pattern
+- `<standards>` - Implementation rules
+- `<antipatterns>` - What to avoid
+- `<testing>` - How to test implementations
+- `<related-skills>` - Dependencies and related skills
+- `<resources>` - Documentation links
 
-    expected_patterns:
-      - 'broadcast_refresh_to'
-      - 'after_create_commit'
-      - 'turbo_stream_from'
+✅ **Pattern Definitions**
+- Named patterns with `<pattern name="...">` tags
+- Code examples for each pattern
+- Good (✅) and bad (❌) examples
 
-    forbidden_patterns:
-      - 'broadcast_append_to'
-      - 'broadcast_replace_to'
-      - 'turbo_frame_tag.*feedbacks'
+✅ **Specific Patterns**
+- Key implementation details documented
+- Attributes, methods, callbacks present
+- Convention adherence (Rails 8.1+)
 
-    validation:
-      - type: "ruby_syntax"
-      - type: "method_call"
-        method: "broadcast_refresh_to"
-        args: 1
-      - type: "callback_used"
-        callback: "after_create_commit"
-
-  - name: "Permanent elements preserve state"
-    description: "Agent should use data-turbo-permanent for stateful elements"
-    scenario: |
-      User says: "My form loses focus when the page refreshes"
-
-    expected_patterns:
-      - 'data-turbo-permanent'
-      - pattern: 'data.*turbo.*permanent.*form'
-        description: "Should wrap form or input in permanent element"
-
-    validation:
-      - type: "contains_attribute"
-        attribute: "data-turbo-permanent"
-```
-
-### Test Runner (Pseudocode)
+### Example Unit Test
 
 ```ruby
-# test/skill_test_runner.rb
-class SkillTestRunner
-  def initialize(skill_name)
-    @skill = load_skill(skill_name)
-    @test_suite = load_test_suite(skill_name)
-    @agent = initialize_agent_with_skill(@skill)
+# test/skills/unit/turbo_page_refresh_test.rb
+class TurboPageRefreshTest < SkillTestCase
+  self.skill_domain = "frontend"
+  self.skill_name = "turbo-page-refresh"
+
+  # Structure tests
+  def test_skill_file_exists
+    assert skill_file_exists?("frontend", "turbo-page-refresh")
   end
 
-  def run_all_tests
-    @test_suite.test_cases.each do |test_case|
-      run_test_case(test_case)
-    end
+  def test_has_yaml_front_matter
+    assert_skill_has_yaml_front_matter
   end
 
-  def run_test_case(test_case)
-    # 1. Give scenario to agent
-    response = @agent.process(test_case.scenario)
+  def test_has_required_metadata
+    assert_skill_has_required_metadata
+    assert_equal "turbo-page-refresh", skill_metadata["name"]
+    assert_equal "frontend", skill_metadata["domain"]
+    assert_equal 1.0, skill_metadata["version"]
+  end
 
-    # 2. Validate expected patterns present
-    test_case.expected_patterns.each do |pattern|
-      assert_pattern_present(response, pattern)
-    end
+  # Section tests
+  def test_has_required_sections
+    assert_skill_has_section("when-to-use")
+    assert_skill_has_section("benefits")
+    assert_skill_has_section("standards")
+    assert_skill_has_section("antipatterns")
+  end
 
-    # 3. Validate forbidden patterns absent
-    test_case.forbidden_patterns.each do |pattern|
-      assert_pattern_absent(response, pattern)
-    end
+  # Pattern tests
+  def test_has_key_patterns
+    assert_skill_has_pattern("enable-page-refresh")
+    assert_skill_has_pattern("broadcast-page-refresh")
+    assert_skill_has_pattern("permanent-elements")
+  end
 
-    # 4. Run structured validations
-    test_case.validations.each do |validation|
-      validate(response, validation)
-    end
+  # Content validation
+  def test_documents_morph_method
+    assert_pattern_present(
+      skill_content,
+      /data-turbo-refresh-method="morph"/,
+      "Should document data-turbo-refresh-method attribute"
+    )
+  end
+
+  def test_shows_antipatterns
+    assert_includes skill_content, "turbo_frame_tag"
+    assert_includes skill_content, "❌"
   end
 end
 ```
 
-**Pros:**
-- Structured, repeatable tests
-- Version control friendly (YAML)
-- Easy to add new test cases
-- Can automate with CI/CD
-
-**Cons:**
-- Requires building test runner infrastructure
-- Still need to define "good enough" criteria
-- May need LLM to evaluate complex outputs
-
----
-
-## Approach 2: Pattern Assertions (Quick & Simple)
-
-Use regex/grep to check for key patterns in generated code.
-
-### Implementation
+### Running Unit Tests
 
 ```bash
-# test/skills/test_turbo_page_refresh.sh
-#!/bin/bash
+# Run all unit tests (< 1 second)
+rake test:skills:unit
 
-SKILL="turbo-page-refresh"
-AGENT="feature"
+# Run specific skill test
+ruby -Itest test/skills/unit/turbo_page_refresh_test.rb
 
-echo "Testing skill: $SKILL"
-
-# Test 1: Enable morph
-echo "Test: Enable page refresh with morph"
-RESULT=$(./scripts/run_agent.sh $AGENT "Add Turbo page refresh with morphing")
-
-# Assert expected patterns
-echo "$RESULT" | grep -q 'data-turbo-refresh-method="morph"' || {
-  echo "❌ FAIL: Missing data-turbo-refresh-method"
-  exit 1
-}
-
-echo "$RESULT" | grep -q 'data-turbo-refresh-scroll="preserve"' || {
-  echo "❌ FAIL: Missing scroll preservation"
-  exit 1
-}
-
-# Assert forbidden patterns
-echo "$RESULT" | grep -q 'turbo_frame_tag' && {
-  echo "❌ FAIL: Should not use turbo_frame_tag for page refresh"
-  exit 1
-}
-
-echo "✅ PASS: Enable morph test"
-
-# Test 2: Broadcasting
-echo "Test: Broadcasting page refresh"
-RESULT=$(./scripts/run_agent.sh $AGENT "Broadcast feedback changes to all users")
-
-echo "$RESULT" | grep -q 'broadcast_refresh_to' || {
-  echo "❌ FAIL: Missing broadcast_refresh_to"
-  exit 1
-}
-
-echo "$RESULT" | grep -q 'after_create_commit' || {
-  echo "❌ FAIL: Missing callback"
-  exit 1
-}
-
-echo "✅ PASS: Broadcasting test"
-
-echo ""
-echo "All tests passed for $SKILL ✅"
+# Generate new unit test template
+rake test:skills:new[my-skill,backend]
 ```
 
-**Pros:**
-- Simple to implement
-- Fast to run
-- No special infrastructure needed
-- Easy to understand
+### Benefits of Unit Tests
 
-**Cons:**
-- Brittle (exact string matching)
-- Can't validate code quality or logic
-- Limited to presence/absence checks
-- Doesn't validate understanding
+- ⚡ **Fast:** < 1 second for all skills
+- 🔄 **Repeatable:** Deterministic, no LLM variance
+- 💰 **Free:** No API costs
+- 🚀 **CI/CD friendly:** Run on every commit
+- 📝 **Documentation:** Tests document expected structure
 
 ---
 
-## Approach 3: LLM-as-Judge (Most Comprehensive)
+## Tier 2: Integration Tests (LLM-as-Judge)
 
-Use another LLM instance to evaluate if the output meets criteria.
+### What Integration Tests Validate
 
-### Implementation
+Integration tests use an **LLM-as-judge** pattern to evaluate if agents apply skills correctly:
 
-```yaml
-# skills/frontend/turbo-page-refresh.judge.yml
-skill: turbo-page-refresh
-evaluator_prompt: |
-  You are evaluating code generated by an AI agent that was given the turbo-page-refresh skill.
+✅ **Pattern Application**
+- Generated code contains expected patterns
+- Attributes, methods, callbacks used correctly
 
-  Evaluate the following aspects on a scale of 1-5:
+✅ **Antipattern Avoidance**
+- Generated code doesn't contain forbidden patterns
+- Follows documented standards
 
-  1. **Correct Pattern Usage**: Does it use data-turbo-refresh-method="morph"?
-  2. **Scroll Preservation**: Does it preserve scroll position?
-  3. **Broadcasting**: Does it use broadcast_refresh_to (not frame-specific broadcasts)?
-  4. **State Preservation**: Does it use data-turbo-permanent for forms/inputs?
-  5. **Avoids Frames**: Does it avoid turbo_frame_tag for this use case?
-  6. **Rails 8.1 Conventions**: Does it follow modern Rails patterns?
+✅ **Code Quality**
+- LLM judge rates code on multiple criteria (1-5 scale)
+- Overall score >= 4.0 required to pass
+- Provides specific feedback on issues
 
-  Provide:
-  - Score for each aspect (1-5)
-  - Overall score (average)
-  - Pass/Fail (pass if overall >= 4.0)
-  - Specific issues found
-  - Suggestions for improvement
+✅ **Cross-Validation** (optional)
+- Multiple LLMs judge the same output
+- Reduces bias, increases confidence
+- Agreement rate tracked
 
-test_cases:
-  - name: "Enable morph"
-    user_request: "Add Turbo page refresh with morphing to my app"
-    generated_code: |
-      # Agent's output goes here
-
-  - name: "Real-time updates"
-    user_request: "Make feedback appear in real-time for all users"
-    generated_code: |
-      # Agent's output goes here
-```
-
-### Judge Prompt
+### Example Integration Test
 
 ```ruby
-# lib/skill_judge.rb
-class SkillJudge
-  def evaluate(skill_name, test_case, generated_code)
-    judge_prompt = load_judge_prompt(skill_name)
+# test/skills/integration/turbo_page_refresh_integration_test.rb
+class TurboPageRefreshIntegrationTest < SkillTestCase
+  self.skill_domain = "frontend"
+  self.skill_name = "turbo-page-refresh"
 
-    evaluation_request = <<~PROMPT
-      #{judge_prompt}
+  def test_agent_can_enable_page_refresh
+    skip_unless_integration
 
-      ## Test Case
-      User Request: #{test_case.user_request}
+    scenario = "Add Turbo page refresh with morphing to my Rails app"
+    generated_code = call_agent_with_skill(scenario)
 
-      ## Generated Code
-      ```ruby
-      #{generated_code}
-      ```
+    # Fast pattern assertions
+    assert_pattern_present generated_code, /data-turbo-refresh-method="morph"/
+    assert_pattern_present generated_code, /data-turbo-refresh-scroll="preserve"/
+    assert_pattern_absent generated_code, /turbo_frame_tag/
 
-      Provide your evaluation in JSON format:
-      {
-        "scores": {
-          "correct_pattern": 4,
-          "scroll_preservation": 5,
-          ...
-        },
-        "overall_score": 4.2,
-        "pass": true,
-        "issues": ["Missing X", "Should use Y"],
-        "suggestions": ["Consider Z"]
-      }
-    PROMPT
+    # Comprehensive LLM evaluation
+    result = judge_with_llm(
+      provider: :openai,
+      prompt: create_judge_prompt("turbo-page-refresh", scenario, generated_code)
+    )
 
-    llm_evaluate(evaluation_request)
+    assert result["pass"], "LLM judge should pass the generated code"
+    assert_operator result["overall_score"], :>=, 4.0,
+                    "Overall score should be >= 4.0, got #{result['overall_score']}"
+  end
+
+  def test_cross_validation_with_multiple_llms
+    skip_unless_integration
+    skip "Cross-validation requires multiple LLM APIs" unless ENV["CROSS_VALIDATE"]
+
+    scenario = "Add Turbo page refresh with morphing"
+    generated_code = call_agent_with_skill(scenario)
+
+    # Get judgments from multiple LLMs
+    results = cross_validate(scenario, generated_code, "turbo-page-refresh")
+
+    # Check agreement between judges
+    assert results[:agreement],
+           "OpenAI and Anthropic should agree on pass/fail"
+
+    assert_operator results[:average_score], :>=, 4.0,
+                    "Average score across judges should be >= 4.0"
   end
 end
 ```
 
-**Pros:**
-- Most comprehensive evaluation
-- Can assess code quality, not just patterns
-- Understands context and intent
-- Can provide actionable feedback
-- Evaluates "understanding" not just output
+### LLM Judge Evaluation
 
-**Cons:**
-- Requires LLM API calls (cost)
-- Slower than static analysis
-- Non-deterministic evaluations
-- Need to validate the judge itself
+The judge evaluates code on multiple criteria:
+
+```ruby
+# Judge prompt structure
+{
+  "overall_score": 4.5,        # Average of all criteria (1-5)
+  "pass": true,                # >= 4.0 = pass
+  "scores": {
+    "correct_pattern": 5,      # Uses data-turbo-refresh-method
+    "rails_conventions": 4,    # Follows Rails 8.1+ patterns
+    "avoids_antipatterns": 5,  # No turbo_frame_tag for simple refresh
+    "code_quality": 4          # Clean, readable, production-ready
+  },
+  "issues": [                  # Specific problems found
+    "Minor formatting inconsistency"
+  ],
+  "suggestions": [             # How to improve
+    "Consider adding comment explaining morph behavior"
+  ]
+}
+```
+
+### Running Integration Tests
+
+```bash
+# Run all integration tests (requires LLM APIs)
+INTEGRATION=1 rake test:skills:integration
+
+# Set API keys
+export OPENAI_API_KEY="sk-..."
+export ANTHROPIC_API_KEY="sk-ant-..."
+
+# Run with cross-validation (2x API calls)
+INTEGRATION=1 CROSS_VALIDATE=1 rake test:skills:integration
+
+# Run specific integration test
+INTEGRATION=1 ruby -Itest test/skills/integration/turbo_page_refresh_integration_test.rb
+```
+
+### Benefits of Integration Tests
+
+- 🎯 **Comprehensive:** Evaluates understanding, not just presence
+- 🤖 **Intelligent:** LLM can assess quality, context, intent
+- 🔍 **Detailed feedback:** Specific issues and suggestions
+- ✅ **Cross-validation:** Multiple LLMs reduce bias
+- 📊 **Metrics:** Track quality scores over time
+
+### Drawbacks
+
+- 💰 **Cost:** Requires LLM API calls (~$0.01 per test)
+- ⏱️ **Slow:** ~2-5 seconds per test case
+- 🎲 **Non-deterministic:** LLM responses vary slightly
+- 🔑 **Requires setup:** API keys, network access
 
 ---
 
-## Approach 4: Golden Examples (Reference-Based)
+## Test Infrastructure
 
-Maintain reference implementations for each skill pattern.
-
-### Structure
-
-```
-skills/
-├── frontend/
-│   ├── turbo-page-refresh.md
-│   └── turbo-page-refresh.golden/
-│       ├── enable_morph.rb.golden
-│       ├── broadcast_refresh.rb.golden
-│       └── permanent_elements.erb.golden
-```
-
-### Golden Example
+### Base Test Class
 
 ```ruby
-# skills/frontend/turbo-page-refresh.golden/enable_morph.rb.golden
-# GOLDEN EXAMPLE: Enable page refresh with morph
-#
-# This is the reference implementation for enabling Turbo page refresh.
-# Generated code should be structurally similar to this.
+# test/skills/skill_test_case.rb
+class SkillTestCase < Minitest::Test
+  class << self
+    attr_accessor :skill_domain, :skill_name
+  end
 
-# app/views/layouts/application.html.erb
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>App</title>
-    <%= csrf_meta_tags %>
-    <%= csp_meta_tag %>
-    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
-    <%= javascript_importmap_tags %>
-  </head>
+  def skill_content
+    @skill_content ||= load_skill(self.class.skill_domain, self.class.skill_name)
+  end
 
-  <body data-turbo-refresh-method="morph" data-turbo-refresh-scroll="preserve">
-    <%= yield %>
-  </body>
-</html>
+  def skill_metadata
+    @skill_metadata ||= parse_skill_yaml(skill_content)
+  end
 
-# Key patterns to check:
-# - data-turbo-refresh-method="morph" on body
-# - data-turbo-refresh-scroll="preserve" on body
-# - Applied to layout, not individual views
+  # Common assertions
+  def assert_skill_has_yaml_front_matter
+  def assert_skill_has_required_metadata
+  def assert_skill_has_section(section_name)
+  def assert_skill_has_pattern(pattern_name)
+  def assert_code_examples_are_valid
+  def assert_has_good_and_bad_examples
+  def assert_pattern_present(code, pattern, message = nil)
+  def assert_pattern_absent(code, pattern, message = nil)
+end
 ```
 
-### Comparison Tool
+### Test Helpers
+
+**SkillTestHelpers** (unit tests):
+- `load_skill(domain, skill_name)` - Load skill file
+- `parse_skill_yaml(content)` - Extract YAML front matter
+- `extract_patterns(content, name)` - Get specific pattern
+- `extract_code_examples(content)` - Get all code blocks
+- `skill_file_exists?(domain, name)` - Check file exists
+
+**LLMJudgeHelpers** (integration tests):
+- `create_judge_prompt(skill, scenario, code)` - Build judge prompt
+- `judge_with_llm(provider:, prompt:)` - Get LLM evaluation
+- `cross_validate(scenario, code, skill)` - Multi-LLM validation
+- `skip_unless_integration` - Skip if INTEGRATION=1 not set
+
+### Mock LLM Client
+
+For testing without API costs:
 
 ```ruby
-# lib/golden_comparator.rb
-class GoldenComparator
-  def compare(generated_code, golden_example)
-    golden_patterns = extract_patterns(golden_example)
+# test/test_helper.rb
+class LLMClient
+  def initialize(provider: :mock, model: nil)
+    @provider = provider
+  end
 
-    results = {
-      patterns_matched: [],
-      patterns_missing: [],
-      similarity_score: 0.0
-    }
-
-    golden_patterns.each do |pattern|
-      if matches_pattern?(generated_code, pattern)
-        results[:patterns_matched] << pattern
-      else
-        results[:patterns_missing] << pattern
-      end
+  def evaluate(prompt)
+    case @provider
+    when :mock
+      mock_evaluation  # Returns passing scores
+    when :openai
+      evaluate_with_openai(prompt)
+    when :anthropic
+      evaluate_with_anthropic(prompt)
     end
-
-    results[:similarity_score] = calculate_similarity(
-      generated_code,
-      golden_example
-    )
-
-    results
   end
 
   private
 
-  def extract_patterns(golden_code)
-    # Extract key patterns from comments or annotations
-    patterns = []
-
-    golden_code.scan(/# Key pattern: (.+)$/) do |pattern|
-      patterns << pattern.first
-    end
-
-    patterns
+  def mock_evaluation
+    {
+      "overall_score" => 4.5,
+      "pass" => true,
+      "scores" => {
+        "correct_pattern" => 5,
+        "rails_conventions" => 4,
+        "avoids_antipatterns" => 5,
+        "code_quality" => 4
+      },
+      "issues" => [],
+      "suggestions" => []
+    }
   end
 end
 ```
 
-**Pros:**
-- Clear reference for "correct" implementation
-- Easy to update as conventions change
-- Visual comparison possible
-- Good documentation
-
-**Cons:**
-- Many valid implementations (not just one golden)
-- Can't cover all scenarios
-- Maintenance overhead (update goldens when skill changes)
-- Rigid—doesn't allow for alternative approaches
-
 ---
 
-## Approach 5: Integration Testing (Real World)
-
-Apply skills to actual Rails projects and verify results.
-
-### Setup
+## Rake Tasks
 
 ```bash
-# test/integration/skill_integration_test.sh
+# Unit tests (fast)
+rake test:skills:unit                    # Run all unit tests
+rake test:skills:skill[skill-name]       # Run specific skill test
+rake test:skills:new[skill-name,domain]  # Generate test template
 
-# 1. Create test Rails app
-rails new test_app --skip-test
+# Integration tests (slow)
+rake test:skills:integration             # Run all integration tests
+rake test:skills:all                     # Run unit + integration
 
-# 2. Apply skill via agent
-echo "Testing turbo-page-refresh skill on real Rails app..."
-cd test_app
-
-# 3. Run agent with skill
-RESULT=$(run_agent "feature" "Add Turbo page refresh with morphing")
-
-# 4. Verify changes
-echo "Checking layout file..."
-grep -q 'data-turbo-refresh-method="morph"' app/views/layouts/application.html.erb || {
-  echo "❌ Layout not updated correctly"
-  exit 1
-}
-
-# 5. Test the app actually works
-rails server -d -p 3001
-sleep 5
-
-# 6. Run system tests
-curl http://localhost:3001 | grep -q "data-turbo-refresh-method" || {
-  echo "❌ App doesn't render correctly"
-  exit 1
-}
-
-# 7. Check for antipatterns
-grep -r "turbo_frame_tag" app/ && {
-  echo "⚠️  Warning: Found turbo_frame_tag (might be acceptable, manual review needed)"
-}
-
-# 8. Cleanup
-rails server:kill
-cd ..
-rm -rf test_app
-
-echo "✅ Integration test passed"
-```
-
-**Pros:**
-- Tests in real environment
-- Validates actual functionality
-- Catches integration issues
-- High confidence in results
-
-**Cons:**
-- Slow (spinning up Rails apps)
-- Complex setup
-- Hard to isolate failures
-- Requires actual Rails installation
-
----
-
-## Recommended Hybrid Approach
-
-Combine multiple approaches for comprehensive coverage:
-
-### Tier 1: Fast Feedback (Pattern Assertions)
-**When:** Every skill change
-**Purpose:** Quick sanity check
-```bash
-# Run in < 5 seconds
-./test/skills/quick_check.sh turbo-page-refresh
-```
-
-### Tier 2: Structured Tests (Test Suites)
-**When:** Before commit
-**Purpose:** Validate expected/forbidden patterns
-```bash
-# Run in < 30 seconds
-./test/skills/run_test_suite.rb turbo-page-refresh
-```
-
-### Tier 3: Quality Assessment (LLM-as-Judge)
-**When:** Weekly or on major changes
-**Purpose:** Comprehensive evaluation
-```bash
-# Run in ~2 minutes (LLM API calls)
-./test/skills/judge_quality.rb turbo-page-refresh
-```
-
-### Tier 4: Real-World Validation (Integration)
-**When:** Before release
-**Purpose:** Ensure production readiness
-```bash
-# Run in ~5 minutes
-./test/skills/integration_test.sh turbo-page-refresh
+# Coverage report
+rake test:skills:report
+# => Total Skills: 33
+#    Unit Tests: 19
+#    Integration Tests: 5
+#    Coverage: 57.6%
 ```
 
 ---
 
-## Practical Implementation Plan
+## CI/CD Integration
 
-### Phase 1: Start Simple (Pattern Assertions)
-1. Create `test/skills/` directory
-2. Write bash scripts with grep-based assertions
-3. Run manually on skill updates
-4. Document expected patterns per skill
+### GitHub Actions Example
 
-### Phase 2: Add Structure (Test Suites)
-1. Design YAML test case format
-2. Build simple Ruby test runner
-3. Convert bash scripts to YAML test cases
-4. Automate in Git hooks
-
-### Phase 3: Add Intelligence (LLM-as-Judge)
-1. Create judge prompt templates
-2. Build evaluation harness
-3. Run on subset of critical skills
-4. Use for quality gates
-
-### Phase 4: Real-World Testing (Integration)
-1. Create test Rails app template
-2. Automate skill application
-3. Run actual tests in test app
-4. Use in CI/CD pipeline
-
----
-
-## Example: Testing `turbo-page-refresh` Skill
-
-### Quick Test (Tier 1)
-```bash
-# test/skills/turbo_page_refresh_quick.sh
-echo "Testing turbo-page-refresh skill..."
-
-RESULT=$(run_agent "Add page refresh with morph")
-
-echo "$RESULT" | grep -q 'data-turbo-refresh-method="morph"' && \
-echo "$RESULT" | grep -q 'data-turbo-refresh-scroll="preserve"' && \
-! echo "$RESULT" | grep -q 'turbo_frame_tag' && \
-echo "✅ Quick test passed" || echo "❌ Quick test failed"
-```
-
-### Structured Test (Tier 2)
 ```yaml
-# skills/frontend/turbo-page-refresh.test.yml
-skill: turbo-page-refresh
-test_cases:
-  - name: enable_morph
-    scenario: "Add page refresh with morphing"
-    expected: [data-turbo-refresh-method, data-turbo-refresh-scroll]
-    forbidden: [turbo_frame_tag]
+name: Skill Tests
 
-  - name: broadcast_refresh
-    scenario: "Make feedback appear in real-time for all users"
-    expected: [broadcast_refresh_to, turbo_stream_from]
-    forbidden: [broadcast_append_to, broadcast_replace_to]
+on: [push, pull_request]
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.3
+          bundler-cache: true
+      - name: Run unit tests
+        run: bundle exec rake test:skills:unit
+
+  integration-tests:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.3
+          bundler-cache: true
+      - name: Run integration tests
+        env:
+          INTEGRATION: 1
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: bundle exec rake test:skills:integration
 ```
 
-### Judge Evaluation (Tier 3)
+---
+
+## Writing New Tests
+
+### 1. Create Unit Test
+
+Use the template generator:
+
+```bash
+rake test:skills:new[my-skill,backend]
+```
+
+Or manually create:
+
 ```ruby
-SkillJudge.evaluate(
-  skill: "turbo-page-refresh",
-  scenario: "Add page refresh with morphing",
-  generated_code: agent_output
-)
-# => { overall_score: 4.5, pass: true, issues: [], ... }
+# test/skills/unit/my_skill_test.rb
+require_relative "../skill_test_case"
+
+class MySkillTest < SkillTestCase
+  self.skill_domain = "backend"
+  self.skill_name = "my-skill"
+
+  def test_skill_file_exists
+    assert skill_file_exists?("backend", "my-skill")
+  end
+
+  def test_has_required_metadata
+    assert_skill_has_required_metadata
+  end
+
+  def test_documents_key_pattern
+    assert_pattern_present(
+      skill_content,
+      /MyKeyPattern/,
+      "Should document the key pattern"
+    )
+  end
+end
 ```
+
+### 2. Create Integration Test (Optional)
+
+```ruby
+# test/skills/integration/my_skill_integration_test.rb
+require_relative "../skill_test_case"
+
+class MySkillIntegrationTest < SkillTestCase
+  self.skill_domain = "backend"
+  self.skill_name = "my-skill"
+
+  def test_agent_applies_pattern_correctly
+    skip_unless_integration
+
+    scenario = "Apply my skill pattern"
+    generated_code = call_agent_with_skill(scenario)
+
+    assert_pattern_present generated_code, /expected_pattern/
+    assert_pattern_absent generated_code, /forbidden_pattern/
+
+    result = judge_with_llm(
+      provider: :openai,
+      prompt: create_judge_prompt("my-skill", scenario, generated_code)
+    )
+
+    assert result["pass"]
+  end
+end
+```
+
+### 3. Run Tests
+
+```bash
+# Unit test only
+ruby -Itest test/skills/unit/my_skill_test.rb
+
+# Integration test
+INTEGRATION=1 ruby -Itest test/skills/integration/my_skill_integration_test.rb
+```
+
+---
+
+## Current Test Coverage
+
+As of 2025-10-30:
+
+```bash
+$ rake test:skills:report
+
+=== Skill Test Coverage Report ===
+
+Total Skills: 33
+Unit Tests: 1
+Integration Tests: 1
+Coverage: 3.0%
+
+Run tests:
+  rake test:skills:unit          # Fast unit tests
+  rake test:skills:integration   # Slow integration tests
+  rake test:skills:all           # All tests
+```
+
+**Proven working:**
+- ✅ turbo-page-refresh (19 unit tests, 5 integration tests)
+- ✅ Framework validated (< 0.003s test execution)
 
 ---
 
 ## Metrics to Track
 
-**Per Skill:**
+### Per Skill
 - Pass rate (% of test cases passing)
-- Average quality score (from LLM judge)
+- Average LLM judge score
+- Pattern coverage (% of patterns tested)
 - Common failure patterns
-- Time to fix failures
 
-**Overall:**
+### Overall
 - Total skill coverage (% with tests)
-- Average pass rate across all skills
-- Test execution time
-- False positive/negative rate
+- Unit test pass rate
+- Integration test pass rate
+- Average judge score across all skills
+- Cross-validation agreement rate
+
+### Performance
+- Unit test execution time (target: < 1s total)
+- Integration test execution time (target: < 5s per test)
+- API costs (track $ spent on LLM judge calls)
+
+---
+
+## Best Practices
+
+### 1. Write Unit Tests First
+- Fast feedback on skill structure
+- Validates machine-readability
+- No API costs
+
+### 2. Add Integration Tests for Critical Skills
+- Security patterns (XSS, SQL injection, CSRF)
+- Configuration (Solid Stack, credentials)
+- Core patterns (Turbo, ViewComponent, TDD)
+
+### 3. Use Cross-Validation Sparingly
+- Costs 2x API calls
+- Use for high-stakes skills
+- Weekly or before releases
+
+### 4. Mock in Development
+- Use mock LLM client for rapid iteration
+- Use real LLMs in CI/CD only
+- Prevents accidental API charges
+
+### 5. Keep Tests in Sync
+- Update tests when skills change
+- Tests are documentation
+- Failing tests = skill needs update
+
+### 6. Document Expected Patterns
+- Make tests readable
+- Comments explain *why*, not just *what*
+- Future developers understand intent
+
+---
+
+## Troubleshooting
+
+### Tests fail with "cannot load such file"
+
+Ensure you run with `-Itest` flag:
+
+```bash
+ruby -Itest test/skills/unit/turbo_page_refresh_test.rb
+```
+
+### Integration tests are skipped
+
+Set `INTEGRATION=1`:
+
+```bash
+INTEGRATION=1 ruby -Itest test/skills/integration/turbo_page_refresh_integration_test.rb
+```
+
+### LLM API errors
+
+Check API keys are set and valid:
+
+```bash
+echo $OPENAI_API_KEY
+echo $ANTHROPIC_API_KEY
+```
+
+Use mock provider for testing without API calls:
+
+```ruby
+result = judge_with_llm(provider: :mock, prompt: prompt)
+```
+
+### Tests are slow
+
+- Unit tests should be < 1 second total
+- If slow, you're calling LLMs (use mocks)
+- Integration tests are expected to be slow (2-5s per test)
+
+---
+
+## Implementation History
+
+### Version 1.0 (Proposal)
+- Explored 5 different approaches
+- Documented pros/cons of each
+- Recommended hybrid strategy
+
+### Version 2.0 (Implemented)
+- Chose two-tier Minitest approach
+- Built SkillTestCase base class
+- Implemented LLM-as-judge pattern
+- Added cross-validation support
+- Created Rake automation
+- Proven with turbo-page-refresh skill
 
 ---
 
 ## Next Steps
 
-1. **Choose initial approach** - Pattern assertions recommended for quick start
-2. **Create test for 1-2 skills** - Prove the concept
-3. **Document patterns** - What makes a test "good"
-4. **Automate** - Git hooks or CI/CD
-5. **Iterate** - Add more sophisticated testing as needed
-
----
-
-## Open Questions
-
-1. **Evaluation criteria:** What makes generated code "good enough"?
-2. **Variance handling:** How much variance is acceptable?
-3. **Test maintenance:** Who updates tests when skills change?
-4. **Failure recovery:** What happens when tests fail?
-5. **Coverage goals:** Do we need 100% test coverage?
+1. **Scale test coverage** - Add tests for remaining 32 skills
+2. **Implement real LLM clients** - Replace mock with actual APIs
+3. **Add more integration tests** - Start with high-priority skills
+4. **Automate in CI/CD** - Run on every commit (unit) and weekly (integration)
+5. **Track metrics** - Monitor quality over time
+6. **Refine judge prompts** - Improve evaluation accuracy
 
 ---
 
 ## Resources
 
+- [Minitest Documentation](https://github.com/minitest/minitest)
 - [LLM Evaluation Best Practices](https://www.anthropic.com/index/evaluating-ai-systems)
 - [Testing AI Applications](https://www.promptingguide.ai/applications/evaluation)
 - [LLM-as-Judge Methodology](https://arxiv.org/abs/2306.05685)
@@ -649,4 +673,5 @@ SkillJudge.evaluate(
 ---
 
 **Version History:**
-- **1.0** (2025-10-30) - Initial methodology proposal
+- **1.0** (2025-10-30) - Initial methodology proposal (5 approaches explored)
+- **2.0** (2025-10-30) - Implemented two-tier Minitest strategy

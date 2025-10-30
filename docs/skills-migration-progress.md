@@ -6,7 +6,7 @@
 
 ---
 
-## Completed Skills (16/~40)
+## Completed Skills (21/~40)
 
 ### Frontend Skills (4)
 - ✅ `viewcomponent-basics.md` - Foundation ViewComponent patterns
@@ -14,11 +14,16 @@
 - ✅ `hotwire-turbo.md` - Turbo Drive, Frames, Streams
 - ✅ `hotwire-stimulus.md` - Controllers, actions, targets, values
 
-### Backend Skills (1)
+### Backend Skills (4)
 - ✅ `controller-restful.md` - REST conventions, strong parameters, API patterns
+- ✅ `activerecord-patterns.md` - Associations, validations, scopes, callbacks, query optimization
+- ✅ `form-objects.md` - Multi-model forms, wizard forms, API forms, complex validation
+- ✅ `query-objects.md` - Chainable queries, filtering, aggregations, composability
 
-### Testing Skills (1)
+### Testing Skills (3)
 - ✅ `tdd-minitest.md` - TDD workflow, assertions, testing patterns
+- ✅ `fixtures-test-data.md` - YAML fixtures, associations, ERB, Active Storage/Text fixtures
+- ✅ `minitest-mocking.md` - Stubbing, mocks, WebMock, time travel, external services
 
 ### Security Skills (6) ✅ COMPLETE
 - ✅ `security-xss.md` - XSS prevention, sanitization, CSP
@@ -48,10 +53,7 @@
 - [ ] `accessibility-patterns.md` - From `accessibility_comprehensive.erb`
 - [ ] `partials-layouts.md` - From `partials_layouts_comprehensive.erb`
 
-### Backend Skills (8-10)
-- [ ] `activerecord-patterns.md` - From `model_basic.rb`
-- [ ] `form-objects.md` - From `form_object.rb`
-- [ ] `query-objects.md` - From `query_object.rb`
+### Backend Skills (5-6 remaining)
 - [ ] `concerns-models.md` - From `concern_namespaced_model.rb`
 - [ ] `concerns-controllers.md` - From `concern_namespaced_controller.rb`
 - [ ] `custom-validators.md` - From `validator_custom.rb`
@@ -59,9 +61,7 @@
 - [ ] `nested-resources.md` - From `nested_resources_comprehensive.rb`
 - [ ] `antipattern-fat-controllers.md` - From `antipattern_fat_controller.rb`
 
-### Testing Skills (4-5)
-- [ ] `fixtures-test-data.md` - From `fixtures_test_data.rb`
-- [ ] `minitest-mocking.md` - From `mocking_stubbing.rb`
+### Testing Skills (2-3 remaining)
 - [ ] `test-helpers.md` - From `test_setup_helpers.rb`
 - [ ] `viewcomponent-testing.md` - From `viewcomponent_test_comprehensive.rb`
 - [ ] `model-testing-advanced.md` - From `model_test_basic.rb`
@@ -95,17 +95,17 @@ All skills use the hybrid format:
 
 ## Next Steps
 
-### Priority 1: Core Skills (Required for MVP)
+### Priority 1: Core Skills (Required for MVP) ✅ COMPLETE
 1. ✅ Security skills (all 6) - Critical for production apps
 2. ✅ Config skills (all 4) - Rails 8 standard and deployment
-3. `activerecord-patterns.md` - Model fundamentals
-4. `fixtures-test-data.md` - Testing fundamentals
+3. ✅ Essential backend skills (activerecord, form-objects, query-objects)
+4. ✅ Essential testing skills (fixtures, mocking)
 
-### Priority 2: Common Patterns
-5. `form-objects.md` - Complex form handling
-6. `query-objects.md` - Complex queries
-7. `tailwind-utility-first.md` - Styling
-8. `daisyui-components.md` - UI components
+### Priority 2: Common Patterns (Next to port)
+5. `tailwind-utility-first.md` - Styling
+6. `daisyui-components.md` - UI components
+7. `viewcomponent-previews.md` - Component testing
+8. `viewcomponent-variants.md` - Style variants
 
 ### Priority 3: Nice to Have
 9. Remaining frontend skills
@@ -137,5 +137,5 @@ All skills use the hybrid format:
 ---
 
 **Last Updated:** 2025-10-30
-**Skills Completed:** 16 of ~40 (40%)
-**Status:** Security and Config skills complete! Moving to essential backend/testing skills.
+**Skills Completed:** 21 of ~40 (52%)
+**Status:** All Priority 1 MVP skills complete! Ready for Priority 2 common patterns.

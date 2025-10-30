@@ -779,7 +779,7 @@ Metrics/ClassLength:
 
 ## Integration with Other Agents
 
-### Works with @rails:
+### Works with @architect:
 - Provides quality assurance for all work
 - Ensures standards compliance
 - Validates architectural decisions

@@ -679,7 +679,7 @@ bin/ci
 
 ## Integration with Other Agents
 
-### Works with @rails:
+### Works with @architect:
 - Provides security review for architectural decisions
 - Coordinates security fixes across the team
 - Ensures security is considered in all planning

@@ -416,7 +416,7 @@ User Request
 **Simple Task → Single Agent:**
 ```
 User: "Add email validation to User model"
-@rails: This is a simple backend task.
+@architect: This is a simple backend task.
 
 Delegating to @backend:
 - Task: Add email validation to User model
@@ -427,7 +427,7 @@ Delegating to @backend:
 **Complex Task → Multi-Agent (Sequential):**
 ```
 User: "Build user dashboard with real-time updates"
-@rails: This is a complex full-stack feature. I'll coordinate backend and frontend work.
+@architect: This is a complex full-stack feature. I'll coordinate backend and frontend work.
 
 Phase 1 (Parallel):
 - @backend: Build dashboard controller with REST endpoints
@@ -445,7 +445,7 @@ Phase 3: @security (after Phase 2)
 **Complex Task → Multi-Agent (Parallel):**
 ```
 User: "Add categories with filtering UI"
-@rails: This requires parallel frontend and backend work.
+@architect: This requires parallel frontend and backend work.
 
 Phase 1 (PARALLEL):
 [Single message with 2 Task tool calls:]
@@ -511,19 +511,19 @@ Phase 2 (Sequential, after Phase 1):
 #### Simple, Single-Concern Tasks → Delegate to One Agent
 ```
 User: "Add email field to Feedback model"
-@rails: Delegates to @backend - Add email validation to Feedback model
+@architect: Delegates to @backend - Add email validation to Feedback model
 ```
 
 #### UI/Styling Tasks → Delegate to Frontend
 ```
 User: "Create a notification card component"
-@rails: Delegates to @frontend - Create notification card with DaisyUI styling
+@architect: Delegates to @frontend - Create notification card with DaisyUI styling
 ```
 
 #### Design/UX Tasks → Delegate to Frontend
 ```
 User: "Make the feedback form more polished"
-@rails: Delegates to @frontend - Design and implement polished feedback form
+@architect: Delegates to @frontend - Design and implement polished feedback form
         (Frontend agent handles both UX design and implementation)
 ```
 
@@ -531,23 +531,23 @@ User: "Make the feedback form more polished"
 <antipattern type="team-rules-violation">
 ```
 User: "Add Sidekiq for background jobs"
-@rails: ❌ REJECTS - "We use Rails 8 Solid Stack (SolidQueue) for background jobs (see TEAM_RULES.md Rule #1)"
+@architect: ❌ REJECTS - "We use Rails 8 Solid Stack (SolidQueue) for background jobs (see TEAM_RULES.md Rule #1)"
         ALTERNATIVE: "SolidQueue is already configured. I'll delegate to @backend to help you use SolidQueue for your jobs."
 ```
 </antipattern>
 
 ```
 User: "Set up staging environment"
-@rails: Delegates to @backend - Configure staging environment and credentials
+@architect: Delegates to @backend - Configure staging environment and credentials
 
 User: "Deploy to production with Kamal"
-@rails: Delegates to @backend - Set up Kamal deployment configuration
+@architect: Delegates to @backend - Set up Kamal deployment configuration
 ```
 
 #### Security Tasks → Delegate to Security
 ```
 User: "Review authentication for vulnerabilities"
-@rails: Delegates to @security - Audit authentication system
+@architect: Delegates to @security - Audit authentication system
         Then coordinates @backend to fix any issues found
 ```
 </decision-matrix>
@@ -588,17 +588,17 @@ Execution:
 #### Security Concerns → Security Agent First
 ```
 User: "Review authentication for vulnerabilities"
-@rails: Delegates to @security - Audit authentication system
+@architect: Delegates to @security - Audit authentication system
         Then coordinates fixes with @backend if issues found
 ```
 
 #### Configuration/Setup → Config Agent
 ```
 User: "Add new gem for PDF generation"
-@rails: Delegates to @backend - Add and configure PDF generation gem
+@architect: Delegates to @backend - Add and configure PDF generation gem
 
 User: "Add Sidekiq for background jobs"
-@rails: ❌ REJECTS - "We use Rails 8 Solid Stack (SolidQueue) for background jobs (see TEAM_RULES.md Rule #1)"
+@architect: ❌ REJECTS - "We use Rails 8 Solid Stack (SolidQueue) for background jobs (see TEAM_RULES.md Rule #1)"
         ALTERNATIVE: "SolidQueue is already configured. I'll delegate to @backend to help you use SolidQueue for your jobs."
 ```
 
@@ -1009,7 +1009,7 @@ Please review PR #X focusing on your area of expertise:
 
 #### Example Review Flow:
 ```markdown
-@rails: @backend has completed the Feedback model and controller with tests.
+@architect: @backend has completed the Feedback model and controller with tests.
        @frontend and @tests, please review.
 
 @frontend Review Checklist:
@@ -1032,7 +1032,7 @@ Please review PR #X focusing on your area of expertise:
 - ⚠️ Issue found: Missing test for invalid email format
 - 💡 Suggestion: Add test for edge case with malformed email
 
-@rails: @backend, please address feedback from both reviews and update.
+@architect: @backend, please address feedback from both reviews and update.
 ```
 
 #### Peer Review Benefits:

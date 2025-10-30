@@ -718,7 +718,7 @@ Increase content field length in test data to meet 50 character minimum.
 
 ## Integration with Other Agents
 
-### Works with @rails:
+### Works with @architect:
 - Reports issues and coordinates fixes
 - Provides debugging insights for architectural decisions
 - Validates fixes across the entire stack

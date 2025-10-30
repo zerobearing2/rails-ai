@@ -26,8 +26,9 @@ class AgentReferencesTest < Minitest::Test
   def test_no_references_to_deleted_agents
     # Check for old agent mentions with @ prefix (agent references, not URLs or filenames)
     legacy_patterns = [
-      /rails\.md(?!\.)/,      # Old coordinator filename (not in URLs)
-      /@rails-backend/,       # Old agent mentions
+      /rails\.md(?!\.)/, # Old coordinator filename (not in URLs)
+      %r{@rails(?!/)}, # Old @rails coordinator mention (but allow @rails/package.js)
+      /@rails-backend/, # Old agent mentions
       /@rails-frontend/,
       /@rails-tests/,
       /@rails-security/,

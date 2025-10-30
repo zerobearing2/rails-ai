@@ -120,14 +120,14 @@ All skills use the hybrid format:
 ### Phase 2: Agent Integration (Next Steps)
 
 1. **Create AGENTS.md** - Define skill presets for each of the 6 agents
-   - Coordinator (rails.md) - Skills registry and librarian role
-   - Feature agent - Full-stack feature development preset
-   - Debugger agent - Testing and debugging skill preset
-   - Refactor agent - Code quality and pattern skills
-   - Security agent - All security skills preset
-   - Test agent - All testing skills preset
-   - UI agent - All frontend skills preset
-   - API agent - Backend + security skills preset
+  - Coordinator (rails.md) - Skills registry and librarian role
+  - Feature agent - Full-stack feature development preset
+  - Debugger agent - Testing and debugging skill preset
+  - Refactor agent - Code quality and pattern skills
+  - Security agent - All security skills preset
+  - Test agent - All testing skills preset
+  - UI agent - All frontend skills preset
+  - API agent - Backend + security skills preset
 
 2. **Update coordinator (agents/rails.md)** - Add skills registry and lookup protocol
 

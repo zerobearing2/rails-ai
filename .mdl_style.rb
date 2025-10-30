@@ -40,3 +40,7 @@ exclude_rule "MD014"
 
 # Don't enforce ordered list prefix style
 exclude_rule "MD029"
+
+# Don't enforce code block style (fenced vs indented)
+# Can cause false positives with complex nested structures
+exclude_rule "MD046"

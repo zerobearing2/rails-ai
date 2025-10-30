@@ -597,15 +597,15 @@ Update all 6 agents to dynamically load and use skills. The coordinator agent ha
 
 1. **Created External YAML Registries** (Machine-First Optimization)
    - `skills/SKILLS_REGISTRY.yml` (590 lines) - Single source of truth for all 33 skills
-     - Complete metadata: domains, dependencies, descriptions, when-to-use
-     - Keyword index for fast lookup
-     - Dependency graph
+      - Complete metadata: domains, dependencies, descriptions, when-to-use
+      - Keyword index for fast lookup
+      - Dependency graph
    - `rules/RULES_TO_SKILLS_MAPPING.yml` (472 lines) - Bidirectional rules ↔ skills mapping
-     - 10/19 rules with implementation skills (53% coverage)
-     - Violation triggers (keywords, patterns)
-     - Enforcement actions (REJECT vs SUGGEST)
-     - Keyword-to-rule quick lookup
-     - Usage instructions for coordinator
+      - 10/19 rules with implementation skills (53% coverage)
+      - Violation triggers (keywords, patterns)
+      - Enforcement actions (REJECT vs SUGGEST)
+      - Keyword-to-rule quick lookup
+      - Usage instructions for coordinator
 
 2. **Updated Coordinator Agent** (`agents/rails.md`)
    - Added skills registry reference section
@@ -628,17 +628,17 @@ Update all 6 agents to dynamically load and use skills. The coordinator agent ha
    - Added `enforces_team_rule` to YAML front matter
    - Bidirectional linking: skills know which rules they enforce
    - Skills updated:
-     - `solid-stack-setup.md` (Rule #1)
-     - `tdd-minitest.md` (Rules #2, #4)
-     - `controller-restful.md` (Rule #3)
-     - `nested-resources.md` (Rules #3, #5)
-     - `turbo-page-refresh.md` (Rule #7)
-     - `viewcomponent-basics.md` (Rule #15)
-     - `minitest-mocking.md` (Rule #18)
-     - `antipattern-fat-controllers.md` (Rule #12)
-     - `concerns-models.md` (Rule #5)
-     - `hotwire-turbo.md` (Rules #7, #13)
-     - `accessibility-patterns.md` (Rule #13)
+      - `solid-stack-setup.md` (Rule #1)
+      - `tdd-minitest.md` (Rules #2, #4)
+      - `controller-restful.md` (Rule #3)
+      - `nested-resources.md` (Rules #3, #5)
+      - `turbo-page-refresh.md` (Rule #7)
+      - `viewcomponent-basics.md` (Rule #15)
+      - `minitest-mocking.md` (Rule #18)
+      - `antipattern-fat-controllers.md` (Rule #12)
+      - `concerns-models.md` (Rule #5)
+      - `hotwire-turbo.md` (Rules #7, #13)
+      - `accessibility-patterns.md` (Rule #13)
 
 5. **Added Meta README Intro**
    - "100% written by AI, for AI" section

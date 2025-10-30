@@ -1,0 +1,101 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+  workflow_dispatch:
+
+# Cancel in-progress runs when a new workflow with the same group name is triggered
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Fast checks that run on every PR
+  lint-and-test:
+    name: Lint & Unit Tests
+    runs-on: ubuntu-latest
+    # Skip if PR is in draft mode
+    if: github.event.pull_request.draft == false || github.event_name == 'push'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.3
+          bundler-cache: true # Automatically runs bundle install and caches
+
+      - name: Run CI pipeline
+        run: bin/ci
+        env:
+          # CI environment variable helps tools detect CI context
+          CI: true
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: test/reports/
+          if-no-files-found: ignore
+
+  # Integration tests - only run on main branch pushes or manual trigger
+  # These are slow and require API keys
+  integration-tests:
+    name: Integration Tests (LLM Judge)
+    runs-on: ubuntu-latest
+    # Only run on main branch or when manually triggered
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.3
+          bundler-cache: true
+
+      - name: Run integration tests
+        run: INTEGRATION=1 bin/ci
+        env:
+          CI: true
+          INTEGRATION: 1
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+      - name: Upload integration test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-test-results
+          path: test/reports/
+          if-no-files-found: ignore
+
+  # Check that passes when all required checks pass
+  # This allows us to have a single required check in branch protection
+  all-checks:
+    name: All Checks Passed
+    runs-on: ubuntu-latest
+    needs: [lint-and-test]
+    if: always()
+
+    steps:
+      - name: Check all jobs
+        run: |
+          if [[ "${{ needs.lint-and-test.result }}" != "success" ]]; then
+            echo "Required checks failed"
+            exit 1
+          fi
+          echo "All required checks passed ✅"

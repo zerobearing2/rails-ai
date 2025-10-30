@@ -25,3 +25,7 @@ test-projects/
 vendor/bundle/
 .bundle/
 Gemfile.lock
+
+# Test reports
+test/reports/
+coverage/

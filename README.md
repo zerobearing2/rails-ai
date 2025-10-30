@@ -35,12 +35,12 @@ The irony of an AI creating a structured system to constrain and guide other AIs
 
 ## What is rails-ai?
 
-An opinionated AI agent system specifically for Ruby on Rails development. Provides 8 specialized agents that work together following Rails conventions and 37signals-inspired best practices.
+An opinionated AI agent system specifically for Ruby on Rails development. Provides 6 specialized agents that work together following Rails conventions and 37signals-inspired best practices.
 
 ## Current Status: Agent Tuning Phase
 
 This project is currently **private** and in active development. We're:
-- 🔧 Tuning and refining the 8 specialized agents
+- 🔧 Tuning and refining the 6 specialized agents
 - 🧪 Testing across real Rails projects
 - 📝 Gathering examples and patterns
 - 🎯 Improving decision matrices and rules
@@ -49,12 +49,12 @@ This project is currently **private** and in active development. We're:
 
 ## Features
 
-- 🎯 **8 Specialized Agents**: Coordinator, Frontend, Backend, Tests, Config, Security, Design, Debug
+- 🎯 **6 Specialized Agents**: Coordinator, Frontend, Backend, Tests, Security, Debug
 - 🚂 **Rails-Only**: Focused exclusively on Ruby on Rails (no other frameworks)
 - 🤖 **LLM Support**: Works with Claude Code and OpenAI/Cursor
 - 🌍 **Global Install**: Symlinks to your home folder for use across all Rails projects
-- 📚 **39+ Code Examples**: Rails-specific patterns and best practices
-- 📋 **19 Team Rules**: Enforced conventions (Solid Stack, Minitest, REST-only, TDD)
+- 📋 **Team Rules**: Enforced conventions (Solid Stack, Minitest, REST-only, TDD)
+- 🧪 **Skills-Based**: Modular skill system with testing framework
 
 ## Installation (Local)
 
@@ -62,11 +62,17 @@ This project is currently **private** and in active development. We're:
 # Clone repo
 cd ~/Projects/rails-ai
 
-# Run installer (coming in Phase 3)
-./install.sh
+# Manual installation (installer coming in Phase 3)
+# For Claude Code:
+ln -s $(pwd)/agents ~/.claude/agents
+ln -s $(pwd)/rules ~/.claude/rules
+
+# For Cursor:
+ln -s $(pwd)/agents ~/.cursor/agents
+ln -s $(pwd)/rules ~/.cursor/rules
 ```
 
-This will symlink the agents to `~/.claude/agents/` or `~/.cursor/agents/` so they're available in all your Rails projects.
+This will symlink the agents and rules so they're available in all your Rails projects.
 
 ## Usage
 
@@ -82,8 +88,8 @@ The coordinator agent will create a plan, delegate to specialists, and deliver a
 
 ```
 rails-ai/
-├── agents/          # 8 specialized Rails agents
-├── skills/          # 33 modular skills (frontend, backend, testing, security, config)
+├── agents/          # 6 specialized Rails agents
+├── skills/          # Modular skills registry (frontend, backend, testing, security, config)
 ├── rules/           # Team rules and decision matrices
 ├── test/            # Minitest-based skill testing framework
 ├── bin/             # Development scripts (setup, ci)
@@ -164,10 +170,10 @@ See [docs/github-actions-setup.md](docs/github-actions-setup.md) for setup instr
 
 ### Phase 1: Private Tuning (Current)
 - ✅ Simplify directory structure
+- ✅ Skills-based architecture with testing framework
 - 🔜 Create global installer
 - 🔜 Test across multiple Rails projects
 - 🔜 Refine agents based on real usage
-- 🔜 Improve examples and patterns
 - 🔜 Document learnings
 
 ### Phase 2: Open Source Release (Future)

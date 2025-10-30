@@ -282,27 +282,29 @@ See `skills/SKILLS_REGISTRY.yml` → `dependency_graph` section for complete dep
 - Handle migrations safely
 - Use database-specific features appropriately
 
-## Example References
+## Skills Reference
 
-**Backend examples in `.claude/examples/backend/`:**
-- `model_basic.rb` - Basic model with validations, associations, scopes
-- `concern_namespaced_model.rb` - Model concerns (Notifications, Taggable, SoftDeletable, StatusTrackable)
-- `concern_namespaced_controller.rb` - Controller concerns (Authentication, Api::ResponseHandler, Paginatable, Filterable)
-- `controller_restful.rb` - RESTful controller (7 standard actions, strong params)
-- `validator_custom.rb` - Custom validators (EmailValidator, UrlValidator, ProfanityValidator)
-- `mailer_basic.rb` - ActionMailer patterns (notifications, previews, testing)
-- `form_object.rb` - ActiveModel::API form objects (contact, multi-model, wizard forms)
-- `query_object.rb` - Query encapsulation patterns (chainable queries, aggregations)
+**Backend skills available in the skills registry:**
+- `activerecord-patterns` - Basic model patterns with validations, associations, scopes
+- `concerns-models` - Model concerns (shared behavior, organization)
+- `concerns-controllers` - Controller concerns (authentication, authorization, error handling)
+- `controller-restful` - RESTful controller patterns (7 standard actions, strong params)
+- `custom-validators` - Custom validators (reusable validation logic)
+- `action-mailer` - ActionMailer patterns (notifications, previews, testing)
+- `form-objects` - Form objects (contact, multi-model, wizard forms)
+- `query-objects` - Query encapsulation patterns (chainable queries, aggregations)
+- `nested-resources` - Nested resource routing patterns
 
-**Test examples in `.claude/examples/tests/`:**
-- `minitest_best_practices.rb` - Comprehensive Minitest patterns (TDD, assertions, setup/teardown)
-- `fixtures_test_data.rb` - Fixture patterns (YAML, ERB, associations, Active Storage)
-- `mocking_stubbing.rb` - Mocking patterns (Minitest::Mock, stub, WebMock - Rule #18)
+**Testing skills:**
+- `tdd-minitest` - Comprehensive Minitest patterns (TDD, assertions, setup/teardown)
+- `fixtures-test-data` - Fixture patterns (YAML, ERB, associations, Active Storage)
+- `minitest-mocking` - Mocking patterns (Minitest::Mock, stub, WebMock)
+- `model-testing-advanced` - Advanced model testing patterns
 
-**Anti-pattern examples:**
-- `antipattern_fat_controller.rb` - What NOT to do (business logic in controllers)
+**Anti-pattern skills:**
+- `antipattern-fat-controllers` - Identifying and refactoring fat controllers
 
-**See `.claude/examples/INDEX.md` for complete catalog.**
+**See `skills/SKILLS_REGISTRY.yml` for the complete skills catalog.**
 
 ---
 

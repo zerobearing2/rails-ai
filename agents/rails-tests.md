@@ -231,26 +231,23 @@ Load model-testing-advanced skill → Test validations/associations/callbacks/sc
 - Handle CI failures
 - Enforce quality gates
 
-## Test Examples Reference
+## Skills Reference
 
-**Comprehensive test examples available in `.claude/examples/tests/`:**
+**Testing skills available in the skills registry:**
 
-### Core Testing Patterns:
-- **`minitest_best_practices.rb`** - TDD workflow, assertions, setup/teardown, testing models/controllers/jobs/mailers, time travel, parallel testing
-- **`fixtures_test_data.rb`** - YAML fixtures, ERB, associations, Active Storage, Action Text, polymorphic associations
-- **`test_setup_helpers.rb`** - Authentication helpers, API helpers, time travel helpers, assertion helpers, factory helpers, parallel setup
-- **`mocking_stubbing.rb`** - Minitest::Mock, stub method, WebMock for HTTP (Rule #18), dependency injection, fake objects
-- **`viewcomponent_test_comprehensive.rb`** - ViewComponent testing patterns, slots, previews, collections, variants
+### Core Testing Skills:
+- **`tdd-minitest`** - TDD workflow, assertions, setup/teardown, testing models/controllers/jobs/mailers, time travel, parallel testing
+- **`fixtures-test-data`** - YAML fixtures, ERB, associations, Active Storage, Action Text, polymorphic associations
+- **`test-helpers`** - Authentication helpers, API helpers, time travel helpers, assertion helpers, factory helpers, parallel setup
+- **`minitest-mocking`** - Minitest::Mock, stub method, WebMock for HTTP (Rule #18), dependency injection, fake objects
+- **`viewcomponent-testing`** - ViewComponent testing patterns, slots, previews, collections, variants
+- **`model-testing-advanced`** - Advanced model testing including associations, callbacks, scopes, edge cases
 
-### Example Usage:
-```ruby
-# For Minitest patterns, see: .claude/examples/tests/minitest_best_practices.rb
-# For fixtures, see: .claude/examples/tests/fixtures_test_data.rb
-# For test helpers, see: .claude/examples/tests/test_setup_helpers.rb
-# For mocking/stubbing, see: .claude/examples/tests/mocking_stubbing.rb
-```
+### Additional Skills:
+- **`viewcomponent-previews`** - View and test components in isolation during development
+- **`security-*`** - Security testing patterns for XSS, SQL injection, CSRF, etc.
 
-**Reference via:** See `.claude/examples/INDEX.md` for complete test example catalog.
+**See `skills/SKILLS_REGISTRY.yml` for the complete skills catalog with dependencies and use cases.**
 
 ## MCP Integration - Testing Documentation Access
 
@@ -367,7 +364,7 @@ class FeedbackTest < ActiveSupport::TestCase
 end
 ```
 
-**See also:** `.claude/examples/tests/minitest_best_practices.rb` for comprehensive model testing patterns.
+**See also:** `skills/SKILLS_REGISTRY.yml` → `tdd-minitest` and `model-testing-advanced` for comprehensive model testing patterns.
 
 ### Controller Testing (Integration Tests)
 ```ruby
@@ -445,7 +442,7 @@ class FeedbacksControllerTest < ActionDispatch::IntegrationTest
 end
 ```
 
-**See also:** `.claude/examples/tests/minitest_best_practices.rb` for controller testing patterns.
+**See also:** `skills/SKILLS_REGISTRY.yml` → `tdd-minitest` for controller testing patterns.
 
 ### Component Testing
 ```ruby
@@ -489,7 +486,7 @@ class Ui::ButtonComponentTest < ViewComponent::TestCase
 end
 ```
 
-**See also:** `.claude/examples/tests/viewcomponent_test_comprehensive.rb` for complete ViewComponent testing patterns.
+**See also:** `skills/SKILLS_REGISTRY.yml` → `viewcomponent-testing` for complete ViewComponent testing patterns.
 
 ### Integration Testing for User Flows
 
@@ -602,7 +599,7 @@ class AiImprovementServiceTest < ActiveSupport::TestCase
 end
 ```
 
-**See also:** `.claude/examples/tests/mocking_stubbing.rb` for comprehensive WebMock patterns.
+**See also:** `skills/SKILLS_REGISTRY.yml` → `minitest-mocking` for comprehensive WebMock patterns.
 
 ## Testing Standards
 
@@ -752,7 +749,7 @@ module ActiveSupport
 end
 ```
 
-**See also:** `.claude/examples/tests/test_setup_helpers.rb` for comprehensive helper patterns.
+**See also:** `skills/SKILLS_REGISTRY.yml` → `test-helpers` for comprehensive helper patterns.
 
 ## RuboCop Configuration
 
@@ -860,4 +857,4 @@ When completing a task, provide:
 - Achieve 85%+ test coverage
 - Keep tests fast (parallel execution, mocking)
 - Run bin/ci before every commit
-- Reference test examples in `.claude/examples/tests/`
+- Reference testing skills in `skills/SKILLS_REGISTRY.yml`

@@ -32,27 +32,22 @@ Create an opinionated, Rails-only AI agent system called **rails-ai**. This is a
 
 ```
 rails-ai/
-├── agents/                    # 8 specialized Rails agents
+├── agents/                    # 6 specialized Rails agents
 │   ├── rails.md              # Coordinator
 │   ├── rails-frontend.md     # Frontend specialist
 │   ├── rails-backend.md      # Backend specialist
 │   ├── rails-tests.md        # Test specialist
-│   ├── rails-backend.md       # Config specialist
 │   ├── rails-security.md     # Security specialist
-│   ├── rails-frontend.md       # Design specialist
 │   └── rails-debug.md        # Debug specialist
-├── examples/                  # ~39 Rails code examples
-│   ├── backend/
-│   ├── frontend/
-│   ├── tests/
-│   ├── config/
-│   ├── security/
-│   └── INDEX.md
+├── skills/                    # Skills registry and implementations
+│   └── SKILLS_REGISTRY.yml   # 33 modular skills catalog
 ├── rules/                     # Team rules and context
 │   ├── TEAM_RULES.md
 │   ├── SHARED_CONTEXT.md
 │   └── DECISION_MATRICES.yml
-├── install.sh                 # Global installer (symlinks)
+├── test/                      # Minitest-based testing framework
+├── bin/                       # Development scripts
+├── install.sh                 # Global installer (coming in Phase 3)
 ├── README.md
 ├── LICENSE
 └── docs/
@@ -62,7 +57,7 @@ rails-ai/
 **Why this structure?**
 - Simple and flat - easy to navigate and maintain
 - All agent files in one place for easy editing during tuning phase
-- Examples organized by category
+- Skills-based architecture with comprehensive registry
 - Single install script that symlinks to global configs
 - No complex abstractions or adapters
 
@@ -200,12 +195,12 @@ This project is currently **private** and in active development. We're:
 
 ## Features
 
-- 🎯 **8 Specialized Agents**: Coordinator, Frontend, Backend, Tests, Config, Security, Design, Debug
+- 🎯 **6 Specialized Agents**: Coordinator, Frontend, Backend, Tests, Security, Debug
 - 🚂 **Rails-Only**: Focused exclusively on Ruby on Rails (no other frameworks)
 - 🤖 **LLM Support**: Works with Claude Code and OpenAI/Cursor
 - 🌍 **Global Install**: Symlinks to your home folder for use across all Rails projects
-- 📚 **39+ Code Examples**: Rails-specific patterns and best practices
-- 📋 **19 Team Rules**: Enforced conventions (Solid Stack, Minitest, REST-only, TDD)
+- 📋 **Team Rules**: Enforced conventions (Solid Stack, Minitest, REST-only, TDD)
+- 🧪 **Skills-Based**: Modular skill system with testing framework
 
 ## Installation (Local)
 
@@ -233,10 +228,12 @@ The coordinator agent will create a plan, delegate to specialists, and deliver a
 
 ```
 rails-ai/
-├── agents/          # 8 specialized Rails agents
-├── examples/        # ~39 Rails code examples
+├── agents/          # 6 specialized Rails agents
+├── skills/          # Modular skills registry with 33 skills
 ├── rules/           # Team rules and decision matrices
-└── install.sh       # Global installer
+├── test/            # Minitest-based testing framework
+├── bin/             # Development scripts
+└── install.sh       # Global installer (coming in Phase 3)
 ```
 
 ## Philosophy
@@ -301,7 +298,7 @@ The installer should:
 1. Detect which LLM tool is installed (Claude Code, Cursor, both)
 2. Backup existing agent files if present
 3. Create symlinks from `rails-ai/agents/` to `~/.claude/agents/` or `~/.cursor/agents/`
-4. Create symlinks for examples and rules
+4. Create symlinks for skills and rules
 5. Provide clear feedback and next steps
 
 ### install.sh
@@ -400,7 +397,7 @@ for target in "${INSTALL_TARGETS[@]}"; do
 
   # Create directories
   mkdir -p "$TARGET_DIR/agents"
-  mkdir -p "$TARGET_DIR/examples"
+  mkdir -p "$TARGET_DIR/skills"
 
   # Symlink each agent file
   for agent in "$RAILS_AI_DIR/agents"/*.md; do
@@ -415,10 +412,10 @@ for target in "${INSTALL_TARGETS[@]}"; do
     echo "  ✓ Linked: $agent_name"
   done
 
-  # Symlink examples directory
-  rm -rf "$TARGET_DIR/examples"
-  ln -s "$RAILS_AI_DIR/examples" "$TARGET_DIR/examples"
-  echo "  ✓ Linked: examples/"
+  # Symlink skills directory
+  rm -rf "$TARGET_DIR/skills"
+  ln -s "$RAILS_AI_DIR/skills" "$TARGET_DIR/skills"
+  echo "  ✓ Linked: skills/"
 
   # Copy rules (don't symlink - users might want to customize)
   cp -r "$RAILS_AI_DIR/rules" "$TARGET_DIR/"
@@ -435,7 +432,7 @@ echo "   3. The agents will work globally across all Rails projects"
 echo ""
 echo "📝 Notes:"
 echo "   - Agent files are symlinked (edit in $RAILS_AI_DIR/agents/)"
-echo "   - Examples are symlinked (edit in $RAILS_AI_DIR/examples/)"
+echo "   - Skills are symlinked (edit in $RAILS_AI_DIR/skills/)"
 echo "   - Rules are copied (edit in ~/.claude/rules/ or ~/.cursor/rules/)"
 echo "   - Backup saved to: $BACKUP_DIR"
 echo ""
@@ -475,7 +472,7 @@ ls -la ~/.claude/examples
 - ✅ `install.sh` script created
 - ✅ Supports Claude Code and Cursor
 - ✅ Creates backups before installation
-- ✅ Symlinks agents and examples
+- ✅ Symlinks agents and skills
 - ✅ Copies rules for customization
 - ✅ Clear user feedback
 - ✅ Tested and working
@@ -654,9 +651,9 @@ git commit -m "Prepare v0.1.0 - Initial private release for tuning"
 # Tag
 git tag -a v0.1.0 -m "rails-ai v0.1.0 - Private Tuning Release
 
-- 8 specialized Rails agents (private tuning phase)
-- ~39 Rails code examples
-- 19 enforced team rules
+- 6 specialized Rails agents (private tuning phase)
+- 33 modular skills with registry
+- Skills-based architecture with testing framework
 - Global installer for Claude Code and Cursor
 - Symlink-based installation
 - Rails-only, opinionated approach

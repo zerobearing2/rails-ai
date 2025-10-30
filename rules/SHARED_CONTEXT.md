@@ -595,18 +595,20 @@ end
 **To reference shared context in agent files:**
 
 ```markdown
-<import src=".claude/SHARED_CONTEXT.md#tdd-workflow" />
-<import src=".claude/SHARED_CONTEXT.md#peer-review" />
-<import src=".claude/SHARED_CONTEXT.md#team-rules" />
+<import src="rules/SHARED_CONTEXT.md#tdd-workflow" />
+<import src="rules/SHARED_CONTEXT.md#peer-review" />
+<import src="rules/SHARED_CONTEXT.md#team-rules" />
 ```
 
 **Or reference specific sections:**
 
 ```markdown
-See: [TDD Workflow](.claude/SHARED_CONTEXT.md#standard-tdd-workflow)
-See: [Peer Review Process](.claude/SHARED_CONTEXT.md#peer-review-process)
-See: [Team Rules](.claude/SHARED_CONTEXT.md#universal-team-rules-team_rulesmd)
+See: [TDD Workflow](rules/SHARED_CONTEXT.md#standard-tdd-workflow)
+See: [Peer Review Process](rules/SHARED_CONTEXT.md#peer-review-process)
+See: [Team Rules](rules/SHARED_CONTEXT.md#universal-team-rules-team_rulesmd)
 ```
+
+**Note:** These paths are relative to the repo root and work across Claude Code, Cursor, and other LLM environments.
 
 ---
 

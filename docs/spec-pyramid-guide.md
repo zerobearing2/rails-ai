@@ -93,7 +93,7 @@ The Specification Pyramid is a four-layer documentation framework that inverts t
 
 ### Visual Representation
 
-```
+```text
                     ┌─────────────────┐
                     │  VISION DOC     │  ← Why & What (Strategic)
                     │   (5-10 pages)  │
@@ -223,7 +223,7 @@ interface AppState {
 
 **Solution:** Split architecture into focused sub-documents organized in a directory:
 
-```
+```text
 docs/
 ├── architecture/
 │   ├── index.md              # Overview with links to all sub-docs
@@ -557,7 +557,7 @@ Interactions:
 
 Every feature/task lists what must exist first:
 
-```
+```text
 Feature: Message Search
 Dependencies:
 - F-001: Database setup (messages table exists)
@@ -590,7 +590,7 @@ Each task should be:
 
 Happy path + error handling both get equal detail:
 
-```
+```text
 User Flow:
 1. User clicks "Create Room"
 2. System validates name (3-50 chars, alphanumeric + spaces)
@@ -732,7 +732,7 @@ $ npm run dev
 
 #### Option B: Claude Chat (Conversational)
 
-```
+```text
 You: I'm building [product name]. Here's my Architecture Doc and Feature Spec
 for [feature name]. [Paste docs]
 
@@ -931,7 +931,7 @@ interface LockScreenState {
 
 ### UI Layout
 
-```
+```text
 ┌─────────────────────────────────────────┐
 │                                         │
 │          🔒 Multi-Persona Chat          │
@@ -1986,7 +1986,7 @@ Read levels in order. Skip levels only if you're sure you understand.
 
 Create a `/templates` directory:
 
-```
+```text
 templates/
 ├── vision-doc-template.md
 ├── architecture-template.md
@@ -2709,7 +2709,7 @@ interface ElectronAPI {
 
 ## File Structure
 
-```
+```text
 project-root/
 ├── src/
 │   ├── main/                  # Electron main process (if applicable)
@@ -2951,7 +2951,7 @@ npm run package          # Package for distribution
 
 **Decisions needed by:** [Date]
 
-```
+```text
 
 ---
 

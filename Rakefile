@@ -3,9 +3,55 @@
 require "rake/testtask"
 
 # Default task
-task default: %w[lint test:skills:unit]
+task default: %w[lint test:skills:unit test:agents:unit]
 
 namespace :test do
+  namespace :agents do
+    desc "Run all agent unit tests (fast, structural validation)"
+    Rake::TestTask.new(:unit) do |t|
+      t.libs << "test"
+      t.test_files = FileList["test/agents/unit/**/*_test.rb"]
+      t.verbose = true
+      t.warning = false
+    end
+
+    desc "Run all agent integration tests (slow, uses LLMs)"
+    task :integration do
+      puts "Agent integration tests not yet implemented (deferred post-MVP)"
+      puts "Agent unit tests provide structural validation for MVP"
+    end
+
+    desc "Run all agent tests (unit + integration)"
+    task all: %i[unit integration]
+
+    desc "Agent test coverage report"
+    task :report do
+      puts "\n=== Agent Test Coverage Report ==="
+      puts ""
+
+      # Count agents
+      total_agents = Dir.glob("agents/*.md").count
+      puts "Total Agents: #{total_agents}"
+
+      # Count unit tests
+      unit_tests = Dir.glob("test/agents/unit/**/*_test.rb").count
+      puts "Unit Tests: #{unit_tests}"
+
+      # Count test assertions (approximate)
+      test_count = 0
+      Dir.glob("test/agents/unit/**/*_test.rb").each do |file|
+        test_count += File.read(file).scan("def test_").count
+      end
+      puts "Test Methods: #{test_count}"
+
+      puts ""
+      puts "Run tests:"
+      puts "  rake test:agents:unit          # Fast structural tests"
+      puts "  rake test:agents:all           # All tests"
+      puts ""
+    end
+  end
+
   namespace :skills do
     desc "Run all skill unit tests (fast, no LLM calls)"
     Rake::TestTask.new(:unit) do |t|

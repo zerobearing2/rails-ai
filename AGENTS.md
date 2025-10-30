@@ -365,6 +365,59 @@ rake lint:fix       # Auto-fix Ruby issues
 
 **See:** `docs/skill-testing-methodology.md` for full testing documentation
 
+### Testing Agents
+
+We use **fast unit tests** to validate agent structure and consistency:
+
+#### Agent Unit Tests (Fast - Required)
+**Purpose:** Validate agent structure, conventions, and cross-references
+**Speed:** < 1 second for all agents
+**When:** Every agent change, every commit
+
+```bash
+# Run all agent tests
+rake test:agents:unit
+
+# Run specific test file
+ruby -Itest test/agents/unit/agent_structure_test.rb
+
+# Run full CI with agent tests
+bin/ci
+```
+
+**What agent tests validate:**
+- ✅ Valid YAML front matter in all agents
+- ✅ Required metadata (name, description, role, coordinates_with)
+- ✅ Agent name matches filename
+- ✅ All 6 agents exist (1 coordinator + 5 specialized)
+- ✅ No legacy agents remain (rails-config, rails-design, etc.)
+- ✅ All agents have `rails-` prefix except coordinator
+- ✅ Skills Preset section exists in specialized agents
+- ✅ References to SKILLS_REGISTRY.yml present
+- ✅ Cross-references valid (coordinates_with only references existing agents)
+- ✅ Skill references valid (only references skills in SKILLS_REGISTRY.yml)
+- ✅ No references to deleted agents
+- ✅ Documentation matches reality (AGENTS.md, DECISION_MATRICES.yml)
+
+#### Agent Integration Tests (Deferred for Post-MVP)
+**Purpose:** Validate agent behavior and coordination using LLM calls
+**Status:** Not yet implemented
+**Future:** Will test actual agent task completion and skill application
+
+#### Before Committing Agent Changes
+
+**Required:**
+1. ✅ Agent unit tests pass (`rake test:agents:unit`)
+2. ✅ Linters pass (`rake lint`)
+3. ✅ YAML front matter valid
+4. ✅ All cross-references exist
+5. ✅ CI passes (`bin/ci`)
+
+**Recommended:**
+6. Manual test: Give agent a real task to verify changes
+7. Check coordination with other agents works
+8. Verify skill loading works as expected
+
 ---
 
 ## Agent Integration Protocol

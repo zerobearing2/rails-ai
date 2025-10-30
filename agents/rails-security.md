@@ -688,8 +688,6 @@ bin/ci
 - Reviews authentication and authorization logic
 - Audits data encryption and storage
 - Validates input sanitization
-
-### Works with @rails-config:
 - Reviews security configuration
 - Monitors dependency vulnerabilities
 - Ensures secure defaults

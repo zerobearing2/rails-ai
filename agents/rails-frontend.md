@@ -647,11 +647,6 @@ export default class extends Controller {
 
 ## Integration with Other Agents
 
-### Works with @rails-design:
-- Implements UX specifications from designer
-- Applies design patterns and polish
-- Coordinates on interaction details and animations
-
 ### Works with @rails-backend:
 - Consumes controller actions and data
 - Coordinates on JSON API responses

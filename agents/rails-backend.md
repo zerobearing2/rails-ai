@@ -218,7 +218,7 @@ All security skills are CRITICAL and must be applied when handling user input.
 - Configuration needed → Load `initializers-best-practices`, `environment-configuration`
 
 **How to load:**
-Read skill file directly: `skills/backend/skill-name.md`
+Read skill file directly: `skills/backend/controller-restful.md`
 Or reference registry: `skills/SKILLS_REGISTRY.yml`
 
 #### 4. Skill Dependencies

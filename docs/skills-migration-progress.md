@@ -6,7 +6,7 @@
 
 ---
 
-## Completed Skills (6/~40)
+## Completed Skills (12/~40)
 
 ### Frontend Skills (4)
 - ✅ `viewcomponent-basics.md` - Foundation ViewComponent patterns
@@ -19,6 +19,14 @@
 
 ### Testing Skills (1)
 - ✅ `tdd-minitest.md` - TDD workflow, assertions, testing patterns
+
+### Security Skills (6) ✅ COMPLETE
+- ✅ `security-xss.md` - XSS prevention, sanitization, CSP
+- ✅ `security-sql-injection.md` - SQL injection prevention, parameterized queries
+- ✅ `security-csrf.md` - CSRF protection, tokens, SameSite cookies
+- ✅ `security-strong-parameters.md` - Mass assignment protection, expect() and permit()
+- ✅ `security-file-uploads.md` - ActiveStorage security, virus scanning, validation
+- ✅ `security-command-injection.md` - Command injection prevention, safe alternatives
 
 ---
 
@@ -52,13 +60,6 @@
 - [ ] `viewcomponent-testing.md` - From `viewcomponent_test_comprehensive.rb`
 - [ ] `model-testing-advanced.md` - From `model_test_basic.rb`
 
-### Security Skills (6)
-- [ ] `security-xss.md` - From `xss_prevention.rb`
-- [ ] `security-sql-injection.md` - From `sql_injection_prevention.rb`
-- [ ] `security-csrf.md` - From `csrf_protection.rb`
-- [ ] `security-strong-parameters.md` - From `strong_parameters.rb`
-- [ ] `security-file-uploads.md` - From `secure_file_uploads.rb`
-- [ ] `security-command-injection.md` - From `command_injection_prevention.rb`
 
 ### Config Skills (3-4)
 - [ ] `solid-stack-setup.md` - From `solid_stack_setup.rb`
@@ -135,5 +136,5 @@ All skills use the hybrid format:
 ---
 
 **Last Updated:** 2025-10-30
-**Skills Completed:** 6 of ~40 (15%)
-**Status:** Good progress on MVP skills
+**Skills Completed:** 12 of ~40 (30%)
+**Status:** Security skills complete! Ready for config skills next.

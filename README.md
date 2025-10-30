@@ -1,43 +1,90 @@
-# rails-ai 🤖
+# rails-ai 🚂
 
-**Multi-agent AI development system for Ruby on Rails**
+**Opinionated Rails-only AI agent system**
 
-> ⚠️ **Work in Progress**: This project is under active development. Current status: Extracting from feedback-app.
+> 🔒 **Private Repository**: This is a private repo during the agent tuning and testing phase. Will be open-sourced once battle-tested.
 
-## Overview
+## What is rails-ai?
 
-rails-ai is an AI-powered multi-agent development system for Ruby on Rails projects. It provides a team of 8 specialized AI agents that work together to help you build features, fix bugs, write tests, and maintain high code quality—all following Rails conventions and 37signals-inspired best practices.
+An opinionated AI agent system specifically for Ruby on Rails development. Provides 8 specialized agents that work together following Rails conventions and 37signals-inspired best practices.
 
-## Current Status
+## Current Status: Agent Tuning Phase
 
-**Phase 0: Migration complete ✓**
-- ✓ Agents, examples, and documentation moved from feedback-app
-- ✓ Monorepo structure in place
-- ✓ Git repository initialized
-- → Next: Create GitHub remote and begin abstraction
+This project is currently **private** and in active development. We're:
+- 🔧 Tuning and refining the 8 specialized agents
+- 🧪 Testing across real Rails projects
+- 📝 Gathering examples and patterns
+- 🎯 Improving decision matrices and rules
+
+**Will open source** once the agents are refined and battle-tested.
+
+## Features
+
+- 🎯 **8 Specialized Agents**: Coordinator, Frontend, Backend, Tests, Config, Security, Design, Debug
+- 🚂 **Rails-Only**: Focused exclusively on Ruby on Rails (no other frameworks)
+- 🤖 **LLM Support**: Works with Claude Code and OpenAI/Cursor
+- 🌍 **Global Install**: Symlinks to your home folder for use across all Rails projects
+- 📚 **39+ Code Examples**: Rails-specific patterns and best practices
+- 📋 **19 Team Rules**: Enforced conventions (Solid Stack, Minitest, REST-only, TDD)
+
+## Installation (Local)
+
+```bash
+# Clone repo
+cd ~/Projects/rails-ai
+
+# Run installer (coming in Phase 3)
+./install.sh
+```
+
+This will symlink the agents to `~/.claude/agents/` or `~/.cursor/agents/` so they're available in all your Rails projects.
+
+## Usage
+
+In any Rails project with Claude Code:
+
+```
+@rails - Add user authentication feature
+```
+
+The coordinator agent will create a plan, delegate to specialists, and deliver a complete implementation.
 
 ## Project Structure
 
 ```
 rails-ai/
-├── core/                      # Generic agent patterns (coming soon)
-├── adapters/
-│   ├── llm/                   # LLM provider adapters (coming soon)
-│   └── framework/
-│       └── rails/             # Rails-specific content
-│           ├── agents/        # 8 specialized agents
-│           ├── examples/      # ~39 code examples
-│           ├── rules/         # Team rules and decision matrices
-│           └── templates/     # Project templates
-├── scripts/                   # Installation and update scripts (coming soon)
-├── templates/                 # Generic templates (coming soon)
-└── docs/                      # Documentation
+├── agents/          # 8 specialized Rails agents
+├── examples/        # ~39 Rails code examples
+├── rules/           # Team rules and decision matrices
+└── docs/            # Documentation and plan
 ```
 
-## License
+## Philosophy
 
-MIT License (to be finalized)
+This is an **opinionated** Rails agent system that follows:
+- 37signals philosophy (simple, pragmatic, delete code)
+- Rails conventions (REST-only, no custom actions)
+- Solid Stack (Rails 8: SolidQueue, SolidCache, SolidCable)
+- Minitest (no RSpec)
+- TDD always (RED-GREEN-REFACTOR)
+- Peer review workflow
+
+## Roadmap
+
+### Phase 1: Private Tuning (Current)
+- ✅ Simplify directory structure
+- 🔜 Create global installer
+- 🔜 Test across multiple Rails projects
+- 🔜 Refine agents based on real usage
+- 🔜 Improve examples and patterns
+- 🔜 Document learnings
+
+### Phase 2: Open Source Release (Future)
+- Clean up and finalize agents
+- Complete documentation
+- Add MIT license
+- Public release with announcement
 
 ## Credits
 
-Originally developed for the feedback-app project. Inspired by 37signals' philosophy: simple, pragmatic, conventional Rails development.
+Inspired by 37signals' philosophy of simple, conventional Rails development.

@@ -20,7 +20,7 @@ class TurboPageRefreshTest < SkillTestCase
 
     assert_equal "turbo-page-refresh", skill_metadata["name"]
     assert_equal "frontend", skill_metadata["domain"]
-    assert_equal 1.0, skill_metadata["version"]
+    assert_in_delta(1.0, skill_metadata["version"])
   end
 
   def test_has_dependencies
@@ -91,14 +91,15 @@ class TurboPageRefreshTest < SkillTestCase
 
   def test_shows_antipatterns
     # Should show when NOT to use frames
-    assert skill_content.include?("turbo_frame_tag"),
-           "Should mention turbo_frame_tag in antipatterns"
+    assert_includes skill_content, "turbo_frame_tag",
+                    "Should mention turbo_frame_tag in antipatterns"
 
     # Should be marked as bad
-    antipatterns_section = skill_content[/<antipatterns>.*<\/antipatterns>/m]
+    antipatterns_section = skill_content[%r{<antipatterns>.*</antipatterns>}m]
+
     assert antipatterns_section, "Should have antipatterns section"
-    assert antipatterns_section.include?("❌"),
-           "Antipatterns should be marked with ❌"
+    assert_includes antipatterns_section, "❌",
+                    "Antipatterns should be marked with ❌"
   end
 
   def test_shows_when_to_use_over_frames
@@ -107,7 +108,8 @@ class TurboPageRefreshTest < SkillTestCase
   end
 
   def test_includes_testing_examples
-    testing_section = skill_content[/<testing>.*<\/testing>/m]
+    testing_section = skill_content[%r{<testing>.*</testing>}m]
+
     assert testing_section, "Should have testing section"
 
     # Should show how to test page refresh behavior
@@ -119,7 +121,8 @@ class TurboPageRefreshTest < SkillTestCase
   end
 
   def test_links_related_skills
-    related_section = skill_content[/<related-skills>.*<\/related-skills>/m]
+    related_section = skill_content[%r{<related-skills>.*</related-skills>}m]
+
     assert related_section, "Should have related-skills section"
 
     assert_includes related_section, "hotwire-turbo",
@@ -127,7 +130,8 @@ class TurboPageRefreshTest < SkillTestCase
   end
 
   def test_includes_turbo_documentation_resources
-    resources_section = skill_content[/<resources>.*<\/resources>/m]
+    resources_section = skill_content[%r{<resources>.*</resources>}m]
+
     assert resources_section, "Should have resources section"
 
     assert_pattern_present(
@@ -152,7 +156,8 @@ class TurboPageRefreshTest < SkillTestCase
   end
 
   def test_shows_spa_benefits
-    benefits_section = skill_content[/<benefits>.*<\/benefits>/m]
+    benefits_section = skill_content[%r{<benefits>.*</benefits>}m]
+
     assert benefits_section, "Should have benefits section"
 
     assert_pattern_present(

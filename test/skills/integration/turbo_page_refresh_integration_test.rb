@@ -55,8 +55,7 @@ class TurboPageRefreshIntegrationTest < SkillTestCase
     result = judge_with_llm(provider: :mock, prompt: judge_prompt)
 
     assert result["pass"], "LLM judge should pass the generated code"
-    assert result["overall_score"] >= 4.0,
-           "Overall score should be >= 4.0, got #{result['overall_score']}"
+    assert_operator result["overall_score"], :>=, 4.0, "Overall score should be >= 4.0, got #{result['overall_score']}"
   end
 
   # Test Case 2: Broadcasting Page Refresh
@@ -167,8 +166,7 @@ class TurboPageRefreshIntegrationTest < SkillTestCase
            "OpenAI and Anthropic should agree on pass/fail"
 
     # Average score should be good
-    assert results[:average_score] >= 4.0,
-           "Average score across judges should be >= 4.0"
+    assert_operator results[:average_score], :>=, 4.0, "Average score across judges should be >= 4.0"
 
     puts "\n=== Cross-Validation Results ==="
     puts "OpenAI Score: #{results[:openai]['overall_score']}"
@@ -204,6 +202,7 @@ class TurboPageRefreshIntegrationTest < SkillTestCase
 
     # Pattern assertions - should detect antipatterns
     antipattern_detected = bad_code.match?(/turbo_frame_tag.*feedbacks/im)
+
     assert antipattern_detected,
            "Should detect unnecessary frame usage"
 
@@ -221,7 +220,7 @@ class TurboPageRefreshIntegrationTest < SkillTestCase
   end
 
   # Helper: Simulate agent output (replace with actual agent call)
-  def call_agent_with_skill(scenario)
+  def call_agent_with_skill(_scenario)
     # TODO: Actually call agent with skill loaded
     # For now, return mock output
     <<~CODE

@@ -22,7 +22,7 @@ module SkillTestHelpers
   def parse_skill_yaml(skill_content)
     # Extract YAML front matter
     if skill_content =~ /\A---\n(.*?)\n---\n/m
-      YAML.safe_load($1, permitted_classes: [Symbol])
+      YAML.safe_load(::Regexp.last_match(1), permitted_classes: [Symbol])
     else
       {}
     end
@@ -30,7 +30,7 @@ module SkillTestHelpers
 
   def extract_patterns(skill_content, pattern_name)
     # Extract specific pattern from skill
-    pattern_regex = /<pattern name="#{pattern_name}">.*?<\/pattern>/m
+    pattern_regex = %r{<pattern name="#{pattern_name}">.*?</pattern>}m
     matches = skill_content.scan(pattern_regex)
     matches.first
   end

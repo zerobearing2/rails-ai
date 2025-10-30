@@ -1,0 +1,53 @@
+# Rubocop configuration for rails-ai skill testing
+
+plugins:
+  - rubocop-minitest
+  - rubocop-rake
+
+AllCops:
+  NewCops: enable
+  TargetRubyVersion: 3.3
+  Exclude:
+    - 'tmp/**/*'
+    - 'vendor/**/*'
+    - 'node_modules/**/*'
+
+# Style preferences
+Style/Documentation:
+  Enabled: false # Don't require class documentation for test files
+
+Style/StringLiterals:
+  EnforcedStyle: double_quotes
+
+Style/FrozenStringLiteralComment:
+  Enabled: true
+
+# Layout preferences
+Layout/LineLength:
+  Max: 120
+  AllowedPatterns:
+    - '\s*#' # Allow long comments
+    - '^\s*it .* do$' # Allow long test descriptions
+
+# Metrics - be lenient for test files
+Metrics/BlockLength:
+  Exclude:
+    - 'test/**/*_test.rb'
+    - 'Rakefile'
+
+Metrics/MethodLength:
+  Max: 25
+  Exclude:
+    - 'test/**/*'
+
+Metrics/ClassLength:
+  Max: 150
+  Exclude:
+    - 'test/**/*'
+
+# Minitest specific
+Minitest/MultipleAssertions:
+  Enabled: false # Allow multiple assertions in tests
+
+Minitest/AssertInDelta:
+  Enabled: true

@@ -19,7 +19,7 @@ class SkillTestCase < Minitest::Test
   # Common assertions for all skills
 
   def assert_skill_has_yaml_front_matter
-    assert skill_metadata.any?, "Skill must have YAML front matter"
+    assert_predicate skill_metadata, :any?, "Skill must have YAML front matter"
   end
 
   def assert_skill_has_required_metadata
@@ -30,41 +30,42 @@ class SkillTestCase < Minitest::Test
   end
 
   def assert_skill_has_section(section_name)
-    assert skill_content.include?("<#{section_name}>"),
-           "Skill must have <#{section_name}> section"
-    assert skill_content.include?("</#{section_name}>"),
-           "Skill <#{section_name}> section must be closed"
+    assert_includes skill_content, "<#{section_name}>",
+                    "Skill must have <#{section_name}> section"
+    assert_includes skill_content, "</#{section_name}>",
+                    "Skill <#{section_name}> section must be closed"
   end
 
   def assert_skill_has_pattern(pattern_name)
-    assert skill_content.include?(%(<pattern name="#{pattern_name}">)),
-           "Skill must have pattern: #{pattern_name}"
+    assert_includes skill_content, %(<pattern name="#{pattern_name}">),
+                    "Skill must have pattern: #{pattern_name}"
   end
 
   def assert_code_examples_are_valid
     examples = extract_code_examples(skill_content)
-    assert examples.any?, "Skill must have code examples"
+
+    assert_predicate examples, :any?, "Skill must have code examples"
 
     examples.each_with_index do |example, index|
-      refute example.strip.empty?,
-             "Code example #{index + 1} should not be empty"
+      refute_empty example.strip,
+                   "Code example #{index + 1} should not be empty"
     end
   end
 
   def assert_has_good_and_bad_examples
-    assert skill_content.include?("✅"),
-           "Skill should mark good examples with ✅"
-    assert skill_content.include?("❌"),
-           "Skill should mark bad examples with ❌"
+    assert_includes skill_content, "✅",
+                    "Skill should mark good examples with ✅"
+    assert_includes skill_content, "❌",
+                    "Skill should mark bad examples with ❌"
   end
 
   def assert_pattern_present(code, pattern, message = nil)
-    assert code.match?(pattern),
-           message || "Expected pattern not found: #{pattern}"
+    assert_match pattern, code,
+                 message || "Expected pattern not found: #{pattern}"
   end
 
   def assert_pattern_absent(code, pattern, message = nil)
-    refute code.match?(pattern),
-           message || "Forbidden pattern found: #{pattern}"
+    refute_match pattern, code,
+                 message || "Forbidden pattern found: #{pattern}"
   end
 end

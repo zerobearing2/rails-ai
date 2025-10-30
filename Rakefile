@@ -3,7 +3,7 @@
 require "rake/testtask"
 
 # Default task
-task default: ["test:skills:unit"]
+task default: %w[lint test:skills:unit]
 
 namespace :test do
   namespace :skills do
@@ -28,7 +28,7 @@ namespace :test do
     end
 
     desc "Run all skill tests (unit + integration)"
-    task all: [:unit, :integration]
+    task all: %i[unit integration]
 
     desc "Run skill tests with coverage report"
     task :report do
@@ -60,12 +60,12 @@ namespace :test do
     end
 
     desc "Run tests for a specific skill"
-    task :skill, [:skill_name] do |t, args|
+    task :skill, [:skill_name] do |_t, args|
       skill_name = args[:skill_name]
       raise "Usage: rake test:skills:skill[skill-name]" unless skill_name
 
       # Convert skill-name to SkillName for test file
-      test_class = skill_name.split("-").map(&:capitalize).join
+      skill_name.split("-").map(&:capitalize).join
 
       unit_test = "test/skills/unit/#{skill_name}_test.rb"
       integration_test = "test/skills/integration/#{skill_name}_integration_test.rb"
@@ -86,7 +86,7 @@ namespace :test do
     end
 
     desc "Create a new skill test template"
-    task :new, [:skill_name, :domain] do |t, args|
+    task :new, [:skill_name, :domain] do |_t, args|
       skill_name = args[:skill_name]
       domain = args[:domain] || "frontend"
 
@@ -139,6 +139,61 @@ namespace :test do
     end
   end
 end
+
+namespace :lint do
+  desc "Run all linters (Ruby, Markdown, YAML)"
+  task all: %i[ruby markdown yaml]
+
+  desc "Lint Ruby files with Rubocop"
+  task :ruby do
+    puts "Running Rubocop..."
+    system("bundle exec rubocop")
+  end
+
+  desc "Lint Markdown skill files"
+  task :markdown do
+    puts "Linting Markdown files..."
+    puts "(Markdown linting is informational only - issues won't fail the build)"
+    system("bundle exec mdl skills/ docs/ *.md --style .mdl_style.rb || true")
+  end
+
+  desc "Validate YAML front matter in skill files"
+  task :yaml do
+    puts "Validating YAML front matter..."
+    require "yaml"
+    errors = []
+
+    Dir.glob("skills/**/*.md").each do |file|
+      content = File.read(file)
+      if content =~ /\A---\n(.*?)\n---\n/m
+        begin
+          YAML.safe_load(Regexp.last_match(1), permitted_classes: [Symbol])
+        rescue Psych::SyntaxError => e
+          errors << "#{file}: #{e.message}"
+        end
+      else
+        errors << "#{file}: Missing YAML front matter"
+      end
+    end
+
+    if errors.any?
+      puts "❌ YAML validation errors:"
+      errors.each { |err| puts "  #{err}" }
+      exit 1
+    else
+      puts "✅ All YAML front matter valid"
+    end
+  end
+
+  desc "Auto-fix Ruby style issues"
+  task :fix do
+    puts "Auto-fixing Ruby style issues..."
+    system("bundle exec rubocop -a")
+  end
+end
+
+# Alias for convenience
+task lint: "lint:all"
 
 desc "Show available tasks"
 task :help do

@@ -20,3 +20,8 @@ test-projects/
 
 # Claude Code local settings
 .claude/settings.local.json
+
+# Ruby/Bundler
+vendor/bundle/
+.bundle/
+Gemfile.lock

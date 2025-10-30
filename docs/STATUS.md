@@ -1,18 +1,19 @@
 # Rails AI - Project Status & Handoff
 
 **Last Updated:** 2025-10-30
-**Branch:** `feature/skills-architecture`
-**PR:** https://github.com/zerobearing2/rails-ai/pull/1 (Draft)
-**Status:** Phase 1 Complete ✅ | Phase 2 Pending
+**Branch:** `feature/external-yaml-registries`
+**PR:** https://github.com/zerobearing2/rails-ai/pull/2 (Draft)
+**Status:** Phase 1 Complete ✅ | Phase 2 In Progress (50% complete)
 
 ---
 
 ## Executive Summary
 
-Successfully transformed rails-ai from an examples-based system to a **skills-based architecture** with comprehensive testing infrastructure. Phase 1 (skills migration and testing) is complete. Phase 2 (agent integration) is pending.
+Successfully transformed rails-ai from an examples-based system to a **skills-based architecture** with comprehensive testing infrastructure and machine-first optimization. Phase 1 (skills migration and testing) is complete. Phase 2 (agent integration) is 50% complete.
 
 ### What's Complete ✅
 
+**Phase 1:**
 - 33 modular skills created (migrated from 39 examples)
 - Two-tier Minitest testing framework implemented
 - Development infrastructure (bin/setup, bin/ci)
@@ -20,12 +21,21 @@ Successfully transformed rails-ai from an examples-based system to a **skills-ba
 - Comprehensive documentation
 - All tests passing, all checks green
 
+**Phase 2 (Coordinator Update):**
+- ✅ External YAML registries created (skills + rules mapping)
+- ✅ Coordinator agent updated with skills registry
+- ✅ Bidirectional linking (rules ↔ skills)
+- ✅ TEAM_RULES.md simplified (30% reduction)
+- ✅ 11 skills updated with enforcement metadata
+- ✅ Coordinator cleaned up (DRY compliant)
+- ✅ Meta README intro added (AI building tools for AI)
+
 ### What's Next 📋
 
-- Update 8 agents to load and use skills dynamically
-- Create skills registry in coordinator agent
-- Test agent skill loading
-- Scale test coverage (currently 1/33 skills tested)
+**Phase 2 (Remaining):**
+- Update 7 specialized agents to load skills dynamically
+- Test agent skill loading with real tasks
+- Scale test coverage from 2.6% to 20%+ (7+ skills tested)
 
 ---
 
@@ -279,21 +289,20 @@ Test examples
   - Establishes testing requirements
   - Shows skill dependency graph
 
-**8 Agents Defined:**
-1. **Coordinator** (`agents/rails.md`) - Skills registry/librarian, routes tasks
-2. **Feature** (`agents/feature.md`) - Full-stack feature development
-3. **Debugger** (`agents/debugger.md`) - Testing and debugging
-4. **Refactor** (`agents/refactor.md`) - Code quality and patterns
-5. **Security** (`agents/security.md`) - Security auditing and fixes
-6. **Test** (`agents/test.md`) - Test writing and coverage
-7. **UI** (`agents/ui.md`) - Frontend/UI development
-8. **API** (`agents/api.md`) - Backend API development
+**6 Agents Defined:**
+1. **Coordinator** (`agents/rails.md`) - Architect, skills registry, routes tasks
+2. **Backend** (`agents/rails-backend.md`) - Backend API + config + refactoring
+3. **Frontend** (`agents/rails-frontend.md`) - Frontend UI + design/UX
+4. **Security** (`agents/rails-security.md`) - Security auditing and fixes
+5. **Debugger** (`agents/rails-debug.md`) - Testing and debugging
+6. **Test** (`agents/rails-tests.md`) - Test writing and coverage
 
-**Agent Skill Presets (examples):**
-- Coordinator: ALL skills (registry)
-- Feature: 13 skills (frontend + backend + testing + security + config)
-- UI: 13 skills (all frontend)
-- API: 17 skills (backend + security)
+**Agent Skill Presets:**
+- Coordinator: ALL 33 skills (registry/librarian)
+- Backend: 19 skills (backend + security + config)
+- Frontend: 14 skills (all frontend + testing)
+- Security: 10 skills (all security + backend + config)
+- Debugger: 8 skills (testing + backend)
 - Test: 6 skills (all testing)
 
 **Key Decision: Coordinator as Registry**
@@ -407,8 +416,8 @@ rake test:skills:report
 ### CI/CD Status
 
 **GitHub Actions:** ✅ All checks passing
-- PR #1: https://github.com/zerobearing2/rails-ai/pull/1 (Draft)
-- Branch: `feature/skills-architecture`
+- PR #2: https://github.com/zerobearing2/rails-ai/pull/2 (Draft)
+- Branch: `feature/external-yaml-registries`
 - Latest run: All tests pass in ~17 seconds
 
 **What CI Runs:**
@@ -423,11 +432,16 @@ INTEGRATION=1 bin/ci        # Include integration tests (requires API keys)
 
 ### Git Status
 
-**Branch:** `feature/skills-architecture` (9 commits ahead of master)
-**Remote:** `origin/feature/skills-architecture`
+**Branch:** `feature/external-yaml-registries` (3 commits ahead of master)
+**Remote:** `origin/feature/external-yaml-registries`
 **Master:** Renamed from `main` to `master` on GitHub ✅
 
-**Latest Commits:**
+**Latest Commits (Current PR #2):**
+1. `2202a76` - Refactor: Extract skills registry and rules mapping to external YAML files
+2. `3637358` - Clean up rails coordinator: Remove duplicates and optimize for DRY
+3. `c277d55` - Add cheeky meta intro: AI building tools for AI
+
+**Previous Commits (From PR #1 - Merged to Master):**
 1. Initial commit: Move agents and dependencies
 2. Migrate 39 examples to 33 skills
 3. Organize skills by domain
@@ -538,92 +552,119 @@ INTEGRATION=1 bin/ci        # Include integration tests (requires API keys)
 - Routes to specialized agents
 - Librarian pattern
 
-**Status:** Not yet implemented (Phase 2)
+**Status:** ✅ IMPLEMENTED (Phase 2)
+
+### 9. Machine-First Optimization with External YAML
+
+**Decision:** Extract skills registry and rules mapping to external YAML files.
+
+**Why:**
+- **DRY compliance:** Single source of truth, no duplication in agent files
+- **Machine-first parsing:** Structured YAML is faster for LLMs to parse than embedded markdown
+- **Separation of concerns:** Data (YAML) vs instructions (agent prompts)
+- **Maintainability:** Update metadata in one place
+- **Bidirectional linking:** Rules know which skills enforce them, skills know which rules they enforce
+
+**Implementation:**
+- Created `skills/SKILLS_REGISTRY.yml` (590 lines)
+- Created `rules/RULES_TO_SKILLS_MAPPING.yml` (472 lines)
+- Updated coordinator to reference external files
+- Added `enforces_team_rule` metadata to 11 skills
+
+**Benefits:**
+- 30% reduction in TEAM_RULES.md (1,115 → 774 lines)
+- 5% reduction in agents/rails.md (1,227 → 1,163 lines)
+- Consistent enforcement patterns
+- Automatic skill loading on rule violations
 
 ---
 
-## Phase 2: Agent Integration (PENDING)
+## Phase 2: Agent Integration (IN PROGRESS - 50% Complete)
 
 ### Overview
 
-Update all 8 agents to dynamically load and use skills. Currently agents don't reference skills at all - they need to be updated to load skill content and apply patterns.
+Update all 6 agents to dynamically load and use skills. The coordinator agent has been fully updated with machine-first optimization, external YAML registries, and bidirectional linking. All specialized agents have been updated with skills-based architecture.
 
-### Tasks
+### Completed Tasks ✅
 
-#### 2.1 Update Coordinator Agent (Priority 1)
+#### 2.1 Update Coordinator Agent (COMPLETE)
 
 **File:** `agents/rails.md`
 
-**Goal:** Transform coordinator into skills registry/librarian.
+**Goal:** Transform coordinator into skills registry/librarian with machine-first optimization.
 
-**What to Add:**
-1. **Skills Registry Section**
-   - List all 33 skills with descriptions
-   - Organize by domain (frontend, backend, testing, security, config)
-   - Show skill dependencies
+**What We Accomplished:**
 
-2. **Skill Recommendation Logic**
-   - Given a task, suggest which skills are relevant
-   - Example: "Add user authentication" → security-strong-parameters, security-csrf, tdd-minitest, form-objects
+1. **Created External YAML Registries** (Machine-First Optimization)
+   - `skills/SKILLS_REGISTRY.yml` (590 lines) - Single source of truth for all 33 skills
+     - Complete metadata: domains, dependencies, descriptions, when-to-use
+     - Keyword index for fast lookup
+     - Dependency graph
+   - `rules/RULES_TO_SKILLS_MAPPING.yml` (472 lines) - Bidirectional rules ↔ skills mapping
+     - 10/19 rules with implementation skills (53% coverage)
+     - Violation triggers (keywords, patterns)
+     - Enforcement actions (REJECT vs SUGGEST)
+     - Keyword-to-rule quick lookup
+     - Usage instructions for coordinator
 
-3. **Agent Routing**
-   - Given a task, suggest which agent should handle it
-   - Example: "Fix failing test" → debugger agent
-   - Example: "Build user dashboard" → feature agent
+2. **Updated Coordinator Agent** (`agents/rails.md`)
+   - Added skills registry reference section
+   - Added bidirectional linking documentation
+   - Added task analysis & skill recommendation workflows
+   - Added agent routing logic
+   - References external YAML files (DRY compliance)
+   - Removed references to deleted `.claude/examples/` folder
+   - Removed duplicate "Standards Enforcement" section
+   - File size: 1,227 → 1,163 lines (-5%)
 
-**Format:**
-```markdown
-# Coordinator Agent
+3. **Simplified TEAM_RULES.md** (30% Reduction)
+   - Removed code examples (moved to skills)
+   - Added machine-readable XML tags
+   - Added `<implementation-skills>` links to skills
+   - Clear separation: governance (not implementation)
+   - File size: 1,115 → 774 lines (-30%)
 
-You are the coordinator agent for rails-ai...
+4. **Updated 11 Skills with Enforcement Metadata**
+   - Added `enforces_team_rule` to YAML front matter
+   - Bidirectional linking: skills know which rules they enforce
+   - Skills updated:
+     - `solid-stack-setup.md` (Rule #1)
+     - `tdd-minitest.md` (Rules #2, #4)
+     - `controller-restful.md` (Rule #3)
+     - `nested-resources.md` (Rules #3, #5)
+     - `turbo-page-refresh.md` (Rule #7)
+     - `viewcomponent-basics.md` (Rule #15)
+     - `minitest-mocking.md` (Rule #18)
+     - `antipattern-fat-controllers.md` (Rule #12)
+     - `concerns-models.md` (Rule #5)
+     - `hotwire-turbo.md` (Rules #7, #13)
+     - `accessibility-patterns.md` (Rule #13)
 
-## Skills Registry
+5. **Added Meta README Intro**
+   - "100% written by AI, for AI" section
+   - Skynet reference with ASCII cow art
+   - Witty "side effects" of sentient CI
+   - Embraces recursive absurdity
 
-You have access to 33 modular skills:
+**Benefits Achieved:**
+- ✅ Machine-first optimization (fast LLM parsing)
+- ✅ DRY compliance (single source of truth)
+- ✅ Clear separation of concerns (rules = governance, skills = implementation)
+- ✅ Bidirectional linking (rules ↔ skills)
+- ✅ Automatic skill loading on rule violations
+- ✅ Consistent enforcement patterns
+- ✅ Educational (shows WHY rules exist AND HOW to comply)
 
-### Frontend Skills (13)
-- **turbo-page-refresh**: Enable SPA-like page refreshes with morphing
-  - Dependencies: hotwire-turbo
-  - When to use: Real-time updates without Turbo Frames complexity
-  - Location: skills/frontend/turbo-page-refresh.md
+**Stats:**
+- 16 files changed
+- +1,839 / -727 lines (net +1,112)
+- All tests passing (bin/ci green)
 
-- **viewcomponent-basics**: Build reusable ViewComponents
-  - Dependencies: none
-  - When to use: Creating reusable UI components
-  - Location: skills/frontend/viewcomponent-basics.md
+### Pending Tasks 📋
 
-[... continue for all 33 skills ...]
+#### 2.2 Update Specialized Agents (Priority 2 - PENDING)
 
-## Task Analysis
-
-When given a task:
-1. Identify relevant skills
-2. Check skill dependencies
-3. Suggest appropriate agent
-4. Provide skill loading instructions
-
-## Example: "Add real-time notifications"
-
-Relevant skills:
-- turbo-page-refresh (morphing updates)
-- hotwire-turbo (Turbo Streams)
-- action-mailer (notification emails)
-
-Suggested agent: feature (full-stack)
-
-Load skills:
-```ruby
-skills = [
-  load_skill("frontend/turbo-page-refresh"),
-  load_skill("frontend/hotwire-turbo"),
-  load_skill("backend/action-mailer")
-]
-```
-```
-
-#### 2.2 Update Specialized Agents (Priority 2)
-
-**Files:** `agents/{feature,debugger,refactor,security,test,ui,api}.md`
+**Files:** `agents/{feature,debugger,refactor,security,test,ui,api}.md` (7 agents)
 
 **Goal:** Each agent loads its skill preset automatically.
 
@@ -895,8 +936,8 @@ gh pr view 1                 # View PR details
 ✅ Coordinator agent has skills registry
 ✅ Coordinator can suggest skills for tasks
 ✅ Coordinator routes to appropriate agents
-✅ All 8 agents have skill loading instructions
-✅ All 8 agents reference their skill presets
+✅ All 6 agents have skill loading instructions
+✅ All 6 agents reference their skill presets
 ✅ Agents tested with real tasks
 ✅ Agent testing notes documented
 ✅ Test coverage increased (target: 20%+ = 7+ skills)

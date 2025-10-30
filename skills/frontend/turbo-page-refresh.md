@@ -6,6 +6,14 @@ version: 1.0
 rails_version: 8.1+
 gem_requirements:
   - turbo-rails: 2.0.0+
+
+# Team rules enforcement
+enforces_team_rule:
+  - rule_id: 7
+    rule_name: "Turbo Morph by Default"
+    severity: high
+    enforcement_action: SUGGEST
+    note: "Preferred over Turbo Frames for most use cases"
 ---
 
 # Turbo Page Refresh (Morph)

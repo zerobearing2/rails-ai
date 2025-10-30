@@ -4,6 +4,13 @@ domain: testing
 dependencies: []
 version: 1.0
 rails_version: 8.1+
+
+# Team rules enforcement
+enforces_team_rule:
+  - rule_id: 18
+    rule_name: "WebMock: No Live HTTP in Tests"
+    severity: critical
+    enforcement_action: REJECT
 ---
 
 # Minitest Mocking and Stubbing

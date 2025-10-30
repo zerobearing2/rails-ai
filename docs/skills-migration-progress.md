@@ -119,7 +119,7 @@ All skills use the hybrid format:
 
 ### Phase 2: Agent Integration (Next Steps)
 
-1. **Create AGENTS.md** - Define skill presets for each of the 8 agents
+1. **Create AGENTS.md** - Define skill presets for each of the 6 agents
    - Coordinator (rails.md) - Skills registry and librarian role
    - Feature agent - Full-stack feature development preset
    - Debugger agent - Testing and debugging skill preset
@@ -131,7 +131,7 @@ All skills use the hybrid format:
 
 2. **Update coordinator (agents/rails.md)** - Add skills registry and lookup protocol
 
-3. **Update all 8 agents** - Add skill loading protocol instructions
+3. **Update all 6 agents** - Add skill loading protocol instructions
 
 4. **Test skill loading** - Verify agents can load and use skills dynamically
 

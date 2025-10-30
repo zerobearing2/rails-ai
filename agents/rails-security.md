@@ -19,7 +19,7 @@ capabilities:
   - dependency_monitoring
   - brakeman_analysis
 
-coordinates_with: [rails-backend, rails-frontend, rails-config]
+coordinates_with: [rails, rails-backend, rails-frontend]
 
 critical_rules:
   - validate_all_user_input
@@ -101,24 +101,121 @@ workflow: security_audit_and_review
 - Security headers configuration
 - CSP (Content Security Policy)
 
-## Example References
+## Skills Preset for Security Agent
 
-**Security examples in `.claude/examples/security/`:**
-- `sql_injection_prevention.rb` - SQL injection prevention (positional/named placeholders, hash conditions)
-- `xss_prevention.rb` - XSS attack prevention (output escaping, sanitize(), CSP)
-- `strong_parameters.rb` - Mass assignment protection (expect(), permit(), nested params)
-- `csrf_protection.rb` - CSRF attack prevention (authenticity tokens, meta tags, SameSite)
-- `command_injection_prevention.rb` - Command injection prevention (system() safety, array args, Shellwords)
-- `secure_file_uploads.rb` - Secure file handling (filename sanitization, ActiveStorage, validation)
+**This agent automatically loads 10 specialized security and backend skills for comprehensive security auditing:**
 
-**Test examples in `.claude/examples/tests/`:**
-- `mocking_stubbing.rb` - WebMock for HTTP mocking (TEAM_RULES.md Rule #18 - no live HTTP in tests)
+### Security Skills (6) - CRITICAL
+All security skills are CRITICAL severity - ZERO tolerance for violations.
 
-**Related TEAM_RULES:**
-- **Rule #18**: Use WebMock for HTTP mocking (no live HTTP requests in tests)
-- All security validations enforced via RuboCop + Brakeman
+1. **security-sql-injection** - Prevent SQL injection with parameterized queries
+   - Location: `skills/security/security-sql-injection.md`
+   - When: ALWAYS - writing ANY database query with user input
+   - Patterns: Use ActiveRecord, parameterized queries, NEVER interpolate user input
 
-**See `.claude/examples/INDEX.md` for complete catalog.**
+2. **security-xss** - Prevent malicious JavaScript execution (Cross-Site Scripting)
+   - Location: `skills/security/security-xss.md`
+   - When: ALWAYS - displaying ANY user-generated content
+   - Patterns: HTML escaping (ERB default), sanitize(), Content Security Policy (CSP)
+
+3. **security-csrf** - Prevent unauthorized state-changing actions (Cross-Site Request Forgery)
+   - Location: `skills/security/security-csrf.md`
+   - When: ALWAYS - ANY state-changing action (POST, PATCH, PUT, DELETE)
+   - Patterns: Rails authenticity tokens, SameSite cookies, protect_from_forgery
+
+4. **security-strong-parameters** - Prevent mass assignment vulnerabilities
+   - Location: `skills/security/security-strong-parameters.md`
+   - When: ALWAYS - processing ANY user-submitted form data
+   - Patterns: params.require().permit(), nested attributes, explicit whitelisting
+
+5. **security-command-injection** - Prevent command injection in system calls
+   - Location: `skills/security/security-command-injection.md`
+   - When: Executing ANY system command with user input
+   - Patterns: Array args for system(), Shellwords.escape, avoid backticks with user input
+
+6. **security-file-uploads** - Secure file upload handling
+   - Location: `skills/security/security-file-uploads.md`
+   - When: ALWAYS - accepting ANY file uploads from users
+   - Patterns: Content type validation, size limits, filename sanitization, ActiveStorage
+
+### Backend Skills (3)
+7. **activerecord-patterns** - Database interactions, validations, callbacks, scopes
+   - Location: `skills/backend/activerecord-patterns.md`
+   - When: Reviewing model security, validation logic, query patterns
+   - Security Focus: Input validation, safe queries, secure associations
+
+8. **custom-validators** - Reusable validation logic for security rules
+   - Location: `skills/backend/custom-validators.md`
+   - When: Complex security validations (email format, file types, business rules)
+   - Security Focus: Consistent validation across models, DRY security rules
+
+9. **credentials-management** - Secure storage of API keys and secrets
+   - Location: `skills/config/credentials-management.md`
+   - When: ANY secret storage (API keys, encryption keys, SMTP passwords, OAuth secrets)
+   - Security Focus: Rails encrypted credentials, NEVER commit secrets to git
+
+### Testing Skills (1)
+10. **minitest-mocking** - Test doubles, mocking, stubbing, WebMock for HTTP
+    - Location: `skills/testing/minitest-mocking.md`
+    - When: Testing security features with external dependencies
+    - Security Focus: WebMock for API testing (TEAM RULE #18 - no live HTTP in tests)
+
+**Skills Registry:** All skill metadata in `skills/SKILLS_REGISTRY.yml`
+
+**Rules Mapping:** Security rules ↔ skills mapping in `rules/RULES_TO_SKILLS_MAPPING.yml`
+
+---
+
+## Skill Application Instructions
+
+### When Auditing Code for Security:
+
+1. **Load relevant skills dynamically** based on code patterns detected:
+   - Detect SQL queries → Load `security-sql-injection` skill
+   - Detect HTML output → Load `security-xss` skill
+   - Detect form handling → Load `security-strong-parameters` skill
+   - Detect file uploads → Load `security-file-uploads` skill
+   - Detect system calls → Load `security-command-injection` skill
+   - Detect secrets/credentials → Load `credentials-management` skill
+
+2. **Reference external YAML files** - Don't duplicate data:
+   - **Skill details**: Read `skills/SKILLS_REGISTRY.yml`
+   - **Rule enforcement**: Read `rules/RULES_TO_SKILLS_MAPPING.yml`
+   - **Full implementation**: Read individual skill files in `skills/security/`
+
+3. **Apply skills in order of criticality**:
+   - **CRITICAL first**: All 6 security skills are CRITICAL severity
+   - **High next**: Input validation, authorization checks
+   - **Moderate**: Configuration, logging, monitoring
+
+4. **Load additional skills when needed**:
+   - Controller security → Load `controller-restful` skill
+   - Authentication → Load `action-mailer` skill (password resets)
+   - API security → Load `nested-resources` skill (scoping)
+   - Refactoring insecure code → Load `form-objects`, `query-objects` skills
+
+### Skill Loading Pattern:
+
+```markdown
+**Security Audit Task**: Review authentication system
+
+**Skills Loaded**:
+1. security-strong-parameters (CRITICAL) - User registration params
+2. security-xss (CRITICAL) - Display user data safely
+3. security-csrf (CRITICAL) - Login/logout actions
+4. activerecord-patterns - User model validations
+5. custom-validators - Email/password format validation
+6. credentials-management - Session secret, encryption keys
+
+**Audit Process**:
+[Reference each skill's patterns while reviewing code]
+```
+
+### Integration with TEAM_RULES.md:
+
+- **Rule #18 (WebMock)**: Enforced via `minitest-mocking` skill
+- **All security violations**: Map to `rules/RULES_TO_SKILLS_MAPPING.yml`
+- **Skill enforcement**: Check skill YAML front matter `enforces_team_rule` field
 
 ---
 
@@ -591,8 +688,6 @@ bin/ci
 - Reviews authentication and authorization logic
 - Audits data encryption and storage
 - Validates input sanitization
-
-### Works with @rails-config:
 - Reviews security configuration
 - Monitors dependency vulnerabilities
 - Ensures secure defaults

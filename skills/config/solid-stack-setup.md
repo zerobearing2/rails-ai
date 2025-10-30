@@ -5,6 +5,14 @@ dependencies: []
 version: 1.0
 rails_version: 8.1+
 criticality: CRITICAL
+
+# Team rules enforcement
+enforces_team_rule:
+  - rule_id: 1
+    rule_name: "Solid Stack Only"
+    severity: critical
+    violation_triggers: [sidekiq, redis, memcached, resque]
+    enforcement_action: REJECT
 ---
 
 # Solid Stack Setup (Rails 8 Defaults)

@@ -1,8 +1,8 @@
 ---
 name: TEAM_RULES
-description: Engineering standards and best practices for Rails development (37signals-inspired)
-version: 2.0
-last_updated: 2025-10-29
+description: Engineering standards and governance for Rails development (37signals-inspired)
+version: 3.0
+last_updated: 2025-10-30
 
 # Machine-readable metadata for LLM optimization
 type: enforcement_rules
@@ -34,15 +34,15 @@ enforcement:
   manual: [architect_review, peer_review]
   severity:
     critical: [rule_1, rule_2, rule_3, rule_4, rule_17, rule_18]
-    high: [rule_6, rule_11, rule_15]
-    moderate: [rule_7, rule_8, rule_9, rule_10, rule_12, rule_13, rule_14, rule_16]
+    high: [rule_6, rule_7, rule_11, rule_15]
+    moderate: [rule_5, rule_8, rule_9, rule_10, rule_12, rule_13, rule_14, rule_16]
 ---
 
-# TEAM_RULES.md - Engineering Standards
+# TEAM_RULES.md - Engineering Standards & Governance
 
 **Project:** The Feedback Agent
 **Philosophy:** 37signals-inspired Rails development - Simple, pragmatic, conventional
-**Last Updated:** 2025-10-29
+**Version:** 3.0 - Governance-focused (implementation details in skills/)
 
 ---
 
@@ -57,42 +57,41 @@ rule_index:
     severity: critical
     triggers: [sidekiq, redis, memcached]
     action: REJECT
-    redirect: Use SolidQueue/SolidCache/SolidCable
+    skills: [solid-stack-setup]
 
   2:
     name: "Minitest Only"
     severity: critical
     triggers: [rspec, describe, context]
     action: REJECT
-    redirect: Use Minitest only
+    skills: [tdd-minitest, fixtures-test-data, minitest-mocking]
 
   3:
     name: "REST Routes Only"
     severity: critical
     triggers: [member, collection, custom action]
     action: REJECT
-    redirect: Create child controller
+    skills: [controller-restful, nested-resources]
 
   4:
     name: "TDD Always"
     severity: critical
     triggers: [skip tests, tests later, no tests]
     action: REJECT
-    redirect: Write tests FIRST
+    skills: [tdd-minitest, model-testing-advanced, viewcomponent-testing]
 
   17:
     name: "bin/ci Must Pass"
     severity: critical
     triggers: [skip ci, fix later, ignore warnings]
     action: REJECT
-    redirect: Fix CI failures immediately
 
   18:
     name: "WebMock: No Live HTTP in Tests"
     severity: critical
     triggers: [live http, external request, disable webmock]
     action: REJECT
-    redirect: Stub external HTTP requests with WebMock
+    skills: [minitest-mocking]
 ```
 
 </quick-lookup>
@@ -120,15 +119,8 @@ Keywords: sidekiq, redis, memcached, resque, delayed_job
 Patterns: `gem "sidekiq"`, `Redis.new`, `Dalli::Client`
 </violation-triggers>
 
-✅ **DO:**
-- SolidQueue for background jobs
-- SolidCache for caching
-- SolidCable for ActionCable
-
-❌ **DON'T:**
-- ❌ Sidekiq (use SolidQueue)
-- ❌ Redis (use Solid Stack)
-- ❌ Memcached (use SolidCache)
+✅ **REQUIRE:** SolidQueue, SolidCache, SolidCable
+❌ **REJECT:** Sidekiq, Redis, Memcached, Resque
 
 <enforcement action="REJECT" severity="critical">
 **Action:** Immediately reject request
@@ -136,7 +128,12 @@ Patterns: `gem "sidekiq"`, `Redis.new`, `Dalli::Client`
 **Redirect:** "SolidQueue/SolidCache/SolidCable already configured"
 </enforcement>
 
-**Why:** Rails 8 provides excellent defaults. Don't add complexity unless absolutely necessary.
+<implementation-skills>
+- **Primary:** `skills/config/solid-stack-setup.md` - Full Solid Stack configuration
+- **Related:** `skills/backend/action-mailer.md` - Background email delivery with SolidQueue
+</implementation-skills>
+
+**Why:** Rails 8 provides excellent defaults. Don't add external dependencies unless absolutely necessary.
 
 </rule>
 
@@ -151,21 +148,21 @@ Keywords: rspec, describe, context, let, subject, before, it
 Patterns: `gem "rspec-rails"`, `RSpec.describe`, `context "when"`
 </violation-triggers>
 
-✅ **DO:**
-- Write tests with Minitest
-- Use standard assertions (`assert`, `assert_equal`, etc.)
-- Follow Rails testing conventions
-
-❌ **DON'T:**
-- ❌ RSpec (never)
-- ❌ Custom test frameworks
-- ❌ Over-complicated test DSLs
+✅ **REQUIRE:** Minitest (Minitest::Test, ActiveSupport::TestCase)
+❌ **REJECT:** RSpec, custom test frameworks
 
 <enforcement action="REJECT" severity="critical">
 **Action:** Immediately reject request
 **Response:** "We use Minitest only per TEAM_RULES.md Rule #2"
 **Redirect:** "Delegating to @rails-tests to help with Minitest"
 </enforcement>
+
+<implementation-skills>
+- **Primary:** `skills/testing/tdd-minitest.md` - TDD with Minitest workflow
+- **Related:** `skills/testing/fixtures-test-data.md` - Test data management
+- **Related:** `skills/testing/minitest-mocking.md` - Mocking and stubbing
+- **Related:** `skills/testing/test-helpers.md` - Reusable test utilities
+</implementation-skills>
 
 **Why:** Minitest is simple, fast, and part of Ruby stdlib. RSpec adds unnecessary complexity.
 
@@ -182,63 +179,31 @@ Keywords: member, collection, custom action
 Patterns: `member do`, `collection do`, `post :publish`, `get :archive`
 </violation-triggers>
 
-✅ **DO:**
-```ruby
-# Good: Standard REST actions
-resources :feedbacks, only: [:index, :show, :new, :create, :edit, :update, :destroy]
-
-# Good: Nested resources for additional actions (child controllers)
-resources :feedbacks do
-  resource :sending, only: [:create], module: :feedbacks      # POST /feedbacks/:id/sending
-  resource :retry, only: [:create], module: :feedbacks        # POST /feedbacks/:id/retry
-  resource :publication, only: [:create, :destroy], module: :feedbacks
-end
-
-# IMPORTANT: Use `module: :feedbacks` to tell Rails where to find the controller
-# This maps the route to the correct module namespace:
-#   Route: feedbacks/sendings#create  →  Controller: Feedbacks::SendingsController
-
-# Controllers are nested in subdirectories with module namespacing:
-# app/controllers/feedbacks/sendings_controller.rb  → module Feedbacks; class SendingsController
-# app/controllers/feedbacks/retries_controller.rb   → module Feedbacks; class RetriesController
-# app/controllers/feedbacks/publications_controller.rb → module Feedbacks; class PublicationsController
-
-# Tests follow the same structure:
-# test/controllers/feedbacks/sendings_controller_test.rb → module Feedbacks; class SendingsControllerTest
-```
-
-❌ **DON'T:**
-```ruby
-# Bad: Custom actions
-resources :feedbacks do
-  member do
-    post :publish
-    post :archive
-  end
-end
-
-# Bad: Flat controller structure without proper namespacing
-# app/controllers/feedback_sendings_controller.rb  → class FeedbackSendingsController
-```
+✅ **REQUIRE:** Standard REST actions (index, show, new, create, edit, update, destroy)
+✅ **ALTERNATIVE:** Nested child controllers for additional actions
+❌ **REJECT:** Custom route actions (member/collection)
 
 <enforcement action="REJECT" severity="critical">
 **Action:** Immediately reject request
 **Response:** "We use RESTful resources only per TEAM_RULES.md Rule #3"
-**Redirect:** "Create nested child controller instead (e.g., Feedbacks::PublicationsController in app/controllers/feedbacks/)"
+**Redirect:** "Create nested child controller (e.g., `Feedbacks::PublicationsController` in `app/controllers/feedbacks/`)"
 </enforcement>
+
+<implementation-skills>
+- **Primary:** `skills/backend/controller-restful.md` - RESTful conventions
+- **Primary:** `skills/backend/nested-resources.md` - Child controller pattern
+</implementation-skills>
 
 **Why:**
 - REST forces good design - custom actions are code smells
-- Nested directory structure keeps related controllers organized
-- Module namespacing prevents naming conflicts
-- Clear, standard pattern for the entire team to follow
-- Every action maps to a resource lifecycle (create/update/destroy)
+- Nested directory structure keeps controllers organized
+- Module namespacing prevents conflicts
+- Every action maps to a resource lifecycle
 
-**Project Standard:**
-- Child controllers live in `app/controllers/[parent_resource_plural]/`
-- Use module namespacing: `class [ParentPlural]::[ChildPlural]Controller`
-- Route helpers remain clean: `feedback_sending_path(@feedback)`
-- Tests mirror controller structure: `test/controllers/feedbacks/sendings_controller_test.rb`
+**Pattern:**
+- Child controllers: `app/controllers/[parent_plural]/[child_controller].rb`
+- Module namespace: `module [ParentPlural]; class [ChildController]`
+- Route: `/feedbacks/:id/sending` → `Feedbacks::SendingsController#create`
 
 </rule>
 
@@ -253,16 +218,8 @@ Keywords: skip tests, tests later, no tests needed, write tests after
 Patterns: `# TODO: add tests`, `skip "not implemented"`, code without tests
 </violation-triggers>
 
-✅ **DO:**
-1. Write test first (RED)
-2. Write minimum code to pass (GREEN)
-3. Refactor (REFACTOR)
-4. Repeat
-
-❌ **DON'T:**
-- ❌ Write tests after
-- ❌ Skip tests
-- ❌ "I'll add tests later"
+✅ **REQUIRE:** RED-GREEN-REFACTOR cycle
+❌ **REJECT:** Writing code before tests, skipping tests
 
 <enforcement action="REJECT" severity="critical">
 **Action:** Immediately reject request
@@ -270,7 +227,20 @@ Patterns: `# TODO: add tests`, `skip "not implemented"`, code without tests
 **Redirect:** "Tests must be written FIRST (RED-GREEN-REFACTOR cycle)"
 </enforcement>
 
+<implementation-skills>
+- **Primary:** `skills/testing/tdd-minitest.md` - TDD workflow and patterns
+- **Related:** `skills/testing/model-testing-advanced.md` - Comprehensive model testing
+- **Related:** `skills/testing/viewcomponent-testing.md` - Component testing
+- **Related:** `skills/testing/fixtures-test-data.md` - Test data setup
+</implementation-skills>
+
 **Why:** Tests written first are better tests. Tests written after are often skipped or incomplete.
+
+**Process:**
+1. Write test first (RED - fails)
+2. Write minimum code (GREEN - passes)
+3. Refactor (improve while keeping green)
+4. Repeat
 
 </rule>
 
@@ -285,89 +255,30 @@ Keywords: flat namespace, unclear naming
 Patterns: overly nested (3+ levels), conflicting names
 </violation-triggers>
 
-✅ **DO:**
-```ruby
-# Models - Child models use nested directory structure with module namespacing
-app/models/feedback.rb              # class Feedback
+✅ **REQUIRE:**
+- Plural parent directories for child models/controllers
+- Module namespacing (e.g., `module Feedbacks; class Response`)
+- Max 2 nesting levels
+
+❌ **REJECT:**
+- Flat namespace structure
+- Inconsistent naming (singular vs plural)
+- Deep nesting (3+ levels)
+
+<implementation-skills>
+- **Primary:** `skills/backend/concerns-models.md` - Model organization
+- **Primary:** `skills/backend/concerns-controllers.md` - Controller organization
+- **Related:** `skills/backend/nested-resources.md` - Route organization
+</implementation-skills>
+
+**Pattern:**
+```
 app/models/feedbacks/response.rb    # module Feedbacks; class Response
-app/models/feedbacks/attachment.rb  # module Feedbacks; class Attachment
-
-# IMPORTANT: Use plural parent directory for child models (feedbacks/, not feedback/)
-# This maintains consistency with Rails conventions (Feedbacks::Response, not Feedback::Response)
-
-# Controllers - Use plural parent directory with module namespacing
-app/controllers/feedbacks_controller.rb               # class FeedbacksController
-app/controllers/feedbacks/sendings_controller.rb      # module Feedbacks; class SendingsController
-app/controllers/feedbacks/retries_controller.rb       # module Feedbacks; class RetriesController
-
-# Views - Mirror controller structure
-app/views/feedbacks/
-app/views/feedbacks/sendings/
-app/views/feedbacks/retries/
-
-# Tests - Mirror model/controller structure
-test/models/feedbacks/response_test.rb                # module Feedbacks; class ResponseTest
-test/controllers/feedbacks/sendings_controller_test.rb  # module Feedbacks; class SendingsControllerTest
-
-# Components - Domain-specific namespacing
-app/components/ui/button_component.rb                    # module Ui; class ButtonComponent
-app/components/feedback_components/card_component.rb     # module FeedbackComponents; class CardComponent
-
-# Migrations - Reference namespaced models properly
-create_table :feedbacks_responses do |t|  # Table name: feedbacks_responses
-  # Rails automatically maps to Feedbacks::Response
-end
+app/controllers/feedbacks/sendings_controller.rb  # module Feedbacks; class SendingsController
+test/controllers/feedbacks/sendings_controller_test.rb  # Test structure mirrors implementation
 ```
 
-**Project Standard for Child Models:**
-- Child models live in `app/models/[parent_resource_plural]/`
-- Use module namespacing: `module [ParentPlural]; class [ChildName]`
-- Table names follow pattern: `[parent_plural]_[child_plural]` (e.g., `feedbacks_responses`)
-- Tests mirror structure: `test/models/feedbacks/response_test.rb`
-- Foreign keys: `feedback_id` (singular parent, per Rails convention)
-
-**Examples:**
-```ruby
-# Model: app/models/feedbacks/response.rb
-module Feedbacks
-  class Response < ApplicationRecord
-    belongs_to :feedback  # Uses feedback_id foreign key
-  end
-end
-
-# Parent model: app/models/feedback.rb
-class Feedback < ApplicationRecord
-  has_many :responses, class_name: "Feedbacks::Response"
-end
-
-# Usage in code:
-Feedbacks::Response.create(feedback: @feedback, content: "Reply")
-@feedback.responses.create(content: "Reply")
-```
-
-❌ **DON'T:**
-```ruby
-# Bad: Flat structure for child models
-app/models/feedback_response.rb     # class FeedbackResponse
-
-# Bad: Singular parent directory
-app/models/feedback/response.rb     # module Feedback; class Response
-
-# Bad: Inconsistent naming
-app/models/feedbacks/response.rb    # class FeedbackResponse (missing module)
-```
-
-<enforcement action="SUGGEST" severity="moderate">
-**Action:** Suggest better namespacing
-**Response:** "Consider proper namespacing per TEAM_RULES.md Rule #5"
-</enforcement>
-
-**Why:**
-- Clear organization - related models grouped in subdirectories
-- Prevents naming conflicts - `Response` is scoped to `Feedbacks`
-- Consistency - matches controller namespacing pattern (both use plural parent)
-- Scalability - easy to add more related child models
-- Rails conventions - works seamlessly with ActiveRecord associations
+**Why:** Clear organization, prevents naming conflicts, maintainable structure.
 
 </rule>
 
@@ -377,69 +288,48 @@ app/models/feedbacks/response.rb    # class FeedbackResponse (missing module)
 
 ### 6. Architect Reviews Everything
 
-<violation-triggers>
-Keywords: bypass architect, skip review, quick fix without review
-Patterns: direct agent invocation without @rails coordination
-</violation-triggers>
+**Type:** Workflow governance (no implementation skill)
 
-✅ **DO:**
-- All work goes through @rails architect
-- Architect coordinates peer reviews
-- Architect validates final work
-
-❌ **DON'T:**
-- ❌ Bypass architect for "quick fixes"
-- ❌ Skip peer reviews
-- ❌ Merge without architect approval
-
-<enforcement action="ENFORCE" severity="high">
-**Action:** Route through architect
-**Response:** "All work must go through @rails architect per TEAM_RULES.md Rule #6"
-</enforcement>
+✅ **REQUIRE:** Coordinator (@rails) reviews all work before completion
+❌ **REJECT:** Agents marking work complete without coordinator review
 
 **Why:** Maintains consistency, standards, and architectural integrity.
+
+**Process:**
+1. Agent completes work
+2. Coordinator reviews for standards compliance
+3. Peer reviews from related agents
+4. Coordinator approves or requests changes
 
 </rule>
 
 ---
 
-<rule id="7" priority="moderate" category="frontend">
+<rule id="7" priority="high" category="frontend">
 
 ### 7. Turbo Morph by Default
 
 <violation-triggers>
 Keywords: turbo frame without reason, replace entire content
-Patterns: `turbo_frame_tag` without `data: { turbo_action: "morph" }`
+Patterns: `turbo_frame_tag` without justification
 </violation-triggers>
 
-✅ **DO:**
-```erb
-<%# Default: Use Turbo Morph (morphs DOM, preserves state) %>
-<%= turbo_frame_tag "feedback_list", data: { turbo_action: "morph" } do %>
-  <%= render @feedbacks %>
-<% end %>
-```
+✅ **PREFER:** Turbo Morph (page refresh with morphing)
+✅ **ALLOW:** Turbo Frames ONLY for: modals, inline editing, tabs, pagination
 
-❌ **DON'T:**
-```erb
-<%# Only use Frames when you have a REALLY good reason %>
-<%= turbo_frame_tag "feedback_list" do %>
-  <%= render @feedbacks %>
-<% end %>
-```
+❌ **AVOID:** Turbo Frames for general list updates
 
-**Valid exceptions for Turbo Frames:**
-- Modal dialogs
-- Inline editing
-- Pagination within a specific section
-- Tabs navigation
-
-<enforcement action="SUGGEST" severity="moderate">
+<enforcement action="SUGGEST" severity="high">
 **Action:** Suggest Turbo Morph instead
 **Response:** "Use Turbo Morph by default per TEAM_RULES.md Rule #7"
 </enforcement>
 
-**Why:** Turbo Morph preserves scroll position, focus, and component state. Frames replace entire content and lose state. Morph is almost always better.
+<implementation-skills>
+- **Primary:** `skills/frontend/turbo-page-refresh.md` - Morphing implementation
+- **Related:** `skills/frontend/hotwire-turbo.md` - Turbo Frames for valid use cases
+</implementation-skills>
+
+**Why:** Turbo Morph preserves scroll, focus, and state. Frames replace content and lose state. Morph is simpler and better in 90% of cases.
 
 </rule>
 
@@ -449,43 +339,15 @@ Patterns: `turbo_frame_tag` without `data: { turbo_action: "morph" }`
 
 ### 8. Be Concise
 
+**Type:** Code philosophy (no implementation skill)
+
 <violation-triggers>
 Keywords: overly verbose, unnecessary comments, redundant documentation
-Patterns: Comments explaining obvious code, verbose method names
+Patterns: Comments explaining obvious code
 </violation-triggers>
 
-✅ **DO:**
-```ruby
-# Good: Clear and concise
-def create
-  @feedback = Feedback.new(feedback_params)
-
-  if @feedback.save
-    redirect_to @feedback, notice: "Created"
-  else
-    render :new, status: :unprocessable_entity
-  end
-end
-```
-
-❌ **DON'T:**
-```ruby
-# Bad: Overly verbose
-def create
-  # Initialize a new feedback object with the parameters
-  # that were passed in from the form submission
-  @feedback = Feedback.new(feedback_params)
-
-  # Attempt to save the feedback to the database
-  # If it saves successfully, redirect to the show page
-  # Otherwise, render the new form again with errors
-  if @feedback.save
-    redirect_to feedback_path(@feedback), notice: "Feedback was successfully created"
-  else
-    render action: :new, status: :unprocessable_entity
-  end
-end
-```
+✅ **PREFER:** Self-documenting code, minimal comments
+❌ **AVOID:** Verbose comments, obvious documentation, redundant explanations
 
 <enforcement action="SUGGEST" severity="moderate">
 **Action:** Suggest removing verbose comments
@@ -493,6 +355,10 @@ end
 </enforcement>
 
 **Why:** Good code is self-documenting. Comments should explain "why", not "what".
+
+**Examples:**
+- ✅ Good: `redirect_to @feedback, notice: "Created"`
+- ❌ Bad: `# Redirect to the feedback page with a success message`
 
 </rule>
 
@@ -502,50 +368,28 @@ end
 
 ### 9. Don't Over-Engineer
 
+**Type:** Development philosophy (no implementation skill)
+
 <violation-triggers>
-Keywords: service object, validator service, abstract factory, design pattern
-Patterns: Unnecessary abstractions, premature extraction, complex inheritance
+Keywords: service object, validator service, complex abstraction, just in case
+Patterns: Premature abstraction, unused patterns
 </violation-triggers>
 
-✅ **DO:**
-```ruby
-# Good: Simple validation
-class Feedback < ApplicationRecord
-  validates :content, presence: true, length: { minimum: 50 }
-end
-```
-
-❌ **DON'T:**
-```ruby
-# Bad: Over-engineered
-class Feedback < ApplicationRecord
-  validates :content, presence: true
-
-  validate :content_length_validator
-  validate :content_quality_validator
-
-  private
-
-  def content_length_validator
-    ContentLengthValidatorService.new(self).validate
-  end
-
-  def content_quality_validator
-    ContentQualityValidatorService.new(self).validate
-  end
-end
-
-# And then separate service classes...
-```
+✅ **PREFER:** Start simple, extract patterns only when needed
+❌ **AVOID:** Service objects, decorators, presenters unless clearly justified
 
 <enforcement action="SUGGEST" severity="moderate">
-**Action:** Suggest simpler approach
-**Response:** "Don't over-engineer per TEAM_RULES.md Rule #9 - start simple"
+**Action:** Challenge complexity
+**Response:** "Can this be simpler? Rule #9: Don't over-engineer"
 </enforcement>
 
-**Why:** Rails validations work great. Don't create abstractions until you need them.
+**Why:** YAGNI (You Ain't Gonna Need It). Extract patterns when pain is real, not anticipated.
 
-**Rule:** No service objects until you have a good reason. No design patterns until complexity demands it. Start simple.
+**Guidelines:**
+- Start with fat models, thin controllers
+- Extract to form objects when forms get complex (3+ models)
+- Extract to query objects when queries get complex (3+ joins)
+- Don't create abstractions "just in case"
 
 </rule>
 
@@ -555,35 +399,24 @@ end
 
 ### 10. Reduce Complexity Always
 
-<violation-triggers>
-Keywords: add gem, new abstraction, complex pattern, future-proofing
-Patterns: Unnecessary dependencies, hypothetical features
-</violation-triggers>
+**Type:** Guiding principle (no implementation skill)
 
-✅ **DO:**
-- Delete code whenever possible
-- Merge similar code paths
-- Use Rails conventions (less custom code)
-- Prefer boring, obvious solutions
-
-❌ **DON'T:**
-- ❌ Add gems unnecessarily
-- ❌ Create abstractions prematurely
-- ❌ Use design patterns "because we should"
-- ❌ Build for hypothetical future needs
-
-**Questions to ask:**
-- Can I delete this?
-- Can I use a Rails convention instead?
-- Am I solving a problem I actually have?
-- Is there a simpler way?
+✅ **PREFER:** Delete code, simplify logic, use Rails conventions
+❌ **AVOID:** Adding dependencies, creating new patterns, complex solutions
 
 <enforcement action="SUGGEST" severity="moderate">
-**Action:** Challenge complexity
-**Response:** "Can this be simpler per TEAM_RULES.md Rule #10?"
+**Action:** Suggest simpler alternative
+**Response:** "Can we reduce complexity? Rule #10"
 </enforcement>
 
-**Why:** Every line of code is a liability. Less code = less bugs = less maintenance.
+**Why:** The best code is no code. Every line added is a line to maintain.
+
+**Techniques:**
+- Delete unused code
+- Use Rails conventions (don't reinvent)
+- Reduce conditional logic
+- Flatten nested structures
+- Consolidate similar code
 
 </rule>
 
@@ -593,32 +426,25 @@ Patterns: Unnecessary dependencies, hypothetical features
 
 ### 11. Draft PRs & Code Reviews
 
-<violation-triggers>
-Keywords: open for review immediately, skip peer review, merge without approval
-Patterns: Non-draft PR without reviews, merging without architect approval
-</violation-triggers>
+**Type:** Git workflow (no implementation skill)
 
-✅ **DO:**
-1. Open PR as **draft** initially
-2. Request peer reviews (frontend ↔ backend, tests)
-3. Address all review feedback
-4. Run `bin/ci` (must pass)
-5. Convert to **ready for review**
-6. Architect gives final approval
-7. Merge
+✅ **REQUIRE:**
+1. Open PR in draft mode
+2. Complete work (all checks passing)
+3. Mark ready for review
+4. Get architect approval
+5. Merge
 
-❌ **DON'T:**
-- ❌ Open PR for review before ready
-- ❌ Skip peer reviews
-- ❌ Merge without architect approval
-- ❌ Merge with failing `bin/ci`
+❌ **REJECT:** Opening PR for immediate review, merging without approval
 
-<enforcement action="ENFORCE" severity="high">
-**Action:** Enforce draft PR workflow
-**Response:** "Follow draft PR workflow per TEAM_RULES.md Rule #11"
-</enforcement>
+**Why:** Avoids interrupting reviewers with incomplete work. Allows iteration before formal review.
 
-**Why:** Draft PRs set expectations. Reviews catch issues early. Architect ensures consistency.
+**Process:**
+```bash
+gh pr create --title "Feature: X" --body "Details" --draft
+# ... continue work ...
+gh pr ready <pr-number>  # When complete and bin/ci passes
+```
 
 </rule>
 
@@ -629,46 +455,28 @@ Patterns: Non-draft PR without reviews, merging without architect approval
 ### 12. Fat Models, Thin Controllers
 
 <violation-triggers>
-Keywords: business logic in controller, complex controller methods
-Patterns: Multiple model operations in controller, validation in controller
+Keywords: controller with business logic, controller over 100 lines
+Patterns: Complex conditional logic in controllers
 </violation-triggers>
 
-✅ **DO:**
-```ruby
-# Good: Business logic in model
-class Feedback < ApplicationRecord
-  def mark_as_delivered!
-    update!(status: :delivered, delivered_at: Time.current)
-  end
-end
+✅ **PREFER:** Business logic in models, controllers coordinate
+✅ **EXTRACT:** To form objects (complex forms) or query objects (complex queries)
 
-class FeedbacksController < ApplicationController
-  def deliver
-    @feedback.mark_as_delivered!
-    redirect_to @feedback
-  end
-end
-```
-
-❌ **DON'T:**
-```ruby
-# Bad: Business logic in controller
-class FeedbacksController < ApplicationController
-  def deliver
-    @feedback.status = :delivered
-    @feedback.delivered_at = Time.current
-    @feedback.save!
-    redirect_to @feedback
-  end
-end
-```
+❌ **AVOID:** Controllers with business logic, validations, calculations
 
 <enforcement action="SUGGEST" severity="moderate">
-**Action:** Suggest moving to model
-**Response:** "Move business logic to model per TEAM_RULES.md Rule #12"
+**Action:** Suggest extraction
+**Response:** "Extract to form/query object per Rule #12"
 </enforcement>
 
-**Exception:** When logic gets too complex in models, extract to service objects. But start with models.
+<implementation-skills>
+- **Primary:** `skills/backend/antipattern-fat-controllers.md` - Refactoring guide
+- **Related:** `skills/backend/form-objects.md` - Extract form logic
+- **Related:** `skills/backend/query-objects.md` - Extract query logic
+- **Related:** `skills/backend/concerns-controllers.md` - Extract shared behavior
+</implementation-skills>
+
+**Why:** Controllers should coordinate, not contain business logic. Logic in models is easier to test and reuse.
 
 </rule>
 
@@ -679,26 +487,21 @@ end
 ### 13. Progressive Enhancement
 
 <violation-triggers>
-Keywords: requires javascript, client-side only, no fallback
-Patterns: Forms without server-side validation, JS-only features
+Keywords: requires javascript, doesn't work without js
+Patterns: Features that fail without JavaScript
 </violation-triggers>
 
-✅ **DO:**
-- Always works without JavaScript
-- Enhance with Turbo/Stimulus
-- Test with JS disabled
+✅ **REQUIRE:** All features work without JavaScript
+✅ **ENHANCE:** Add JavaScript for better UX
 
-❌ **DON'T:**
-- ❌ Require JavaScript for basic functionality
-- ❌ Client-side only validation
-- ❌ Skip the HTML-only version
+❌ **REJECT:** JavaScript-only features (except justified cases like real-time collaboration)
 
-<enforcement action="SUGGEST" severity="moderate">
-**Action:** Ensure progressive enhancement
-**Response:** "Ensure works without JS per TEAM_RULES.md Rule #13"
-</enforcement>
+<implementation-skills>
+- **Primary:** `skills/frontend/hotwire-turbo.md` - Server-rendered interactivity
+- **Related:** `skills/frontend/accessibility-patterns.md` - Keyboard navigation, fallbacks
+</implementation-skills>
 
-**Why:** Accessibility, resilience, performance. Enhance, don't require.
+**Why:** Accessibility, reliability, broader device support. JavaScript enhances, doesn't enable.
 
 </rule>
 
@@ -708,30 +511,27 @@ Patterns: Forms without server-side validation, JS-only features
 
 ### 14. No Premature Optimization
 
+**Type:** Development principle (no implementation skill)
+
 <violation-triggers>
-Keywords: optimize before measuring, cache just in case, performance assumption
-Patterns: Caching without profiling, complex optimization without metrics
+Keywords: premature optimization, future-proofing, just in case, might need
+Patterns: Complex caching before performance issues, indexing before slow queries
 </violation-triggers>
 
-✅ **DO:**
-- Write clear code first
-- Measure performance
-- Optimize proven bottlenecks
-- Prevent N+1 queries (this isn't premature)
-
-❌ **DON'T:**
-- ❌ Optimize before measuring
-- ❌ Add caching "just in case"
-- ❌ Complex solutions for hypothetical problems
+✅ **PREFER:** Optimize when you measure a problem
+❌ **AVOID:** Optimizing before there's evidence of need
 
 <enforcement action="SUGGEST" severity="moderate">
-**Action:** Challenge premature optimization
-**Response:** "Avoid premature optimization per TEAM_RULES.md Rule #14"
+**Action:** Ask for evidence
+**Response:** "Is this optimization needed now? Rule #14: No premature optimization"
 </enforcement>
 
-**Why:** Optimization makes code harder to understand. Only optimize what's actually slow.
+**Why:** Premature optimization wastes time and adds complexity. Optimize what you measure, not what you imagine.
 
-**Exception:** Always prevent N+1 queries. Always use `includes`/`preload` for associations. This is basic competence, not premature optimization.
+**When to optimize:**
+- After measuring (slow query, high memory, etc.)
+- When user experience suffers
+- When data shows clear bottleneck
 
 </rule>
 
@@ -742,62 +542,54 @@ Patterns: Caching without profiling, complex optimization without metrics
 ### 15. ViewComponent for All UI
 
 <violation-triggers>
-Keywords: raw html in views, inline styles, repeated markup
-Patterns: `<button class="btn">` in ERB, duplicate HTML patterns
+Keywords: partial for reusable component, helper for complex UI
+Patterns: Partials used as components, complex helpers rendering HTML
 </violation-triggers>
 
-✅ **DO:**
-```erb
-<%# Good: Reusable component %>
-<%= render Ui::ButtonComponent.new(variant: :primary) { "Submit" } %>
-```
+✅ **REQUIRE:** ViewComponent for all reusable UI elements
+✅ **ALLOW:** Partials for simple, one-off view fragments
 
-❌ **DON'T:**
-```erb
-<%# Bad: Raw HTML in views %>
-<button class="btn btn-primary">Submit</button>
-```
+❌ **AVOID:** Partials as components, complex view helpers
 
 <enforcement action="SUGGEST" severity="high">
-**Action:** Suggest using ViewComponent
-**Response:** "Use ViewComponent per TEAM_RULES.md Rule #15"
+**Action:** Suggest ViewComponent
+**Response:** "Use ViewComponent for reusable UI per Rule #15"
 </enforcement>
 
-**Why:** Components are testable, reusable, and maintainable. Raw HTML is none of these.
+<implementation-skills>
+- **Primary:** `skills/frontend/viewcomponent-basics.md` - Component patterns
+- **Related:** `skills/frontend/viewcomponent-slots.md` - Flexible composition
+- **Related:** `skills/frontend/viewcomponent-variants.md` - Variant management
+- **Related:** `skills/frontend/viewcomponent-previews.md` - Development workflow
+- **Related:** `skills/testing/viewcomponent-testing.md` - Testing components
+</implementation-skills>
+
+**Why:** ViewComponents are testable, performant (10x faster than partials), and encapsulated. Better developer experience.
 
 </rule>
 
 ---
 
-<rule id="16" priority="moderate" category="code_quality">
+<rule id="16" priority="low" category="style">
 
 ### 16. Double Quotes Always
 
-<violation-triggers>
-Keywords: single quotes
-Patterns: `'string'`, `'Name: ' + name`
-</violation-triggers>
+**Type:** Style preference (enforced by Rubocop)
 
-✅ **DO:**
-```ruby
-# Good
-"Hello, world"
-"Name: #{name}"
-```
+✅ **REQUIRE:** Double quotes for all strings
+❌ **REJECT:** Single quotes (unless string contains double quotes)
 
-❌ **DON'T:**
-```ruby
-# Bad
-'Hello, world'
-'Name: ' + name
-```
-
-<enforcement action="AUTO" severity="moderate" tool="rubocop">
-**Action:** RuboCop auto-corrects
-**Response:** "Use double quotes per TEAM_RULES.md Rule #16"
+<enforcement action="AUTO" severity="low">
+**Enforced by:** Rubocop
+**Command:** `rake lint:fix` auto-corrects
 </enforcement>
 
-**Why:** Consistency. RuboCop Rails Omakase enforces this. One less decision to make.
+**Why:** Consistency. One less decision to make.
+
+**Examples:**
+- ✅ `"Hello world"`
+- ❌ `'Hello world'`
+- ✅ `'String with "quotes" inside'` (exception)
 
 </rule>
 
@@ -807,35 +599,29 @@ Patterns: `'string'`, `'Name: ' + name`
 
 ### 17. bin/ci Must Pass
 
+**Type:** CI/CD requirement (no implementation skill)
+
 <violation-triggers>
-Keywords: skip ci, fix later, ignore warnings, commit anyway
-Patterns: Committing with failing tests, ignoring RuboCop, bypassing Brakeman
+Keywords: skip ci, fix later, ignore warnings, ci failing
+Patterns: Committing with failing tests, ignoring Rubocop, Brakeman warnings
 </violation-triggers>
 
-✅ **DO:**
-- Run `bin/ci` before committing
-- Run `bin/ci` before opening PR
-- Run `bin/ci` after feedback addressed
-- Never merge with failing `bin/ci`
-
-**`bin/ci` includes:**
-- All tests (models, controllers, components, system)
-- RuboCop (linting)
-- Brakeman (security)
-- Bundler Audit (gem vulnerabilities)
-
-❌ **DON'T:**
-- ❌ Skip bin/ci
-- ❌ "I'll fix it later"
-- ❌ Ignore warnings
+✅ **REQUIRE:** All checks pass before commit/PR
+❌ **REJECT:** Committing with failing CI, ignoring warnings
 
 <enforcement action="REJECT" severity="critical">
 **Action:** Block commit/merge
-**Response:** "bin/ci must pass per TEAM_RULES.md Rule #17"
-**Redirect:** "Fix all CI failures immediately"
+**Response:** "bin/ci must pass per Rule #17"
 </enforcement>
 
-**Why:** CI failures compound. Fix them immediately.
+**What bin/ci checks:**
+- ✅ All tests passing (Minitest)
+- ✅ Rubocop compliance (no offenses)
+- ✅ Brakeman security scan (no warnings)
+- ✅ YAML validation
+- ✅ Markdown linting (informational)
+
+**Why:** Prevents broken code from entering codebase. Maintains code quality.
 
 </rule>
 
@@ -847,269 +633,142 @@ Patterns: Committing with failing tests, ignoring RuboCop, bypassing Brakeman
 
 <violation-triggers>
 Keywords: live http, external request in test, disable webmock, allow real http
-Patterns: `WebMock.allow_net_connect!`, `WebMock.disable!`, live API calls in tests
+Patterns: `WebMock.allow_net_connect!`, making real API calls in tests
 </violation-triggers>
 
-✅ **DO:**
-- Use WebMock to stub all external HTTP requests
-- Keep `WebMock.disable_net_connect!` enabled (configured in test_helper.rb)
-- Stub API responses for predictable testing
-
-```ruby
-# Good: Stubbed external API call
-WebMock.stub_request(:post, "https://api.anthropic.com/v1/messages")
-  .to_return(status: 200, body: { content: "response" }.to_json)
-
-result = AnthropicClient.send_message("test")
-assert_equal "response", result["content"]
-```
-
-❌ **DON'T:**
-- ❌ Make live HTTP requests from tests
-- ❌ Disable WebMock (`WebMock.allow_net_connect!`)
-- ❌ Skip stubbing external APIs
-- ❌ Rely on external services for test success
-
-```ruby
-# Bad: Live API call in test (will fail with WebMock)
-def test_anthropic_api
-  result = AnthropicClient.send_message("test")  # ❌ Live HTTP call!
-  assert result
-end
-```
+✅ **REQUIRE:** Stub all external HTTP requests with WebMock
+❌ **REJECT:** Live HTTP requests in tests
 
 <enforcement action="REJECT" severity="critical">
-**Action:** Automatically block via WebMock
-**Response:** "Tests must not make live HTTP requests per TEAM_RULES.md Rule #18"
-**Redirect:** "Stub the request with WebMock.stub_request"
-**Technical:** WebMock raises `WebMock::NetConnectNotAllowedError` on live HTTP attempts
+**Action:** Reject test that makes live HTTP calls
+**Response:** "Use WebMock to stub external requests per Rule #18"
 </enforcement>
 
-**Why:**
-- **Security**: Prevents test data leaking to production APIs
-- **Speed**: Tests run faster without network calls
-- **Reliability**: Tests don't fail due to network issues or API downtime
-- **Cost**: Avoids charges from metered APIs (Anthropic, OpenAI, etc.)
-- **Isolation**: Tests remain deterministic and isolated
+<implementation-skills>
+- **Primary:** `skills/testing/minitest-mocking.md` - WebMock patterns
+</implementation-skills>
 
-**Allowed Connections:**
-- localhost (127.0.0.1) - for Capybara/Puma/Selenium
-- *.local domains - for system tests
+**Why:** Tests must be fast, reliable, and not dependent on external services. Live HTTP = flaky tests.
 
-**Configuration:**
-See `test/test_helper.rb` for WebMock setup.
+**Pattern:**
+```ruby
+stub_request(:post, "https://api.example.com/webhooks")
+  .with(body: hash_including(event: "feedback.created"))
+  .to_return(status: 200, body: {success: true}.to_json)
+```
 
 </rule>
 
 ---
 
-<rule id="19" priority="critical" category="testing">
+<rule id="19" priority="moderate" category="testing">
 
-### 19. No System Tests (Deprecated)
+### 19. No System Tests (Deprecated Pattern)
 
 <violation-triggers>
-Keywords: system test, capybara test, driven_by, javascript test
-Patterns: `class.*SystemTestCase`, `test/system/`, `driven_by :selenium`, `driven_by :cuprite`
+Keywords: system test, capybara system test, ApplicationSystemTestCase
+Patterns: `class FeedbackSystemTest < ApplicationSystemTestCase`
 </violation-triggers>
 
-✅ **DO:**
-- Use component tests for UI components (ViewComponent::TestCase)
-- Use integration tests for controller flows (ActionDispatch::IntegrationTest)
-- Use unit tests for models and services (ActiveSupport::TestCase)
-- Test JavaScript interactions with Stimulus controller tests
+✅ **REQUIRE:** Integration tests with Capybara
+❌ **REJECT:** System tests (`ApplicationSystemTestCase`)
 
-❌ **DON'T:**
-- ❌ Create system tests (`test/system/`)
-- ❌ Use Capybara system tests
-- ❌ Use `driven_by :selenium` or `:cuprite`
-- ❌ Use `ApplicationSystemTestCase`
-- ❌ Import system test examples or patterns
-
-<enforcement action="REJECT" severity="critical">
-**Action:** Immediately reject request
-**Response:** "System tests are deprecated and removed per TEAM_RULES.md Rule #19"
-**Redirect:** "Use integration tests (ActionDispatch::IntegrationTest) or component tests (ViewComponent::TestCase) instead"
+<enforcement action="SUGGEST" severity="moderate">
+**Action:** Suggest migration to integration tests
+**Response:** "Use integration tests instead of system tests per Rule #19"
 </enforcement>
 
-**Why:**
-- **Deprecated**: Rails is removing system tests in future versions
-- **Complexity**: System tests add browser automation complexity (Selenium, Chrome drivers)
-- **Slow**: Browser-based tests are 10-100x slower than integration tests
-- **Flaky**: System tests are prone to timing issues and intermittent failures
-- **Dependencies**: Requires additional gems and browser drivers
-- **Maintenance**: More brittle and harder to maintain than integration tests
+**Why:** Integration tests with Capybara provide same coverage with better performance and simpler setup.
 
-**Alternatives:**
-- **Integration tests**: Test controller flows with `ActionDispatch::IntegrationTest`
-- **Component tests**: Test UI components with `ViewComponent::TestCase`
-- **JavaScript**: Test Stimulus controllers in isolation or with integration tests
+**Migration:**
+```ruby
+# ❌ Old: System test
+class FeedbackSystemTest < ApplicationSystemTestCase
+end
 
-**Migration Path:**
-If you have existing system tests, convert them to:
-1. Integration tests for user flows (login, forms, navigation)
-2. Component tests for UI elements (buttons, modals, cards)
-3. Stimulus controller tests for JavaScript interactions
-
-**Project Policy:**
-This project has NO system tests. All UI and integration testing uses Minitest integration tests and ViewComponent tests.
+# ✅ New: Integration test with Capybara
+class FeedbackFlowTest < ActionDispatch::IntegrationTest
+  include Capybara::DSL
+end
+```
 
 </rule>
 
 ---
 
-## Decision Framework
+## Rules Summary
 
-<decision-framework id="coding-checklist">
+| ID | Rule | Severity | Type | Has Skills |
+|----|------|----------|------|------------|
+| 1 | Solid Stack Only | Critical | Technology | ✅ Yes |
+| 2 | Minitest Only | Critical | Technology | ✅ Yes |
+| 3 | RESTful Routes Only | Critical | Pattern | ✅ Yes |
+| 4 | TDD Always | Critical | Workflow | ✅ Yes |
+| 5 | Proper Namespacing | Moderate | Pattern | ✅ Yes |
+| 6 | Architect Reviews | High | Workflow | ❌ No |
+| 7 | Turbo Morph Default | High | Pattern | ✅ Yes |
+| 8 | Be Concise | Moderate | Philosophy | ❌ No |
+| 9 | Don't Over-Engineer | Moderate | Philosophy | ❌ No |
+| 10 | Reduce Complexity | Moderate | Philosophy | ❌ No |
+| 11 | Draft PRs | High | Workflow | ❌ No |
+| 12 | Fat Models, Thin Controllers | Moderate | Pattern | ✅ Yes |
+| 13 | Progressive Enhancement | Moderate | Pattern | ✅ Yes |
+| 14 | No Premature Optimization | Moderate | Philosophy | ❌ No |
+| 15 | ViewComponent for UI | High | Technology | ✅ Yes |
+| 16 | Double Quotes | Low | Style | ❌ No |
+| 17 | bin/ci Must Pass | Critical | Workflow | ❌ No |
+| 18 | WebMock in Tests | Critical | Testing | ✅ Yes |
+| 19 | No System Tests | Moderate | Deprecation | ❌ No |
 
-When you're about to write code, ask:
+**Coverage:**
+- **Total Rules:** 19
+- **Rules with Skills:** 10 (53%)
+- **Rules without Skills:** 9 (47% - workflow/philosophy/style)
 
-```yaml
-checklist:
-  - question: "Is this necessary?"
-    guidance: "Can I delete code instead?"
-    rule: 10
-
-  - question: "Is there a Rails convention?"
-    guidance: "Use it - don't reinvent"
-    rule: 1
-
-  - question: "Is this the simplest solution?"
-    guidance: "Simplify before implementing"
-    rule: 9
-
-  - question: "Did I write tests first?"
-    guidance: "TDD always - RED-GREEN-REFACTOR"
-    rule: 4
-
-  - question: "Will this add complexity?"
-    guidance: "Reduce it - delete code"
-    rule: 10
-```
-
-If you answer "no" to any of these, rethink your approach.
-
-</decision-framework>
+**See:** `rules/RULES_TO_SKILLS_MAPPING.yml` for complete rule→skill mapping
 
 ---
 
-## The 37signals Way
+## Enforcement Strategy
 
-These rules embody 37signals philosophy:
+### Critical Rules (REJECT immediately)
+- Rules #1, #2, #3, #4, #17, #18
+- No exceptions, immediate rejection
+- Redirect to compliant alternative or required skill
 
-- **Convention over Configuration** - Rails conventions are good enough
-- **Less is More** - Delete code, don't add it
-- **Boring is Good** - Obvious > clever
-- **Ship It** - Done > perfect
-- **Programmer Happiness** - Simple code is happy code
+### High Rules (SUGGEST strongly)
+- Rules #6, #7, #11, #15
+- Strong recommendation with explanation
+- Allow with justification in rare cases
 
-### Recommended Reading
-
-- [Rails Doctrine](https://rubyonrails.org/doctrine) - DHH's Rails philosophy
-- [Getting Real](https://basecamp.com/gettingreal) - 37signals product philosophy
-- [The Majestic Monolith](https://m.signalvnoise.com/the-majestic-monolith/) - Why Rails is enough
-
----
-
-## Enforcement
-
-<enforcement-hierarchy id="multi-layer">
-
-```yaml
-enforcement_layers:
-  automated:
-    - tool: bin/ci
-      checks: [tests, rubocop, brakeman, bundler-audit]
-      frequency: pre-commit, pre-PR, CI pipeline
-
-    - tool: rubocop
-      checks: [style, conventions, best_practices]
-      auto_correct: true
-
-    - tool: brakeman
-      checks: [security_vulnerabilities]
-      severity: critical
-
-  manual:
-    - agent: rails (architect)
-      scope: all_work
-      authority: final_approval
-
-    - process: peer_review
-      participants: [frontend, backend, tests, security, config, design]
-      timing: after_implementation
-
-    - process: git_hooks
-      checks: [pre-commit, pre-push]
-      enforcement: block_if_failing
-```
-
-**If you break these rules, expect pushback in code review.**
-
-</enforcement-hierarchy>
+### Moderate Rules (SUGGEST)
+- Rules #5, #8, #9, #10, #12, #13, #14, #16, #19
+- Recommend best practice
+- Guide toward better approach
 
 ---
 
-## When to Break the Rules
+## Quick Reference for Agents
 
-<exceptions id="valid-rule-breaking">
+**When you see these keywords, check these rules:**
 
-Rules are guidelines, not laws. Break them when:
+- `sidekiq`, `redis` → Rule #1
+- `rspec`, `describe` → Rule #2
+- `member`, `collection` → Rule #3
+- `skip tests`, `tests later` → Rule #4
+- `turbo_frame_tag` (without reason) → Rule #7
+- `service object`, `presenter` → Rule #9
+- Controller > 100 lines → Rule #12
+- Partial used as component → Rule #15
+- Live HTTP in test → Rule #18
+- `ApplicationSystemTestCase` → Rule #19
 
-1. **You have a very good reason** (document it)
-2. **The situation is exceptional** (truly unique)
-3. **The architect agrees** (get approval first)
-
-**Example valid exception:**
-```ruby
-# Exception: Using custom action because this is a webhook callback
-# that doesn't fit REST semantics. Discussed with architect.
-resource :stripe_webhook, only: [] do
-  post :callback # External API requires this exact endpoint
-end
-```
-
-**Bad exception:**
-```ruby
-# This is NOT a valid exception
-resources :feedbacks do
-  post :publish # Should be: resource :publication, only: [:create]
-end
-```
-
-</exceptions>
+**For implementation details, load the corresponding skill from `skills/` directory.**
 
 ---
 
-## Summary (The Short Version)
+**Version History:**
+- **3.0** (2025-10-30): Governance-focused refactor, removed code examples, added skill links
+- **2.0** (2025-10-29): Added machine-readable metadata, violation triggers
+- **1.0** (2025-10-28): Initial team rules
 
-<summary id="quick-reference">
-
-```yaml
-critical_rules:
-  1: "Rails 8 Solid Stack only (no Sidekiq/Redis/Memcached)"
-  2: "Minitest only (never RSpec)"
-  3: "REST routes only (no custom actions)"
-  4: "TDD always (tests first)"
-  17: "bin/ci must pass (no exceptions)"
-  18: "WebMock: No live HTTP requests in tests"
-
-high_priority:
-  6: "Architect reviews everything"
-  11: "Draft PRs → Reviews → Architect approval"
-  15: "ViewComponent for all UI"
-
-moderate_priority:
-  5: "Proper namespacing"
-  7: "Turbo Morph by default"
-  8: "Be concise"
-  9: "Don't over-engineer"
-  10: "Reduce complexity always"
-  12: "Fat models, thin controllers"
-  13: "Progressive enhancement"
-  14: "No premature optimization"
-  16: "Double quotes always"
-```
-
-**When in doubt: Simpler is better. Delete code. Follow Rails conventions.**
-
-</summary>

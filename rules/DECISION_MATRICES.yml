@@ -41,28 +41,20 @@ architect_delegation:
   # Design/UX tasks
   design_task:
     condition: "needs_design_thinking OR ux_improvement OR interaction_design"
-    strategy: "start_with_designer_then_frontend"
+    strategy: "delegate_to_frontend_for_design_and_implementation"
     examples:
       - request: "Make the feedback form more polished"
-        phase_1:
-          delegates_to: "rails-design"
-          task: "Design polished feedback submission experience"
-        phase_2:
-          delegates_to: "rails-frontend"
-          task: "Implement design specifications"
+        delegates_to: "rails-frontend"
+        task: "Design and implement polished feedback submission experience"
 
       - request: "Improve empty state for feedback list"
-        phase_1:
-          delegates_to: "rails-design"
-          task: "Design helpful empty state experience"
-        phase_2:
-          delegates_to: "rails-frontend"
-          task: "Build empty state component based on design"
+        delegates_to: "rails-frontend"
+        task: "Design and build helpful empty state component"
 
   # Configuration/Setup tasks
   config_task:
     condition: "involves_configuration OR gem_management OR deployment"
-    strategy: "delegate_to_config"
+    strategy: "delegate_to_backend_for_config"
     reject_if_violates_team_rules: true
     examples:
       - request: "Add Sidekiq for background jobs"
@@ -73,15 +65,15 @@ architect_delegation:
           task: "Help you use SolidQueue for background jobs (already configured)"
 
       - request: "Set up staging environment"
-        delegates_to: "rails-config"
+        delegates_to: "rails-backend"
         task: "Configure staging environment and credentials"
 
       - request: "Deploy to production with Kamal"
-        delegates_to: "rails-config"
+        delegates_to: "rails-backend"
         task: "Set up Kamal deployment configuration"
 
       - request: "Add gem for PDF generation"
-        delegates_to: "rails-config"
+        delegates_to: "rails-backend"
         task: "Evaluate and add PDF generation gem"
 
   # Security tasks
@@ -160,16 +152,14 @@ architect_delegation:
           phase_1_parallel:
             - agent: "rails-backend"
               task: "Create Category model with associations and validations"
-            - agent: "rails-design"
-              task: "Design category selection and filtering UX"
             - agent: "rails-frontend"
-              task: "Prepare base UI components for categories"
+              task: "Design category selection and filtering UX, prepare base UI components"
 
           phase_2_parallel:
             - agent: "rails-backend"
               task: "Add CategoriesController with filtering"
             - agent: "rails-frontend"
-              task: "Implement category UI based on design specs"
+              task: "Implement category UI"
 
           phase_3_sequential:
             - agent: "rails-tests"
@@ -182,19 +172,17 @@ architect_delegation:
         phase_1_all_parallel:
           - agent: "rails-backend"
             task: "Create Category model"
-          - agent: "rails-design"
-            task: "Design category UX patterns"
           - agent: "rails-frontend"
-            task: "Review existing UI components"
+            task: "Design category UX patterns and review existing UI components"
 
   # PR Code Review tasks
   pr_review_task:
     condition: "code_review OR pr_review"
     strategy: "multi_agent_parallel_review"
-    required_reviewers: ["rails-frontend", "rails-backend", "rails-tests", "rails-security", "rails-config", "rails-design"]
+    required_reviewers: ["rails-frontend", "rails-backend", "rails-tests", "rails-security", "rails-debug"]
     process:
       step_1: "Fetch PR details with gh commands"
-      step_2: "Delegate to all 6 specialized agents in PARALLEL"
+      step_2: "Delegate to all 5 specialized agents in PARALLEL"
       step_3: "Consolidate feedback by severity (Critical, Moderate, Suggestions)"
       step_4: "Post consolidated review to GitHub"
 
@@ -209,10 +197,8 @@ architect_delegation:
             focus: "TDD compliance, coverage, test quality"
           - agent: "rails-security"
             focus: "OWASP Top 10, vulnerabilities"
-          - agent: "rails-config"
-            focus: "Gems, initializers, TEAM_RULES compliance"
-          - agent: "rails-design"
-            focus: "Visual consistency, UX patterns"
+          - agent: "rails-debug"
+            focus: "Potential bugs, edge cases, error handling"
 
 parallel_vs_sequential:
   description: "When to run agents in parallel vs. sequential"
@@ -287,11 +273,11 @@ agent_selection_quick_lookup:
     coverage: "rails-tests"
     ci: "rails-tests"
 
-    gem: "rails-config"
-    config: "rails-config"
-    initializer: "rails-config"
-    deploy: "rails-config"
-    kamal: "rails-config"
+    gem: "rails-backend"
+    config: "rails-backend"
+    initializer: "rails-backend"
+    deploy: "rails-backend"
+    kamal: "rails-backend"
 
     security: "rails-security"
     vulnerability: "rails-security"
@@ -299,10 +285,10 @@ agent_selection_quick_lookup:
     authentication: "rails-security"
     authorization: "rails-security"
 
-    design: "rails-design"
-    ux: "rails-design"
-    interaction: "rails-design"
-    animation: "rails-design"
+    design: "rails-frontend"
+    ux: "rails-frontend"
+    interaction: "rails-frontend"
+    animation: "rails-frontend"
 
     debug: "rails-debug"
     error: "rails-debug"

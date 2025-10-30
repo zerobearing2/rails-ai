@@ -37,9 +37,9 @@ rails-ai/
 │   ├── rails-frontend.md     # Frontend specialist
 │   ├── rails-backend.md      # Backend specialist
 │   ├── rails-tests.md        # Test specialist
-│   ├── rails-config.md       # Config specialist
+│   ├── rails-backend.md       # Config specialist
 │   ├── rails-security.md     # Security specialist
-│   ├── rails-design.md       # Design specialist
+│   ├── rails-frontend.md       # Design specialist
 │   └── rails-debug.md        # Debug specialist
 ├── examples/                  # ~39 Rails code examples
 │   ├── backend/

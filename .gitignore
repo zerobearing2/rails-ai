@@ -9,12 +9,6 @@ Thumbs.db
 *.swo
 *~
 
-# Build artifacts
-*.tar.gz
-*.zip
-dist/
-build/
-
 # Test files
 test-projects/
 .test-*
@@ -24,5 +18,5 @@ test-projects/
 .env.local
 *.local
 
-# Node modules (if we add any tooling)
-node_modules/
+# Claude Code local settings
+.claude/settings.local.json

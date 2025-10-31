@@ -9,12 +9,12 @@
 
 | Metric | Baseline | Current | Target | Status |
 |--------|----------|---------|--------|--------|
-| Total Tokens | 223,575 | 140,098 | 150,000 | ✅ 9,902 UNDER! |
-| Reduction | - | 83,477 (37.3%) | 73,575 (33%) | ✅ EXCEEDED! |
+| Total Tokens | 223,575 | 137,589 | 150,000 | ✅ 12,411 UNDER! |
+| Reduction | - | 85,986 (38.5%) | 73,575 (33%) | ✅ EXCEEDED! |
 | Files Optimized | 0/40 | 40/40 (100%) | 40/40 | ✅ COMPLETE! |
 | Tests Passing | - | 209/209 (100%) | 40/40 | ✅ ALL PASSING! |
 
-**Final Result:** UNDER BUDGET by 9,902 tokens! 🎉
+**Final Result:** UNDER BUDGET by 12,411 tokens! 🎉
 
 ---
 
@@ -100,10 +100,12 @@
 ## Combined Progress (ALL BATCHES)
 
 **Files Optimized:** 37 files + 3 pilot files = 40/40 (100%)
-**Total Tokens Saved:** 20,626 + 23,934 + 19,813 + 18,104 = 82,477 tokens
-**Overall Reduction:** 37.3% from baseline
-**Final Total:** 140,098 tokens
-**UNDER BUDGET:** 9,902 tokens! 🎉
+**Total Tokens Saved:** 20,626 + 23,934 + 19,813 + 18,104 + 2,509 (pilot fix) = 85,986 tokens
+**Overall Reduction:** 38.5% from baseline
+**Final Total:** 137,589 tokens
+**UNDER BUDGET:** 12,411 tokens! 🎉
+
+**Note:** view-helpers.md was re-optimized from pilot (6,220 → 3,711 tokens) to match Tier 3 target of 33-50% reduction.
 
 ---
 
@@ -133,16 +135,16 @@
 
 **Achievements:**
 1. ✅ All 40 files optimized (100% complete)
-2. ✅ Token budget MET - 140,098 tokens (9,902 under 150k budget)
+2. ✅ Token budget EXCEEDED - 137,589 tokens (12,411 under 150k budget)
 3. ✅ All 209 tests passing (100% pass rate, 2,567 assertions)
 4. ✅ Quality preserved - all teaching patterns intact
-5. ✅ 37.3% reduction achieved (exceeded 33% target)
+5. ✅ 38.5% reduction achieved (exceeded 33% target)
 
 **Key Metrics:**
 - Baseline: 223,575 tokens
-- Final: 140,098 tokens
-- Total saved: 83,477 tokens
-- Reduction: 37.3%
+- Final: 137,589 tokens
+- Total saved: 85,986 tokens
+- Reduction: 38.5%
 - Files: 40/40 (100%)
 - Tests: 209 runs, 2,567 assertions, 0 failures
 

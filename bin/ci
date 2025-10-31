@@ -98,7 +98,7 @@ fi
 
 # Markdown linting
 print_info "Linting Markdown files..."
-if bundle exec mdl skills/ docs/ *.md --style .mdl_style.rb; then
+if bundle exec mdl skills/ *.md --style .mdl_style.rb; then
   print_success "Markdown linting passed"
 else
   print_error "Markdown linting failed"

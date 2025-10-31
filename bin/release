@@ -185,22 +185,41 @@ print_info "New version will be: $NEW_VERSION"
 
 # Generate release notes using bin/changelog
 print_section "📋 Generating Release Notes"
-print_info "Running bin/changelog to generate release notes..."
 
-# Run bin/changelog which will handle all the logic
-if ./bin/changelog; then
-  # Read the generated changelog entry from temp file
-  CHANGELOG_TEMP_FILE="${TMPDIR:-/tmp}/rails-ai-changelog-entry.txt"
-  if [ -f "$CHANGELOG_TEMP_FILE" ]; then
-    RELEASE_NOTES=$(cat "$CHANGELOG_TEMP_FILE")
-    print_success "Release notes generated successfully"
+# In dry-run mode, pass --non-interactive flag to bin/changelog
+if [ "$DRY_RUN" = true ]; then
+  print_info "Running bin/changelog in non-interactive mode..."
+  if ./bin/changelog --non-interactive; then
+    # Read the generated changelog entry from temp file
+    CHANGELOG_TEMP_FILE="${TMPDIR:-/tmp}/rails-ai-changelog-entry.txt"
+    if [ -f "$CHANGELOG_TEMP_FILE" ]; then
+      RELEASE_NOTES=$(cat "$CHANGELOG_TEMP_FILE")
+      print_success "Release notes generated successfully"
+    else
+      print_error "bin/changelog did not produce output file"
+      exit 1
+    fi
   else
-    print_error "bin/changelog did not produce output file"
+    print_error "bin/changelog failed"
     exit 1
   fi
 else
-  print_error "bin/changelog failed"
-  exit 1
+  print_info "Running bin/changelog to generate release notes..."
+  # Run bin/changelog which will handle all the logic
+  if ./bin/changelog; then
+    # Read the generated changelog entry from temp file
+    CHANGELOG_TEMP_FILE="${TMPDIR:-/tmp}/rails-ai-changelog-entry.txt"
+    if [ -f "$CHANGELOG_TEMP_FILE" ]; then
+      RELEASE_NOTES=$(cat "$CHANGELOG_TEMP_FILE")
+      print_success "Release notes generated successfully"
+    else
+      print_error "bin/changelog did not produce output file"
+      exit 1
+    fi
+  else
+    print_error "bin/changelog failed"
+    exit 1
+  fi
 fi
 
 if [ -z "$RELEASE_NOTES" ]; then

@@ -31,12 +31,20 @@ print_info() {
   echo -e "${BLUE}ℹ️  $1${NC}"
 }
 
-# Welcome message
-echo ""
-echo -e "${BLUE}╔═══════════════════════════════════════════╗${NC}"
-echo -e "${BLUE}║    Rails AI - Changelog Generator        ║${NC}"
-echo -e "${BLUE}╚═══════════════════════════════════════════╝${NC}"
-echo ""
+# Non-interactive mode flag
+NON_INTERACTIVE=false
+if [ "$1" = "--non-interactive" ] || [ "$1" = "-n" ]; then
+  NON_INTERACTIVE=true
+fi
+
+# Welcome message (skip in non-interactive mode)
+if [ "$NON_INTERACTIVE" = false ]; then
+  echo ""
+  echo -e "${BLUE}╔═══════════════════════════════════════════╗${NC}"
+  echo -e "${BLUE}║    Rails AI - Changelog Generator        ║${NC}"
+  echo -e "${BLUE}╚═══════════════════════════════════════════╝${NC}"
+  echo ""
+fi
 
 # Get last version tag
 LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
@@ -111,23 +119,31 @@ Example format:
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo ""
 
-    read -p "Use this changelog entry? (y/n/e to edit) " -n 1 -r
-    echo
-    if [[ $REPLY =~ ^[Ee]$ ]]; then
-      print_info "Opening editor for changelog entry..."
-      TEMP_FILE=$(mktemp)
-      echo "$CHANGELOG_ENTRY" > "$TEMP_FILE"
-      ${EDITOR:-vim} "$TEMP_FILE"
-      CHANGELOG_ENTRY=$(cat "$TEMP_FILE")
-      rm "$TEMP_FILE"
-    elif [[ ! $REPLY =~ ^[Yy]$ ]]; then
-      CLAUDE_CLI_AVAILABLE=false
+    # Skip interactive prompt in non-interactive mode
+    if [ "$NON_INTERACTIVE" = false ]; then
+      read -p "Use this changelog entry? (y/n/e to edit) " -n 1 -r
+      echo
+      if [[ $REPLY =~ ^[Ee]$ ]]; then
+        print_info "Opening editor for changelog entry..."
+        TEMP_FILE=$(mktemp)
+        echo "$CHANGELOG_ENTRY" > "$TEMP_FILE"
+        ${EDITOR:-vim} "$TEMP_FILE"
+        CHANGELOG_ENTRY=$(cat "$TEMP_FILE")
+        rm "$TEMP_FILE"
+      elif [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        CLAUDE_CLI_AVAILABLE=false
+      fi
     fi
   fi
 fi
 
-# Manual entry if Claude not available or user declined
+# Manual entry if Claude not available or user declined (skip in non-interactive)
 if [ "$CLAUDE_CLI_AVAILABLE" = false ]; then
+  if [ "$NON_INTERACTIVE" = true ]; then
+    print_error "Cannot generate changelog: Claude CLI unavailable and running in non-interactive mode"
+    exit 1
+  fi
+
   print_info "Enter changelog entry manually (or press Ctrl+C to cancel)"
   echo "Use Keep a Changelog format (Added, Changed, Fixed, etc.)"
   echo "Press Ctrl+D when done"

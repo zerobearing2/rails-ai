@@ -184,6 +184,7 @@ See [docs/github-actions-setup.md](docs/github-actions-setup.md) for setup instr
 - [Skill Testing Methodology](docs/skill-testing-methodology.md) - Two-tier testing approach
 - [Development Setup](docs/development-setup.md) - Detailed setup instructions
 - [GitHub Actions Setup](docs/github-actions-setup.md) - CI/CD configuration
+- [Release Process](docs/releasing.md) - How to create releases
 - [Agents System](AGENTS.md) - Agent roles and skill management
 
 ## Roadmap

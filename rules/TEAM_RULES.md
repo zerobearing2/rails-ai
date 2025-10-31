@@ -251,46 +251,52 @@ Patterns: `# TODO: add tests`, `skip "not implemented"`, code without tests
 ### 5. Proper Namespacing
 
 <violation-triggers>
-Keywords: flat namespace, unclear naming
-Patterns: overly nested (3+ levels), conflicting names
+Keywords: flat namespace, unclear naming, UserSetting, OrderItem
+Patterns: overly nested (3+ levels), conflicting names, class UserSetting, class OrderItem
 </violation-triggers>
 
 ✅ **REQUIRE:**
+- Namespaced models for nested entities (User::Setting, not UserSetting)
 - Plural parent directories for child models/controllers
 - Module namespacing (e.g., `module Feedbacks; class Response`)
 - Max 2 nesting levels
 
 ❌ **REJECT:**
-- Flat namespace structure
+- Flat naming for nested entities (UserSetting instead of User::Setting)
 - Inconsistent naming (singular vs plural)
 - Deep nesting (3+ levels)
 
 <implementation-skills>
-- **Primary:** `skills/backend/concerns-models.md` - Model organization
+- **Primary:** `skills/backend/activerecord-patterns.md` - Model naming conventions
+- **Primary:** `skills/backend/concerns-models.md` - Concern organization
 - **Primary:** `skills/backend/concerns-controllers.md` - Controller organization
 - **Related:** `skills/backend/nested-resources.md` - Route organization
 </implementation-skills>
 
 **Pattern:**
 ```
+# Namespaced models (SINGULAR parent) - entities owned by parent
+app/models/user/setting.rb           # class User::Setting (belongs to User)
+app/models/order/line_item.rb        # class Order::LineItem (part of Order)
+
 # Child models and controllers use PLURAL parent namespace
 app/models/feedbacks/response.rb    # module Feedbacks; class Response
 app/controllers/feedbacks/sendings_controller.rb  # module Feedbacks; class SendingsController
 
 # Domain-specific concerns use SINGULAR parent namespace
-app/models/user/settings.rb         # module User; module Settings (concern for User)
-app/models/feedback/notifications.rb # module Feedback; module Notifications (concern for Feedback)
+app/models/user/authenticatable.rb  # module User; module Authenticatable (concern)
+app/models/feedback/notifications.rb # module Feedback; module Notifications (concern)
 
 # Generic/shared concerns go in concerns/ directory
 app/models/concerns/taggable.rb      # module Taggable (shared across models)
 app/controllers/concerns/api/response_handler.rb  # module Api; module ResponseHandler
 
 # Test structure mirrors implementation
+test/models/user/setting_test.rb
 test/controllers/feedbacks/sendings_controller_test.rb
-test/models/user/settings_test.rb
 ```
 
-**Why:** Clear organization, prevents naming conflicts, maintainable structure. Domain concerns co-locate with their models.
+**Why:** Clear organization, prevents naming conflicts, maintainable structure. Namespacing shows ownership and aggregation relationships clearly.
 
 </rule>
 

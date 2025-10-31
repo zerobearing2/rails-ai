@@ -1,8 +1,24 @@
 # Skills Optimization - Current Status
 
 **Branch:** `feature/skills-optimization`
-**Status:** Ready to start Phase 0
+**Status:** ⚠️ Phase 0 COMPLETE - Critical Findings Require Plan Revision
 **Last Updated:** 2025-10-31
+
+---
+
+## 🚨 CRITICAL PHASE 0 FINDINGS
+
+**Token count is 28% WORSE than estimated!**
+- **Estimated:** ~174,605 tokens (17% over budget)
+- **Actual:** **223,575 tokens** (49% over budget!)
+- **Required reduction:** 33% (not 17%)
+
+**Documentation errors discovered:**
+- SKILLS_REGISTRY.yml claims 34 skills → Actually 40 ✅
+- AGENTS.md claims 33 skills → Actually 40 ✅
+- Missing test file: `docker_rails_setup_test.rb`
+
+**See `phase0_findings.md` for full analysis and recommendations.**
 
 ---
 
@@ -39,40 +55,45 @@ cat docs/SKILLS_OPTIMIZE_PLAN.md
 
 ## Phase 0 Checklist
 
-### 0.1 Reconcile Inventory
-- [ ] Count actual skill files: `find skills -name "*.md" -type f | wc -l`
-- [ ] Validate SKILLS_REGISTRY.yml lists all files
-- [ ] Check AGENTS.md line 34 (says 33 skills, but we have 40)
-- [ ] Document any discrepancies
+### 0.1 Reconcile Inventory ✅ COMPLETE
+- [x] Count actual skill files: 40 (verified)
+- [x] Validate SKILLS_REGISTRY.yml: **WRONG - says 34, actually 40**
+- [x] Check AGENTS.md: **WRONG - says 33, actually 40**
+- [x] Document discrepancies: See `phase0_findings.md`
 
-### 0.2 Measure Actual Tokens
-- [ ] Install tiktoken: `pip install tiktoken`
-- [ ] Create `bin/count_tokens` script (from plan Appendix C)
-- [ ] Make executable: `chmod +x bin/count_tokens`
-- [ ] Run baseline: `bin/count_tokens > baseline_tokens.txt`
-- [ ] Record actual token count (compare with ~174,605 estimate)
-- [ ] Adjust targets if needed
+### 0.2 Measure Actual Tokens ✅ COMPLETE
+- [x] Install tiktoken: Installed via apt (python3-tiktoken)
+- [x] Create `bin/count_tokens` script
+- [x] Make executable
+- [x] Run baseline: **223,575 tokens** (49% over budget!)
+- [x] Record actual: **28% WORSE than estimate** (was ~174k, actually 223k)
+- [x] Adjust targets: **REQUIRED - need 33% reduction, not 17%**
 
-### 0.3 Review Unit Test Structure
-- [ ] Read `test/skills/unit/turbo_page_refresh_test.rb` (example)
-- [ ] Identify common assertion patterns
-- [ ] Map string-specific vs. pattern-based tests
-- [ ] Create "test update checklist" for pilot
+### 0.3 Review Unit Test Structure ✅ COMPLETE
+- [x] Read example tests (turbo_page_refresh, accessibility_patterns)
+- [x] Identify common assertion patterns (5 standard tests per skill)
+- [x] Found missing test: `docker_rails_setup_test.rb`
+- [x] Analyzed test complexity (most have 5 tests, turbo has 19)
 
-### 0.4 Document Baseline
-- [ ] Commit baseline measurements
-- [ ] Update this status file with findings
+### 0.4 Document Baseline ✅ COMPLETE
+- [x] Create comprehensive findings document: `phase0_findings.md`
+- [x] Update this status file with findings
+- [ ] Commit baseline measurements (ready to commit)
 
 ---
 
 ## Key Numbers
 
-| Metric | Current (Estimate) | Target | Reduction |
-|--------|-------------------|--------|-----------|
-| Total Tokens | ~174,605 | 145,000 | -29,605 (-17%) |
-| Total Lines | 34,921 | 27,600 | -7,321 |
-| Avg per File | 873 lines | 690 lines | -183 |
-| Files | 40 | 40 | 0 |
+⚠️ **CRITICAL UPDATE:** Phase 0 revealed actual token count is 28% worse than estimated!
+
+| Metric | Original Estimate | **Actual (Measured)** | Target | Required Reduction |
+|--------|------------------|---------------------|--------|-------------------|
+| Total Tokens | ~174,605 | **223,575** | 150,000 | **-73,575 (-33%)** ❗ |
+| Avg per File | ~4,365 tokens | **5,589 tokens** | 3,750 | -1,839 (-33%) |
+| Files | 40 | **40** ✅ | 40 | 0 |
+| Budget Status | 17% over | **49% over** | At budget | - |
+
+**Impact:** Original plan assumed 17% reduction. Reality requires **33% reduction** (nearly double!)
 
 ---
 

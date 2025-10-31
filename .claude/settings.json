@@ -1,10 +1,8 @@
 {
   "$schema": "https://claude.ai/schemas/settings.json",
   "description": "rails-ai project settings - shared with all contributors",
-
   "permissions": {
     "allow": [
-      // Git operations (safe read-only and standard workflow)
       "Bash(git:status)",
       "Bash(git:log*)",
       "Bash(git:diff*)",
@@ -12,37 +10,25 @@
       "Bash(git:branch*)",
       "Bash(git:remote*)",
       "Bash(git:ls-files*)",
-
-      // GitHub CLI (safe read operations)
       "Bash(gh:pr list*)",
       "Bash(gh:pr view*)",
       "Bash(gh:issue list*)",
       "Bash(gh:issue view*)",
       "Bash(gh:repo view*)",
-
-      // Ruby/Bundler
       "Bash(bundle:exec*)",
       "Bash(bundle:install)",
       "Bash(bundle:update*)",
       "Bash(ruby:*)",
       "Bash(gem:list*)",
-
-      // Testing (all test commands approved)
       "Bash(rake:test:*)",
       "Bash(rake:*:unit*)",
       "Bash(rake:*:integration*)",
       "Bash(ruby:-Itest test/*)",
-
-      // Linting (all lint commands approved)
       "Bash(rake:lint*)",
       "Bash(rubocop*)",
       "Bash(mdl*)",
-
-      // CI script (our standard checks)
       "Bash(bin/ci)",
       "Bash(bin/setup)",
-
-      // File operations (safe)
       "Bash(cat:*)",
       "Bash(ls:*)",
       "Bash(tree:*)",
@@ -51,57 +37,41 @@
       "Bash(wc:*)",
       "Bash(head:*)",
       "Bash(tail:*)",
-
-      // Utilities
       "Bash(which:*)",
       "Bash(pwd)",
       "Bash(echo:*)",
       "Bash(mkdir:-p*)",
-
-      // Package managers (read-only)
       "Bash(npm:list*)",
       "Bash(yarn:list*)"
     ],
-
     "deny": [
-      // Destructive git operations (require explicit user approval)
       "Bash(git:push --force*)",
       "Bash(git:reset --hard*)",
       "Bash(git:clean -fd*)",
-
-      // System operations
       "Bash(rm:-rf*)",
       "Bash(sudo:*)",
       "Bash(chmod:*)",
       "Bash(chown:*)"
     ],
-
     "ask": [
-      // Git commits and pushes (want user to review)
       "Bash(git:commit*)",
       "Bash(git:push*)",
       "Bash(git:pull*)",
       "Bash(git:checkout*)",
       "Bash(git:merge*)",
       "Bash(git:rebase*)",
-
-      // GitHub operations that make changes
       "Bash(gh:pr create*)",
       "Bash(gh:pr merge*)",
       "Bash(gh:issue create*)",
-
-      // File modifications
       "Bash(rm:*)",
       "Bash(mv:*)",
       "Bash(cp:-r*)"
     ]
   },
-
   "env": {
     "RAILS_ENV": "test",
     "RACK_ENV": "test"
   },
-
   "sandbox": {
     "enabled": true
   }

@@ -273,12 +273,24 @@ Patterns: overly nested (3+ levels), conflicting names
 
 **Pattern:**
 ```
+# Child models and controllers use PLURAL parent namespace
 app/models/feedbacks/response.rb    # module Feedbacks; class Response
 app/controllers/feedbacks/sendings_controller.rb  # module Feedbacks; class SendingsController
-test/controllers/feedbacks/sendings_controller_test.rb  # Test structure mirrors implementation
+
+# Domain-specific concerns use SINGULAR parent namespace
+app/models/user/settings.rb         # module User; module Settings (concern for User)
+app/models/feedback/notifications.rb # module Feedback; module Notifications (concern for Feedback)
+
+# Generic/shared concerns go in concerns/ directory
+app/models/concerns/taggable.rb      # module Taggable (shared across models)
+app/controllers/concerns/api/response_handler.rb  # module Api; module ResponseHandler
+
+# Test structure mirrors implementation
+test/controllers/feedbacks/sendings_controller_test.rb
+test/models/user/settings_test.rb
 ```
 
-**Why:** Clear organization, prevents naming conflicts, maintainable structure.
+**Why:** Clear organization, prevents naming conflicts, maintainable structure. Domain concerns co-locate with their models.
 
 </rule>
 
@@ -771,4 +783,3 @@ end
 - **3.0** (2025-10-30): Governance-focused refactor, removed code examples, added skill links
 - **2.0** (2025-10-29): Added machine-readable metadata, violation triggers
 - **1.0** (2025-10-28): Initial team rules
-

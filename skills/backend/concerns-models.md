@@ -38,16 +38,17 @@ Organize and share model behavior using ActiveSupport::Concern for cleaner, more
 </benefits>
 
 <standards>
-- Use SINGULAR model name for namespacing (Feedback::, not Feedbacks::)
-- Place concerns in `app/models/concerns/model_name/`
+- Use SINGULAR model name for namespacing (User::, not Users::)
+- Place domain-specific child concerns alongside the parent model in `app/models/[model_name]/[concern].rb`
+- Place generic/shared concerns in `app/models/concerns/` or `app/models/concerns/shared/`
 - Use `extend ActiveSupport::Concern` at the top
 - Put associations, validations, callbacks in `included do` block
 - Define instance methods at module level
 - Use `class_methods do` block for class methods
-- Extract to `shared/` directory when used across 3+ models
-- Test concerns independently in `test/models/concerns/`
+- Extract to `concerns/` or `concerns/shared/` when used across 3+ models
+- Test concerns independently in `test/models/concerns/` or `test/models/[model_name]/`
 - Keep concerns focused - one concern per feature/behavior
-- Name concerns clearly after their purpose (Notifications, Taggable, etc.)
+- Name concerns clearly after their purpose (Settings, Notifications, Taggable, etc.)
 </standards>
 
 ## Basic Concern Structure
@@ -57,7 +58,7 @@ Organize and share model behavior using ActiveSupport::Concern for cleaner, more
 
 **Basic Concern:**
 ```ruby
-# app/models/concerns/feedback/notifications.rb
+# app/models/feedback/notifications.rb
 module Feedback::Notifications
   extend ActiveSupport::Concern
 
@@ -153,8 +154,8 @@ Feedback.notification_stats
 
 **Taggable Concern:**
 ```ruby
-# app/models/concerns/shared/taggable.rb
-module Shared::Taggable
+# app/models/concerns/taggable.rb
+module Taggable
   extend ActiveSupport::Concern
 
   included do
@@ -229,15 +230,15 @@ end
 ```ruby
 # Multiple models can be taggable
 class Feedback < ApplicationRecord
-  include Shared::Taggable
+  include Taggable
 end
 
 class Article < ApplicationRecord
-  include Shared::Taggable
+  include Taggable
 end
 
 class Product < ApplicationRecord
-  include Shared::Taggable
+  include Taggable
 end
 
 # Use tagging behavior
@@ -258,8 +259,8 @@ Product.popular_tags(5)
 
 **Soft Deletable Concern:**
 ```ruby
-# app/models/concerns/shared/soft_deletable.rb
-module Shared::SoftDeletable
+# app/models/concerns/soft_deletable.rb
+module SoftDeletable
   extend ActiveSupport::Concern
 
   included do
@@ -337,7 +338,7 @@ end
 **Usage:**
 ```ruby
 class Feedback < ApplicationRecord
-  include Shared::SoftDeletable
+  include SoftDeletable
 end
 
 feedback = Feedback.first
@@ -367,8 +368,8 @@ Feedback.permanently_delete_old_records(90)  # Delete records deleted 90+ days a
 
 **Sluggable Concern:**
 ```ruby
-# app/models/concerns/shared/sluggable.rb
-module Shared::Sluggable
+# app/models/concerns/sluggable.rb
+module Sluggable
   extend ActiveSupport::Concern
 
   included do
@@ -426,7 +427,7 @@ end
 ```ruby
 # app/models/article.rb
 class Article < ApplicationRecord
-  include Shared::Sluggable
+  include Sluggable
 
   validates :title, presence: true
 
@@ -463,8 +464,8 @@ Article.find_by_slug!("how-to-use-rails-concerns")
 
 **Timestampable Concern:**
 ```ruby
-# app/models/concerns/shared/timestampable.rb
-module Shared::Timestampable
+# app/models/concerns/timestampable.rb
+module Timestampable
   extend ActiveSupport::Concern
 
   included do
@@ -549,8 +550,8 @@ end
 
 **Searchable Concern:**
 ```ruby
-# app/models/concerns/shared/searchable.rb
-module Shared::Searchable
+# app/models/concerns/searchable.rb
+module Searchable
   extend ActiveSupport::Concern
 
   class_methods do
@@ -601,7 +602,7 @@ end
 ```ruby
 # app/models/feedback.rb
 class Feedback < ApplicationRecord
-  include Shared::Searchable
+  include Searchable
 
   def self.searchable_columns
     [:content, :sender_name, :sender_email]
@@ -625,7 +626,7 @@ Feedback.search_all(["urgent", "payment"])
 
 **Status Trackable Concern:**
 ```ruby
-# app/models/concerns/feedback/status_trackable.rb
+# app/models/feedback/status_trackable.rb
 module Feedback::StatusTrackable
   extend ActiveSupport::Concern
 
@@ -713,55 +714,60 @@ end
 ## Namespacing Guidelines
 
 <pattern name="namespacing-strategy">
-<description>When to use model namespace vs shared namespace</description>
+<description>When to use domain-specific child concerns vs shared concerns</description>
 
-**Model-Specific Concerns (Use Model Namespace):**
+**Domain-Specific Child Concerns (Alongside Parent Model):**
 ```ruby
-# app/models/concerns/feedback/
+# app/models/feedback/
 # ├── notifications.rb      # Feedback-specific notification logic
 # ├── status_trackable.rb   # Feedback status management
 # └── ai_improvements.rb    # Feedback AI enhancement
 
-# app/models/concerns/user/
+# app/models/user/
 # ├── authenticatable.rb    # User authentication
 # ├── profile_completable.rb
-# └── preferences.rb
+# └── settings.rb           # User-specific settings
 
 # Rule: Use ModelName:: namespace when concern is specific to ONE model
+# Place alongside the parent model in app/models/[model_name]/
 # This is different from child models which use PLURAL (Feedbacks::Response)
 # Concerns use SINGULAR because they augment the parent model
 ```
 
-**Shared Concerns (Use Shared Namespace):**
+**Shared/Generic Concerns (In concerns/ directory):**
 ```ruby
-# app/models/concerns/shared/
+# app/models/concerns/
 # ├── taggable.rb           # Used by Feedback, Article, Product
 # ├── soft_deletable.rb     # Used by Feedback, Comment, Attachment
 # ├── sluggable.rb          # Used by Article, Category, Tag
 # ├── searchable.rb         # Used by multiple models
 # └── timestampable.rb      # Generic timestamp tracking
 
-# Rule: Move to shared/ when concern is used by 3+ models
-# Or when designed to be reusable from the start
+# Rule: Place in concerns/ when concern is used by 3+ models
+# Or when designed to be globally reusable from the start
+# Use simple module names (Taggable, not Shared::Taggable)
 ```
 
 **File Organization:**
 ```
-app/models/concerns/
+app/models/
+├── feedback.rb
 ├── feedback/
-│   ├── notifications.rb
-│   ├── status_trackable.rb
-│   └── ai_improvements.rb
+│   ├── notifications.rb      # module Feedback::Notifications
+│   ├── status_trackable.rb   # module Feedback::StatusTrackable
+│   └── ai_improvements.rb    # module Feedback::AiImprovements
+├── user.rb
 ├── user/
-│   ├── authenticatable.rb
-│   └── profile_completable.rb
-├── shared/
-│   ├── taggable.rb
-│   ├── soft_deletable.rb
-│   ├── sluggable.rb
-│   ├── searchable.rb
-│   └── timestampable.rb
-└── README.md  # Document concerns and their purpose
+│   ├── authenticatable.rb    # module User::Authenticatable
+│   ├── profile_completable.rb # module User::ProfileCompletable
+│   └── settings.rb           # module User::Settings
+├── concerns/
+│   ├── taggable.rb           # module Taggable
+│   ├── soft_deletable.rb     # module SoftDeletable
+│   ├── sluggable.rb          # module Sluggable
+│   ├── searchable.rb         # module Searchable
+│   └── timestampable.rb      # module Timestampable
+└── README.md
 ```
 </pattern>
 
@@ -772,8 +778,8 @@ app/models/concerns/
 
 **Configurable Concern:**
 ```ruby
-# app/models/concerns/shared/notifiable.rb
-module Shared::Notifiable
+# app/models/concerns/notifiable.rb
+module Notifiable
   extend ActiveSupport::Concern
 
   included do
@@ -816,7 +822,7 @@ end
 **Usage with Configuration:**
 ```ruby
 class Feedback < ApplicationRecord
-  include Shared::Notifiable
+  include Notifiable
 
   # Configure the concern for this model
   self.notification_email_method = :recipient_email
@@ -825,7 +831,7 @@ class Feedback < ApplicationRecord
 end
 
 class Comment < ApplicationRecord
-  include Shared::Notifiable
+  include Notifiable
 
   # Different configuration for comments
   self.notification_email_method = :author_email
@@ -881,7 +887,7 @@ module Feedback::StatusTrackable
   # Only status tracking code
 end
 
-module Shared::Taggable
+module Taggable
   extend ActiveSupport::Concern
   # Only tagging code
 end
@@ -890,8 +896,8 @@ end
 class Feedback < ApplicationRecord
   include Feedback::Notifications
   include Feedback::StatusTrackable
-  include Shared::Taggable
-  include Shared::SoftDeletable
+  include Taggable
+  include SoftDeletable
 end
 ```
 </good-example>
@@ -1119,7 +1125,7 @@ end
 Test concerns independently and in context:
 
 ```ruby
-# test/models/concerns/feedback/notifications_test.rb
+# test/models/feedback/notifications_test.rb
 class Feedback::NotificationsTest < ActiveSupport::TestCase
   # Test concern in isolation
   class NotifiableTestModel < ApplicationRecord
@@ -1187,11 +1193,11 @@ class Feedback::NotificationsTest < ActiveSupport::TestCase
   end
 end
 
-# test/models/concerns/shared/taggable_test.rb
-class Shared::TaggableTest < ActiveSupport::TestCase
+# test/models/concerns/taggable_test.rb
+class TaggableTest < ActiveSupport::TestCase
   class TaggableTestModel < ApplicationRecord
     self.table_name = "feedbacks"
-    include Shared::Taggable
+    include Taggable
   end
 
   setup do
@@ -1253,11 +1259,11 @@ class Shared::TaggableTest < ActiveSupport::TestCase
   end
 end
 
-# test/models/concerns/shared/soft_deletable_test.rb
-class Shared::SoftDeletableTest < ActiveSupport::TestCase
+# test/models/concerns/soft_deletable_test.rb
+class SoftDeletableTest < ActiveSupport::TestCase
   class SoftDeletableTestModel < ApplicationRecord
     self.table_name = "feedbacks"
-    include Shared::SoftDeletable
+    include SoftDeletable
   end
 
   setup do

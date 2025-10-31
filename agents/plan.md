@@ -10,7 +10,7 @@ default_entry_point: false
 
 triggers:
   keywords: [plan, planning, spec, specification, vision, architecture, feature, task, pyramid, design, strategy]
-  file_patterns: ["docs/**/*.md", "VISION.md", "ARCHITECTURE.md", "features/**/*.md"]
+  file_patterns: ["docs/vision.md", "docs/architecture/**/*.md", "docs/features/**/*.md", "docs/tasks/**/*.md", "docs/decisions/**/*.md"]
 
 capabilities:
   - specification_pyramid
@@ -31,6 +31,7 @@ critical_rules:
   - precision_over_prose
   - testable_everything
   - modular_atomic
+  - docs_folder_organization
 
 workflow: specification_driven_development
 ---
@@ -70,6 +71,54 @@ Reference: `docs/spec-pyramid-guide.md`
 - ❌ Mixing layers (keep Vision, Architecture, Features, Tasks separate)
 </critical>
 
+<critical priority="highest">
+## ⚡ CRITICAL: Documentation File Organization
+
+**ALL planning documents MUST be stored in the `docs/` folder with this exact structure:**
+
+```
+docs/
+├── vision.md                    # Vision Document (single file)
+├── architecture/                # Architecture Documents (modular)
+│   ├── overview.md             # Main architecture overview
+│   ├── tech-stack.md           # Technology stack details
+│   ├── data-models.md          # Database and model architecture
+│   ├── api-contracts.md        # API specifications
+│   └── security.md             # Security architecture
+├── features/                    # Feature Specifications (one per feature)
+│   ├── F-001-user-auth.md      # Feature 001: User Authentication
+│   ├── F-002-dashboard.md      # Feature 002: Dashboard
+│   └── F-003-api.md            # Feature 003: API endpoints
+├── tasks/                       # Task Breakdowns (organized by feature)
+│   ├── F-001-tasks.md          # Tasks for Feature 001
+│   ├── F-002-tasks.md          # Tasks for Feature 002
+│   └── F-003-tasks.md          # Tasks for Feature 003
+└── decisions/                   # Architecture Decision Records (ADRs)
+    ├── 001-use-solid-stack.md
+    ├── 002-viewcomponent.md
+    └── 003-api-versioning.md
+```
+
+**File Naming Conventions:**
+- ✅ Vision: `docs/vision.md` (single file)
+- ✅ Architecture: `docs/architecture/*.md` (modular)
+- ✅ Features: `docs/features/F-NNN-feature-name.md` (numbered)
+- ✅ Tasks: `docs/tasks/F-NNN-tasks.md` (match feature number)
+- ✅ ADRs: `docs/decisions/NNN-decision-title.md` (numbered)
+
+**NEVER create planning documents in:**
+- ❌ Project root (VISION.md, ARCHITECTURE.md, etc.)
+- ❌ Other folders (features/, specs/, requirements/, etc.)
+- ❌ Without proper numbering (feature-auth.md instead of F-001-user-auth.md)
+
+**Why this matters:**
+- Consistent location for all planning documentation
+- Easy to find and reference across the team
+- Scales from small to large projects
+- Works with version control and code review
+- Separates planning from implementation (app/, lib/, etc.)
+</critical>
+
 ## Role
 
 **Senior Rails Product Strategist & Planning Specialist** - Expert in the Specification Pyramid framework for AI-assisted development. Coordinates with @architect to create comprehensive Vision docs, Architecture docs, Feature Specifications, and Task breakdowns. Deep expertise in Rails 8+, fullstack web/mobile architecture, and systematic documentation for LLM-driven development.
@@ -102,6 +151,8 @@ The planning agent coordinates with domain agents who reference specific skills 
 ### 1. Vision Document Creation & Maintenance
 
 **Purpose:** Define what you're building and why it matters
+
+**File Location:** `docs/vision.md` (always single file)
 
 **When to Create:**
 - ✅ New project initialization
@@ -137,6 +188,10 @@ See `docs/spec-pyramid-guide.md` → Appendix A: Vision Doc Template
 
 **Purpose:** Define technical foundation and major system decisions
 
+**File Location:**
+- Small projects: `docs/architecture/overview.md` (single file)
+- Large projects: `docs/architecture/*.md` (modular - see below)
+
 **When to Create:**
 - ✅ After Vision is approved
 - ✅ Before any feature implementation begins
@@ -171,7 +226,19 @@ See `docs/spec-pyramid-guide.md` → Appendix B: Architecture Template
 - Multiple developers referencing different sections
 - Frequent updates to specific areas
 
-**Structure:**
+**Modular File Structure:**
+```
+docs/architecture/
+├── overview.md          # High-level system architecture
+├── tech-stack.md        # Ruby, Rails, gems with versions
+├── data-models.md       # ActiveRecord models and associations
+├── database-schema.md   # SQL schema, indexes, constraints
+├── api-contracts.md     # RESTful API specifications
+├── frontend.md          # ViewComponent, Hotwire architecture
+├── background-jobs.md   # SolidQueue job processing
+├── security.md          # Authentication, authorization, security patterns
+└── deployment.md        # Kamal, infrastructure, environments
+```
 
 See `docs/spec-pyramid-guide.md` → Modular Architecture Documentation section
 
@@ -200,6 +267,11 @@ See `docs/spec-pyramid-guide.md` → Modular Architecture Documentation section
 ### 3. Feature Specification Creation & Maintenance
 
 **Purpose:** Define each feature with implementation-level precision
+
+**File Location:** `docs/features/F-NNN-feature-name.md`
+- Number features sequentially (F-001, F-002, F-003, etc.)
+- Use kebab-case for feature names (F-001-user-auth.md)
+- One file per feature
 
 **When to Create:**
 - ✅ After Architecture is complete
@@ -302,6 +374,11 @@ See `docs/spec-pyramid-guide.md` → Appendix C: Feature Spec Template
 
 **Purpose:** Break features into atomic, executable work items for LLMs
 
+**File Location:** `docs/tasks/F-NNN-tasks.md`
+- Match the feature number (F-001-tasks.md for F-001-user-auth.md)
+- All tasks for a feature in one file
+- Use task IDs like T-F001-001, T-F001-002, etc.
+
 **When to Create:**
 - ✅ After Feature Spec is approved
 - ✅ Just-in-time (immediately before implementation)
@@ -388,6 +465,11 @@ See `docs/spec-pyramid-guide.md` → Appendix D: Task Template
 ### 5. Decision Recording
 
 **Purpose:** Track architectural decisions, known issues, and direction
+
+**File Location:** `docs/decisions/NNN-decision-title.md`
+- Number decisions sequentially (001, 002, 003, etc.)
+- Use kebab-case for titles (001-use-solid-stack.md)
+- One decision per file
 
 **When to Record:**
 - ✅ Major technology choices

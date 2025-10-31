@@ -41,8 +41,9 @@ Organize Rails routes and controllers using nested resource patterns with proper
 </benefits>
 
 <standards>
-- Use PLURAL parent directory for both controllers and models (feedbacks/, not feedback/)
-- Always use module namespacing (`module Feedbacks; class ResponsesController`)
+- Use PLURAL parent directory for child controllers (feedbacks/, not feedback/) - e.g., Feedbacks::ResponsesController
+- Use SINGULAR parent directory for domain controllers (user/, not users/) - e.g., Users::SettingsController
+- Always use module namespacing (`module Feedbacks; class ResponsesController` or `module Users; class SettingsController`)
 - Use `module:` parameter in routes for automatic namespace mapping
 - Limit nesting to 1 level deep (use shallow nesting for deeper hierarchies)
 - Scope child resources through parent associations in controllers
@@ -50,6 +51,29 @@ Organize Rails routes and controllers using nested resource patterns with proper
 - Prefer `resource` (singular) for single child actions like archival, publishing
 - Use `resources` (plural) for full CRUD child resources
 </standards>
+
+## Controller Naming Patterns
+
+### Child Controllers (PLURAL namespace)
+Use for resources that belong to a parent resource:
+- `Feedbacks::ResponsesController` - responses belong to feedbacks
+- `Orders::LineItemsController` - line items belong to orders
+- `Projects::TasksController` - tasks belong to projects
+
+### Domain Controllers (SINGULAR namespace)
+Use for managing aspects/settings of the parent entity itself:
+- `Users::SettingsController` - manage user settings (not a separate "settings" entity)
+- `Users::ProfilesController` - manage user profile (singular aspect of user)
+- `Accounts::BillingController` - manage account billing (singular aspect)
+
+**Decision Guide:**
+- **Child Controller (PLURAL)**: If the resource can have multiple instances per parent → use plural
+  - User has many Posts → `Users::PostsController`
+  - Feedback has many Responses → `Feedbacks::ResponsesController`
+
+- **Domain Controller (SINGULAR)**: If managing a singular aspect of the parent → use singular
+  - User has one Setting → `Users::SettingsController`
+  - User has one Profile → `Users::ProfilesController`
 
 ## Patterns
 
@@ -164,6 +188,178 @@ end
 <%= button_to "Retry AI", feedback_retry_path(@feedback), method: :post %>
 <%= link_to "View Responses", feedback_responses_path(@feedback) %>
 <%= link_to "Manage Attachments", feedback_attachments_path(@feedback) %>
+```
+</pattern>
+
+<pattern name="domain-specific-controllers">
+<description>Controllers for managing singular aspects of a parent entity using singular namespace</description>
+
+**When to Use:**
+- Managing settings, profiles, or preferences for a parent entity
+- The parent has_one relationship (not has_many)
+- Controller manages an aspect of the parent, not a separate collection
+- Avoid flat naming like UsersSettingsController or UserSettingsController
+
+**Routes:**
+```ruby
+# config/routes.rb
+Rails.application.routes.draw do
+  # Domain-specific controllers use singular parent path
+  scope :users do
+    resource :settings, only: [:show, :edit, :update], controller: "users/settings"
+    resource :profile, only: [:show, :edit, :update], controller: "users/profile"
+    resource :preferences, only: [:show, :update], controller: "users/preferences"
+  end
+
+  # Or namespace approach (cleaner for multiple domain controllers)
+  namespace :users do
+    resource :settings, only: [:show, :edit, :update]
+    resource :profile, only: [:show, :edit, :update]
+    resource :preferences, only: [:show, :update]
+  end
+end
+
+# Generated routes:
+# GET    /users/settings           users/settings#show
+# GET    /users/settings/edit      users/settings#edit
+# PATCH  /users/settings           users/settings#update
+# GET    /users/profile            users/profile#show
+# GET    /users/profile/edit       users/profile#edit
+# PATCH  /users/profile            users/profile#update
+```
+
+**Domain Controller:**
+```ruby
+# app/controllers/users/settings_controller.rb
+module Users
+  class SettingsController < ApplicationController
+    before_action :authenticate_user!
+    before_action :set_setting
+
+    # GET /users/settings
+    def show
+      # @setting set by before_action
+    end
+
+    # GET /users/settings/edit
+    def edit
+      # @setting set by before_action
+    end
+
+    # PATCH /users/settings
+    def update
+      if @setting.update(setting_params)
+        redirect_to users_settings_path, notice: "Settings updated successfully"
+      else
+        render :edit, status: :unprocessable_entity
+      end
+    end
+
+    private
+
+    def set_setting
+      @setting = current_user.setting || current_user.build_setting
+    end
+
+    def setting_params
+      params.require(:user_setting).permit(:theme, :notifications_enabled, :language)
+    end
+  end
+end
+```
+
+**Associated Model:**
+```ruby
+# app/models/user/setting.rb
+module User
+  class Setting < ApplicationRecord
+    belongs_to :user
+
+    validates :theme, inclusion: { in: %w[light dark auto] }
+    validates :notifications_enabled, inclusion: { in: [true, false] }
+    validates :language, inclusion: { in: I18n.available_locales.map(&:to_s) }
+  end
+end
+
+# app/models/user.rb
+class User < ApplicationRecord
+  has_one :setting, class_name: "User::Setting", dependent: :destroy
+
+  after_create :create_default_setting
+
+  private
+
+  def create_default_setting
+    create_setting(theme: "light", notifications_enabled: true, language: "en")
+  end
+end
+```
+
+**File Organization:**
+```
+app/
+├── controllers/
+│   └── users/
+│       ├── settings_controller.rb    # module Users; class SettingsController
+│       ├── profile_controller.rb     # module Users; class ProfileController
+│       └── preferences_controller.rb # module Users; class PreferencesController
+├── models/
+│   ├── user.rb
+│   └── user/
+│       ├── setting.rb                # module User; class Setting
+│       ├── profile.rb                # module User; class Profile
+│       └── preference.rb             # module User; class Preference
+└── views/
+    └── users/
+        ├── settings/
+        │   ├── show.html.erb
+        │   └── edit.html.erb
+        └── profile/
+            ├── show.html.erb
+            └── edit.html.erb
+```
+
+**View Helpers:**
+```ruby
+# In views
+<%= link_to "Settings", users_settings_path %>
+<%= link_to "Edit Profile", edit_users_profile_path %>
+
+# Forms
+<%= form_with model: @setting, url: users_settings_path, method: :patch do |f| %>
+  <%= f.select :theme, %w[light dark auto] %>
+  <%= f.check_box :notifications_enabled %>
+  <%= f.submit "Save Settings" %>
+<% end %>
+```
+
+**Good Examples:**
+```ruby
+# ✅ GOOD - Domain controllers with singular namespace
+Users::SettingsController      # app/controllers/users/settings_controller.rb
+Users::ProfileController        # app/controllers/users/profile_controller.rb
+Accounts::BillingController     # app/controllers/accounts/billing_controller.rb
+Companies::ConfigurationController
+
+# ❌ BAD - Flat naming obscures relationship
+UserSettingsController          # Flat, unclear namespace
+UsersSettingsController         # Wrong plural on parent
+SettingsController              # Too generic, namespace missing
+```
+
+**Comparison with Child Controllers:**
+```ruby
+# Domain Controller (SINGULAR parent) - manages aspect of parent
+# User has_one Setting
+Users::SettingsController       # Manages THE user's settings
+route: /users/settings          # Singular path
+model: User::Setting            # Singular namespace
+
+# Child Controller (PLURAL parent) - manages collection
+# User has_many Posts
+Users::PostsController          # Manages user's posts collection
+route: /users/:user_id/posts    # Plural path with parent ID
+model: Users::Post              # Plural namespace
 ```
 </pattern>
 

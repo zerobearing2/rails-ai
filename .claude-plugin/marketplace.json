@@ -8,7 +8,7 @@
     {
       "name": "rails-ai",
       "description": "Intelligent Rails development agents with skill-based architecture, team rules, and TDD enforcement for Rails 8 development. Requires Context7 API key for up-to-date Rails documentation.",
-      "version": "0.1.3",
+      "version": "0.1.4",
       "author": {
         "name": "zerobearing2",
         "url": "https://github.com/zerobearing2"

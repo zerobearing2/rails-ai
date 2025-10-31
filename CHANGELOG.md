@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.4] - 2025-10-31
+
+Based on the commits, here's the CHANGELOG entry:
+
+### Changed
+- Optimized agent skills reducing token usage by 38.5% (85,986 tokens saved)
+- Enhanced release script with automated linting enforcement
+
+
 ## [0.1.3] - 2025-10-31
 
 ### Added

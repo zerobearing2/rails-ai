@@ -218,10 +218,17 @@ API Error: 400 tools: Tool names must be unique
 
 **Workarounds**:
 
-1. **Downgrade to v2.0.28** (recommended):
+1. **Downgrade to v2.0.28 or v2.0.29 and disable auto-update** (recommended):
    ```bash
-   npm install -g @anthropic-ai/claude-code@2.0.28
+   # Downgrade to working version
+   npm install -g @anthropic-ai/claude-code@2.0.29
+
+   # Prevent auto-update to v2.0.30
+   echo 'export DISABLE_AUTOUPDATER=1' >> ~/.bashrc
+   export DISABLE_AUTOUPDATER=1
    ```
+
+   This keeps Claude Code on the working version and prevents it from auto-updating back to v2.0.30.
 
 2. **Temporarily disable MCP servers**: Comment out MCP configurations in `.claude.json` before using agents
 

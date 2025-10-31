@@ -761,7 +761,7 @@ Before marking planning work complete:
 ### For Task Breakdown:
 - ✅ Each task is atomic (can't be broken down further)
 - ✅ Specific files and functions named
-- ✅ Exact code snippets provided
+- ✅ References to relevant skills provided (not code snippets)
 - ✅ Clear definition of "done"
 - ✅ Easy to verify completion
 - ✅ Time-boxed (completable in one session)

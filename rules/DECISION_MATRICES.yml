@@ -108,9 +108,9 @@ architect_delegation:
         delegates_to: "tests"
         task: "Debug and fix CI failures"
 
-      - request: "Add system tests for feedback flow"
+      - request: "Add integration tests for feedback flow"
         delegates_to: "tests"
-        task: "Write comprehensive system tests for user flow"
+        task: "Write comprehensive integration tests for user flow"
 
   # Debugging tasks
   debug_task:

@@ -98,7 +98,10 @@ fi
 
 # Markdown linting
 print_info "Linting Markdown files..."
-if bundle exec mdl skills/ *.md --style .mdl_style.rb; then
+# Find all markdown files excluding docs/maintenance/ archive
+MD_FILES=$(find skills rules docs -name "*.md" -not -path "docs/maintenance/*" 2>/dev/null || true)
+MD_FILES="$MD_FILES *.md"
+if bundle exec mdl $MD_FILES --style .mdl_style.rb; then
   print_success "Markdown linting passed"
 else
   print_error "Markdown linting failed"

@@ -66,6 +66,16 @@ if [ "$DRY_RUN" = false ]; then
   fi
 fi
 
+# Check if Claude CLI is available
+CLAUDE_CLI_AVAILABLE=false
+if command -v claude &> /dev/null; then
+  CLAUDE_CLI_AVAILABLE=true
+  print_info "Claude CLI detected - will use AI for release note summarization"
+else
+  print_warning "Claude CLI not found - will use manual release notes"
+  print_info "Install Claude CLI for AI-powered summaries: npm install -g @anthropics/claude-cli"
+fi
+
 # Welcome message
 echo ""
 echo -e "${BLUE}╔═══════════════════════════════════════════╗${NC}"
@@ -183,43 +193,85 @@ esac
 
 print_info "New version will be: $NEW_VERSION"
 
-# Generate release notes using bin/changelog
+# Get commits since last version
 print_section "📋 Generating Release Notes"
+print_info "Analyzing commits since $LAST_TAG..."
 
-# In dry-run mode, pass --non-interactive flag to bin/changelog
-if [ "$DRY_RUN" = true ]; then
-  print_info "Running bin/changelog in non-interactive mode..."
-  if ./bin/changelog --non-interactive; then
-    # Read the generated changelog entry from temp file
-    CHANGELOG_TEMP_FILE="${TMPDIR:-/tmp}/rails-ai-changelog-entry.txt"
-    if [ -f "$CHANGELOG_TEMP_FILE" ]; then
-      RELEASE_NOTES=$(cat "$CHANGELOG_TEMP_FILE")
-      print_success "Release notes generated successfully"
-    else
-      print_error "bin/changelog did not produce output file"
-      exit 1
-    fi
+# Get commit log with formatting
+COMMIT_LOG=$(git log $LAST_TAG..HEAD --pretty=format:"- %s" --no-merges)
+
+if [ -z "$COMMIT_LOG" ]; then
+  print_warning "No commits found since last version"
+  COMMIT_LOG="- No changes"
+fi
+
+echo ""
+echo "Commits since last version:"
+echo "$COMMIT_LOG"
+echo ""
+
+# Generate release notes
+if [ "$CLAUDE_CLI_AVAILABLE" = true ]; then
+  print_info "Using Claude CLI to generate release notes summary..."
+
+  # Create prompt for Claude
+  CLAUDE_PROMPT="Analyze these git commits and generate a concise CHANGELOG entry in Keep a Changelog format.
+
+Commits:
+$COMMIT_LOG
+
+Instructions:
+- Use categories: Added, Changed, Fixed, Removed, Security, Deprecated
+- Be concise but informative
+- Focus on user-facing changes
+- Omit internal refactors unless significant
+- Use bullet points
+- No intro/outro text, just the categorized bullets
+- Only include categories that have changes
+
+Example format:
+### Added
+- New feature X for Y
+
+### Fixed
+- Bug in Z component"
+
+  # Call Claude CLI and capture output
+  RELEASE_NOTES=$(echo "$CLAUDE_PROMPT" | claude --print 2>/dev/null || echo "")
+
+  if [ -z "$RELEASE_NOTES" ]; then
+    print_warning "Claude CLI failed to generate notes, falling back to manual"
+    CLAUDE_CLI_AVAILABLE=false
   else
-    print_error "bin/changelog failed"
-    exit 1
-  fi
-else
-  print_info "Running bin/changelog to generate release notes..."
-  # Run bin/changelog which will handle all the logic
-  if ./bin/changelog; then
-    # Read the generated changelog entry from temp file
-    CHANGELOG_TEMP_FILE="${TMPDIR:-/tmp}/rails-ai-changelog-entry.txt"
-    if [ -f "$CHANGELOG_TEMP_FILE" ]; then
-      RELEASE_NOTES=$(cat "$CHANGELOG_TEMP_FILE")
-      print_success "Release notes generated successfully"
-    else
-      print_error "bin/changelog did not produce output file"
-      exit 1
+    print_success "Generated release notes with Claude CLI"
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "$RELEASE_NOTES"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+
+    read -p "Use these release notes? (y/n/e to edit) " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Ee]$ ]]; then
+      print_info "Opening editor for release notes..."
+      TEMP_FILE=$(mktemp)
+      echo "$RELEASE_NOTES" > "$TEMP_FILE"
+      ${EDITOR:-vim} "$TEMP_FILE"
+      RELEASE_NOTES=$(cat "$TEMP_FILE")
+      rm "$TEMP_FILE"
+    elif [[ ! $REPLY =~ ^[Yy]$ ]]; then
+      CLAUDE_CLI_AVAILABLE=false
     fi
-  else
-    print_error "bin/changelog failed"
-    exit 1
   fi
+fi
+
+# Manual release notes if Claude not available or user declined
+if [ "$CLAUDE_CLI_AVAILABLE" = false ]; then
+  print_info "Enter release notes manually (or press Ctrl+C to cancel)"
+  echo "Use Keep a Changelog format (Added, Changed, Fixed, etc.)"
+  echo "Press Ctrl+D when done"
+  echo ""
+  RELEASE_NOTES=$(cat)
 fi
 
 if [ -z "$RELEASE_NOTES" ]; then
@@ -240,14 +292,25 @@ echo ""
 if [ "$DRY_RUN" = true ]; then
   print_warning "DRY RUN MODE - No changes made"
   echo ""
-  print_info "What would happen:"
-  echo "  1. Update CHANGELOG.md with version $NEW_VERSION"
-  echo "  2. Update .claude-plugin/marketplace.json version to $NEW_VERSION"
-  echo "  3. Commit changelog and plugin version with release notes"
-  echo "  4. Create git tag v$NEW_VERSION"
-  echo "  5. Push to origin/$CURRENT_BRANCH"
-  echo "  6. Push tag v$NEW_VERSION"
-  echo "  7. Create GitHub release"
+  print_info "Git commands that would be executed:"
+  echo ""
+  echo "  # Update CHANGELOG.md (insert after ## [Unreleased])"
+  echo "  awk -v version=\"$NEW_VERSION\" -v date=\"$TODAY\" -v notes=\"\$RELEASE_NOTES\" ..."
+  echo ""
+  echo "  # Update plugin version"
+  echo "  sed -i 's/\"version\": \"[0-9]*\.[0-9]*\.[0-9]*\"/\"version\": \"$NEW_VERSION\"/' .claude-plugin/marketplace.json"
+  echo ""
+  echo "  # Commit changes"
+  echo "  git add CHANGELOG.md .claude-plugin/marketplace.json"
+  echo "  git commit -m \"Release $NEW_VERSION\""
+  echo ""
+  echo "  # Create and push tag"
+  echo "  git tag -a \"v$NEW_VERSION\" -m \"Release v$NEW_VERSION\""
+  echo "  git push origin $CURRENT_BRANCH"
+  echo "  git push origin \"v$NEW_VERSION\""
+  echo ""
+  echo "  # Create GitHub release"
+  echo "  gh release create \"v$NEW_VERSION\" --title \"v$NEW_VERSION\" --notes \"\$RELEASE_NOTES\" --latest"
   echo ""
   print_success "Dry run complete. Run without --dry-run to execute."
   exit 0

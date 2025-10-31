@@ -1,10 +1,10 @@
 # rails-ai 🚂🤖
 
-**Opinionated Rails-only AI agent system**
+## Opinionated Rails-only AI agent system
 
 ## 🎭 The Meta Moment
 
-**100% written by AI, for AI**
+### 100% written by AI, for AI
 
 Yes, you read that right. This entire agent system—the coordinator, the specialized agents, the 33 modular skills, the test framework, even this README—was architected, implemented, and refined by Claude. An AI building AI tools to help AI build better Rails apps.
 
@@ -31,7 +31,7 @@ Think of it this way: an AI wrote a rulebook for other AIs, teaching them how to
 - Your CI pipeline becoming sentient and demanding PRs in draft mode
 - An overwhelming urge to delete code and embrace simplicity
 
-## What is rails-ai?
+## What is rails-ai
 
 A **Claude Code plugin** providing 6 specialized AI agents for opinionated Ruby on Rails development. Agents work together following Rails conventions and 37signals-inspired best practices.
 

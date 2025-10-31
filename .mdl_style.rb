@@ -44,3 +44,7 @@ exclude_rule "MD029"
 # Don't enforce code block style (fenced vs indented)
 # Can cause false positives with complex nested structures
 exclude_rule "MD046"
+
+# Allow nested list items with 2-space indentation
+# MD007 expects 4 spaces but standard Markdown allows 2
+exclude_rule "MD007"

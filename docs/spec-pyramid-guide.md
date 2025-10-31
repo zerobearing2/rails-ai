@@ -87,7 +87,7 @@ When developers try to use PRDs with AI coding tools like Claude Code, Cursor, o
 
 ---
 
-## What is the Specification Pyramid?
+## What is the Specification Pyramid
 
 The Specification Pyramid is a four-layer documentation framework that inverts traditional software specification. Instead of broad strokes that developers fill in, it provides increasing precision at each layer, ending with exact implementation instructions.
 

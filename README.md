@@ -88,30 +88,11 @@ cd rails-ai
 
 # Install locally for development
 # In Claude Code:
-/plugin marketplace add /home/dave/Projects/rails-ai
+/plugin marketplace add /home/zerobearing2/Projects/rails-ai
 /plugin install rails-ai
 ```
 
 Changes to agent files will be available after restarting Claude Code (hot-reload testing in progress).
-
-### Manual Installation (Alternative)
-
-If you prefer not to use the plugin system:
-
-```bash
-# Clone repo
-cd ~/Projects/rails-ai
-
-# For Claude Code:
-ln -s $(pwd)/agents ~/.claude/agents
-ln -s $(pwd)/rules ~/.claude/rules
-
-# For Cursor:
-ln -s $(pwd)/agents ~/.cursor/agents
-ln -s $(pwd)/rules ~/.cursor/rules
-```
-
-This will symlink the agents and rules so they're available in all your Rails projects.
 
 ## Usage
 
@@ -203,6 +184,7 @@ See [docs/github-actions-setup.md](docs/github-actions-setup.md) for setup instr
 - [Skill Testing Methodology](docs/skill-testing-methodology.md) - Two-tier testing approach
 - [Development Setup](docs/development-setup.md) - Detailed setup instructions
 - [GitHub Actions Setup](docs/github-actions-setup.md) - CI/CD configuration
+- [Release Process](docs/releasing.md) - How to create releases
 - [Agents System](AGENTS.md) - Agent roles and skill management
 
 ## Roadmap

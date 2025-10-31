@@ -1,7 +1,7 @@
 {
   "name": "rails-ai-marketplace",
   "owner": {
-    "name": "Dave",
+    "name": "zerobearing2",
     "url": "https://github.com/zerobearing2"
   },
   "plugins": [
@@ -10,7 +10,7 @@
       "description": "Intelligent Rails development agents with skill-based architecture, team rules, and TDD enforcement for Rails 8 development",
       "version": "0.1.1",
       "author": {
-        "name": "Dave B",
+        "name": "zerobearing2",
         "url": "https://github.com/zerobearing2"
       },
       "source": "./",

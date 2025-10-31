@@ -734,7 +734,7 @@ git status
 - `feature/F-XXX-description` - Features
 - `fix/description` - Bug fixes
 - `chore/description` - Maintenance
-- `dave/description` - Personal feature branches
+- `zerobearing2/description` - Personal feature branches
 
 ## Pull Request Workflow
 

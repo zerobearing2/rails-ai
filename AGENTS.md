@@ -23,8 +23,9 @@ The Rails AI project uses a **skills-based architecture** where specialized agen
 
 ```text
 rails-ai/
-├── agents/                     # 6 specialized agents (loaded by Claude Code plugin)
+├── agents/                     # 7 specialized agents (loaded by Claude Code plugin)
 │   ├── architect.md            # Coordinator (main entry point)
+│   ├── plan.md                 # Planning (Specification Pyramid framework)
 │   ├── backend.md              # Backend API + business logic
 │   ├── frontend.md             # Frontend UI + Hotwire/Tailwind
 │   ├── tests.md                # Test writing (TDD with Minitest)
@@ -175,7 +176,31 @@ Each agent has a **specialized role** and loads a **preset** of skills automatic
 
 ---
 
-### 2. Backend Agent (`agents/backend.md`)
+### 2. Planning Agent (`agents/plan.md`)
+
+**Role:** Senior Rails product strategist specialized in Specification Pyramid framework. Creates and maintains Vision, Architecture, Features, and Tasks documentation.
+
+**Access:** `@agent-rails-ai:plan`
+
+**Capabilities:**
+- Specification Pyramid documentation (Vision → Architecture → Features → Tasks)
+- Rails 8+ fullstack architecture planning
+- Web and mobile application design
+- Decision recording (ADRs)
+- Documentation maintenance
+- Progressive refinement from strategic to tactical
+
+**When to use:**
+- New project planning (Vision + Architecture docs)
+- Feature specification creation
+- Task breakdown for implementation
+- Architecture decision documentation
+- Updating specs as features are completed
+- Recording known issues and technical direction
+
+---
+
+### 3. Backend Agent (`agents/backend.md`)
 
 **Role:** Backend API development, data modeling, business logic, and configuration.
 
@@ -197,7 +222,7 @@ Each agent has a **specialized role** and loads a **preset** of skills automatic
 
 ---
 
-### 3. Frontend Agent (`agents/frontend.md`)
+### 4. Frontend Agent (`agents/frontend.md`)
 
 **Role:** Frontend development, UI/UX, Hotwire, and styling with Tailwind/DaisyUI.
 
@@ -217,7 +242,7 @@ Each agent has a **specialized role** and loads a **preset** of skills automatic
 
 ---
 
-### 4. Tests Agent (`agents/tests.md`)
+### 5. Tests Agent (`agents/tests.md`)
 
 **Role:** Test writing, TDD, coverage improvement, and test refactoring (Minitest only).
 
@@ -236,7 +261,7 @@ Each agent has a **specialized role** and loads a **preset** of skills automatic
 
 ---
 
-### 5. Security Agent (`agents/security.md`)
+### 6. Security Agent (`agents/security.md`)
 
 **Role:** Security auditing, vulnerability detection, and security fixes.
 
@@ -257,7 +282,7 @@ Each agent has a **specialized role** and loads a **preset** of skills automatic
 
 ---
 
-### 6. Debug Agent (`agents/debug.md`)
+### 7. Debug Agent (`agents/debug.md`)
 
 **Role:** Debugging, error analysis, test failures, and performance issues.
 
@@ -539,9 +564,10 @@ Remove skill preset from agent-name: skill-name
 
 ### Completed ✅
 - ✅ Skills-based architecture with SKILLS_REGISTRY.yml
-- ✅ 6 specialized agents (architect, backend, frontend, tests, security, debug)
+- ✅ 7 specialized agents (architect, plan, backend, frontend, tests, security, debug)
 - ✅ 33 modular skills across 5 domains
 - ✅ Claude Code plugin support
+- ✅ Specification Pyramid framework integration
 - ✅ Testing framework (unit tests for agents and skills)
 - ✅ CI/CD with GitHub Actions
 - ✅ Open source release (MIT License)

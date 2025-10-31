@@ -199,7 +199,8 @@ namespace :lint do
   desc "Lint Markdown skill files"
   task :markdown do
     puts "Linting Markdown files..."
-    system("bundle exec mdl skills/ docs/ *.md --style .mdl_style.rb --ignore-path docs/maintenance/")
+    # Lint skills and root markdown files (exclude docs/maintenance/ archive)
+    system("bundle exec mdl skills/ *.md --style .mdl_style.rb")
   end
 
   desc "Validate YAML front matter in skill files"

@@ -236,7 +236,7 @@ Example format:
 - Bug in Z component"
 
   # Call Claude CLI and capture output
-  RELEASE_NOTES=$(echo "$CLAUDE_PROMPT" | claude --no-stream 2>/dev/null || echo "")
+  RELEASE_NOTES=$(echo "$CLAUDE_PROMPT" | claude --print 2>/dev/null || echo "")
 
   if [ -z "$RELEASE_NOTES" ]; then
     print_warning "Claude CLI failed to generate notes, falling back to manual"

@@ -43,6 +43,7 @@ This project is **open source** and actively maintained. We welcome contribution
 
 - 🎯 **6 Specialized Agents**: Architect (coordinator), Frontend, Backend, Tests, Security, Debug
 - 🔌 **Claude Code Plugin**: One-command installation via plugin marketplace
+- 📚 **Context7 Integration**: Up-to-date Rails documentation access via MCP
 - 🚂 **Rails-Only**: Focused exclusively on Ruby on Rails (no other frameworks)
 - 📋 **Team Rules**: Enforced conventions (Solid Stack, Minitest, REST-only, TDD)
 - 🧪 **Skills-Based**: 33 modular skills with comprehensive testing framework
@@ -54,17 +55,47 @@ This project is **open source** and actively maintained. We welcome contribution
 
 Install rails-ai as a Claude Code plugin:
 
-1. **Add the marketplace:**
-   ```
-   /plugin marketplace add zerobearing2/rails-ai
-   ```
+1. **Get a Context7 API key:**
+
+   The rails-ai agents use the Context7 MCP server to fetch up-to-date Rails documentation.
+
+   - Sign up at [context7.com](https://context7.com) to get your free API key
+   - Add to your shell profile (`~/.bashrc`, `~/.zshrc`, etc.):
+     ```bash
+     export CONTEXT7_API_KEY="your-api-key-here"
+     ```
+   - Restart your terminal or run `source ~/.bashrc` (or `~/.zshrc`)
 
 2. **Install the plugin:**
+
+   Open a Claude Code session in your terminal:
+   ```bash
+   claude
    ```
+
+   Then run these commands in the Claude Code session:
+   ```
+   /plugin marketplace add zerobearing2/rails-ai
    /plugin install rails-ai
    ```
 
-3. **Start using agents:**
+   **Restart Claude Code** to activate the Context7 MCP server integration.
+
+3. **Verify the setup:**
+
+   After restarting Claude Code, verify Context7 is connected:
+   ```
+   /mcp
+   ```
+
+   You should see `plugin:rails-ai:context7` listed as connected. If it shows as failed, check that:
+   - Your `CONTEXT7_API_KEY` environment variable is set correctly
+   - You've restarted your terminal after setting the environment variable
+   - Claude Code can access the environment variable
+
+4. **Start using agents:**
+
+   In any Claude Code session, you can now invoke the agents:
    ```
    @agent-rails-ai:architect - Main Rails coordinator
    @agent-rails-ai:backend - Backend specialist
@@ -74,7 +105,7 @@ Install rails-ai as a Claude Code plugin:
    @agent-rails-ai:debug - Debugger specialist
    ```
 
-That's it! The agents are now available globally in all your Rails projects.
+That's it! The agents are now available globally in all your Rails projects with access to up-to-date Rails documentation via Context7.
 
 ### Local Development Install
 

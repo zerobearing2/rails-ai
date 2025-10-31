@@ -3,14 +3,14 @@
 # Last updated: 2025-10-30
 
 metadata:
-  total_skills: 33
+  total_skills: 34
   version: 1.0
   domains:
     frontend: 13
     backend: 10
     testing: 6
     security: 6
-    config: 4
+    config: 5
 
 # Domain breakdown
 domains:
@@ -66,9 +66,10 @@ domains:
       - security-command-injection
 
   config:
-    count: 4
+    count: 5
     skills:
       - solid-stack-setup
+      - docker-rails-setup
       - initializers-best-practices
       - credentials-management
       - environment-configuration
@@ -480,7 +481,7 @@ skills:
     location: "skills/security/security-command-injection.md"
     criticality: CRITICAL
 
-  # === CONFIG SKILLS (4) ===
+  # === CONFIG SKILLS (5) ===
 
   solid-stack-setup:
     name: "Solid Stack Setup (Rails 8 Defaults)"
@@ -494,6 +495,19 @@ skills:
     location: "skills/config/solid-stack-setup.md"
     enforces_rules: [1]
     criticality: CRITICAL
+
+  docker-rails-setup:
+    name: "Docker Rails Setup"
+    domain: config
+    dependencies: []
+    description: "Configure Docker for Rails with optimized builds, .dockerignore, and docs/ exclusion"
+    when_to_use:
+      - "Docker deployment"
+      - "Kamal setup"
+      - "Optimizing Docker images"
+      - "Excluding docs/ from builds"
+    location: "skills/config/docker-rails-setup.md"
+    criticality: RECOMMENDED
 
   initializers-best-practices:
     name: "Initializers Best Practices"

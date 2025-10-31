@@ -134,7 +134,7 @@ docs/
 
 ### Skills Integration
 
-The planning agent coordinates with domain agents who reference specific skills for implementation patterns. All implementation skills are cataloged in `skills/SKILLS_REGISTRY.yml` (33 skills across frontend, backend, testing, security, and config domains).
+The planning agent coordinates with domain agents who reference specific skills for implementation patterns. All implementation skills are cataloged in `skills/SKILLS_REGISTRY.yml` (40 skills across frontend, backend, testing, security, and config domains).
 
 **When coordinating with domain agents:**
 - References skills for technical implementation details

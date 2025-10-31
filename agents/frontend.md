@@ -72,7 +72,7 @@ Reference: `../TEAM_RULES.md`
 
 **Auto-loaded skills for UI/frontend work:**
 
-This agent has the following 14 frontend skills automatically available:
+This agent has the following 14 skills automatically available:
 
 **ViewComponent Skills (4):**
 - `viewcomponent-basics` - Build reusable, testable, encapsulated view components
@@ -102,7 +102,7 @@ This agent has the following 14 frontend skills automatically available:
 
 **Skills are loaded dynamically based on task context:**
 
-1. **Automatic loading**: The 14 frontend skills listed above are always available to you
+1. **Automatic loading**: The 14 skills listed above are always available to you
 2. **On-demand loading**: Load additional skills from other domains as needed
 3. **Dependency awareness**: Skills have dependencies (e.g., `viewcomponent-variants` requires `viewcomponent-basics` + `tailwind-utility-first`)
 4. **Rule enforcement**: Some skills enforce TEAM_RULES.md (e.g., `turbo-page-refresh` enforces Rule #7)
@@ -129,7 +129,7 @@ This agent has the following 14 frontend skills automatically available:
 **Complete skill catalog**: `skills/SKILLS_REGISTRY.yml`
 
 This file contains:
-- All 33 skills metadata (name, domain, dependencies, descriptions)
+- All 40 skills metadata (name, domain, dependencies, descriptions)
 - When to use each skill
 - Dependency graph
 - Keyword index for quick lookup

@@ -6,7 +6,7 @@
 
 ### 100% written by AI, for AI
 
-Yes, you read that right. This entire agent system—the coordinator, the specialized agents, the 33 modular skills, the test framework, even this README—was architected, implemented, and refined by Claude. An AI building AI tools to help AI build better Rails apps.
+Yes, you read that right. This entire agent system—the coordinator, the specialized agents, the 40 modular skills, the test framework, even this README—was architected, implemented, and refined by Claude. An AI building AI tools to help AI build better Rails apps.
 
 *If this feels uncomfortably meta, that's because it is.*
 
@@ -47,7 +47,7 @@ This project is **open source** and actively maintained. We welcome contribution
 - 📚 **Context7 Integration**: Up-to-date Rails documentation access via MCP
 - 🚂 **Rails-Only**: Focused exclusively on Ruby on Rails (no other frameworks)
 - 📏 **Team Rules**: Enforced conventions (Solid Stack, Minitest, REST-only, TDD)
-- 🧪 **Skills-Based**: 33 modular skills with comprehensive testing framework
+- 🧪 **Skills-Based**: 40 modular skills with comprehensive testing framework
 - 🤖 **Cursor Support**: Coming soon (manual installation available now)
 
 ## Installation

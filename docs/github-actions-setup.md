@@ -27,7 +27,7 @@ Automatically runs quality checks and tests on every PR and push to main.
 1. Ruby code style (Rubocop)
 2. Markdown formatting (mdl - informational)
 3. YAML validation
-4. Unit tests (< 1 second, 33 skills)
+4. Unit tests (< 1 second, 40 skills)
 
 **Integration Tests Job:**
 1. All of the above

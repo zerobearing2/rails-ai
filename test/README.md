@@ -394,9 +394,9 @@ Example:
 rake test:skills:report
 
 # => Skill Test Report
-#    Coverage: 33/33 skills (100%)
+#    Coverage: 40/40 skills (100%)
 #    Unit Tests: 165/165 passing (100%)
-#    Integration Tests: 24/33 passing (73%)
+#    Integration Tests: 24/40 passing (60%)
 #    Average Judge Score: 4.3/5.0
 #    Cross-Validation Agreement: 95%
 ```
@@ -405,7 +405,7 @@ rake test:skills:report
 
 ## Next Steps
 
-1. **Add more unit tests** - Cover all 33 skills
+1. **Add more unit tests** - Cover all 40 skills
 2. **Implement real LLM clients** - Replace mock with actual APIs
 3. **Add integration tests** - Start with high-priority skills
 4. **Automate in CI/CD** - Run on every commit

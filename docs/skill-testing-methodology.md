@@ -386,10 +386,10 @@ rake test:skills:all                     # Run unit + integration
 
 # Coverage report
 rake test:skills:report
-# => Total Skills: 33
+# => Total Skills: 40
 #    Unit Tests: 19
 #    Integration Tests: 5
-#    Coverage: 57.6%
+#    Coverage: 47.5%
 ```
 
 ---
@@ -521,10 +521,10 @@ $ rake test:skills:report
 
 === Skill Test Coverage Report ===
 
-Total Skills: 33
+Total Skills: 40
 Unit Tests: 1
 Integration Tests: 1
-Coverage: 3.0%
+Coverage: 2.5%
 
 Run tests:
   rake test:skills:unit          # Fast unit tests

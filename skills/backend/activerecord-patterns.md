@@ -37,11 +37,194 @@ Master ActiveRecord patterns for Rails 8.1+ including associations, validations,
 - Use scopes for reusable queries, not class methods
 - Always eager load associations to prevent N+1 queries
 - Use enums for status/state fields
-- Follow naming conventions: singular model names
+- Follow naming conventions: singular model names, namespaced for nested entities
 - Keep models focused - extract concerns when needed
 - Use `dependent:` option on associations for cleanup
 - Prefer database constraints with validations for critical data
 </standards>
+
+## Model Naming & Organization
+
+<pattern name="namespaced-models">
+<description>Use namespaced models for entities that are conceptually owned by or part of a parent model</description>
+
+**When to Use Namespaced Models:**
+
+Use `Parent::Child` notation when:
+- The child model represents something that is conceptually "part of" or "owned by" the parent
+- The child doesn't have independent meaning outside the parent context
+- You're modeling a domain aggregate (User + User::Setting + User::Profile)
+- You want to organize related models in a clear hierarchy
+
+**When NOT to Use Namespacing:**
+- Models with independent meaning (Session, not User::Session)
+- Models involved in many-to-many relationships
+- Models that multiple unrelated parents might reference
+- Models that represent first-class domain concepts
+
+**Namespaced Model Example:**
+```ruby
+# app/models/user/setting.rb
+module User
+  class Setting < ApplicationRecord
+    belongs_to :user
+
+    validates :theme, inclusion: { in: %w[light dark auto] }
+    validates :notifications_enabled, inclusion: { in: [true, false] }
+  end
+end
+
+# app/models/user.rb
+class User < ApplicationRecord
+  has_one :setting, class_name: "User::Setting", dependent: :destroy
+
+  after_create :create_default_setting
+
+  private
+
+  def create_default_setting
+    create_setting(theme: "light", notifications_enabled: true)
+  end
+end
+```
+
+**Migration:**
+```ruby
+# db/migrate/20251031_create_user_settings.rb
+class CreateUserSettings < ActiveRecord::Migration[8.1]
+  def change
+    create_table :user_settings do |t|
+      t.references :user, null: false, foreign_key: true
+      t.string :theme, default: "light", null: false
+      t.boolean :notifications_enabled, default: true, null: false
+      t.jsonb :preferences, default: {}
+
+      t.timestamps
+    end
+
+    add_index :user_settings, :user_id, unique: true
+  end
+end
+```
+
+**Generator Command:**
+```bash
+# Generate namespaced model
+bin/rails generate model User::Setting user:references theme:string notifications_enabled:boolean
+
+# Directory structure created:
+# app/models/user/setting.rb
+# test/models/user/setting_test.rb
+# db/migrate/XXXXXX_create_user_settings.rb
+```
+
+**File Organization:**
+```
+app/models/
+├── user.rb                 # class User
+├── user/
+│   ├── setting.rb         # class User::Setting
+│   ├── profile.rb         # class User::Profile
+│   └── preference.rb      # class User::Preference
+├── order.rb               # class Order
+├── order/
+│   ├── line_item.rb       # class Order::LineItem
+│   └── payment.rb         # class Order::Payment
+└── session.rb             # class Session (not User::Session - independent concept)
+```
+
+**Good Examples:**
+```ruby
+# ✅ GOOD - Nested entities that belong to parent
+User::Setting       # Settings are part of a user
+User::Profile       # Profile is part of a user
+Order::LineItem     # Line items are part of an order
+Order::Payment      # Payments belong to an order
+Admin::Dashboard    # Admin-specific model
+Api::Client         # API namespace for client models
+
+# ❌ BAD - Flat naming obscures relationship
+UserSetting         # Unclear this belongs to User
+OrderItem           # Doesn't show ownership
+UserProfile         # Flat namespace loses clarity
+```
+
+**Usage:**
+```ruby
+# Create associated records
+user = User.create!(email: "user@example.com")
+user.setting.update(theme: "dark")
+
+# Query through associations
+User.joins(:setting).where(user_settings: { theme: "dark" })
+
+# Access namespaced model directly
+User::Setting.where(notifications_enabled: true)
+
+# Factory/fixture references
+# test/fixtures/user/settings.yml
+one:
+  user: alice
+  theme: dark
+  notifications_enabled: true
+```
+</pattern>
+
+<pattern name="flat-vs-namespaced">
+<description>Decision guide for when to use flat vs namespaced models</description>
+
+**Use Flat Models When:**
+
+```ruby
+# Independent business concepts
+class Session < ApplicationRecord
+  belongs_to :user
+  # Session exists as its own concept, not "part of" User
+end
+
+class Tag < ApplicationRecord
+  has_many :taggings
+  # Tags are shared across many models - independent concept
+end
+
+class Comment < ApplicationRecord
+  belongs_to :user
+  belongs_to :commentable, polymorphic: true
+  # Comments are reusable, not owned by a single parent
+end
+```
+
+**Use Namespaced Models When:**
+
+```ruby
+# Settings/preferences owned by parent
+class User::Setting < ApplicationRecord
+  belongs_to :user
+  # Doesn't make sense without a User
+end
+
+# Sub-entities in an aggregate
+class Order::LineItem < ApplicationRecord
+  belongs_to :order
+  # Line items are meaningless outside an Order context
+end
+
+# Domain-specific modules
+class Admin::Report < ApplicationRecord
+  # Admin namespace groups related functionality
+end
+```
+
+**Decision Matrix:**
+
+| Question | Flat Model | Namespaced Model |
+|----------|------------|------------------|
+| Can exist without parent? | Yes → Flat | No → Namespace |
+| Shared across multiple parents? | Yes → Flat | No → Namespace |
+| Independent business concept? | Yes → Flat | No → Namespace |
+| Part of a domain aggregate? | No → Flat | Yes → Namespace |
+
+</pattern>
 
 ## Associations
 

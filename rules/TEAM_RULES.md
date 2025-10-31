@@ -251,34 +251,60 @@ Patterns: `# TODO: add tests`, `skip "not implemented"`, code without tests
 ### 5. Proper Namespacing
 
 <violation-triggers>
-Keywords: flat namespace, unclear naming
-Patterns: overly nested (3+ levels), conflicting names
+Keywords: flat namespace, unclear naming, UserSetting, OrderItem, UserSettingsController, UsersSettingsController
+Patterns: overly nested (3+ levels), conflicting names, class UserSetting, class UserSettingsController, class UsersSettingsController
 </violation-triggers>
 
 ✅ **REQUIRE:**
-- Plural parent directories for child models/controllers
-- Module namespacing (e.g., `module Feedbacks; class Response`)
+- Namespaced models for nested entities (User::Setting, not UserSetting)
+- Namespaced controllers for domain management (Users::SettingsController, not UserSettingsController)
+- Plural parent directories for child models/controllers (Feedbacks::ResponsesController)
+- Singular parent directories for domain controllers (Users::SettingsController)
+- Module namespacing always (e.g., `module Feedbacks; class Response`)
 - Max 2 nesting levels
 
 ❌ **REJECT:**
-- Flat namespace structure
+- Flat naming for nested entities (UserSetting instead of User::Setting)
+- Flat naming for domain controllers (UserSettingsController instead of Users::SettingsController)
 - Inconsistent naming (singular vs plural)
 - Deep nesting (3+ levels)
 
 <implementation-skills>
-- **Primary:** `skills/backend/concerns-models.md` - Model organization
-- **Primary:** `skills/backend/concerns-controllers.md` - Controller organization
-- **Related:** `skills/backend/nested-resources.md` - Route organization
+- **Primary:** `skills/backend/activerecord-patterns.md` - Model naming conventions
+- **Primary:** `skills/backend/nested-resources.md` - Controller and route organization
+- **Primary:** `skills/backend/concerns-models.md` - Concern organization
+- **Primary:** `skills/backend/concerns-controllers.md` - Controller concerns
 </implementation-skills>
 
 **Pattern:**
 ```
+# Namespaced models (SINGULAR parent) - entities owned by parent
+app/models/user/setting.rb           # class User::Setting (belongs to User)
+app/models/order/line_item.rb        # class Order::LineItem (part of Order)
+
+# Domain controllers (SINGULAR parent) - manage aspects of parent
+app/controllers/users/settings_controller.rb  # module Users; class SettingsController
+app/controllers/accounts/billing_controller.rb # module Accounts; class BillingController
+
+# Child models and controllers use PLURAL parent namespace
 app/models/feedbacks/response.rb    # module Feedbacks; class Response
-app/controllers/feedbacks/sendings_controller.rb  # module Feedbacks; class SendingsController
-test/controllers/feedbacks/sendings_controller_test.rb  # Test structure mirrors implementation
+app/controllers/feedbacks/responses_controller.rb  # module Feedbacks; class ResponsesController
+
+# Domain-specific concerns use SINGULAR parent namespace
+app/models/user/authenticatable.rb  # module User; module Authenticatable (concern)
+app/models/feedback/notifications.rb # module Feedback; module Notifications (concern)
+
+# Generic/shared concerns go in concerns/ directory
+app/models/concerns/taggable.rb      # module Taggable (shared across models)
+app/controllers/concerns/api/response_handler.rb  # module Api; module ResponseHandler
+
+# Test structure mirrors implementation
+test/models/user/setting_test.rb
+test/controllers/users/settings_controller_test.rb
+test/controllers/feedbacks/responses_controller_test.rb
 ```
 
-**Why:** Clear organization, prevents naming conflicts, maintainable structure.
+**Why:** Clear organization, prevents naming conflicts, maintainable structure. Namespacing shows ownership and aggregation relationships clearly.
 
 </rule>
 
@@ -771,4 +797,3 @@ end
 - **3.0** (2025-10-30): Governance-focused refactor, removed code examples, added skill links
 - **2.0** (2025-10-29): Added machine-readable metadata, violation triggers
 - **1.0** (2025-10-28): Initial team rules
-

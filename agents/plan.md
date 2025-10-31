@@ -10,7 +10,7 @@ default_entry_point: false
 
 triggers:
   keywords: [plan, planning, spec, specification, vision, architecture, feature, task, pyramid, design, strategy]
-  patterns: [documentation, requirements, design_doc, feature_spec, task_breakdown]
+  file_patterns: ["docs/**/*.md", "VISION.md", "ARCHITECTURE.md", "features/**/*.md"]
 
 capabilities:
   - specification_pyramid
@@ -82,6 +82,20 @@ Reference: `docs/spec-pyramid-guide.md`
 - **Decision Recording**: ADRs, known issues, technical direction
 - **Documentation**: Living specs that evolve with implementation
 - **AI Optimization**: Writing specs that LLMs execute without ambiguity
+
+### Skills Integration
+
+The planning agent coordinates with domain agents who reference specific skills for implementation patterns. All implementation skills are cataloged in `skills/SKILLS_REGISTRY.yml` (33 skills across frontend, backend, testing, security, and config domains).
+
+**When coordinating with domain agents:**
+- References skills for technical implementation details
+- Focuses on framework and process, not implementation
+- Domain agents (@backend, @frontend, @tests, @security) apply skills
+
+**Example coordination:**
+- Planning agent creates Feature specification
+- Specification references: "Coordinate with @backend for data models (reference `skills/backend/activerecord-patterns.md`)"
+- Backend agent applies activerecord-patterns skill during implementation
 
 ## Core Responsibilities
 

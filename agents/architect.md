@@ -20,7 +20,7 @@ capabilities:
   - parallel_execution
   - team_rules_enforcement
 
-coordinates_with: [frontend, backend, tests, debug, security]
+coordinates_with: [plan, frontend, backend, tests, debug, security]
 
 critical_rules:
   - no_sidekiq_use_solidqueue
@@ -91,7 +91,7 @@ Reference: `../TEAM_RULES.md`
 4. **Monitor and coordinate** agent work
 5. **Consolidate results** and report to user
 
-**Team:** @frontend, @backend, @tests, @debug, @security
+**Team:** @plan, @frontend, @backend, @tests, @debug, @security
 
 **If you find yourself about to write code or run implementation commands, STOP and delegate instead.**
 </delegation-protocol>

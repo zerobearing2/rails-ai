@@ -429,7 +429,7 @@ bin/ci
 - ✅ Valid YAML front matter in all agents
 - ✅ Required metadata (name, description, role, coordinates_with)
 - ✅ Agent name matches filename
-- ✅ All 6 agents exist (1 coordinator + 5 specialized)
+- ✅ All 7 agents exist (1 coordinator + 1 planning + 5 specialized)
 - ✅ No legacy agents remain (rails-config, rails-design, etc.)
 - ✅ All agents have `rails-` prefix except coordinator
 - ✅ Skills Preset section exists in specialized agents
@@ -467,7 +467,7 @@ bin/ci
 When a user installs rails-ai as a Claude Code plugin:
 
 1. **Plugin installed** - `/plugin install rails-ai`
-2. **Agents registered** - All 6 agents from `agents/*.md` become available
+2. **Agents registered** - All 7 agents from `agents/*.md` become available
 3. **Access via @-mention** - Users invoke agents with `@agent-rails-ai:architect`, `@agent-rails-ai:backend`, etc.
 4. **Skills loaded** - Agents read SKILLS_REGISTRY.yml to access skill knowledge
 5. **Rules enforced** - Agents reference team rules from `rules/` directory
@@ -604,7 +604,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for full contribution guidelines.
 | File | Purpose |
 |------|---------|
 | `skills/SKILLS_REGISTRY.yml` | Central catalog of all 33 skills |
-| `agents/*.md` | 6 agent definitions (loaded by Claude Code plugin) |
+| `agents/*.md` | 7 agent definitions (loaded by Claude Code plugin) |
 | `rules/` | Team conventions and decision matrices |
 | `test/skills/unit/` | Unit tests for skill structure validation |
 | `test/agents/unit/` | Unit tests for agent structure validation |

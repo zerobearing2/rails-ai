@@ -9,7 +9,8 @@ class AgentStructureTest < Minitest::Test
   end
 
   def test_specialized_agents_have_skills_preset_section
-    specialized_agents = @agent_files.reject { |f| f.include?("architect.md") }
+    # Exclude coordinator (architect) and strategic agent (plan)
+    specialized_agents = @agent_files.reject { |f| f.include?("architect.md") || f.include?("plan.md") }
 
     specialized_agents.each do |file|
       content = File.read(file)
@@ -31,6 +32,7 @@ class AgentStructureTest < Minitest::Test
   end
 
   def test_specialized_agents_have_role_description
+    # Exclude coordinator (architect) - plan agent has role in YAML
     specialized_agents = @agent_files.reject { |f| f.include?("architect.md") }
 
     specialized_agents.each do |file|
@@ -46,7 +48,7 @@ class AgentStructureTest < Minitest::Test
       basename = File.basename(file, ".md")
 
       # All agents should have simple, descriptive names
-      assert_match(/^(architect|backend|frontend|tests|security|debug)$/, basename,
+      assert_match(/^(architect|plan|backend|frontend|tests|security|debug)$/, basename,
                    "#{file}: should have a descriptive name without 'rails-' prefix")
     end
   end

@@ -12,7 +12,8 @@ class AgentContentTest < Minitest::Test
 
   # Test that agents have required markdown sections
   def test_specialized_agents_have_required_sections
-    specialized_agents = @agent_files.reject { |f| f.include?("architect.md") }
+    # Exclude coordinator (architect) and strategic agent (plan)
+    specialized_agents = @agent_files.reject { |f| f.include?("architect.md") || f.include?("plan.md") }
 
     required_sections = [
       /##\s+Role/i,
@@ -86,7 +87,8 @@ class AgentContentTest < Minitest::Test
 
   # Test that skill names mentioned in preset sections exist in registry
   def test_skill_presets_reference_valid_skills
-    specialized_agents = @agent_files.reject { |f| f.include?("architect.md") }
+    # Exclude coordinator (architect) and strategic agent (plan)
+    specialized_agents = @agent_files.reject { |f| f.include?("architect.md") || f.include?("plan.md") }
 
     specialized_agents.each do |file|
       content = File.read(file)
@@ -109,7 +111,8 @@ class AgentContentTest < Minitest::Test
 
   # Test that agents have valid YAML metadata fields
   def test_agents_have_complete_metadata
-    specialized_agents = @agent_files.reject { |f| f.include?("architect.md") }
+    # Exclude coordinator (architect) and strategic agent (plan)
+    specialized_agents = @agent_files.reject { |f| f.include?("architect.md") || f.include?("plan.md") }
 
     specialized_agents.each do |file|
       yaml = extract_yaml_front_matter(file)
@@ -172,8 +175,8 @@ class AgentContentTest < Minitest::Test
 
       integration_section = Regexp.last_match(1)
 
-      # Extract @agent references like @backend, @frontend, @architect
-      agent_refs = integration_section.scan(/@(architect|backend|frontend|tests|security|debug)/)
+      # Extract @agent references like @backend, @frontend, @architect, @plan
+      agent_refs = integration_section.scan(/@(architect|plan|backend|frontend|tests|security|debug)/)
 
       agent_refs.flatten.uniq.each do |agent_name|
         assert_includes existing_agents, agent_name,
@@ -213,7 +216,8 @@ class AgentContentTest < Minitest::Test
 
   # Test that workflows are specified
   def test_specialized_agents_have_workflow
-    specialized_agents = @agent_files.reject { |f| f.include?("architect.md") }
+    # Exclude coordinator (architect) and strategic agent (plan)
+    specialized_agents = @agent_files.reject { |f| f.include?("architect.md") || f.include?("plan.md") }
 
     specialized_agents.each do |file|
       yaml = extract_yaml_front_matter(file)

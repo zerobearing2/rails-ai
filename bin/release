@@ -11,13 +11,6 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# Dry run mode flag
-DRY_RUN=false
-if [ "$1" = "--dry-run" ] || [ "$1" = "-n" ]; then
-  DRY_RUN=true
-  print_warning "🔍 DRY RUN MODE - No changes will be made"
-fi
-
 # Print section header
 print_section() {
   echo ""
@@ -46,6 +39,12 @@ print_warning() {
 print_info() {
   echo -e "${BLUE}ℹ️  $1${NC}"
 }
+
+# Dry run mode flag
+DRY_RUN=false
+if [ "$1" = "--dry-run" ] || [ "$1" = "-n" ]; then
+  DRY_RUN=true
+fi
 
 # Check if we're in the right directory
 if [ ! -f "Gemfile" ]; then

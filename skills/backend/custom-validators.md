@@ -57,41 +57,19 @@ class EmailValidator < ActiveModel::EachValidator
 
   def validate_each(record, attribute, value)
     return if value.blank? && options[:allow_blank]
-
     unless value =~ EMAIL_REGEX
-      record.errors.add(
-        attribute,
-        options[:message] || "is not a valid email address"
-      )
+      record.errors.add(attribute, options[:message] || "is not a valid email address")
     end
   end
 end
 ```
 
-**Usage in Models:**
+**Usage:**
 ```ruby
-class Feedback < ApplicationRecord
-  # ✅ Required email
-  validates :recipient_email, email: true
-
-  # ✅ Optional email
-  validates :sender_email, email: { allow_blank: true }
-
-  # ✅ Custom error message
-  validates :email, email: { message: "must be a valid company email" }
-end
-
-class User < ApplicationRecord
-  validates :email, email: true
-  validates :backup_email, email: { allow_blank: true }
-end
+validates :email, email: true
+validates :backup_email, email: { allow_blank: true }
+validates :email, email: { message: "must be a valid company email" }
 ```
-
-**Benefits:**
-- Single source of truth for email validation
-- Consistent validation across all models
-- Easy to update regex in one place
-- Support for optional vs required emails
 </pattern>
 
 <pattern name="url-validator">
@@ -103,7 +81,6 @@ end
 class UrlValidator < ActiveModel::EachValidator
   def validate_each(record, attribute, value)
     return if value.blank? && options[:allow_blank]
-
     uri = URI.parse(value)
 
     unless uri.is_a?(URI::HTTP) || uri.is_a?(URI::HTTPS)
@@ -111,13 +88,8 @@ class UrlValidator < ActiveModel::EachValidator
       return
     end
 
-    if options[:require_protocol] && uri.scheme.blank?
-      add_error(record, attribute, "must include http:// or https://")
-    end
-
-    if options[:allowed_domains] && !allowed_domain?(uri, options[:allowed_domains])
-      add_error(record, attribute, "domain is not allowed")
-    end
+    add_error(record, attribute, "must include http:// or https://") if options[:require_protocol] && uri.scheme.blank?
+    add_error(record, attribute, "domain is not allowed") if options[:allowed_domains] && !allowed_domain?(uri, options[:allowed_domains])
   rescue URI::InvalidURIError
     add_error(record, attribute, "is not a valid URL")
   end
@@ -134,30 +106,12 @@ class UrlValidator < ActiveModel::EachValidator
 end
 ```
 
-**Usage in Models:**
+**Usage:**
 ```ruby
-class Profile < ApplicationRecord
-  # ✅ Basic URL validation
-  validates :website, url: { allow_blank: true }
-
-  # ✅ Require protocol
-  validates :blog_url, url: {
-    allow_blank: true,
-    require_protocol: true
-  }
-
-  # ✅ Restrict to specific domains
-  validates :avatar_url, url: {
-    allowed_domains: ["example.com", "cdn.example.com"]
-  }
-end
+validates :website, url: { allow_blank: true }
+validates :blog_url, url: { allow_blank: true, require_protocol: true }
+validates :avatar_url, url: { allowed_domains: ["example.com", "cdn.example.com"] }
 ```
-
-**Benefits:**
-- Validates URL format and protocol
-- Restrict to trusted domains for security
-- Handles malformed URLs gracefully
-- Configurable requirements per use case
 </pattern>
 
 <pattern name="phone-validator">
@@ -167,52 +121,24 @@ end
 ```ruby
 # app/validators/phone_validator.rb
 class PhoneValidator < ActiveModel::EachValidator
-  # E.164 format: +[country code][number]
-  PHONE_REGEX = /\A\+?[1-9]\d{1,14}\z/
+  PHONE_REGEX = /\A\+?[1-9]\d{1,14}\z/ # E.164 format
 
   def validate_each(record, attribute, value)
     return if value.blank? && options[:allow_blank]
-
-    normalized = normalize_phone(value)
-
+    normalized = value.to_s.gsub(/[\s\-\(\)\.]/, '')
     unless normalized =~ PHONE_REGEX
-      record.errors.add(
-        attribute,
-        options[:message] || "is not a valid phone number"
-      )
+      record.errors.add(attribute, options[:message] || "is not a valid phone number")
     end
   end
-
-  private
-
-  def normalize_phone(phone)
-    # Remove common separators: spaces, dashes, parentheses, dots
-    phone.to_s.gsub(/[\s\-\(\)\.]/,' ')
-  end
 end
 ```
 
-**Usage in Models:**
+**Usage:**
 ```ruby
-class User < ApplicationRecord
-  # ✅ Required phone number
-  validates :phone, phone: true
-
-  # ✅ Optional mobile number
-  validates :mobile, phone: { allow_blank: true }
-
-  # ✅ Custom message
-  validates :emergency_contact, phone: {
-    message: "must be a valid international phone number"
-  }
-end
+validates :phone, phone: true
+validates :mobile, phone: { allow_blank: true }
+validates :emergency_contact, phone: { message: "must be a valid international phone number" }
 ```
-
-**Benefits:**
-- Normalizes phone numbers before validation
-- Accepts various formats (with/without separators)
-- E.164 standard compliance
-- Handles international numbers
 </pattern>
 
 <pattern name="content-length-validator">
@@ -224,65 +150,25 @@ end
 class ContentLengthValidator < ActiveModel::EachValidator
   def validate_each(record, attribute, value)
     return if value.blank? && options[:allow_blank]
+    word_count = value.to_s.split.size
 
-    if options[:minimum_words]
-      word_count = value.to_s.split.size
-
-      if word_count < options[:minimum_words]
-        record.errors.add(
-          attribute,
-          "must have at least #{options[:minimum_words]} words " \
-          "(currently #{word_count})"
-        )
-      end
+    if options[:minimum_words] && word_count < options[:minimum_words]
+      record.errors.add(attribute, "must have at least #{options[:minimum_words]} words (currently #{word_count})")
     end
 
-    if options[:maximum_words]
-      word_count = value.to_s.split.size
-
-      if word_count > options[:maximum_words]
-        record.errors.add(
-          attribute,
-          "must have at most #{options[:maximum_words]} words " \
-          "(currently #{word_count})"
-        )
-      end
+    if options[:maximum_words] && word_count > options[:maximum_words]
+      record.errors.add(attribute, "must have at most #{options[:maximum_words]} words (currently #{word_count})")
     end
   end
 end
 ```
 
-**Usage in Models:**
+**Usage:**
 ```ruby
-class Feedback < ApplicationRecord
-  # ✅ Word count validation
-  validates :content, content_length: {
-    minimum_words: 10,
-    maximum_words: 500
-  }
-end
-
-class Article < ApplicationRecord
-  # ✅ Minimum words only
-  validates :body, content_length: {
-    minimum_words: 100
-  }
-end
-
-class Comment < ApplicationRecord
-  # ✅ Maximum words only
-  validates :text, content_length: {
-    maximum_words: 100,
-    allow_blank: true
-  }
-end
+validates :content, content_length: { minimum_words: 10, maximum_words: 500 }
+validates :body, content_length: { minimum_words: 100 }
+validates :text, content_length: { maximum_words: 100, allow_blank: true }
 ```
-
-**Benefits:**
-- More meaningful than character limits for text content
-- Shows current word count in error message
-- Helps users understand content requirements
-- Flexible min/max configuration
 </pattern>
 
 <pattern name="json-validator">
@@ -294,7 +180,6 @@ end
 class JsonValidator < ActiveModel::EachValidator
   def validate_each(record, attribute, value)
     return if value.blank? && options[:allow_blank]
-
     parsed = parse_json(value, record, attribute)
     return unless parsed
 
@@ -305,45 +190,27 @@ class JsonValidator < ActiveModel::EachValidator
   private
 
   def parse_json(value, record, attribute)
-    if value.is_a?(Hash)
-      value
-    elsif value.is_a?(String)
-      JSON.parse(value)
-    else
-      record.errors.add(attribute, "must be valid JSON")
-      nil
-    end
+    value.is_a?(Hash) ? value : JSON.parse(value.to_s)
   rescue JSON::ParserError
     record.errors.add(attribute, "must be valid JSON")
     nil
   end
 
   def validate_schema(parsed, record, attribute)
-    schema = options[:schema]
-
-    schema.each do |key, expected_type|
+    options[:schema].each do |key, type|
       next unless parsed.key?(key.to_s)
-
-      actual_value = parsed[key.to_s]
-      unless valid_type?(actual_value, expected_type)
-        record.errors.add(
-          attribute,
-          "#{key} must be a #{expected_type}"
-        )
-      end
+      record.errors.add(attribute, "#{key} must be a #{type}") unless valid_type?(parsed[key.to_s], type)
     end
   end
 
   def validate_required_keys(parsed, record, attribute)
     options[:required_keys].each do |key|
-      unless parsed.key?(key.to_s)
-        record.errors.add(attribute, "must include #{key}")
-      end
+      record.errors.add(attribute, "must include #{key}") unless parsed.key?(key.to_s)
     end
   end
 
-  def valid_type?(value, expected_type)
-    case expected_type
+  def valid_type?(value, type)
+    case type
     when :string then value.is_a?(String)
     when :integer then value.is_a?(Integer)
     when :boolean then [true, false].include?(value)
@@ -355,33 +222,12 @@ class JsonValidator < ActiveModel::EachValidator
 end
 ```
 
-**Usage in Models:**
+**Usage:**
 ```ruby
-class Configuration < ApplicationRecord
-  # ✅ Basic JSON validation
-  validates :settings, json: true
-
-  # ✅ Require specific keys
-  validates :metadata, json: {
-    required_keys: [:version, :author]
-  }
-
-  # ✅ Validate schema
-  validates :config, json: {
-    schema: {
-      timeout: :integer,
-      enabled: :boolean,
-      endpoints: :array
-    }
-  }
-end
+validates :settings, json: true
+validates :metadata, json: { required_keys: [:version, :author] }
+validates :config, json: { schema: { timeout: :integer, enabled: :boolean, endpoints: :array } }
 ```
-
-**Benefits:**
-- Validates JSON parsing before saving
-- Ensures required fields are present
-- Type checking for expected values
-- Prevents invalid JSON in database
 </pattern>
 
 <pattern name="file-type-validator">
@@ -393,68 +239,25 @@ end
 class FileTypeValidator < ActiveModel::EachValidator
   def validate_each(record, attribute, value)
     return unless value.attached?
-
     allowed_types = options[:in] || options[:with]
     return unless allowed_types
 
-    if value.is_a?(ActiveStorage::Attached::Many)
-      value.each do |attachment|
-        validate_content_type(record, attribute, attachment, allowed_types)
+    attachments = value.is_a?(ActiveStorage::Attached::Many) ? value : [value]
+    attachments.each do |attachment|
+      unless allowed_types.include?(attachment.content_type)
+        record.errors.add(attribute, options[:message] || "must be one of: #{allowed_types.join(', ')}")
       end
-    else
-      validate_content_type(record, attribute, value, allowed_types)
     end
   end
-
-  private
-
-  def validate_content_type(record, attribute, attachment, allowed_types)
-    return if allowed_types.include?(attachment.content_type)
-
-    record.errors.add(
-      attribute,
-      options[:message] || "must be one of: #{allowed_types.join(', ')}"
-    )
-  end
 end
 ```
 
-**Usage in Models:**
+**Usage:**
 ```ruby
-class Document < ApplicationRecord
-  has_one_attached :file
-
-  # ✅ Validate file type
-  validates :file, file_type: {
-    in: %w[application/pdf image/png image/jpeg]
-  }
-end
-
-class Avatar < ApplicationRecord
-  has_one_attached :image
-
-  # ✅ Images only with custom message
-  validates :image, file_type: {
-    in: %w[image/png image/jpeg image/gif],
-    message: "must be a PNG, JPEG, or GIF image"
-  }
-end
-
-class Gallery < ApplicationRecord
-  has_many_attached :photos
-
-  # ✅ Multiple attachments
-  validates :photos, file_type: {
-    in: %w[image/png image/jpeg]
-  }
-end
+validates :file, file_type: { in: %w[application/pdf image/png image/jpeg] }
+validates :image, file_type: { in: %w[image/png image/jpeg image/gif], message: "must be a PNG, JPEG, or GIF image" }
+validates :photos, file_type: { in: %w[image/png image/jpeg] }
 ```
-
-**Benefits:**
-- Prevents invalid file uploads
-- Works with single and multiple attachments
-- Clear error messages about allowed types
-- Security: block executable files
 </pattern>
 
 ## Multi-Attribute Validators
@@ -469,19 +272,11 @@ class DateRangeValidator < ActiveModel::Validator
   def validate(record)
     return if record.start_date.blank? || record.end_date.blank?
 
-    if record.start_date >= record.end_date
-      record.errors.add(:end_date, "must be after start date")
-    end
+    record.errors.add(:end_date, "must be after start date") if record.start_date >= record.end_date
 
     if options[:maximum_duration]
       duration = (record.end_date - record.start_date).to_i
-
-      if duration > options[:maximum_duration]
-        record.errors.add(
-          :base,
-          "Duration cannot exceed #{options[:maximum_duration]} days"
-        )
-      end
+      record.errors.add(:base, "Duration cannot exceed #{options[:maximum_duration]} days") if duration > options[:maximum_duration]
     end
 
     if options[:allow_past] == false && record.start_date < Date.current
@@ -491,30 +286,12 @@ class DateRangeValidator < ActiveModel::Validator
 end
 ```
 
-**Usage in Models:**
+**Usage:**
 ```ruby
-class Event < ApplicationRecord
-  # ✅ Basic date range validation
-  validates_with DateRangeValidator
-
-  # ✅ With maximum duration
-  validates_with DateRangeValidator,
-    maximum_duration: 30,
-    allow_past: false
-end
-
-class Booking < ApplicationRecord
-  validates_with DateRangeValidator,
-    maximum_duration: 365,
-    allow_past: true
-end
+validates_with DateRangeValidator
+validates_with DateRangeValidator, maximum_duration: 30, allow_past: false
+validates_with DateRangeValidator, maximum_duration: 365, allow_past: true
 ```
-
-**Benefits:**
-- Validates relationship between two dates
-- Enforces business rules on duration
-- Prevents invalid date ranges
-- Configurable for different use cases
 </pattern>
 
 <pattern name="conditional-presence-validator">
@@ -533,52 +310,17 @@ class ConditionalPresenceValidator < ActiveModel::EachValidator
       true
     end
 
-    if condition_met && value.blank?
-      record.errors.add(
-        attribute,
-        options[:message] || "can't be blank"
-      )
-    end
+    record.errors.add(attribute, options[:message] || "can't be blank") if condition_met && value.blank?
   end
 end
 ```
 
-**Usage in Models:**
+**Usage:**
 ```ruby
-class Feedback < ApplicationRecord
-  # ✅ Conditional on method
-  validates :response, conditional_presence: {
-    if: :responded_status?,
-    message: "is required when status is 'responded'"
-  }
-
-  # ✅ Conditional on proc
-  validates :rejection_reason, conditional_presence: {
-    if: ->(record) { record.status == "rejected" }
-  }
-
-  def responded_status?
-    status == "responded"
-  end
-end
-
-class Order < ApplicationRecord
-  # ✅ Require shipping address if physical product
-  validates :shipping_address, conditional_presence: {
-    if: :requires_shipping?
-  }
-
-  def requires_shipping?
-    product_type == "physical"
-  end
-end
+validates :response, conditional_presence: { if: :responded_status?, message: "is required when status is 'responded'" }
+validates :rejection_reason, conditional_presence: { if: ->(r) { r.status == "rejected" } }
+validates :shipping_address, conditional_presence: { if: :requires_shipping? }
 ```
-
-**Benefits:**
-- Flexible conditional validation
-- Supports both methods and procs
-- Clear error messages
-- Avoids complex custom validate methods
 </pattern>
 
 <pattern name="business-logic-validator">
@@ -589,64 +331,37 @@ end
 # app/validators/feedback_completeness_validator.rb
 class FeedbackCompletenessValidator < ActiveModel::Validator
   def validate(record)
-    # Require sender identification if content is critical
-    if record.content.present? && critical_content?(record.content)
-      validate_sender_info(record)
-    end
-
-    # Require category for long feedback
-    if record.content.present? && record.content.length > 500
-      validate_category(record)
-    end
-
-    # Validate AI improvement compatibility
-    if record.ai_improved?
-      validate_ai_requirements(record)
-    end
+    validate_sender_info(record) if record.content.present? && critical_content?(record.content)
+    validate_category(record) if record.content.present? && record.content.length > 500
+    validate_ai_requirements(record) if record.ai_improved?
   end
 
   private
 
   def critical_content?(content)
-    keywords = ["urgent", "critical", "important", "asap"]
-    keywords.any? { |keyword| content.downcase.include?(keyword) }
+    %w[urgent critical important asap].any? { |k| content.downcase.include?(k) }
   end
 
   def validate_sender_info(record)
     if record.sender_email.blank? && record.sender_name.blank?
-      record.errors.add(
-        :base,
-        "Critical feedback requires sender identification"
-      )
+      record.errors.add(:base, "Critical feedback requires sender identification")
     end
   end
 
   def validate_category(record)
-    if record.category.blank?
-      record.errors.add(:category, "is required for detailed feedback")
-    end
+    record.errors.add(:category, "is required for detailed feedback") if record.category.blank?
   end
 
   def validate_ai_requirements(record)
-    unless record.original_content.present?
-      record.errors.add(:original_content, "must be present for AI-improved feedback")
-    end
+    record.errors.add(:original_content, "must be present for AI-improved feedback") unless record.original_content.present?
   end
 end
 ```
 
-**Usage in Models:**
+**Usage:**
 ```ruby
-class Feedback < ApplicationRecord
-  validates_with FeedbackCompletenessValidator
-end
+validates_with FeedbackCompletenessValidator
 ```
-
-**Benefits:**
-- Encapsulates complex business rules
-- Multiple validations in one class
-- Testable business logic
-- Clean model code
 </pattern>
 
 ## Plain Ruby Object Validator
@@ -675,32 +390,16 @@ class AddressValidator
 
   def validate_field(field, required: false, format: nil)
     value = record.send(field)
-
-    if required && value.blank?
-      record.errors.add(field, "#{field.to_s.humanize} is required")
-    end
-
-    if format && value.present? && !(value =~ format)
-      record.errors.add(field, "#{field.to_s.humanize} format is invalid")
-    end
+    record.errors.add(field, "#{field.to_s.humanize} is required") if required && value.blank?
+    record.errors.add(field, "#{field.to_s.humanize} format is invalid") if format && value.present? && !(value =~ format)
   end
 end
 ```
 
-**Usage in Models:**
+**Usage:**
 ```ruby
-class Address < ApplicationRecord
-  validate do |address|
-    AddressValidator.new(address).validate
-  end
-end
+validate { |address| AddressValidator.new(address).validate }
 ```
-
-**Benefits:**
-- Full control over validation logic
-- No framework dependencies
-- Reusable validation patterns
-- Easy to test independently
 </pattern>
 
 <antipatterns>
@@ -711,24 +410,11 @@ end
 ```ruby
 # ❌ BAD - Duplicated email validation
 class User < ApplicationRecord
-  validates :email, format: {
-    with: /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i,
-    message: "is not a valid email"
-  }
+  validates :email, format: { with: /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i }
 end
 
 class Feedback < ApplicationRecord
-  validates :recipient_email, format: {
-    with: /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i,
-    message: "is not a valid email"
-  }
-end
-
-class Profile < ApplicationRecord
-  validates :contact_email, format: {
-    with: /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i,
-    message: "is not a valid email"
-  }
+  validates :recipient_email, format: { with: /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i }
 end
 ```
 </bad-example>
@@ -737,192 +423,43 @@ end
 # ✅ GOOD - Reusable email validator
 class EmailValidator < ActiveModel::EachValidator
   EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i
-
   def validate_each(record, attribute, value)
     return if value.blank? && options[:allow_blank]
-
-    unless value =~ EMAIL_REGEX
-      record.errors.add(attribute, options[:message] || "is not a valid email")
-    end
+    record.errors.add(attribute, options[:message] || "is not a valid email") unless value =~ EMAIL_REGEX
   end
 end
 
 class User < ApplicationRecord
   validates :email, email: true
 end
-
-class Feedback < ApplicationRecord
-  validates :recipient_email, email: true
-end
-
-class Profile < ApplicationRecord
-  validates :contact_email, email: { allow_blank: true }
-end
 ```
 </good-example>
 </antipattern>
 
 <antipattern>
-<description>Not supporting :allow_blank option</description>
-<reason>Forces validation even for optional fields, breaks user expectations</reason>
+<description>Not supporting :allow_blank and :message options</description>
+<reason>Forces validation on optional fields, prevents custom error messages</reason>
 <bad-example>
 ```ruby
-# ❌ BAD - No allow_blank support
+# ❌ BAD - No allow_blank or message support
 class UrlValidator < ActiveModel::EachValidator
   def validate_each(record, attribute, value)
-    # Always validates, even if blank
     uri = URI.parse(value)
-    unless uri.is_a?(URI::HTTP) || uri.is_a?(URI::HTTPS)
-      record.errors.add(attribute, "must be a valid URL")
-    end
-  rescue URI::InvalidURIError
-    record.errors.add(attribute, "is not a valid URL")
+    record.errors.add(attribute, "must be a valid URL") unless uri.is_a?(URI::HTTP)
   end
-end
-
-# This will fail validation even though website is optional
-class Profile < ApplicationRecord
-  validates :website, url: { allow_blank: true } # Doesn't work!
 end
 ```
 </bad-example>
 <good-example>
 ```ruby
-# ✅ GOOD - Supports allow_blank
+# ✅ GOOD - Supports standard options
 class UrlValidator < ActiveModel::EachValidator
   def validate_each(record, attribute, value)
     return if value.blank? && options[:allow_blank]
-
     uri = URI.parse(value)
-    unless uri.is_a?(URI::HTTP) || uri.is_a?(URI::HTTPS)
-      record.errors.add(attribute, "must be a valid URL")
-    end
+    record.errors.add(attribute, options[:message] || "must be a valid URL") unless uri.is_a?(URI::HTTP)
   rescue URI::InvalidURIError
-    record.errors.add(attribute, "is not a valid URL")
-  end
-end
-
-class Profile < ApplicationRecord
-  validates :website, url: { allow_blank: true } # Works correctly
-end
-```
-</good-example>
-</antipattern>
-
-<antipattern>
-<description>Hardcoding error messages</description>
-<reason>Cannot customize messages per use case, reduces flexibility</reason>
-<bad-example>
-```ruby
-# ❌ BAD - Hardcoded message
-class EmailValidator < ActiveModel::EachValidator
-  def validate_each(record, attribute, value)
-    unless value =~ EMAIL_REGEX
-      record.errors.add(attribute, "is not a valid email address")
-    end
-  end
-end
-
-# Cannot customize the message
-class User < ApplicationRecord
-  validates :email, email: { message: "must be a company email" } # Ignored!
-end
-```
-</bad-example>
-<good-example>
-```ruby
-# ✅ GOOD - Supports custom messages
-class EmailValidator < ActiveModel::EachValidator
-  def validate_each(record, attribute, value)
-    unless value =~ EMAIL_REGEX
-      record.errors.add(
-        attribute,
-        options[:message] || "is not a valid email address"
-      )
-    end
-  end
-end
-
-class User < ApplicationRecord
-  validates :email, email: { message: "must be a company email" } # Works!
-end
-```
-</good-example>
-</antipattern>
-
-<antipattern>
-<description>Creating validators for single-use cases</description>
-<reason>Over-engineering, adds unnecessary files and complexity</reason>
-<bad-example>
-```ruby
-# ❌ BAD - Validator used only once
-class ArticleTitleValidator < ActiveModel::EachValidator
-  def validate_each(record, attribute, value)
-    if value.present? && value.length < 5
-      record.errors.add(attribute, "is too short")
-    end
-  end
-end
-
-class Article < ApplicationRecord
-  validates :title, article_title: true
-end
-```
-</bad-example>
-<good-example>
-```ruby
-# ✅ GOOD - Use built-in validators for simple cases
-class Article < ApplicationRecord
-  validates :title, presence: true, length: { minimum: 5 }
-end
-
-# ✅ GOOD - Or custom validate method if complex
-class Article < ApplicationRecord
-  validate :title_meets_requirements
-
-  private
-
-  def title_meets_requirements
-    return if title.blank?
-
-    if title.length < 5
-      errors.add(:title, "is too short")
-    end
-  end
-end
-```
-</good-example>
-</antipattern>
-
-<antipattern>
-<description>Not handling exceptions in validators</description>
-<reason>Unexpected errors can crash validation instead of showing user-friendly messages</reason>
-<bad-example>
-```ruby
-# ❌ BAD - No exception handling
-class UrlValidator < ActiveModel::EachValidator
-  def validate_each(record, attribute, value)
-    uri = URI.parse(value) # Can raise URI::InvalidURIError
-    unless uri.is_a?(URI::HTTP)
-      record.errors.add(attribute, "must be a valid URL")
-    end
-  end
-end
-```
-</bad-example>
-<good-example>
-```ruby
-# ✅ GOOD - Handles exceptions gracefully
-class UrlValidator < ActiveModel::EachValidator
-  def validate_each(record, attribute, value)
-    return if value.blank? && options[:allow_blank]
-
-    uri = URI.parse(value)
-    unless uri.is_a?(URI::HTTP) || uri.is_a?(URI::HTTPS)
-      record.errors.add(attribute, "must be a valid URL")
-    end
-  rescue URI::InvalidURIError
-    record.errors.add(attribute, "is not a valid URL")
+    record.errors.add(attribute, options[:message] || "is not a valid URL")
   end
 end
 ```
@@ -931,12 +468,10 @@ end
 </antipatterns>
 
 <testing>
-Test custom validators in isolation using simple test models:
+Test validators in isolation with simple test models:
 
 ```ruby
 # test/validators/email_validator_test.rb
-require "test_helper"
-
 class EmailValidatorTest < ActiveSupport::TestCase
   class TestModel
     include ActiveModel::Validations
@@ -944,82 +479,21 @@ class EmailValidatorTest < ActiveSupport::TestCase
     validates :email, email: true
   end
 
-  test "accepts valid email addresses" do
-    valid_emails = [
-      "user@example.com",
-      "user.name@example.co.uk",
-      "user+tag@example.com"
-    ]
-
-    valid_emails.each do |email|
-      model = TestModel.new(email: email)
-      assert model.valid?, "Expected #{email} to be valid"
-    end
+  test "validates email format" do
+    assert TestModel.new(email: "user@example.com").valid?
+    assert_not TestModel.new(email: "invalid").valid?
   end
 
-  test "rejects invalid email addresses" do
-    invalid_emails = [
-      "invalid",
-      "@example.com",
-      "user@",
-      "user @example.com"
-    ]
-
-    invalid_emails.each do |email|
-      model = TestModel.new(email: email)
-      assert_not model.valid?, "Expected #{email} to be invalid"
-      assert_includes model.errors[:email], "is not a valid email address"
-    end
+  test "supports allow_blank option" do
+    TestModel.class_eval { validates :email, email: { allow_blank: true } }
+    assert TestModel.new(email: "").valid?
   end
 
-  test "accepts blank when allow_blank is true" do
-    TestModel.class_eval do
-      validates :email, email: { allow_blank: true }
-    end
-
-    model = TestModel.new(email: "")
-    assert model.valid?
-  end
-
-  test "supports custom error messages" do
-    TestModel.class_eval do
-      validates :email, email: { message: "must be valid" }
-    end
-
+  test "supports custom messages" do
+    TestModel.class_eval { validates :email, email: { message: "must be valid" } }
     model = TestModel.new(email: "invalid")
     assert_not model.valid?
     assert_includes model.errors[:email], "must be valid"
-  end
-end
-
-# test/validators/url_validator_test.rb
-class UrlValidatorTest < ActiveSupport::TestCase
-  class TestModel
-    include ActiveModel::Validations
-    attr_accessor :url
-    validates :url, url: true
-  end
-
-  test "accepts valid URLs" do
-    model = TestModel.new(url: "https://example.com")
-    assert model.valid?
-  end
-
-  test "rejects invalid URLs" do
-    model = TestModel.new(url: "not a url")
-    assert_not model.valid?
-  end
-
-  test "validates allowed domains" do
-    TestModel.class_eval do
-      validates :url, url: { allowed_domains: ["example.com"] }
-    end
-
-    model = TestModel.new(url: "https://evil.com")
-    assert_not model.valid?
-
-    model = TestModel.new(url: "https://example.com")
-    assert model.valid?
   end
 end
 
@@ -1031,21 +505,10 @@ class ContentLengthValidatorTest < ActiveSupport::TestCase
     validates :content, content_length: { minimum_words: 5, maximum_words: 10 }
   end
 
-  test "accepts content within word limits" do
-    model = TestModel.new(content: "This has exactly five words")
-    assert model.valid?
-  end
-
-  test "rejects content with too few words" do
-    model = TestModel.new(content: "Too short")
-    assert_not model.valid?
-    assert_match(/must have at least 5 words/, model.errors[:content].first)
-  end
-
-  test "rejects content with too many words" do
-    model = TestModel.new(content: "This content has way too many words and exceeds the maximum limit")
-    assert_not model.valid?
-    assert_match(/must have at most 10 words/, model.errors[:content].first)
+  test "validates word count" do
+    assert TestModel.new(content: "This has exactly five words").valid?
+    assert_not TestModel.new(content: "Short").valid?
+    assert_match(/at least 5 words/, TestModel.new(content: "Short").errors[:content].first)
   end
 end
 
@@ -1057,33 +520,11 @@ class DateRangeValidatorTest < ActiveSupport::TestCase
     validates_with DateRangeValidator
   end
 
-  test "accepts valid date range" do
-    model = TestModel.new(
-      start_date: Date.current,
-      end_date: Date.current + 5.days
-    )
-    assert model.valid?
-  end
-
-  test "rejects end date before start date" do
-    model = TestModel.new(
-      start_date: Date.current,
-      end_date: Date.current - 1.day
-    )
+  test "validates date range" do
+    assert TestModel.new(start_date: Date.current, end_date: Date.current + 5.days).valid?
+    model = TestModel.new(start_date: Date.current, end_date: Date.current - 1.day)
     assert_not model.valid?
     assert_includes model.errors[:end_date], "must be after start date"
-  end
-
-  test "enforces maximum duration" do
-    TestModel.class_eval do
-      validates_with DateRangeValidator, maximum_duration: 30
-    end
-
-    model = TestModel.new(
-      start_date: Date.current,
-      end_date: Date.current + 31.days
-    )
-    assert_not model.valid?
   end
 end
 ```
@@ -1092,12 +533,10 @@ end
 <related-skills>
 - activerecord-patterns - Model validation basics
 - form-objects - Using validators in form objects
-- security-xss - Input validation for security
-- api-validation - API request validation
 </related-skills>
 
 <resources>
-- [Rails Guides - Active Record Validations](https://guides.rubyonrails.org/active_record_validations.html#custom-validators)
-- [Rails API - ActiveModel::EachValidator](https://api.rubyonrails.org/classes/ActiveModel/EachValidator.html)
-- [Rails API - ActiveModel::Validator](https://api.rubyonrails.org/classes/ActiveModel/Validator.html)
+- [Rails Guides - Custom Validators](https://guides.rubyonrails.org/active_record_validations.html#custom-validators)
+- [ActiveModel::EachValidator API](https://api.rubyonrails.org/classes/ActiveModel/EachValidator.html)
+- [ActiveModel::Validator API](https://api.rubyonrails.org/classes/ActiveModel/Validator.html)
 </resources>

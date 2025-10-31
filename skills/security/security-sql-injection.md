@@ -16,7 +16,6 @@ Prevent SQL injection attacks by using parameterized queries, never interpolatin
 - Building dynamic WHERE clauses
 - Search functionality with user-provided terms
 - Filtering, sorting, or pagination with user parameters
-- ALWAYS - SQL injection prevention is ALWAYS required
 </when-to-use>
 
 <attack-vectors>
@@ -24,18 +23,16 @@ Prevent SQL injection attacks by using parameterized queries, never interpolatin
 - **Data Theft** - `' UNION SELECT * FROM users --`
 - **Data Modification** - `'; UPDATE users SET admin=true --`
 - **Data Deletion** - `'; DROP TABLE users --`
-- **Privilege Escalation** - Accessing unauthorized records
 </attack-vectors>
 
 <standards>
 - NEVER use string interpolation in SQL queries
 - Use hash conditions for simple queries: `where(name: value)`
-- Use positional placeholders for complex queries: `where("name = ?", value)`
-- Use named placeholders for readability: `where("name = :name", name: value)`
-- Use `sanitize_sql_like` for LIKE queries with wildcards
+- Use positional placeholders: `where("name = ?", value)`
+- Use named placeholders: `where("name = :name", name: value)`
+- Use `sanitize_sql_like` for LIKE queries
 - Rely on ActiveRecord query methods (automatic protection)
 - Validate and sanitize user input before queries
-- Use strong parameters to control input
 </standards>
 
 ## Vulnerable Patterns
@@ -48,14 +45,12 @@ Prevent SQL injection attacks by using parameterized queries, never interpolatin
 # ❌ CRITICAL - Authentication bypass
 Project.where("name = '#{params[:name]}'")
 # Attack: params[:name] = "' OR '1'='1"
-# Result: SELECT * FROM projects WHERE (name = '' OR '1'='1')
-# Impact: Returns ALL projects
+# Result: WHERE (name = '' OR '1'='1') - Returns ALL projects
 
 # ❌ CRITICAL - Authentication bypass
 User.find_by("login = '#{params[:login]}' AND password = '#{params[:password]}'")
 # Attack: params[:login] = "admin'--"
-# Result: SELECT * FROM users WHERE (login = 'admin'--' AND password = '...')
-# Impact: Password check is commented out, grants admin access
+# Result: Password check is commented out, grants admin access
 
 # ❌ CRITICAL - Data theft via UNION
 Project.where("id = #{params[:id]}")
@@ -65,7 +60,7 @@ Project.where("id = #{params[:id]}")
 # ❌ CRITICAL - Data deletion
 Article.where("title = '#{params[:title]}'")
 # Attack: params[:title] = "'; DROP TABLE articles; --"
-# Impact: Deletes entire articles table
+# Impact: Deletes entire table
 ```
 
 **Why This Happens:**
@@ -77,29 +72,16 @@ User input is directly inserted into SQL, allowing attackers to inject malicious
 <pattern name="hash-conditions">
 <description>Use hash conditions for simple equality checks (RECOMMENDED)</description>
 
-**Simple Equality:**
 ```ruby
 # ✅ SECURE - ActiveRecord escapes automatically
 Project.where(name: params[:name])
 User.find_by(login: params[:login])
-Feedback.where(status: params[:status])
-```
 
-**Multiple Conditions:**
-```ruby
-# ✅ SECURE
-Project.where(
-  name: params[:name],
-  status: params[:status],
-  user_id: current_user.id
-)
-```
+# ✅ SECURE - Multiple conditions
+Project.where(name: params[:name], status: params[:status], user_id: current_user.id)
 
-**IN Queries:**
-```ruby
-# ✅ SECURE
-Project.where(id: params[:ids])  # Works with arrays
-# Generates: WHERE id IN (1, 2, 3)
+# ✅ SECURE - IN queries (works with arrays)
+Project.where(id: params[:ids])  # Generates: WHERE id IN (1, 2, 3)
 ```
 
 **Why Secure:**
@@ -109,38 +91,18 @@ ActiveRecord automatically escapes values and prevents injection.
 <pattern name="positional-placeholders">
 <description>Use ? placeholders for complex queries</description>
 
-**Single Placeholder:**
 ```ruby
-# ✅ SECURE
+# ✅ SECURE - Single placeholder
 Project.where("name = ?", params[:name])
 Project.where("created_at > ?", 1.week.ago)
-```
 
-**Multiple Placeholders:**
-```ruby
-# ✅ SECURE - Order matches parameters
-User.where(
-  "login = ? AND status = ? AND created_at > ?",
-  params[:login],
-  "active",
-  1.month.ago
-)
-```
+# ✅ SECURE - Multiple placeholders (order matches parameters)
+User.where("login = ? AND status = ? AND created_at > ?", params[:login], "active", 1.month.ago)
 
-**Complex Conditions:**
-```ruby
-# ✅ SECURE
-Feedback.where(
-  "status = ? AND (priority = ? OR created_at < ?)",
-  params[:status],
-  "high",
-  1.day.ago
-)
-```
+# ✅ SECURE - Complex conditions
+Feedback.where("status = ? AND (priority = ? OR created_at < ?)", params[:status], "high", 1.day.ago)
 
-**Array Syntax:**
-```ruby
-# ✅ SECURE - Alternative syntax
+# ✅ SECURE - Array syntax
 User.find_by(["login = ? AND password_digest = ?", params[:login], hashed_password])
 ```
 
@@ -151,25 +113,15 @@ Rails escapes each parameter value, preventing injection.
 <pattern name="named-placeholders">
 <description>Use :named placeholders for readability</description>
 
-**Named Parameters:**
 ```ruby
 # ✅ SECURE - More readable for complex queries
 Project.where(
   "zip_code = :zip AND quantity >= :qty AND status = :status",
-  zip: params[:zip],
-  qty: params[:quantity],
-  status: "active"
+  zip: params[:zip], qty: params[:quantity], status: "active"
 )
-```
 
-**With Hash:**
-```ruby
-# ✅ SECURE
-conditions = {
-  name: params[:name],
-  email: params[:email],
-  status: "active"
-}
+# ✅ SECURE - With hash
+conditions = { name: params[:name], email: params[:email], status: "active" }
 User.where("name = :name AND email = :email AND status = :status", conditions)
 ```
 
@@ -180,34 +132,18 @@ Named placeholders are escaped just like positional ones, but more readable.
 <pattern name="like-queries-safe">
 <description>Safely handle LIKE queries with wildcards</description>
 
-**LIKE with Sanitization:**
 ```ruby
-# ✅ SECURE - Escape special LIKE characters
+# ✅ SECURE - Escape special LIKE characters (% -> \%, _ -> \_)
 search_term = Book.sanitize_sql_like(params[:title])
 Book.where("title LIKE ?", "#{search_term}%")
 
-# sanitize_sql_like escapes:
-# % -> \%
-# _ -> \_
-# Then you add your intended wildcards
-```
-
-**Case-Insensitive Search:**
-```ruby
-# ✅ SECURE
+# ✅ SECURE - Case-insensitive search
 search_term = Book.sanitize_sql_like(params[:query])
 Book.where("LOWER(title) LIKE LOWER(?)", "%#{search_term}%")
-```
 
-**Multiple Columns:**
-```ruby
-# ✅ SECURE
+# ✅ SECURE - Multiple columns
 search = Book.sanitize_sql_like(params[:search])
-Book.where(
-  "title LIKE ? OR author LIKE ?",
-  "%#{search}%",
-  "%#{search}%"
-)
+Book.where("title LIKE ? OR author LIKE ?", "%#{search}%", "%#{search}%")
 ```
 
 **Why Sanitize:**
@@ -217,7 +153,6 @@ Without `sanitize_sql_like`, users could inject `%` or `_` wildcards and see uni
 <pattern name="activerecord-query-methods">
 <description>Use ActiveRecord query methods (automatic protection)</description>
 
-**Safe Query Methods:**
 ```ruby
 # ✅ SECURE - All ActiveRecord methods are safe
 Project.find(params[:id])
@@ -231,11 +166,8 @@ Project.joins(:user)
 Project.includes(:comments)
 Project.group(:category)
 Project.having("COUNT(*) > ?", 5)
-```
 
-**Scopes:**
-```ruby
-# app/models/project.rb
+# ✅ SECURE - Scopes
 class Project < ApplicationRecord
   scope :active, -> { where(status: "active") }
   scope :by_user, ->(user_id) { where(user_id: user_id) }
@@ -245,7 +177,6 @@ class Project < ApplicationRecord
   }
 end
 
-# ✅ SECURE - Scopes use safe methods
 Project.active.by_user(params[:user_id]).search(params[:query])
 ```
 
@@ -260,21 +191,15 @@ ActiveRecord methods automatically escape parameters.
 <bad-example>
 ```ruby
 # ❌ CRITICAL VULNERABILITY
-def search
-  @projects = Project.where("name LIKE '%#{params[:query]}%'")
-end
-
+@projects = Project.where("name LIKE '%#{params[:query]}%'")
 # Attack: params[:query] = "%'; DROP TABLE projects; --"
-# Result: Deletes entire projects table
 ```
 </bad-example>
 <good-example>
 ```ruby
 # ✅ SECURE - Use placeholders
-def search
-  query = Project.sanitize_sql_like(params[:query])
-  @projects = Project.where("name LIKE ?", "%#{query}%")
-end
+query = Project.sanitize_sql_like(params[:query])
+@projects = Project.where("name LIKE ?", "%#{query}%")
 ```
 </good-example>
 </antipattern>
@@ -284,49 +209,18 @@ end
 <reason>Allows column enumeration and injection</reason>
 <bad-example>
 ```ruby
-# ❌ VULNERABLE - User controls ORDER BY
+# ❌ VULNERABLE
 Project.order("#{params[:sort]} #{params[:direction]}")
-
 # Attack: params[:sort] = "name); DROP TABLE projects; --"
 ```
 </bad-example>
 <good-example>
 ```ruby
 # ✅ SECURE - Allowlist approach
-def safe_order
-  sort_column = params[:sort].to_s
-  direction = params[:direction].to_s.upcase
-
-  # Allowlist columns
-  allowed_columns = %w[name created_at status]
-  column = allowed_columns.include?(sort_column) ? sort_column : "created_at"
-
-  # Allowlist direction
-  dir = %w[ASC DESC].include?(direction) ? direction : "DESC"
-
-  Project.order("#{column} #{dir}")
-end
-```
-</good-example>
-</antipattern>
-
-<antipattern>
-<description>Not sanitizing LIKE wildcards</description>
-<reason>Allows unintended wildcard matching</reason>
-<bad-example>
-```ruby
-# ❌ VULNERABLE - User can inject wildcards
-Book.where("title LIKE ?", "%#{params[:title]}%")
-
-# Attack: params[:title] = "%"
-# Result: Returns ALL books
-```
-</bad-example>
-<good-example>
-```ruby
-# ✅ SECURE - Escape wildcards first
-search = Book.sanitize_sql_like(params[:title])
-Book.where("title LIKE ?", "%#{search}%")
+allowed_columns = %w[name created_at status]
+column = allowed_columns.include?(params[:sort]) ? params[:sort] : "created_at"
+dir = %w[ASC DESC].include?(params[:direction]&.upcase) ? params[:direction] : "DESC"
+Project.order("#{column} #{dir}")
 ```
 </good-example>
 </antipattern>
@@ -336,16 +230,14 @@ Book.where("title LIKE ?", "%#{search}%")
 <reason>Raw SQL bypass of ActiveRecord protections</reason>
 <bad-example>
 ```ruby
-# ❌ CRITICAL VULNERABILITY
-sql = "SELECT * FROM users WHERE login = '#{params[:login]}'"
-User.find_by_sql(sql)
+# ❌ CRITICAL
+User.find_by_sql("SELECT * FROM users WHERE login = '#{params[:login]}'")
 ```
 </bad-example>
 <good-example>
 ```ruby
-# ✅ SECURE - Use placeholders even in raw SQL
-sql = ["SELECT * FROM users WHERE login = ?", params[:login]]
-User.find_by_sql(sql)
+# ✅ SECURE - Use placeholders
+User.find_by_sql(["SELECT * FROM users WHERE login = ?", params[:login]])
 
 # ✅ BETTER - Use ActiveRecord methods
 User.where(login: params[:login])
@@ -361,41 +253,27 @@ Test SQL injection prevention:
 # test/models/project_test.rb
 class ProjectTest < ActiveSupport::TestCase
   test "search handles malicious input safely" do
-    # Create test project
     project = projects(:one)
-
-    # Attempt SQL injection
     malicious_input = "'; DROP TABLE projects; --"
 
-    # Should not raise error or delete data
-    assert_nothing_raised do
-      Project.search(malicious_input)
-    end
-
-    # Project should still exist
+    assert_nothing_raised { Project.search(malicious_input) }
     assert Project.exists?(project.id)
   end
 
   test "search escapes LIKE wildcards" do
-    project = projects(:one)
-    project.update!(name: "Project A")
-
-    # User tries to search for all projects with %
+    projects(:one).update!(name: "Project A")
     results = Project.search("%")
 
-    # Should not return results (% is escaped)
-    assert_empty results
+    assert_empty results  # % should be escaped
   end
 end
 
 # test/controllers/projects_controller_test.rb
 class ProjectsControllerTest < ActionDispatch::IntegrationTest
   test "index with malicious sort parameter is safe" do
-    # Attempt SQL injection via sort
     get projects_path, params: { sort: "name); DROP TABLE projects; --" }
 
     assert_response :success
-    # Projects table should still exist
     assert Project.count > 0
   end
 end
@@ -406,7 +284,6 @@ end
 - strong-parameters - Filter allowed parameters
 - activerecord-queries - Safe query patterns
 - security-xss - Output escaping
-- input-validation - Validate user input
 </related-skills>
 
 <resources>

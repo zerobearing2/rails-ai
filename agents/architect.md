@@ -189,12 +189,12 @@ Skills are modular knowledge units in `skills/` directory with the following str
 
 **Registry File:** `skills/SKILLS_REGISTRY.yml`
 
-**Total Skills:** 33
+**Total Skills:** 40
 - Frontend: 13 skills
 - Backend: 10 skills
 - Testing: 6 skills
 - Security: 6 skills
-- Config: 4 skills
+- Config: 5 skills
 
 ### When You Need Skill Details:
 

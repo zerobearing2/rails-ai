@@ -199,7 +199,12 @@ namespace :lint do
   desc "Lint Markdown skill files"
   task :markdown do
     puts "Linting Markdown files..."
-    system("bundle exec mdl skills/ docs/ *.md --style .mdl_style.rb")
+    # Lint all markdown files except docs/maintenance/ archive
+    md_files = Dir.glob("skills/**/*.md") +
+               Dir.glob("rules/**/*.md") +
+               Dir.glob("docs/**/*.md").reject { |f| f.start_with?("docs/maintenance/") } +
+               Dir.glob("*.md")
+    system("bundle exec mdl #{md_files.join(' ')} --style .mdl_style.rb")
   end
 
   desc "Validate YAML front matter in skill files"

@@ -14,27 +14,24 @@ applies_to:
 
 # Docker Rails Setup
 
-Rails 8+ includes Docker support by default. This skill covers the essential .dockerignore configuration to exclude development files from production builds, particularly the `docs/` folder created by the planning agent.
+Rails 8+ includes Docker support by default. This skill covers essential .dockerignore configuration to exclude development files from production builds, particularly the `docs/` folder created by the planning agent.
 
 <when-to-use>
 - Setting up Docker for Rails 8+ deployment
 - Optimizing Docker build times and image sizes
 - Excluding planning documentation from production images
-- Deploying with Kamal (Rails 8 default deployment tool)
 </when-to-use>
 
 <benefits>
 - **Smaller Images** - Exclude unnecessary files (docs, tests, specs)
 - **Faster Builds** - Less files to copy during `COPY . .`
-- **Security** - Prevent accidental inclusion of .env files or credentials
-- **Stock Rails 8** - Uses patterns provided by Rails 8 generators
+- **Security** - Prevent accidental inclusion of .env files
 </benefits>
 
 <standards>
 - ALWAYS create .dockerignore to exclude development files
 - ALWAYS exclude docs/ folder from production images
 - Use stock Rails 8 Dockerfile patterns (don't over-customize)
-- Leverage Rails 8 DevContainer support when appropriate
 </standards>
 
 ## .dockerignore Configuration
@@ -42,15 +39,11 @@ Rails 8+ includes Docker support by default. This skill covers the essential .do
 <pattern name="dockerignore-rails-8">
 <description>Essential .dockerignore for Rails 8 projects</description>
 
-**Rails 8 .dockerignore with docs/ exclusion:**
-
 ```gitignore
-# Planning and Documentation (not needed in production)
+# Planning and Documentation
 docs/
 *.md
 README*
-LICENSE*
-CHANGELOG*
 
 # Development Files
 .git/
@@ -58,7 +51,7 @@ CHANGELOG*
 .gitignore
 .dockerignore
 
-# Environment Files (use secrets management instead)
+# Environment Files
 .env*
 config/master.key
 config/credentials/*.key
@@ -67,52 +60,36 @@ config/credentials/*.key
 spec/
 test/
 coverage/
-.rspec
 
-# Development Dependencies
+# Dependencies
 .bundle/
 vendor/cache/
 
-# Logs
+# Logs and Temp
 log/*
 tmp/*
 *.log
 
 # Development Databases
 *.sqlite3
-*.sqlite3-journal
-db/*.sqlite3
-db/*.sqlite3-*
+db/*.sqlite3*
 storage/*
 
-# Node Modules (rebuild in container)
+# Node
 node_modules/
-yarn-error.log
 
-# IDE and Editor Files
+# IDE Files
 .vscode/
 .idea/
 *.swp
-*.swo
-*~
 .DS_Store
 ```
 
-**Why exclude docs/ folder:**
-
-The `docs/` folder is created by the planning agent (@plan) and contains:
-- Vision documents (`docs/vision.md`)
-- Architecture documents (`docs/architecture/*.md`)
-- Feature specifications (`docs/features/F-NNN-*.md`)
-- Task breakdowns (`docs/tasks/F-NNN-tasks.md`)
-- Architecture Decision Records (`docs/decisions/NNN-*.md`)
-
-**This documentation:**
-- Grows over time as features are planned and documented
-- Is not needed for application runtime
-- Can be several MB of markdown files
-- Reduces Docker image size significantly
-- Speeds up Docker builds (fewer files to copy)
+**Why exclude docs/:**
+- Created by planning agent (@plan) with vision, architecture, features, tasks, and ADRs
+- Not needed for runtime
+- Can be several MB of markdown
+- Significantly reduces image size and build time
 
 **CRITICAL:** Always exclude `docs/` from production Docker images.
 
@@ -123,46 +100,23 @@ The `docs/` folder is created by the planning agent (@plan) and contains:
 <pattern name="rails-8-stock-dockerfile">
 <description>Rails 8 generates Dockerfiles by default</description>
 
-**Rails 8 includes Docker by default:**
-
-When you create a new Rails 8 app, a Dockerfile is generated automatically:
+Rails 8 creates a production-optimized Dockerfile automatically:
 
 ```bash
-rails new myapp
-# Creates Dockerfile automatically
-```
+rails new myapp  # Creates Dockerfile automatically
 
-**Basic Docker commands (Rails 8):**
-
-```bash
-# Build production image
+# Build and run
 docker build -t app .
+docker run -p 3000:3000 --env RAILS_MASTER_KEY=<key> app
 
-# Create volume for storage
-docker volume create app-storage
-
-# Run production container
-docker run --rm -it \
-  -v app-storage:/rails/storage \
-  -p 3000:3000 \
-  --env RAILS_MASTER_KEY=<your-key> \
-  app
+# Multi-platform build
+docker buildx build --push --platform=linux/amd64,linux/arm64 -t <user/image> .
 ```
 
-**Multi-platform builds:**
-
-```bash
-# Build for multiple platforms (production deployment)
-docker buildx build --push \
-  --platform=linux/amd64,linux/arm64 \
-  -t <user/image> .
-```
-
-**Key points:**
-- Rails 8 Dockerfile is production-optimized by default
-- Uses multi-stage builds automatically
-- Includes health check at `/up` endpoint
-- Compatible with Kamal deployment (Rails 8 default)
+**Key features:**
+- Multi-stage builds for smaller images
+- Health check at `/up` endpoint
+- Kamal-compatible (Rails 8 default deployment)
 
 </pattern>
 
@@ -171,23 +125,15 @@ docker buildx build --push \
 <pattern name="rails-devcontainer">
 <description>Rails 8.1+ supports DevContainers for VS Code</description>
 
-**Generate Rails app with DevContainer:**
-
 ```bash
-# Create new Rails app with DevContainer configuration
 rails new myapp --devcontainer
 ```
 
 **Benefits:**
-- Full development environment in Docker
-- Consistent across team members
-- VS Code integration with Remote-Containers extension
+- Consistent development environment across team
+- VS Code Remote-Containers integration
 - Includes all dependencies (database, Redis, etc.)
-
-**When to use:**
-- Teams want consistent development environments
-- Onboarding new developers
-- Working across multiple machines
+- Ideal for onboarding and multi-machine workflows
 
 </pattern>
 
@@ -196,65 +142,44 @@ rails new myapp --devcontainer
 <pattern name="kamal-rails-8">
 <description>Kamal is the default deployment tool for Rails 8</description>
 
-**Kamal ships with Rails 8:**
-
-Rails 8 includes Kamal configuration by default in `config/deploy.yml`.
-
-**Basic Kamal workflow:**
+Rails 8 includes Kamal configuration in `config/deploy.yml`:
 
 ```bash
-# Deploy to production
-kamal deploy
-
-# Check deployment status
-kamal app logs
-
-# Execute Rails commands remotely
-kamal app exec 'bin/rails db:migrate'
+kamal deploy                              # Deploy to production
+kamal app logs                            # Check status
+kamal app exec 'bin/rails db:migrate'    # Remote commands
 ```
 
 **Requirements:**
-- Dockerfile in project root (included by default)
-- Health check endpoint at `/up` (included by default)
-- `RAILS_MASTER_KEY` secret configured
+- Dockerfile (included by default)
+- Health check at `/up` (included by default)
+- `RAILS_MASTER_KEY` configured
 
-**Kamal benefits:**
-- Zero-downtime deployments
-- Built-in SSL/TLS with Let's Encrypt
-- Multi-server support
-- Docker-based, no vendor lock-in
+**Benefits:** Zero-downtime deploys, SSL/TLS, multi-server support, no vendor lock-in.
 
 </pattern>
 
 ## Common Patterns
 
 <antipatterns>
-### ❌ DON'T: Include docs/ in production
+### ❌ DON'T: Skip .dockerignore
 
 ```dockerfile
-# BAD: No .dockerignore file
+# BAD: No .dockerignore → copies docs/, test/, spec/
 COPY . .
-# Copies docs/, test/, spec/, etc.
 ```
 
-**Problems:**
-- Bloated image with planning docs not needed at runtime
-- Longer build times
-- Wasted CI/CD bandwidth
+**Problem:** Bloated images, longer builds, wasted CI/CD bandwidth.
 
-### ❌ DON'T: Over-customize the Dockerfile
+### ❌ DON'T: Over-customize Dockerfile
 
 ```dockerfile
-# BAD: Custom Alpine builds, complex optimizations
+# BAD: Custom Alpine builds
 FROM ruby:3.3-alpine AS builder
 RUN apk add --no-cache build-base ...
-# Rails 8 Dockerfile is already optimized
 ```
 
-**Problems:**
-- Diverges from Rails 8 defaults
-- Harder to maintain
-- May break with Rails updates
+**Problem:** Harder to maintain, may break with Rails updates.
 
 </antipatterns>
 
@@ -262,15 +187,12 @@ RUN apk add --no-cache build-base ...
 ### ✅ DO: Use stock Rails 8 Dockerfile
 
 ```bash
-# Good: Let Rails generate the Dockerfile
-rails new myapp
-# Dockerfile is already production-optimized
+rails new myapp  # Dockerfile already optimized
 ```
 
 ### ✅ DO: Create comprehensive .dockerignore
 
 ```gitignore
-# Essential exclusions
 docs/
 spec/
 test/
@@ -278,18 +200,10 @@ test/
 .env*
 ```
 
-### ✅ DO: Leverage Kamal for deployment
+### ✅ DO: Leverage Kamal
 
 ```bash
-# Rails 8 default deployment
-kamal deploy
-```
-
-### ✅ DO: Use DevContainers for development
-
-```bash
-# Consistent dev environment
-rails new myapp --devcontainer
+kamal deploy  # Rails 8 default
 ```
 
 </best-practices>
@@ -297,37 +211,22 @@ rails new myapp --devcontainer
 ## Quick Start
 
 <implementation-checklist>
-### New Rails 8 Project with Docker
+### New Rails 8 Project
 
 ```bash
-# 1. Create new Rails 8 app (includes Dockerfile)
-rails new myapp
-
-# 2. Add .dockerignore with docs/ exclusion
-# (See pattern above)
-
-# 3. Build and test locally
-docker build -t myapp .
-docker run -p 3000:3000 myapp
-
-# 4. Deploy with Kamal
-kamal deploy
+rails new myapp               # 1. Creates Dockerfile
+# 2. Add .dockerignore (see pattern above)
+docker build -t myapp .       # 3. Build locally
+kamal deploy                  # 4. Deploy
 ```
 
 ### Existing Rails Project
 
 ```bash
-# 1. Add .dockerignore with docs/ exclusion
-# (See pattern above)
-
-# 2. Use stock Rails 8 Dockerfile if possible
-# (Avoid custom Alpine/optimization unless necessary)
-
-# 3. Test build
-docker build -t myapp .
-
-# 4. Deploy
-kamal deploy
+# 1. Add .dockerignore (see pattern above)
+# 2. Use stock Rails 8 Dockerfile
+docker build -t myapp .       # 3. Test
+kamal deploy                  # 4. Deploy
 ```
 
 </implementation-checklist>
@@ -341,5 +240,4 @@ kamal deploy
 ## Related Skills
 
 - `solid-stack-setup` - SolidQueue/Cache/Cable configuration
-- `credentials-management` - Rails encrypted credentials for secrets
-- `environment-configuration` - Environment-specific settings
+- `credentials-management` - Rails encrypted credentials

@@ -62,35 +62,25 @@ Organize and share model behavior using ActiveSupport::Concern for cleaner, more
 module Feedback::Notifications
   extend ActiveSupport::Concern
 
-  # Code in `included do` block runs when concern is included
-  # Executes in the context of the including class
   included do
-    # Associations
     has_many :notification_subscribers, dependent: :destroy
-
-    # Validations
     validates :recipient_email, presence: true, if: :notifications_enabled?
 
-    # Callbacks
     after_create_commit :notify_recipient_of_submission
     after_update_commit :notify_sender_of_response, if: :response_added?
 
-    # Scopes
     scope :with_pending_notifications, -> { where(notified_at: nil) }
     scope :notification_sent, -> { where.not(notified_at: nil) }
   end
 
-  # Instance methods available to the model
   def notify_recipient_of_submission
     return if recipient_email.blank?
-
     FeedbackMailer.notify_recipient(self).deliver_later
     touch(:notified_at)
   end
 
   def notify_sender_of_response
     return if sender_email.blank? || response.blank?
-
     FeedbackMailer.notify_sender_of_response(self).deliver_later
   end
 
@@ -106,20 +96,13 @@ module Feedback::Notifications
     recipient_email.present? && !notification_disabled
   end
 
-  # Class methods via class_methods block
   class_methods do
     def send_pending_notifications
-      with_pending_notifications.find_each do |feedback|
-        feedback.notify_recipient_of_submission
-      end
+      with_pending_notifications.find_each(&:notify_recipient_of_submission)
     end
 
     def notification_stats
-      {
-        pending: with_pending_notifications.count,
-        sent: notification_sent.count,
-        total: count
-      }
+      { pending: with_pending_notifications.count, sent: notification_sent.count, total: count }
     end
   end
 end
@@ -267,10 +250,6 @@ module SoftDeletable
     scope :active, -> { where(deleted_at: nil) }
     scope :deleted, -> { where.not(deleted_at: nil) }
     scope :deleted_since, ->(date) { where("deleted_at >= ?", date) }
-
-    # Override default scope to exclude soft-deleted records
-    # Note: Use with caution - default_scope can cause issues
-    # Prefer explicit .active scope in queries
   end
 
   def soft_delete
@@ -404,14 +383,11 @@ module Sluggable
     slug.blank? || slug_source_changed?
   end
 
-  # Override in including model
   def slug_source
-    # Default implementation - override in model
     raise NotImplementedError, "#{self.class} must implement slug_source method"
   end
 
   def slug_source_changed?
-    # Default implementation - override in model
     false
   end
 
@@ -456,168 +432,6 @@ article_path(article)  # => "/articles/how-to-use-rails-concerns"
 
 # Find by slug
 Article.find_by_slug!("how-to-use-rails-concerns")
-```
-</pattern>
-
-<pattern name="timestampable-concern">
-<description>Track creation, update, and custom timestamps</description>
-
-**Timestampable Concern:**
-```ruby
-# app/models/concerns/timestampable.rb
-module Timestampable
-  extend ActiveSupport::Concern
-
-  included do
-    # Rails provides created_at/updated_at by default
-    # This concern adds additional timestamp tracking
-
-    before_create :set_created_metadata
-    before_update :set_updated_metadata
-  end
-
-  def created_by_user
-    User.find_by(id: created_by_id)
-  end
-
-  def updated_by_user
-    User.find_by(id: updated_by_id)
-  end
-
-  def time_since_created
-    return nil unless created_at
-
-    Time.current - created_at
-  end
-
-  def time_since_updated
-    return nil unless updated_at
-
-    Time.current - updated_at
-  end
-
-  def recently_created?(threshold = 24.hours)
-    time_since_created && time_since_created < threshold
-  end
-
-  def recently_updated?(threshold = 24.hours)
-    time_since_updated && time_since_updated < threshold
-  end
-
-  private
-
-  def set_created_metadata
-    self.created_by_id = Current.user&.id
-    self.created_ip = Current.request_ip
-  end
-
-  def set_updated_metadata
-    self.updated_by_id = Current.user&.id
-    self.updated_ip = Current.request_ip
-  end
-
-  class_methods do
-    def created_by(user)
-      where(created_by_id: user.id)
-    end
-
-    def updated_by(user)
-      where(updated_by_id: user.id)
-    end
-
-    def created_since(time)
-      where("created_at >= ?", time)
-    end
-
-    def updated_since(time)
-      where("updated_at >= ?", time)
-    end
-
-    def recently_created(threshold = 24.hours)
-      created_since(threshold.ago)
-    end
-
-    def recently_updated(threshold = 24.hours)
-      updated_since(threshold.ago)
-    end
-  end
-end
-```
-</pattern>
-
-<pattern name="searchable-concern">
-<description>Full-text search functionality for models</description>
-
-**Searchable Concern:**
-```ruby
-# app/models/concerns/searchable.rb
-module Searchable
-  extend ActiveSupport::Concern
-
-  class_methods do
-    # Override in model to define searchable columns
-    def searchable_columns
-      raise NotImplementedError, "#{name} must implement searchable_columns"
-    end
-
-    def search(query)
-      return none if query.blank?
-
-      sanitized_query = sanitize_sql_like(query.to_s)
-      conditions = searchable_columns.map do |column|
-        "#{column} ILIKE :query"
-      end.join(" OR ")
-
-      where(conditions, query: "%#{sanitized_query}%")
-    end
-
-    def search_any(queries)
-      return none if queries.blank?
-
-      queries.flatten.compact.reduce(none) do |relation, query|
-        relation.or(search(query))
-      end
-    end
-
-    def search_all(queries)
-      return all if queries.blank?
-
-      queries.flatten.compact.reduce(all) do |relation, query|
-        relation.merge(search(query))
-      end
-    end
-  end
-
-  def search_rank(query)
-    return 0 if query.blank?
-
-    self.class.searchable_columns.count do |column|
-      send(column).to_s.downcase.include?(query.downcase)
-    end
-  end
-end
-```
-
-**Usage:**
-```ruby
-# app/models/feedback.rb
-class Feedback < ApplicationRecord
-  include Searchable
-
-  def self.searchable_columns
-    [:content, :sender_name, :sender_email]
-  end
-end
-
-# Search across multiple columns
-Feedback.search("bug report")
-# WHERE (content ILIKE '%bug report%' OR sender_name ILIKE '%bug report%' OR sender_email ILIKE '%bug report%')
-
-# Search for any term
-Feedback.search_any(["bug", "feature"])
-
-# Search for all terms
-Feedback.search_all(["urgent", "payment"])
 ```
 </pattern>
 
@@ -668,12 +482,7 @@ module Feedback::StatusTrackable
   private
 
   def log_status_change
-    Rails.logger.info(
-      "Feedback ##{id} status changed: " \
-      "#{status_before_last_save} -> #{status} by #{Current.user&.email}"
-    )
-
-    # Optionally create audit record
+    Rails.logger.info("Feedback ##{id} status: #{status_before_last_save} -> #{status}")
     StatusChange.create!(
       feedback_id: id,
       from_status: status_before_last_save,
@@ -711,6 +520,77 @@ end
 ```
 </pattern>
 
+## Additional Pattern Examples
+
+<pattern name="timestampable-concern">
+<description>Track creation and update metadata with user tracking</description>
+
+**Timestampable Concern:**
+```ruby
+# app/models/concerns/timestampable.rb
+module Timestampable
+  extend ActiveSupport::Concern
+
+  included do
+    before_create :set_created_metadata
+    before_update :set_updated_metadata
+  end
+
+  def created_by_user
+    User.find_by(id: created_by_id)
+  end
+
+  def recently_created?(threshold = 24.hours)
+    created_at && (Time.current - created_at) < threshold
+  end
+
+  def recently_updated?(threshold = 24.hours)
+    updated_at && (Time.current - updated_at) < threshold
+  end
+
+  private
+
+  def set_created_metadata
+    self.created_by_id = Current.user&.id
+    self.created_ip = Current.request_ip
+  end
+
+  def set_updated_metadata
+    self.updated_by_id = Current.user&.id
+    self.updated_ip = Current.request_ip
+  end
+
+  class_methods do
+    def created_by(user)
+      where(created_by_id: user.id)
+    end
+
+    def recently_created(threshold = 24.hours)
+      where("created_at >= ?", threshold.ago)
+    end
+
+    def recently_updated(threshold = 24.hours)
+      where("updated_at >= ?", threshold.ago)
+    end
+  end
+end
+```
+
+**Usage:**
+```ruby
+class Feedback < ApplicationRecord
+  include Timestampable
+end
+
+# Query by creator
+Feedback.created_by(current_user)
+
+# Find recent records
+Feedback.recently_created(1.week)
+Feedback.recently_updated(3.days)
+```
+</pattern>
+
 ## Namespacing Guidelines
 
 <pattern name="namespacing-strategy">
@@ -721,17 +601,11 @@ end
 # app/models/feedback/
 # ├── notifications.rb      # Feedback-specific notification logic
 # ├── status_trackable.rb   # Feedback status management
-# └── ai_improvements.rb    # Feedback AI enhancement
+# └── ai_improvements.rb
 
-# app/models/user/
-# ├── authenticatable.rb    # User authentication
-# ├── profile_completable.rb
-# └── settings.rb           # User-specific settings
-
-# Rule: Use ModelName:: namespace when concern is specific to ONE model
-# Place alongside the parent model in app/models/[model_name]/
-# This is different from child models which use PLURAL (Feedbacks::Response)
-# Concerns use SINGULAR because they augment the parent model
+# Rule: Use SINGULAR ModelName:: namespace when concern is specific to ONE model
+# Place alongside parent model in app/models/[model_name]/
+# Different from child models which use PLURAL (Feedbacks::Response)
 ```
 
 **Shared/Generic Concerns (In concerns/ directory):**
@@ -739,13 +613,9 @@ end
 # app/models/concerns/
 # ├── taggable.rb           # Used by Feedback, Article, Product
 # ├── soft_deletable.rb     # Used by Feedback, Comment, Attachment
-# ├── sluggable.rb          # Used by Article, Category, Tag
-# ├── searchable.rb         # Used by multiple models
-# └── timestampable.rb      # Generic timestamp tracking
+# └── sluggable.rb          # Used by Article, Category, Tag
 
-# Rule: Place in concerns/ when concern is used by 3+ models
-# Or when designed to be globally reusable from the start
-# Use simple module names (Taggable, not Shared::Taggable)
+# Rule: Place in concerns/ when used by 3+ models or designed for reuse
 ```
 
 **File Organization:**
@@ -755,19 +625,11 @@ app/models/
 ├── feedback/
 │   ├── notifications.rb      # module Feedback::Notifications
 │   ├── status_trackable.rb   # module Feedback::StatusTrackable
-│   └── ai_improvements.rb    # module Feedback::AiImprovements
-├── user.rb
-├── user/
-│   ├── authenticatable.rb    # module User::Authenticatable
-│   ├── profile_completable.rb # module User::ProfileCompletable
-│   └── settings.rb           # module User::Settings
+│   └── ai_improvements.rb
 ├── concerns/
 │   ├── taggable.rb           # module Taggable
 │   ├── soft_deletable.rb     # module SoftDeletable
-│   ├── sluggable.rb          # module Sluggable
-│   ├── searchable.rb         # module Searchable
-│   └── timestampable.rb      # module Timestampable
-└── README.md
+│   └── sluggable.rb          # module Sluggable
 ```
 </pattern>
 
@@ -794,27 +656,15 @@ module Notifiable
 
   def notify(event)
     return unless should_notify?
-
     email = send(self.class.notification_email_method)
     return if email.blank?
 
-    if self.class.notification_async
-      NotificationMailer.send("#{event}_notification", self).deliver_later
-    else
-      NotificationMailer.send("#{event}_notification", self).deliver_now
-    end
+    mailer = NotificationMailer.send("#{event}_notification", self)
+    self.class.notification_async ? mailer.deliver_later : mailer.deliver_now
   end
 
   def should_notify?
     respond_to?(self.class.notification_email_method) && !skip_notifications
-  end
-
-  private
-
-  notification_events.each do |event|
-    define_method "notify_on_#{event}" do
-      notify(event)
-    end
   end
 end
 ```
@@ -842,67 +692,6 @@ end
 </pattern>
 
 <antipatterns>
-<antipattern>
-<description>Creating "god concerns" with too much responsibility</description>
-<reason>Defeats the purpose of extracting concerns - keeps code coupled and hard to understand</reason>
-<bad-example>
-```ruby
-# ❌ BAD - Concern doing too many things
-module Feedback::Everything
-  extend ActiveSupport::Concern
-
-  included do
-    # Notifications
-    after_create :send_notification
-    # Status tracking
-    after_update :log_status_change
-    # Tagging
-    has_many :tags
-    # Soft delete
-    scope :active, -> { where(deleted_at: nil) }
-    # Search
-    scope :search, ->(q) { where("content LIKE ?", "%#{q}%") }
-    # Analytics
-    after_save :track_analytics
-    # Caching
-    after_commit :clear_cache
-    # ... 200 more lines
-  end
-
-  # 50 instance methods
-  # 30 class methods
-end
-```
-</bad-example>
-<good-example>
-```ruby
-# ✅ GOOD - Focused, single-responsibility concerns
-module Feedback::Notifications
-  extend ActiveSupport::Concern
-  # Only notification-related code
-end
-
-module Feedback::StatusTrackable
-  extend ActiveSupport::Concern
-  # Only status tracking code
-end
-
-module Taggable
-  extend ActiveSupport::Concern
-  # Only tagging code
-end
-
-# Model includes multiple focused concerns
-class Feedback < ApplicationRecord
-  include Feedback::Notifications
-  include Feedback::StatusTrackable
-  include Taggable
-  include SoftDeletable
-end
-```
-</good-example>
-</antipattern>
-
 <antipattern>
 <description>Using plural namespace for model concerns</description>
 <reason>Breaks Rails conventions - concerns augment the model, not create children</reason>
@@ -942,7 +731,6 @@ end
 <bad-example>
 ```ruby
 # ❌ BAD - Only testing concerns through models
-# test/models/feedback_test.rb
 class FeedbackTest < ActiveSupport::TestCase
   test "tagging works" do
     feedback = feedbacks(:one)
@@ -950,107 +738,22 @@ class FeedbackTest < ActiveSupport::TestCase
     assert feedback.tagged_with?("urgent")
   end
 end
-
-# No dedicated concern tests - if concern breaks, all model tests break
+# No dedicated concern tests
 ```
 </bad-example>
 <good-example>
 ```ruby
 # ✅ GOOD - Test concerns independently
-# test/models/concerns/shared/taggable_test.rb
-class Shared::TaggableTest < ActiveSupport::TestCase
-  # Create a test model that includes the concern
+class TaggableTest < ActiveSupport::TestCase
   class TaggableTestModel < ApplicationRecord
     self.table_name = "feedbacks"
-    include Shared::Taggable
+    include Taggable
   end
 
   test "add_tag adds a tag" do
     record = TaggableTestModel.first
     record.add_tag("urgent")
-
     assert record.tagged_with?("urgent")
-    assert_includes record.tags.pluck(:name), "urgent"
-  end
-
-  test "tag_list= creates tags from comma-separated string" do
-    record = TaggableTestModel.first
-    record.tag_list = "bug, urgent, needs-review"
-
-    assert_equal 3, record.tags.count
-    assert record.tagged_with?("bug")
-    assert record.tagged_with?("urgent")
-  end
-
-  test "tagged_with? is case-insensitive" do
-    record = TaggableTestModel.first
-    record.add_tag("urgent")
-
-    assert record.tagged_with?("URGENT")
-    assert record.tagged_with?("Urgent")
-  end
-end
-```
-</good-example>
-</antipattern>
-
-<antipattern>
-<description>Concerns with dependencies on other concerns</description>
-<reason>Creates tight coupling and makes concerns less reusable</reason>
-<bad-example>
-```ruby
-# ❌ BAD - Concern depends on another concern
-module Feedback::Analytics
-  extend ActiveSupport::Concern
-
-  included do
-    # Assumes StatusTrackable is already included!
-    after_update :track_status_analytics, if: :saved_change_to_status?
-  end
-
-  def track_status_analytics
-    # Calls methods from StatusTrackable concern
-    Analytics.track("status_changed", {
-      from: status_before_last_save,  # From StatusTrackable
-      to: status,
-      age: status_age  # From StatusTrackable
-    })
-  end
-end
-```
-</bad-example>
-<good-example>
-```ruby
-# ✅ GOOD - Self-contained concerns
-module Feedback::Analytics
-  extend ActiveSupport::Concern
-
-  included do
-    after_update :track_status_analytics, if: :saved_change_to_status?
-  end
-
-  def track_status_analytics
-    # Doesn't assume other concerns exist
-    Analytics.track("status_changed", {
-      from: status_before_last_save,
-      to: status,
-      feedback_id: id
-    })
-  end
-end
-
-# Or explicitly document dependencies
-module Feedback::AdvancedAnalytics
-  extend ActiveSupport::Concern
-
-  # Document required concerns
-  # Requires: Feedback::StatusTrackable
-
-  included do
-    # Verify dependency
-    unless included_modules.include?(Feedback::StatusTrackable)
-      raise "Feedback::AdvancedAnalytics requires Feedback::StatusTrackable"
-    end
   end
 end
 ```
@@ -1066,21 +769,11 @@ end
 module Feedback::Processing
   extend ActiveSupport::Concern
 
-  included do
-    after_create :process_feedback
-  end
-
   def process_feedback
     # 100+ lines of complex business logic
     sanitize_content
     detect_language
     analyze_sentiment
-    extract_keywords
-    categorize_feedback
-    assign_to_team
-    create_notifications
-    update_analytics
-    trigger_webhooks
     # ... more complexity
   end
 end
@@ -1105,15 +798,10 @@ end
 
 # app/services/process_feedback_service.rb
 class ProcessFeedbackService
-  def initialize(feedback)
-    @feedback = feedback
-  end
-
   def call
     sanitize_content
     detect_language
-    analyze_sentiment
-    # ... clear, testable, maintainable
+    # ... clear, testable
   end
 end
 ```
@@ -1127,7 +815,6 @@ Test concerns independently and in context:
 ```ruby
 # test/models/feedback/notifications_test.rb
 class Feedback::NotificationsTest < ActiveSupport::TestCase
-  # Test concern in isolation
   class NotifiableTestModel < ApplicationRecord
     self.table_name = "feedbacks"
     include Feedback::Notifications
@@ -1139,58 +826,16 @@ class Feedback::NotificationsTest < ActiveSupport::TestCase
 
   test "notifies recipient after creation" do
     assert_enqueued_with(job: ActionMailer::MailDeliveryJob) do
-      NotifiableTestModel.create!(
-        content: "Test feedback",
-        recipient_email: "recipient@example.com"
-      )
+      NotifiableTestModel.create!(content: "Test", recipient_email: "user@example.com")
     end
   end
 
-  test "notifies sender when response added" do
-    @feedback.update(sender_email: "sender@example.com")
-
-    assert_enqueued_with(job: ActionMailer::MailDeliveryJob) do
-      @feedback.update(response: "Thank you for the feedback")
-    end
-  end
-
-  test "marks notification as sent after delivery" do
+  test "marks notification as sent" do
     @feedback.notify_recipient_of_submission
-
     assert @feedback.notification_sent?
-    assert_not_nil @feedback.notified_at
   end
 
-  test "finds pending notifications" do
-    @feedback.update(notified_at: nil)
-
-    assert_includes NotifiableTestModel.with_pending_notifications, @feedback
-  end
-
-  test "sends pending notifications in batch" do
-    @feedback.update(notified_at: nil)
-
-    assert_enqueued_jobs 1, only: ActionMailer::MailDeliveryJob do
-      NotifiableTestModel.send_pending_notifications
-    end
-  end
-
-  test "returns notification stats" do
-    stats = NotifiableTestModel.notification_stats
-
-    assert_includes stats, :pending
-    assert_includes stats, :sent
-    assert_includes stats, :total
-    assert_kind_of Integer, stats[:pending]
-  end
-
-  test "does not notify if recipient_email blank" do
-    @feedback.update(recipient_email: nil)
-
-    assert_no_enqueued_jobs do
-      @feedback.notify_recipient_of_submission
-    end
-  end
+  # ... (additional notification tests)
 end
 
 # test/models/concerns/taggable_test.rb
@@ -1200,63 +845,19 @@ class TaggableTest < ActiveSupport::TestCase
     include Taggable
   end
 
-  setup do
-    @record = TaggableTestModel.first
-  end
-
   test "add_tag creates new tag" do
-    assert_difference "@record.tags.count", 1 do
-      @record.add_tag("urgent")
-    end
-
-    assert @record.tagged_with?("urgent")
+    record = TaggableTestModel.first
+    record.add_tag("urgent")
+    assert record.tagged_with?("urgent")
   end
 
-  test "add_tag is idempotent" do
-    @record.add_tag("urgent")
-
-    assert_no_difference "@record.tags.count" do
-      @record.add_tag("urgent")
-    end
+  test "tag_list= creates multiple tags from comma-separated string" do
+    record = TaggableTestModel.first
+    record.tag_list = "bug, urgent, needs-review"
+    assert_equal 3, record.tags.count
   end
 
-  test "tag_list= creates multiple tags" do
-    @record.tag_list = "bug, feature, enhancement"
-
-    assert_equal 3, @record.tags.count
-    assert @record.tagged_with?("bug")
-    assert @record.tagged_with?("feature")
-  end
-
-  test "remove_tag deletes tag association" do
-    @record.add_tag("urgent")
-
-    assert_difference "@record.tags.count", -1 do
-      @record.remove_tag("urgent")
-    end
-
-    assert_not @record.tagged_with?("urgent")
-  end
-
-  test "tagged_with scope finds records by tag" do
-    @record.add_tag("urgent")
-    other = TaggableTestModel.create!(content: "Test")
-
-    results = TaggableTestModel.tagged_with("urgent")
-
-    assert_includes results, @record
-    assert_not_includes results, other
-  end
-
-  test "most_tagged returns records with most tags" do
-    @record.tag_list = "a, b, c, d"
-    other = TaggableTestModel.create!(content: "Test")
-    other.tag_list = "x"
-
-    most_tagged = TaggableTestModel.most_tagged(1)
-
-    assert_equal @record, most_tagged.first
-  end
+  # ... (additional tagging tests)
 end
 
 # test/models/concerns/soft_deletable_test.rb
@@ -1266,49 +867,19 @@ class SoftDeletableTest < ActiveSupport::TestCase
     include SoftDeletable
   end
 
-  setup do
-    @record = SoftDeletableTestModel.first
-  end
-
   test "soft_delete marks record as deleted" do
-    @record.soft_delete
-
-    assert @record.deleted?
-    assert_not_nil @record.deleted_at
-  end
-
-  test "soft_delete returns false if already deleted" do
-    @record.soft_delete
-
-    assert_not @record.soft_delete
-  end
-
-  test "restore unmarks record as deleted" do
-    @record.soft_delete
-    @record.restore
-
-    assert @record.active?
-    assert_nil @record.deleted_at
+    record = SoftDeletableTestModel.first
+    record.soft_delete
+    assert record.deleted?
   end
 
   test "active scope excludes deleted records" do
-    @record.soft_delete
-
-    assert_not_includes SoftDeletableTestModel.active, @record
+    record = SoftDeletableTestModel.first
+    record.soft_delete
+    assert_not_includes SoftDeletableTestModel.active, record
   end
 
-  test "deleted scope includes only deleted records" do
-    @record.soft_delete
-
-    assert_includes SoftDeletableTestModel.deleted, @record
-  end
-
-  test "with_deleted includes all records" do
-    active_count = SoftDeletableTestModel.count
-    @record.soft_delete
-
-    assert_equal active_count, SoftDeletableTestModel.with_deleted.count
-  end
+  # ... (additional soft delete tests)
 end
 ```
 </testing>

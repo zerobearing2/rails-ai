@@ -1,0 +1,69 @@
+#!/usr/bin/env python3
+"""
+Count tokens in skills/ directory using tiktoken (cl100k_base)
+Usage: bin/count_tokens
+"""
+
+import tiktoken
+import glob
+import sys
+
+def count_tokens_in_file(filepath, encoding):
+    """Count tokens in a single file."""
+    try:
+        with open(filepath, 'r', encoding='utf-8') as f:
+            content = f.read()
+            tokens = len(encoding.encode(content))
+            return tokens
+    except Exception as e:
+        print(f"Error reading {filepath}: {e}", file=sys.stderr)
+        return 0
+
+def main():
+    # Use cl100k_base (GPT-4/Claude encoding)
+    enc = tiktoken.get_encoding("cl100k_base")
+
+    # Find all skill files
+    skill_files = sorted(glob.glob("skills/**/*.md", recursive=True))
+
+    # Exclude special files
+    skill_files = [f for f in skill_files if not f.endswith("SKILLS_REGISTRY.yml")]
+
+    total_tokens = 0
+    file_counts = []
+
+    print("Token Count Report")
+    print("=" * 70)
+
+    for filepath in skill_files:
+        tokens = count_tokens_in_file(filepath, enc)
+        total_tokens += tokens
+        file_counts.append((filepath, tokens))
+
+    # Sort by token count (descending)
+    file_counts.sort(key=lambda x: x[1], reverse=True)
+
+    # Print top 10
+    print("\nTop 10 Largest Files:")
+    print("-" * 70)
+    for filepath, tokens in file_counts[:10]:
+        print(f"{tokens:>6} tokens  {filepath}")
+
+    # Print summary
+    print("\n" + "=" * 70)
+    print(f"Total files: {len(skill_files)}")
+    print(f"Total tokens: {total_tokens:,}")
+    print(f"Average per file: {total_tokens // len(skill_files):,}")
+    print("=" * 70)
+
+    # Check against budget
+    MAX_TOKENS = 150_000
+    if total_tokens > MAX_TOKENS:
+        print(f"\n⚠️  Warning: Exceeds token budget by {total_tokens - MAX_TOKENS:,} tokens")
+        sys.exit(1)
+    else:
+        print(f"\n✅ Within token budget ({MAX_TOKENS - total_tokens:,} tokens remaining)")
+        sys.exit(0)
+
+if __name__ == "__main__":
+    main()

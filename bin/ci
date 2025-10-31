@@ -79,16 +79,15 @@ fi
 
 print_section "🔍 Running Linters"
 
-# Ruby linting
+# Run all linters via Rakefile (single source of truth)
 print_info "Linting Ruby files with Rubocop..."
-if bundle exec rubocop; then
+if bundle exec rake lint:ruby; then
   print_success "Ruby linting passed"
 else
   print_error "Ruby linting failed"
   print_info "Run 'rake lint:fix' to auto-fix issues"
 fi
 
-# YAML validation
 print_info "Validating YAML front matter..."
 if bundle exec rake lint:yaml; then
   print_success "YAML validation passed"
@@ -96,9 +95,8 @@ else
   print_error "YAML validation failed"
 fi
 
-# Markdown linting
 print_info "Linting Markdown files..."
-if bundle exec mdl skills/ docs/ *.md --style .mdl_style.rb; then
+if bundle exec rake lint:markdown; then
   print_success "Markdown linting passed"
 else
   print_error "Markdown linting failed"

@@ -11,35 +11,30 @@ rails_version: 8.1+
 Encapsulate complex form logic, validation, and data processing using ActiveModel::API without requiring database-backed models.
 
 <when-to-use>
-- Multi-model forms (e.g., user registration creating User + Company + Membership)
-- Non-database forms (contact forms, search forms, filters)
-- Complex validation logic that doesn't belong in models
-- Forms with virtual attributes not backed by database columns
+- Multi-model forms (user registration creating User + Company + Membership)
+- Non-database forms (contact, search, filters)
+- Complex validation logic not belonging in models
+- Virtual attributes not backed by database
 - Wizard/multi-step forms with conditional validations
 - API input validation and processing
-- When controller or model is getting too fat with form logic
 </when-to-use>
 
 <benefits>
-- **Single Responsibility** - Each form object handles one form's logic
-- **Testable** - Test form logic in isolation without database
-- **Reusable** - Same form object across web and API controllers
-- **Clean Models** - Keep ActiveRecord models focused on persistence
-- **Thin Controllers** - Move complex form logic out of controllers
+- **Single Responsibility** - Each form handles one form's logic
+- **Testable** - Test in isolation without database
+- **Reusable** - Share across web and API controllers
+- **Clean Models** - Keep ActiveRecord focused on persistence
+- **Thin Controllers** - Extract complex form logic
 - **Type Safety** - ActiveModel::Attributes provides type casting
-- **Validation** - Full ActiveModel validation support
 </benefits>
 
 <standards>
-- Include `ActiveModel::API` for model-like behavior
-- Include `ActiveModel::Attributes` for type casting
+- Include `ActiveModel::API` and `ActiveModel::Attributes`
 - Place in `app/forms/` directory
-- Use `attribute` to define form fields with types
-- Implement validations like any ActiveRecord model
+- Use `attribute` to define typed fields
 - Provide action methods (`save`, `deliver`, `submit`) not `create`
 - Wrap multi-model operations in transactions
-- Return boolean from action methods (true/false)
-- Use `errors.add` to add validation errors
+- Return boolean from action methods
 - Make created records available via attr_reader
 </standards>
 
@@ -84,10 +79,6 @@ end
 ```ruby
 # app/controllers/contacts_controller.rb
 class ContactsController < ApplicationController
-  def new
-    @contact_form = ContactForm.new
-  end
-
   def create
     @contact_form = ContactForm.new(contact_params)
 
@@ -104,18 +95,6 @@ class ContactsController < ApplicationController
     params.expect(contact_form: [:name, :email, :message, :subject])
   end
 end
-```
-
-**View:**
-```erb
-<%# app/views/contacts/new.html.erb %>
-<%= form_with model: @contact_form, url: contacts_path do |form| %>
-  <%= form.text_field :name %>
-  <%= form.email_field :email %>
-  <%= form.text_field :subject %>
-  <%= form.text_area :message %>
-  <%= form.submit %>
-<% end %>
 ```
 </pattern>
 
@@ -207,10 +186,6 @@ end
 ```ruby
 # app/controllers/registrations_controller.rb
 class RegistrationsController < ApplicationController
-  def new
-    @registration = UserRegistrationForm.new
-  end
-
   def create
     @registration = UserRegistrationForm.new(registration_params)
 
@@ -270,34 +245,17 @@ class FeedbackSearchForm
     scope = apply_status_filter(scope)
     scope = apply_date_range(scope)
     scope = apply_email_filter(scope)
-    scope = apply_sorting(scope)
-    scope
-  end
-
-  def has_filters?
-    query.present? ||
-      status.present? ||
-      date_from.present? ||
-      date_to.present? ||
-      recipient_email.present?
+    apply_sorting(scope)
   end
 
   private
 
   def apply_query(scope)
-    return scope if query.blank?
-
-    scope.where(
-      "content ILIKE ? OR response ILIKE ?",
-      "%#{query}%",
-      "%#{query}%"
-    )
+    query.present? ? scope.where("content ILIKE ? OR response ILIKE ?", "%#{query}%", "%#{query}%") : scope
   end
 
   def apply_status_filter(scope)
-    return scope if status.blank?
-
-    scope.where(status: status)
+    status.present? ? scope.where(status: status) : scope
   end
 
   def apply_date_range(scope)
@@ -307,9 +265,7 @@ class FeedbackSearchForm
   end
 
   def apply_email_filter(scope)
-    return scope if recipient_email.blank?
-
-    scope.where("recipient_email ILIKE ?", "%#{recipient_email}%")
+    recipient_email.present? ? scope.where("recipient_email ILIKE ?", "%#{recipient_email}%") : scope
   end
 
   def apply_sorting(scope)
@@ -407,36 +363,11 @@ class FeedbackWizardForm
   private
 
   def valid_for_current_step?
-    case current_step
-    when 1 then valid_step_1?
-    when 2 then valid_step_2?
-    when 3 then valid_step_3?
-    else false
-    end
+    validate_context(:"step_#{current_step}")
   end
 
-  def valid_step_1?
-    validate_context(:step_1)
-  end
-
-  def valid_step_2?
-    validate_context(:step_2)
-  end
-
-  def valid_step_3?
-    validate_context(:step_3)
-  end
-
-  def step_1?
-    validation_context == :step_1
-  end
-
-  def step_2?
-    validation_context == :step_2
-  end
-
-  def step_3?
-    validation_context == :step_3
+  %i[step_1 step_2 step_3].each do |step|
+    define_method(:"#{step}?") { validation_context == step }
   end
 
   def validate_context(context)
@@ -452,22 +383,13 @@ end
 ```ruby
 # app/controllers/feedback_wizard_controller.rb
 class FeedbackWizardController < ApplicationController
-  def show
-    @form = current_form
-  end
-
   def update
-    @form = current_form
+    @form = FeedbackWizardForm.new(session[:wizard_data] || {})
     @form.assign_attributes(form_params)
 
     if @form.next_step
       if @form.complete?
-        if @form.save
-          session.delete(:wizard_data)
-          redirect_to success_path, notice: "Feedback submitted!"
-        else
-          render :show, status: :unprocessable_entity
-        end
+        @form.save ? (session.delete(:wizard_data); redirect_to success_path) : render(:show, status: :unprocessable_entity)
       else
         session[:wizard_data] = @form.attributes
         redirect_to feedback_wizard_path
@@ -479,15 +401,8 @@ class FeedbackWizardController < ApplicationController
 
   private
 
-  def current_form
-    FeedbackWizardForm.new(session[:wizard_data] || {})
-  end
-
   def form_params
-    params.expect(feedback_wizard_form: [
-      :recipient_email, :sender_name, :content, :category,
-      :allow_ai_improvement, :sender_email
-    ])
+    params.expect(feedback_wizard_form: [:recipient_email, :sender_name, :content, :category, :allow_ai_improvement, :sender_email])
   end
 end
 ```
@@ -532,31 +447,13 @@ module Api
     attr_reader :feedback
 
     def as_json(options = {})
-      if feedback
-        {
-          success: true,
-          feedback: {
-            id: feedback.id,
-            token: feedback.token,
-            created_at: feedback.created_at
-          }
-        }
-      else
-        {
-          success: false,
-          errors: errors.as_json
-        }
-      end
+      feedback ? { success: true, feedback: { id: feedback.id, token: feedback.token, created_at: feedback.created_at } } : { success: false, errors: errors.as_json }
     end
 
     private
 
     def validate_metadata
-      return if metadata.blank?
-
-      unless metadata.is_a?(Hash)
-        errors.add(:metadata, "must be a valid JSON object")
-      end
+      errors.add(:metadata, "must be a valid JSON object") if metadata.present? && !metadata.is_a?(Hash)
     end
   end
 end
@@ -569,21 +466,13 @@ module Api
   class FeedbacksController < ApiController
     def create
       form = FeedbackSubmissionForm.new(feedback_params)
-
-      if form.submit
-        render json: form, status: :created
-      else
-        render json: form, status: :unprocessable_entity
-      end
+      form.submit ? render(json: form, status: :created) : render(json: form, status: :unprocessable_entity)
     end
 
     private
 
     def feedback_params
-      params.expect(feedback: [
-        :recipient_email, :content, :sender_name,
-        :sender_email, :category, :metadata
-      ])
+      params.expect(feedback: [:recipient_email, :content, :sender_name, :sender_email, :category, :metadata])
     end
   end
 end
@@ -612,28 +501,10 @@ end
 
 **Use Form Objects when:**
 ```ruby
-# ✅ Multiple models in one form
-class UserRegistrationForm
-  # Creates User + Company + Membership
-end
-
-# ✅ Non-database form
-class ContactForm
-  # No database table, just sends email
-end
-
-# ✅ Virtual/computed attributes
-class PriceCalculatorForm
-  attribute :quantity, :integer
-  attribute :discount_code, :string
-  # Calculates price, doesn't save anything
-end
-
-# ✅ Complex business logic
-class OrderCheckoutForm
-  # Validates inventory, processes payment, creates order,
-  # sends confirmation, updates stock levels
-end
+# ✅ Multiple models: UserRegistrationForm (creates User + Company + Membership)
+# ✅ Non-database: ContactForm (sends email, no persistence)
+# ✅ Virtual attributes: PriceCalculatorForm (calculates, doesn't save)
+# ✅ Complex logic: OrderCheckoutForm (inventory, payment, order, confirmation)
 ```
 </pattern>
 
@@ -649,28 +520,14 @@ class RegistrationsController < ApplicationController
     @user = User.new(user_params)
     @company = Company.new(company_params)
 
-    if params[:password] != params[:password_confirmation]
-      flash[:error] = "Passwords don't match"
-      render :new
-      return
-    end
-
     ActiveRecord::Base.transaction do
       if @user.save
         @company.owner = @user
         if @company.save
-          @membership = Membership.create(
-            user: @user,
-            company: @company,
-            role: "admin"
-          )
+          @membership = Membership.create(user: @user, company: @company, role: "admin")
           UserMailer.welcome(@user).deliver_later
           redirect_to dashboard_path(@company)
-        else
-          render :new
         end
-      else
-        render :new
       end
     end
   end
@@ -683,49 +540,8 @@ end
 class RegistrationsController < ApplicationController
   def create
     @registration = UserRegistrationForm.new(registration_params)
-
-    if @registration.save
-      session[:user_id] = @registration.user.id
-      redirect_to dashboard_path(@registration.company)
-    else
-      render :new, status: :unprocessable_entity
-    end
+    @registration.save ? redirect_to(dashboard_path(@registration.company)) : render(:new, status: :unprocessable_entity)
   end
-end
-```
-</good-example>
-</antipattern>
-
-<antipattern>
-<description>Not including ActiveModel::Attributes</description>
-<reason>Missing type casting, default values, and proper attribute handling</reason>
-<bad-example>
-```ruby
-# ❌ BAD - Manual attribute handling
-class ContactForm
-  include ActiveModel::API
-
-  attr_accessor :name, :email, :message
-
-  def initialize(params = {})
-    @name = params[:name]
-    @email = params[:email]
-    @message = params[:message]
-  end
-end
-```
-</bad-example>
-<good-example>
-```ruby
-# ✅ GOOD - Use ActiveModel::Attributes
-class ContactForm
-  include ActiveModel::API
-  include ActiveModel::Attributes
-
-  attribute :name, :string
-  attribute :email, :string
-  attribute :message, :string
-  attribute :created_at, :datetime, default: -> { Time.current }
 end
 ```
 </good-example>
@@ -737,37 +553,29 @@ end
 <bad-example>
 ```ruby
 # ❌ BAD - No transaction
-class UserRegistrationForm
-  def save
-    return false unless valid?
-
-    @user = User.create!(email: email, password: password)
-    @company = Company.create!(name: company_name, owner: @user)
-    # If this fails, user and company are already created!
-    @membership = Membership.create!(user: @user, company: @company)
-
-    true
-  end
+def save
+  return false unless valid?
+  @user = User.create!(email: email, password: password)
+  @company = Company.create!(name: company_name, owner: @user)
+  @membership = Membership.create!(user: @user, company: @company) # If this fails, user and company already created!
+  true
 end
 ```
 </bad-example>
 <good-example>
 ```ruby
 # ✅ GOOD - Use transaction
-class UserRegistrationForm
-  def save
-    return false unless valid?
-
-    ActiveRecord::Base.transaction do
-      @user = User.create!(email: email, password: password)
-      @company = Company.create!(name: company_name, owner: @user)
-      @membership = Membership.create!(user: @user, company: @company)
-      true
-    end
-  rescue ActiveRecord::RecordInvalid => e
-    errors.add(:base, e.message)
-    false
+def save
+  return false unless valid?
+  ActiveRecord::Base.transaction do
+    @user = User.create!(email: email, password: password)
+    @company = Company.create!(name: company_name, owner: @user)
+    @membership = Membership.create!(user: @user, company: @company)
+    true
   end
+rescue ActiveRecord::RecordInvalid => e
+  errors.add(:base, e.message)
+  false
 end
 ```
 </good-example>
@@ -782,32 +590,17 @@ end
 class ArticleForm
   include ActiveModel::API
   include ActiveModel::Attributes
-
   attribute :title, :string
   attribute :content, :text
-
-  validates :title, presence: true
-  validates :content, presence: true
-
-  def save
-    Article.create!(title: title, content: content)
-  end
+  def save; Article.create!(title: title, content: content); end
 end
 ```
 </bad-example>
 <good-example>
 ```ruby
 # ✅ GOOD - Use ActiveRecord directly
-class ArticlesController < ApplicationController
-  def create
-    @article = Article.new(article_params)
-    if @article.save
-      redirect_to @article
-    else
-      render :new, status: :unprocessable_entity
-    end
-  end
-end
+@article = Article.new(article_params)
+@article.save ? redirect_to(@article) : render(:new, status: :unprocessable_entity)
 ```
 </good-example>
 </antipattern>
@@ -818,158 +611,57 @@ Test form objects in isolation without database dependencies:
 
 ```ruby
 # test/forms/contact_form_test.rb
-require "test_helper"
-
 class ContactFormTest < ActiveSupport::TestCase
   test "valid with all required attributes" do
-    form = ContactForm.new(
-      name: "John Doe",
-      email: "john@example.com",
-      subject: "Question",
-      message: "This is my message"
-    )
-
+    form = ContactForm.new(name: "John", email: "john@example.com", subject: "Question", message: "This is my message")
     assert form.valid?
   end
 
-  test "invalid without name" do
-    form = ContactForm.new(
-      email: "john@example.com",
-      subject: "Test",
-      message: "Message content"
-    )
-
+  test "invalid without required fields" do
+    form = ContactForm.new(email: "john@example.com")
     assert_not form.valid?
     assert_includes form.errors[:name], "can't be blank"
   end
 
-  test "invalid with short message" do
-    form = ContactForm.new(
-      name: "John",
-      email: "john@example.com",
-      subject: "Test",
-      message: "Short"
-    )
-
-    assert_not form.valid?
-    assert form.errors[:message].any?
-  end
-
-  test "delivers email when form is valid" do
-    form = ContactForm.new(
-      name: "John Doe",
-      email: "john@example.com",
-      subject: "Question",
-      message: "This is my message"
-    )
-
-    assert_enqueued_with(job: ActionMailer::MailDeliveryJob) do
-      assert form.deliver
-    end
-  end
-
-  test "does not deliver email when invalid" do
-    form = ContactForm.new(name: "John")
-
-    assert_no_enqueued_jobs do
-      assert_not form.deliver
-    end
+  test "delivers email when valid" do
+    form = ContactForm.new(name: "John", email: "john@example.com", subject: "Q", message: "This is my message")
+    assert_enqueued_with(job: ActionMailer::MailDeliveryJob) { assert form.deliver }
   end
 end
 
 # test/forms/user_registration_form_test.rb
 class UserRegistrationFormTest < ActiveSupport::TestCase
   test "creates user, company, and membership" do
-    form = UserRegistrationForm.new(
-      email: "user@example.com",
-      password: "password123",
-      password_confirmation: "password123",
-      name: "John Doe",
-      company_name: "Acme Corp",
-      company_size: "10-50"
-    )
-
-    assert_difference ["User.count", "Company.count", "Membership.count"] do
-      assert form.save
-    end
-
-    assert_equal "user@example.com", form.user.email
-    assert_equal "Acme Corp", form.company.name
-    assert_equal "admin", form.membership.role
+    form = UserRegistrationForm.new(email: "user@example.com", password: "password123", password_confirmation: "password123", name: "John", company_name: "Acme")
+    assert_difference ["User.count", "Company.count", "Membership.count"] { assert form.save }
+    assert_equal "Acme", form.company.name
   end
 
-  test "does not create anything if validation fails" do
-    form = UserRegistrationForm.new(
-      email: "invalid-email",
-      password: "short",
-      name: "John"
-    )
-
-    assert_no_difference ["User.count", "Company.count", "Membership.count"] do
-      assert_not form.save
-    end
-  end
-
-  test "rolls back transaction if company creation fails" do
-    form = UserRegistrationForm.new(
-      email: "user@example.com",
-      password: "password123",
-      password_confirmation: "password123",
-      name: "John Doe",
-      company_name: "" # Invalid - will fail
-    )
-
-    assert_no_difference ["User.count", "Company.count"] do
-      assert_not form.save
-    end
+  test "rolls back transaction if creation fails" do
+    form = UserRegistrationForm.new(email: "user@example.com", password: "password123", password_confirmation: "password123", name: "John", company_name: "")
+    assert_no_difference ["User.count", "Company.count"] { assert_not form.save }
   end
 end
 
 # test/forms/feedback_search_form_test.rb
 class FeedbackSearchFormTest < ActiveSupport::TestCase
-  test "returns all feedbacks when no filters applied" do
-    form = FeedbackSearchForm.new
-
-    assert_equal Feedback.count, form.results.count
-  end
-
   test "filters by query text" do
-    feedback1 = feedbacks(:one)
-    feedback2 = feedbacks(:two)
-
-    form = FeedbackSearchForm.new(query: feedback1.content)
-
-    assert_includes form.results, feedback1
+    form = FeedbackSearchForm.new(query: feedbacks(:one).content)
+    assert_includes form.results, feedbacks(:one)
   end
 
   test "filters by date range" do
-    form = FeedbackSearchForm.new(
-      date_from: 1.week.ago,
-      date_to: Date.current
-    )
-
-    form.results.each do |feedback|
-      assert feedback.created_at >= 1.week.ago
-      assert feedback.created_at <= Date.current
-    end
-  end
-
-  test "has_filters? returns true when filters present" do
-    form = FeedbackSearchForm.new(query: "test")
-    assert form.has_filters?
-
-    form = FeedbackSearchForm.new
-    assert_not form.has_filters?
+    form = FeedbackSearchForm.new(date_from: 1.week.ago, date_to: Date.current)
+    form.results.each { |fb| assert fb.created_at >= 1.week.ago }
   end
 end
 ```
 </testing>
 
 <related-skills>
-- activemodel-validations - Custom validations for form objects
-- controller-restful - Using form objects in controllers
-- service-objects - When to use services vs form objects
-- strong-parameters - Securing form object parameters
+- activemodel-validations - Custom validations
+- controller-restful - Using in controllers
+- service-objects - Services vs forms
 </related-skills>
 
 <resources>

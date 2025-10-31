@@ -31,7 +31,7 @@ rails-ai/
 │   ├── tests.md                # Test writing (TDD with Minitest)
 │   ├── security.md             # Security auditing
 │   └── debug.md                # Debugging and error resolution
-├── skills/                     # 33 modular skills (referenced by agents)
+├── skills/                     # 40 modular skills (referenced by agents)
 │   └── SKILLS_REGISTRY.yml     # Central catalog of all skills
 ├── rules/                      # Team conventions (referenced by agents)
 ├── test/                       # Testing framework
@@ -53,7 +53,7 @@ rails-ai/
 
 ### Skills Registry
 
-All 33 skills are defined in **`skills/SKILLS_REGISTRY.yml`** - a single centralized catalog that agents reference. This registry-based approach provides:
+All 40 skills are defined in **`skills/SKILLS_REGISTRY.yml`** - a single centralized catalog that agents reference. This registry-based approach provides:
 
 - **Single source of truth** - All skills in one file
 - **Fast agent loading** - Agents read one file instead of 33
@@ -166,7 +166,7 @@ Each agent has a **specialized role** and loads a **preset** of skills automatic
 - Architecture oversight and code review
 - Parallel execution of multiple agents
 - Enforces team rules and best practices
-- Has access to all 33 skills via SKILLS_REGISTRY.yml
+- Has access to all 40 skills via SKILLS_REGISTRY.yml
 
 **When to use:**
 - Complex multi-step features requiring multiple agents
@@ -206,10 +206,10 @@ Each agent has a **specialized role** and loads a **preset** of skills automatic
 
 **Access:** `@agent-rails-ai:backend`
 
-**Preset Skills:** (10 backend + 3 security + 2 config + 1 testing)
+**Preset Skills:** (10 backend + 6 security + 3 config + 1 testing = 20 total)
 - **Backend (10):** controller-restful, activerecord-patterns, form-objects, query-objects, concerns-models, concerns-controllers, custom-validators, action-mailer, nested-resources, antipattern-fat-controllers
-- **Security (3):** security-sql-injection, security-strong-parameters, security-csrf
-- **Config (2):** solid-stack-setup, credentials-management
+- **Security (6):** security-xss, security-sql-injection, security-csrf, security-strong-parameters, security-file-uploads, security-command-injection
+- **Config (3):** solid-stack-setup, credentials-management, docker-rails-setup
 - **Testing (1):** tdd-minitest
 
 **When to use:**
@@ -565,7 +565,7 @@ Remove skill preset from agent-name: skill-name
 ### Completed ✅
 - ✅ Skills-based architecture with SKILLS_REGISTRY.yml
 - ✅ 7 specialized agents (architect, plan, backend, frontend, tests, security, debug)
-- ✅ 33 modular skills across 5 domains
+- ✅ 40 modular skills across 5 domains
 - ✅ Claude Code plugin support
 - ✅ Specification Pyramid framework integration
 - ✅ Testing framework (unit tests for agents and skills)
@@ -603,7 +603,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for full contribution guidelines.
 
 | File | Purpose |
 |------|---------|
-| `skills/SKILLS_REGISTRY.yml` | Central catalog of all 33 skills |
+| `skills/SKILLS_REGISTRY.yml` | Central catalog of all 40 skills |
 | `agents/*.md` | 7 agent definitions (loaded by Claude Code plugin) |
 | `rules/` | Team conventions and decision matrices |
 | `test/skills/unit/` | Unit tests for skill structure validation |

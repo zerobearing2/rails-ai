@@ -76,60 +76,29 @@ end
 <pattern name="simple-preview">
 <description>Basic preview showing multiple component states</description>
 
-**Preview Class:**
 ```ruby
 # test/components/previews/button_component_preview.rb
 class ButtonComponentPreview < ViewComponent::Preview
   def default
-    render(ButtonComponent.new(variant: :primary, size: :md)) do
-      "Click Me"
-    end
-  end
-
-  def secondary_variant
-    render(ButtonComponent.new(variant: :secondary, size: :md)) do
-      "Secondary Button"
-    end
-  end
-
-  def large_size
-    render(ButtonComponent.new(variant: :primary, size: :lg)) do
-      "Large Button"
-    end
+    render(ButtonComponent.new(variant: :primary, size: :md)) { "Click Me" }
   end
 
   def disabled_state
-    render(ButtonComponent.new(variant: :primary, disabled: true)) do
-      "Disabled Button"
-    end
+    render(ButtonComponent.new(variant: :primary, disabled: true)) { "Disabled" }
   end
 
   def loading_state
-    render(ButtonComponent.new(variant: :primary, loading: true)) do
-      "Loading..."
-    end
+    render(ButtonComponent.new(variant: :primary, loading: true)) { "Loading..." }
   end
 end
 ```
 
-**Access Examples:**
-```
-http://localhost:3000/rails/view_components/button_component/default
-http://localhost:3000/rails/view_components/button_component/secondary_variant
-http://localhost:3000/rails/view_components/button_component/large_size
-http://localhost:3000/rails/view_components/button_component/disabled_state
-```
-
-**Benefits:**
-- Each method shows a specific state
-- Easy to see all component variations
-- No database setup required
+Access at `/rails/view_components/button_component/default`. Each method shows a specific state without database setup.
 </pattern>
 
 <pattern name="preview-with-template">
 <description>Use custom template for complex preview layouts</description>
 
-**Preview Class:**
 ```ruby
 # test/components/previews/badge_component_preview.rb
 class BadgeComponentPreview < ViewComponent::Preview
@@ -139,38 +108,23 @@ class BadgeComponentPreview < ViewComponent::Preview
 end
 ```
 
-**Preview Template:**
 ```erb
 <!-- test/components/previews/badge_component_preview/all_variants.html.erb -->
-<div class="space-y-8">
-  <section>
-    <h2 class="text-2xl font-bold mb-4">Badge Variants</h2>
-    <div class="flex gap-2 flex-wrap">
-      <%= render BadgeComponent.new(variant: :primary) { "Primary" } %>
-      <%= render BadgeComponent.new(variant: :secondary) { "Secondary" } %>
-      <%= render BadgeComponent.new(variant: :success) { "Success" } %>
-      <%= render BadgeComponent.new(variant: :error) { "Error" } %>
-      <%= render BadgeComponent.new(variant: :warning) { "Warning" } %>
-      <%= render BadgeComponent.new(variant: :info) { "Info" } %>
-    </div>
-  </section>
-
-  <section>
-    <h3 class="text-xl font-bold mb-4">Badge Sizes</h3>
-    <div class="flex gap-2 items-center">
-      <%= render BadgeComponent.new(size: :xs) { "Extra Small" } %>
-      <%= render BadgeComponent.new(size: :sm) { "Small" } %>
-      <%= render BadgeComponent.new(size: :md) { "Medium" } %>
-      <%= render BadgeComponent.new(size: :lg) { "Large" } %>
-    </div>
-  </section>
+<div class="space-y-4">
+  <div class="flex gap-2 flex-wrap">
+    <%= render BadgeComponent.new(variant: :primary) { "Primary" } %>
+    <%= render BadgeComponent.new(variant: :success) { "Success" } %>
+    <%= render BadgeComponent.new(variant: :error) { "Error" } %>
+  </div>
+  <div class="flex gap-2 items-center">
+    <%= render BadgeComponent.new(size: :sm) { "Small" } %>
+    <%= render BadgeComponent.new(size: :md) { "Medium" } %>
+    <%= render BadgeComponent.new(size: :lg) { "Large" } %>
+  </div>
 </div>
 ```
 
-**Benefits:**
-- Show multiple variants in one preview
-- Create visual component documentation
-- Better for comprehensive overview
+Use templates for complex layouts with multiple variants.
 </pattern>
 
 ## Dynamic Previews
@@ -178,57 +132,32 @@ end
 <pattern name="dynamic-parameters">
 <description>Interactive previews with URL parameters</description>
 
-**Preview with Params:**
 ```ruby
 # test/components/previews/alert_component_preview.rb
 class AlertComponentPreview < ViewComponent::Preview
   # @param type select { choices: [success, error, warning, info] }
   # @param message text
   def default(type: "success", message: "Operation completed successfully")
-    render(Ui::AlertComponent.new(type: type.to_sym)) do
-      message
-    end
+    render(Ui::AlertComponent.new(type: type.to_sym)) { message }
   end
 
   # @param dismissible toggle
-  # @param title text
-  def with_dismiss_button(dismissible: true, title: "Alert Title")
+  def with_dismiss(dismissible: true)
     render(Ui::AlertComponent.new(type: :info, dismissible: dismissible)) do
-      content_tag(:h4, title, class: "font-bold") +
-      content_tag(:p, "This alert can be dismissed")
-    end
-  end
-
-  # @param count number
-  # @param show_icon toggle
-  def notification_badge(count: 5, show_icon: true)
-    render(BadgeComponent.new(variant: :error, show_icon: show_icon)) do
-      count.to_s
+      "This alert can be dismissed"
     end
   end
 end
 ```
 
-**Parameter Annotations:**
-```ruby
-# @param name text                      # Text input field
-# @param count number                    # Number input field
-# @param active toggle                   # Checkbox (true/false)
-# @param type select { choices: [...] }  # Dropdown select
-# @param size radio { choices: [...] }   # Radio button group
-```
+**Parameter Types:**
+- `text` - Text input
+- `number` - Number input
+- `toggle` - Checkbox (true/false)
+- `select { choices: [...] }` - Dropdown
+- `radio { choices: [...] }` - Radio buttons
 
-**Access with Query Params:**
-```
-/rails/view_components/alert_component/default?type=error&message=Something+went+wrong
-/rails/view_components/alert_component/with_dismiss_button?dismissible=false&title=Important
-/rails/view_components/badge_component/notification_badge?count=10&show_icon=false
-```
-
-**Benefits:**
-- Test different inputs without code changes
-- Share specific component states via URL
-- Quickly explore edge cases
+Access with params: `/rails/view_components/alert_component/default?type=error&message=Error+text`
 </pattern>
 
 ## Custom Layouts
@@ -236,7 +165,6 @@ end
 <pattern name="custom-preview-layout">
 <description>Use custom layout for preview pages</description>
 
-**Preview with Layout:**
 ```ruby
 # test/components/previews/modal_component_preview.rb
 class ModalComponentPreview < ViewComponent::Preview
@@ -244,57 +172,28 @@ class ModalComponentPreview < ViewComponent::Preview
 
   def default
     render(ModalComponent.new(size: :md, open: true)) do |modal|
-      modal.with_header do
-        content_tag :h3, "Preview Modal", class: "font-bold text-lg"
-      end
-
-      content_tag :p, "This is a modal preview with custom layout."
-
-      modal.with_footer do
-        content_tag :button, "Close", class: "btn"
-      end
-    end
-  end
-
-  def full_screen
-    render(ModalComponent.new(size: :full, open: true)) do |modal|
-      modal.with_header { "Full Screen Modal" }
-      content_tag :div, "Content fills the screen", class: "p-8"
+      modal.with_header { "Preview Modal" }
+      "Modal content with custom layout."
     end
   end
 end
 ```
 
-**Custom Layout Template:**
 ```erb
 <!-- app/views/layouts/component_preview.html.erb -->
 <!DOCTYPE html>
-<html data-theme="light">
+<html>
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Component Preview</title>
-  <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+  <%= stylesheet_link_tag "application" %>
   <%= javascript_importmap_tags %>
 </head>
-<body class="p-8 bg-base-200">
-  <div class="max-w-6xl mx-auto">
-    <%= yield %>
-  </div>
+<body class="p-8">
+  <%= yield %>
 </body>
 </html>
 ```
 
-**Set Default Layout:**
-```ruby
-# config/application.rb
-config.view_component.default_preview_layout = "component_preview"
-```
-
-**Benefits:**
-- Include necessary JavaScript and CSS
-- Add preview-specific styling
-- Create consistent preview environment
+Set globally: `config.view_component.default_preview_layout = "component_preview"`
 </pattern>
 
 ## Preview Collections
@@ -302,102 +201,55 @@ config.view_component.default_preview_layout = "component_preview"
 <pattern name="collection-preview">
 <description>Preview components rendered as collections</description>
 
-**Preview with Collection:**
 ```ruby
 # test/components/previews/feedback_item_component_preview.rb
 class FeedbackItemComponentPreview < ViewComponent::Preview
   def collection
-    feedbacks = sample_feedbacks
-    render(FeedbackItemComponent.with_collection(feedbacks))
+    render(FeedbackItemComponent.with_collection(sample_feedbacks))
   end
 
   def with_spacer
-    feedbacks = sample_feedbacks
     render(
       FeedbackItemComponent.with_collection(
-        feedbacks,
+        sample_feedbacks,
         spacer_component: DividerComponent.new
       )
     )
-  end
-
-  def with_iteration_context
-    feedbacks = sample_feedbacks
-    render_with_template(locals: { feedbacks: feedbacks })
   end
 
   private
 
   def sample_feedbacks
     [
-      Struct.new(:id, :content, :status, :created_at).new(
-        1,
-        "Great service!",
-        "pending",
-        1.day.ago
-      ),
-      Struct.new(:id, :content, :status, :created_at).new(
-        2,
-        "Could be better",
-        "reviewed",
-        2.days.ago
-      ),
-      Struct.new(:id, :content, :status, :created_at).new(
-        3,
-        "Excellent experience",
-        "responded",
-        3.days.ago
-      )
+      Struct.new(:id, :content, :status).new(1, "Great service!", "pending"),
+      Struct.new(:id, :content, :status).new(2, "Could be better", "reviewed")
     ]
   end
 end
 ```
 
-**Preview Template for Iteration:**
-```erb
-<!-- test/components/previews/feedback_item_component_preview/with_iteration_context.html.erb -->
-<div class="space-y-2">
-  <%= render(FeedbackItemComponent.with_collection(feedbacks)) %>
-</div>
-```
-
-**Benefits:**
-- Test collection rendering
-- Preview spacing and dividers
-- See iteration context in action
+Use `with_collection` to preview multiple items with optional spacers.
 </pattern>
 
-<pattern name="real-world-list-preview">
-<description>Comprehensive preview for list component with multiple states</description>
+<pattern name="multiple-states-preview">
+<description>Preview component with different states</description>
 
-**List Component Preview:**
 ```ruby
 # test/components/previews/feedback_components/list_component_preview.rb
 module FeedbackComponents
   class ListComponentPreview < ViewComponent::Preview
     def default
-      feedbacks = sample_feedbacks
-      render(ListComponent.new(feedbacks: feedbacks, show_actions: true))
+      render(ListComponent.new(feedbacks: sample_feedbacks, show_actions: true))
     end
 
     def empty_state
       render(ListComponent.new(feedbacks: [], show_actions: false))
     end
 
-    def without_actions
-      feedbacks = sample_feedbacks
-      render(ListComponent.new(feedbacks: feedbacks, show_actions: false))
-    end
-
     def large_dataset
-      feedbacks = 50.times.map do |i|
-        Struct.new(:id, :content, :status, :created_at).new(
-          i + 1,
-          "Feedback number #{i + 1}",
-          %w[pending reviewed responded].sample,
-          rand(1..30).days.ago
-        )
-      end
+      feedbacks = 50.times.map { |i|
+        Struct.new(:id, :content, :status).new(i, "Feedback #{i}", "pending")
+      }
       render(ListComponent.new(feedbacks: feedbacks, show_actions: true))
     end
 
@@ -405,34 +257,15 @@ module FeedbackComponents
 
     def sample_feedbacks
       [
-        Struct.new(:id, :content, :status, :created_at).new(
-          1,
-          "The new feature is working great! Thank you for implementing it so quickly.",
-          "responded",
-          2.days.ago
-        ),
-        Struct.new(:id, :content, :status, :created_at).new(
-          2,
-          "I found a small bug in the export functionality. It doesn't handle special characters.",
-          "reviewed",
-          1.day.ago
-        ),
-        Struct.new(:id, :content, :status, :created_at).new(
-          3,
-          "Would love to see dark mode support in the next update!",
-          "pending",
-          3.hours.ago
-        )
+        Struct.new(:id, :content, :status).new(1, "Great feature!", "responded"),
+        Struct.new(:id, :content, :status).new(2, "Found a bug", "reviewed")
       ]
     end
   end
 end
 ```
 
-**Benefits:**
-- Preview all component states (default, empty, variations)
-- Test with realistic data
-- Check performance with large datasets
+Preview default, empty, and edge case states to validate behavior.
 </pattern>
 
 ## Preview Organization
@@ -440,25 +273,15 @@ end
 <pattern name="organized-previews">
 <description>Organize previews by module and feature</description>
 
-**Directory Structure:**
 ```
 test/components/previews/
 ├── ui/
 │   ├── button_component_preview.rb
-│   ├── badge_component_preview.rb
-│   ├── alert_component_preview.rb
-│   └── modal_component_preview.rb
-├── feedback_components/
-│   ├── card_component_preview.rb
-│   ├── list_component_preview.rb
-│   └── item_component_preview.rb
-└── layout/
-    ├── header_component_preview.rb
-    ├── footer_component_preview.rb
-    └── sidebar_component_preview.rb
+│   └── badge_component_preview.rb
+└── feedback_components/
+    └── list_component_preview.rb
 ```
 
-**Namespaced Preview:**
 ```ruby
 # test/components/previews/ui/button_component_preview.rb
 module Ui
@@ -470,20 +293,7 @@ module Ui
 end
 ```
 
-**Configuration for Multiple Paths:**
-```ruby
-# config/environments/development.rb
-config.view_component.previews.paths = [
-  Rails.root.join("test/components/previews"),
-  Rails.root.join("test/components/previews/ui"),
-  Rails.root.join("test/components/previews/feedback_components")
-]
-```
-
-**Benefits:**
-- Keep previews organized by feature
-- Match component directory structure
-- Easier to find and maintain
+Match component directory structure for easier maintenance.
 </pattern>
 
 ## Testing with Previews
@@ -491,22 +301,15 @@ config.view_component.previews.paths = [
 <pattern name="preview-in-tests">
 <description>Use previews in automated tests</description>
 
-**Component Test Using Preview:**
 ```ruby
 # test/components/button_component_test.rb
 class ButtonComponentTest < ViewComponent::TestCase
-  test "renders preview states correctly" do
-    # Test the default preview
+  test "renders preview correctly" do
     render_preview(:default, from: ButtonComponentPreview)
     assert_selector "button.btn-primary", text: "Click Me"
   end
 
-  test "disabled preview renders correctly" do
-    render_preview(:disabled_state, from: ButtonComponentPreview)
-    assert_selector "button[disabled]"
-  end
-
-  test "all preview examples are valid" do
+  test "all previews render" do
     ButtonComponentPreview.public_instance_methods(false).each do |preview|
       render_preview(preview, from: ButtonComponentPreview)
       assert_selector "button"
@@ -515,23 +318,7 @@ class ButtonComponentTest < ViewComponent::TestCase
 end
 ```
 
-**System Test Using Preview:**
-```ruby
-# test/system/component_visual_test.rb
-class ComponentVisualTest < ApplicationSystemTestCase
-  test "button component looks correct" do
-    visit rails_view_components_path("button_component", "default")
-
-    assert_selector "button", text: "Click Me"
-    take_screenshot
-  end
-end
-```
-
-**Benefits:**
-- Reuse preview data in tests
-- Ensure previews stay functional
-- Visual regression testing
+Use `render_preview` to test components using preview data.
 </pattern>
 
 <antipatterns>
@@ -585,9 +372,7 @@ end
 # ❌ BAD - Only shows happy path
 class CardComponentPreview < ViewComponent::Preview
   def default
-    render(CardComponent.new(title: "Card Title")) do
-      "Normal content"
-    end
+    render(CardComponent.new(title: "Card Title")) { "Normal content" }
   end
 end
 ```
@@ -597,35 +382,17 @@ end
 # ✅ GOOD - Shows multiple states and edge cases
 class CardComponentPreview < ViewComponent::Preview
   def default
-    render(CardComponent.new(title: "Card Title")) do
-      "Normal content"
-    end
+    render(CardComponent.new(title: "Card Title")) { "Normal content" }
   end
 
   def long_title
     render(CardComponent.new(
-      title: "This is a very long title that might cause layout issues in the card component"
-    )) do
-      "Content with long title"
-    end
+      title: "Very long title that might cause layout issues"
+    )) { "Content" }
   end
 
   def empty_content
-    render(CardComponent.new(title: "Empty Card")) do
-      ""
-    end
-  end
-
-  def with_html_content
-    render(CardComponent.new(title: "Rich Content")) do
-      content_tag(:div) do
-        content_tag(:p, "Paragraph 1") +
-        content_tag(:ul) do
-          content_tag(:li, "Item 1") +
-          content_tag(:li, "Item 2")
-        end
-      end
-    end
+    render(CardComponent.new(title: "Empty Card")) { "" }
   end
 end
 ```
@@ -643,10 +410,6 @@ class ButtonComponentPreview < ViewComponent::Preview
     render(ButtonComponent.new(variant: :primary)) { "Button" }
   end
 
-  def example2
-    render(ButtonComponent.new(variant: :secondary)) { "Button" }
-  end
-
   def test3
     render(ButtonComponent.new(disabled: true)) { "Button" }
   end
@@ -661,16 +424,8 @@ class ButtonComponentPreview < ViewComponent::Preview
     render(ButtonComponent.new(variant: :primary)) { "Click Me" }
   end
 
-  def secondary_variant
-    render(ButtonComponent.new(variant: :secondary)) { "Secondary" }
-  end
-
   def disabled_state
     render(ButtonComponent.new(disabled: true)) { "Disabled" }
-  end
-
-  def loading_with_icon
-    render(ButtonComponent.new(loading: true)) { "Loading..." }
   end
 end
 ```
@@ -687,15 +442,7 @@ class DashboardWidgetPreview < ViewComponent::Preview
   def default
     render_inline do
       content_tag(:div, class: "grid grid-cols-3 gap-4") do
-        content_tag(:div) do
-          render(WidgetComponent.new(title: "Widget 1")) { "Content 1" }
-        end +
-        content_tag(:div) do
-          render(WidgetComponent.new(title: "Widget 2")) { "Content 2" }
-        end +
-        content_tag(:div) do
-          render(WidgetComponent.new(title: "Widget 3")) { "Content 3" }
-        end
+        3.times.map { |i| content_tag(:div) { render(WidgetComponent.new) } }.join.html_safe
       end
     end
   end
@@ -711,53 +458,23 @@ class DashboardWidgetPreview < ViewComponent::Preview
   end
 end
 
-# test/components/previews/dashboard_widget_preview/default.html.erb
-# <div class="grid grid-cols-3 gap-4">
-#   <div><%= render WidgetComponent.new(title: "Widget 1") { "Content 1" } %></div>
-#   <div><%= render WidgetComponent.new(title: "Widget 2") { "Content 2" } %></div>
-#   <div><%= render WidgetComponent.new(title: "Widget 3") { "Content 3" } %></div>
-# </div>
+# Template: test/components/previews/dashboard_widget_preview/default.html.erb
 ```
 </good-example>
 </antipattern>
 </antipatterns>
 
 <testing>
-Test that previews render correctly and remain functional:
-
 ```ruby
 # test/components/previews_test.rb
-require "test_helper"
-
 class PreviewsTest < ViewComponent::TestCase
-  # Test that all preview examples render without errors
   ViewComponent::Preview.all.each do |preview_class|
     preview_class.public_instance_methods(false).each do |preview_method|
-      test "#{preview_class}##{preview_method} renders successfully" do
+      test "#{preview_class}##{preview_method} renders" do
         render_preview(preview_method, from: preview_class)
-
-        # Basic assertion that something was rendered
         assert_not_empty page.text.strip
-      rescue => e
-        flunk "Preview #{preview_class}##{preview_method} failed to render: #{e.message}"
       end
     end
-  end
-end
-
-# test/system/preview_index_test.rb
-class PreviewIndexTest < ApplicationSystemTestCase
-  test "can access preview index" do
-    visit rails_view_components_path
-
-    assert_text "ViewComponent Previews"
-    assert_selector "a", text: "ButtonComponent"
-  end
-
-  test "can view individual preview" do
-    visit rails_view_components_path("button_component", "default")
-
-    assert_selector "button", text: "Click Me"
   end
 end
 ```

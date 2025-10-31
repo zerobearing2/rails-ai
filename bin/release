@@ -127,7 +127,8 @@ if [ "$DRY_RUN" = false ]; then
 fi
 
 # Get current version from CHANGELOG
-CURRENT_VERSION=$(grep -m 1 '\[.*\]' CHANGELOG.md | sed -n 's/.*\[\([0-9]*\.[0-9]*\.[0-9]*\)\].*/\1/p')
+# Skip [Unreleased] and find first version number like [0.1.1]
+CURRENT_VERSION=$(grep -oP '## \[\K[0-9]+\.[0-9]+\.[0-9]+' CHANGELOG.md | head -1)
 if [ -z "$CURRENT_VERSION" ]; then
   print_warning "Could not detect current version from CHANGELOG.md"
   CURRENT_VERSION="0.0.0"
@@ -317,16 +318,20 @@ TODAY=$(date +%Y-%m-%d)
 
 # Update CHANGELOG.md
 print_info "Updating CHANGELOG.md..."
-# Create new changelog entry
-NEW_ENTRY="## [$NEW_VERSION] - $TODAY
 
-$RELEASE_NOTES
-"
-
-# Insert after [Unreleased] section
-sed -i "/## \[Unreleased\]/a\\
-\\
-$NEW_ENTRY" CHANGELOG.md
+# Use awk instead of sed for reliable multi-line insertion
+awk -v version="$NEW_VERSION" -v date="$TODAY" -v notes="$RELEASE_NOTES" '
+/## \[Unreleased\]/ {
+  print
+  print ""
+  print "## [" version "] - " date
+  print ""
+  print notes
+  print ""
+  next
+}
+{ print }
+' CHANGELOG.md > CHANGELOG.md.tmp && mv CHANGELOG.md.tmp CHANGELOG.md
 
 print_success "CHANGELOG.md updated"
 

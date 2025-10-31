@@ -33,7 +33,7 @@ Think of it this way: an AI wrote a rulebook for other AIs, teaching them how to
 
 ## What is rails-ai
 
-A **Claude Code plugin** providing 6 specialized AI agents for opinionated Ruby on Rails development. Agents work together following Rails conventions and 37signals-inspired best practices.
+A **Claude Code plugin** providing 7 specialized AI agents for opinionated Ruby on Rails development. Agents work together following Rails conventions and 37signals-inspired best practices.
 
 ## Current Status
 
@@ -41,11 +41,12 @@ This project is **open source** and actively maintained. We welcome contribution
 
 ## Features
 
-- 🎯 **6 Specialized Agents**: Architect (coordinator), Frontend, Backend, Tests, Security, Debug
+- 🎯 **7 Specialized Agents**: Architect (coordinator), Planning, Frontend, Backend, Tests, Security, Debug
+- 📋 **Specification Pyramid**: Planning agent for systematic documentation (Vision → Architecture → Features → Tasks)
 - 🔌 **Claude Code Plugin**: One-command installation via plugin marketplace
 - 📚 **Context7 Integration**: Up-to-date Rails documentation access via MCP
 - 🚂 **Rails-Only**: Focused exclusively on Ruby on Rails (no other frameworks)
-- 📋 **Team Rules**: Enforced conventions (Solid Stack, Minitest, REST-only, TDD)
+- 📏 **Team Rules**: Enforced conventions (Solid Stack, Minitest, REST-only, TDD)
 - 🧪 **Skills-Based**: 33 modular skills with comprehensive testing framework
 - 🤖 **Cursor Support**: Coming soon (manual installation available now)
 
@@ -98,6 +99,7 @@ Install rails-ai as a Claude Code plugin:
    In any Claude Code session, you can now invoke the agents:
    ```
    @agent-rails-ai:architect - Main Rails coordinator
+   @agent-rails-ai:plan - Specification Pyramid planning specialist
    @agent-rails-ai:backend - Backend specialist
    @agent-rails-ai:frontend - Frontend specialist
    @agent-rails-ai:tests - Testing specialist
@@ -139,7 +141,7 @@ The architect coordinator will analyze requirements, create a plan, delegate to 
 
 ```text
 rails-ai/
-├── agents/          # 6 specialized Rails agents (architect, backend, frontend, tests, security, debug)
+├── agents/          # 7 specialized Rails agents (architect, plan, backend, frontend, tests, security, debug)
 ├── skills/          # Modular skills registry (frontend, backend, testing, security, config)
 ├── rules/           # Team rules and decision matrices
 ├── test/            # Minitest-based skill testing framework

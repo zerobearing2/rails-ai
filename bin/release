@@ -66,16 +66,6 @@ if [ "$DRY_RUN" = false ]; then
   fi
 fi
 
-# Check if Claude CLI is available
-CLAUDE_CLI_AVAILABLE=false
-if command -v claude &> /dev/null; then
-  CLAUDE_CLI_AVAILABLE=true
-  print_info "Claude CLI detected - will use AI for release note summarization"
-else
-  print_warning "Claude CLI not found - will use manual release notes"
-  print_info "Install Claude CLI for AI-powered summaries: npm install -g @anthropics/claude-cli"
-fi
-
 # Welcome message
 echo ""
 echo -e "${BLUE}╔═══════════════════════════════════════════╗${NC}"
@@ -193,85 +183,24 @@ esac
 
 print_info "New version will be: $NEW_VERSION"
 
-# Get commits since last version
+# Generate release notes using bin/changelog
 print_section "📋 Generating Release Notes"
-print_info "Analyzing commits since $LAST_TAG..."
+print_info "Running bin/changelog to generate release notes..."
 
-# Get commit log with formatting
-COMMIT_LOG=$(git log $LAST_TAG..HEAD --pretty=format:"- %s" --no-merges)
-
-if [ -z "$COMMIT_LOG" ]; then
-  print_warning "No commits found since last version"
-  COMMIT_LOG="- No changes"
-fi
-
-echo ""
-echo "Commits since last version:"
-echo "$COMMIT_LOG"
-echo ""
-
-# Generate release notes
-if [ "$CLAUDE_CLI_AVAILABLE" = true ]; then
-  print_info "Using Claude CLI to generate release notes summary..."
-
-  # Create prompt for Claude
-  CLAUDE_PROMPT="Analyze these git commits and generate a concise CHANGELOG entry in Keep a Changelog format.
-
-Commits:
-$COMMIT_LOG
-
-Instructions:
-- Use categories: Added, Changed, Fixed, Removed, Security, Deprecated
-- Be concise but informative
-- Focus on user-facing changes
-- Omit internal refactors unless significant
-- Use bullet points
-- No intro/outro text, just the categorized bullets
-- Only include categories that have changes
-
-Example format:
-### Added
-- New feature X for Y
-
-### Fixed
-- Bug in Z component"
-
-  # Call Claude CLI and capture output
-  RELEASE_NOTES=$(echo "$CLAUDE_PROMPT" | claude --print 2>/dev/null || echo "")
-
-  if [ -z "$RELEASE_NOTES" ]; then
-    print_warning "Claude CLI failed to generate notes, falling back to manual"
-    CLAUDE_CLI_AVAILABLE=false
+# Run bin/changelog which will handle all the logic
+if ./bin/changelog; then
+  # Read the generated changelog entry from temp file
+  CHANGELOG_TEMP_FILE="${TMPDIR:-/tmp}/rails-ai-changelog-entry.txt"
+  if [ -f "$CHANGELOG_TEMP_FILE" ]; then
+    RELEASE_NOTES=$(cat "$CHANGELOG_TEMP_FILE")
+    print_success "Release notes generated successfully"
   else
-    print_success "Generated release notes with Claude CLI"
-    echo ""
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "$RELEASE_NOTES"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo ""
-
-    read -p "Use these release notes? (y/n/e to edit) " -n 1 -r
-    echo
-    if [[ $REPLY =~ ^[Ee]$ ]]; then
-      print_info "Opening editor for release notes..."
-      TEMP_FILE=$(mktemp)
-      echo "$RELEASE_NOTES" > "$TEMP_FILE"
-      ${EDITOR:-vim} "$TEMP_FILE"
-      RELEASE_NOTES=$(cat "$TEMP_FILE")
-      rm "$TEMP_FILE"
-    elif [[ ! $REPLY =~ ^[Yy]$ ]]; then
-      CLAUDE_CLI_AVAILABLE=false
-    fi
+    print_error "bin/changelog did not produce output file"
+    exit 1
   fi
-fi
-
-# Manual release notes if Claude not available or user declined
-if [ "$CLAUDE_CLI_AVAILABLE" = false ]; then
-  print_info "Enter release notes manually (or press Ctrl+C to cancel)"
-  echo "Use Keep a Changelog format (Added, Changed, Fixed, etc.)"
-  echo "Press Ctrl+D when done"
-  echo ""
-  RELEASE_NOTES=$(cat)
+else
+  print_error "bin/changelog failed"
+  exit 1
 fi
 
 if [ -z "$RELEASE_NOTES" ]; then

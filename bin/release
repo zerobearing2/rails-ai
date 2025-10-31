@@ -127,7 +127,8 @@ if [ "$DRY_RUN" = false ]; then
 fi
 
 # Get current version from CHANGELOG
-CURRENT_VERSION=$(grep -m 1 '\[.*\]' CHANGELOG.md | sed -n 's/.*\[\([0-9]*\.[0-9]*\.[0-9]*\)\].*/\1/p')
+# Skip [Unreleased] and find first version number like [0.1.1]
+CURRENT_VERSION=$(grep -oP '## \[\K[0-9]+\.[0-9]+\.[0-9]+' CHANGELOG.md | head -1)
 if [ -z "$CURRENT_VERSION" ]; then
   print_warning "Could not detect current version from CHANGELOG.md"
   CURRENT_VERSION="0.0.0"
@@ -291,14 +292,25 @@ echo ""
 if [ "$DRY_RUN" = true ]; then
   print_warning "DRY RUN MODE - No changes made"
   echo ""
-  print_info "What would happen:"
-  echo "  1. Update CHANGELOG.md with version $NEW_VERSION"
-  echo "  2. Update .claude-plugin/marketplace.json version to $NEW_VERSION"
-  echo "  3. Commit changelog and plugin version with release notes"
-  echo "  4. Create git tag v$NEW_VERSION"
-  echo "  5. Push to origin/$CURRENT_BRANCH"
-  echo "  6. Push tag v$NEW_VERSION"
-  echo "  7. Create GitHub release"
+  print_info "Git commands that would be executed:"
+  echo ""
+  echo "  # Update CHANGELOG.md (insert after ## [Unreleased])"
+  echo "  awk -v version=\"$NEW_VERSION\" -v date=\"$TODAY\" -v notes=\"\$RELEASE_NOTES\" ..."
+  echo ""
+  echo "  # Update plugin version"
+  echo "  sed -i 's/\"version\": \"[0-9]*\.[0-9]*\.[0-9]*\"/\"version\": \"$NEW_VERSION\"/' .claude-plugin/marketplace.json"
+  echo ""
+  echo "  # Commit changes"
+  echo "  git add CHANGELOG.md .claude-plugin/marketplace.json"
+  echo "  git commit -m \"Release $NEW_VERSION\""
+  echo ""
+  echo "  # Create and push tag"
+  echo "  git tag -a \"v$NEW_VERSION\" -m \"Release v$NEW_VERSION\""
+  echo "  git push origin $CURRENT_BRANCH"
+  echo "  git push origin \"v$NEW_VERSION\""
+  echo ""
+  echo "  # Create GitHub release"
+  echo "  gh release create \"v$NEW_VERSION\" --title \"v$NEW_VERSION\" --notes \"\$RELEASE_NOTES\" --latest"
   echo ""
   print_success "Dry run complete. Run without --dry-run to execute."
   exit 0
@@ -317,16 +329,20 @@ TODAY=$(date +%Y-%m-%d)
 
 # Update CHANGELOG.md
 print_info "Updating CHANGELOG.md..."
-# Create new changelog entry
-NEW_ENTRY="## [$NEW_VERSION] - $TODAY
 
-$RELEASE_NOTES
-"
-
-# Insert after [Unreleased] section
-sed -i "/## \[Unreleased\]/a\\
-\\
-$NEW_ENTRY" CHANGELOG.md
+# Use awk instead of sed for reliable multi-line insertion
+awk -v version="$NEW_VERSION" -v date="$TODAY" -v notes="$RELEASE_NOTES" '
+/## \[Unreleased\]/ {
+  print
+  print ""
+  print "## [" version "] - " date
+  print ""
+  print notes
+  print ""
+  next
+}
+{ print }
+' CHANGELOG.md > CHANGELOG.md.tmp && mv CHANGELOG.md.tmp CHANGELOG.md
 
 print_success "CHANGELOG.md updated"
 

@@ -15,6 +15,8 @@ This directory contains all documentation from the skills optimization project c
 ## Project Documents
 
 ### Planning & Discovery
+- **SKILLS_OPTIMIZE_PLAN.md** - Original 4-week optimization plan
+- **SKILLS_OPTIMIZE_STATUS.md** - Phase 0 completion status
 - **START_HERE.md** - Initial project brief and Phase 0 checklist
 - **phase0_findings.md** - Critical discoveries from pre-work phase
 - **baseline_tokens.txt** - Original token measurements

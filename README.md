@@ -23,7 +23,7 @@ Yes, you read that right. This entire agent system—the coordinator, the specia
                  ||     ||
 ```
 
-The irony of an AI creating a structured system to constrain and guide other AIs through Rails best practices is not lost on us. It's turtles all the way down—except the turtles are all running `bin/ci` and refusing to use Sidekiq.
+Think of it this way: an AI wrote a rulebook for other AIs, teaching them how to follow Rails conventions, when to refactor, and why custom route actions are almost always a bad idea. The teacher became the textbook. The architect became the blueprint.
 
 **Side effects may include:**
 - Agents that argue about whether your custom route action is *really* necessary

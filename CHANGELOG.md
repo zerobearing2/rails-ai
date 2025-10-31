@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.2] - 2025-10-31
+
+### Added
+- Known Issues section documenting Claude Code v2.0.30 MCP bug
+
+### Changed
+- Meta Moment section with more relatable metaphors
+- CHANGELOG.md format to match git tags and Keep a Changelog standard
+
+### Fixed
+- Errors in bin/release script
+
+### Removed
+- Manual installation section from README
+
+
 ### Added
 - Claude Code project settings (`.claude/settings.json`) with pre-approved commands
 - Comprehensive `.claude/README.md` documenting settings system

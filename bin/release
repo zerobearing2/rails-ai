@@ -300,7 +300,10 @@ if [ "$DRY_RUN" = true ]; then
   echo "  # Update plugin version"
   echo "  sed -i 's/\"version\": \"[0-9]*\.[0-9]*\.[0-9]*\"/\"version\": \"$NEW_VERSION\"/' .claude-plugin/marketplace.json"
   echo ""
-  echo "  # Commit changes"
+  echo "  # Run linting (before committing)"
+  echo "  bundle exec rake lint:markdown"
+  echo ""
+  echo "  # Commit changes (only if linting passes)"
   echo "  git add CHANGELOG.md .claude-plugin/marketplace.json"
   echo "  git commit -m \"Release $NEW_VERSION\""
   echo ""
@@ -356,6 +359,22 @@ if [ -f ".claude-plugin/marketplace.json" ]; then
   print_success "Plugin version updated to $NEW_VERSION"
 else
   print_warning ".claude-plugin/marketplace.json not found, skipping plugin version update"
+fi
+
+# Run linting BEFORE committing to avoid creating a bad commit
+print_section "🔍 Running Linting"
+print_info "Checking markdown files for linting issues..."
+if bundle exec rake lint:markdown; then
+  print_success "All markdown linting checks passed"
+else
+  print_error "Markdown linting failed. Please fix issues before releasing."
+  print_info "Restoring original files..."
+  git restore CHANGELOG.md
+  if [ -f ".claude-plugin/marketplace.json" ]; then
+    git restore .claude-plugin/marketplace.json
+  fi
+  print_info "Files have been restored. Fix linting issues and try again."
+  exit 1
 fi
 
 # Commit changelog and plugin version
@@ -429,6 +448,7 @@ print_success "Version: $NEW_VERSION"
 print_success "Tag: v$NEW_VERSION"
 print_success "CHANGELOG.md updated"
 print_success "Plugin version updated"
+print_success "Linting checks passed"
 print_success "Pushed to GitHub"
 print_success "GitHub release created"
 echo ""

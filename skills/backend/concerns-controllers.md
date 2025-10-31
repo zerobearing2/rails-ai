@@ -471,7 +471,6 @@ end
 ```
 </pattern>
 
-
 <antipatterns>
 <antipattern>
 <description>Not using ActiveSupport::Concern</description>

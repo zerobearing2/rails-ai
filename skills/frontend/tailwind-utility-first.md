@@ -223,7 +223,6 @@ Tailwind CSS is a utility-first CSS framework that provides low-level utility cl
 ```
 </pattern>
 
-
 ## ViewComponent Integration
 
 <pattern name="component-with-tailwind">

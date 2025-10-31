@@ -96,57 +96,16 @@ Reference: `docs/spec-pyramid-guide.md`
 - ✅ User requests for "big picture" planning
 
 **Structure (5-10 pages):**
-```markdown
-# [Product Name] - Vision Document
 
-## Product Overview
-[One-paragraph description of what this is]
+See `docs/spec-pyramid-guide.md` → Appendix A: Vision Doc Template
 
-## Problem Statement
-- What problem are we solving?
-- Who has this problem? (Specific users, not generic personas)
-- How are they solving it today?
-- Why does this matter?
-
-## Core Use Cases (5-10 concrete scenarios)
-### Use Case 1: [Descriptive Name]
-**Actor:** [Specific person - "Sarah, a product manager at a startup"]
-**Context:** [When and why they're using your product]
-**Steps:**
-1. [What they do first]
-2. [Next action]
-3. [How it ends]
-**Outcome:** [What value they got]
-**Frequency:** [Daily, weekly, monthly]
-
-## Success Criteria
-**Metrics That Matter:**
-- [Specific, measurable outcome]
-- [Another measurable outcome]
-
-**What "Good" Looks Like:**
-In 6 months, success means:
-- [Concrete milestone]
-- [Another concrete milestone]
-
-## Scope
-### In Scope (V1)
-- [Essential feature]
-- [Essential feature]
-
-### Out of Scope
-**We are NOT building:**
-- [Feature that might be tempting but isn't needed]
-- [Common request that doesn't fit vision]
-
-**Rationale:** [Why we're saying no]
-
-## Key Decisions
-### Decision 1: [Major Product Choice]
-**What we decided:** [The decision]
-**Why:** [Reasoning]
-**Trade-offs:** [What we're giving up]
-```
+**Key Sections:**
+- Product Overview (one paragraph)
+- Problem Statement (what, who, how, why)
+- Core Use Cases (5-10 concrete scenarios with named actors)
+- Success Criteria (measurable outcomes)
+- Scope (in scope, out of scope with rationale)
+- Key Decisions (major product choices with trade-offs)
 
 **Maintenance Triggers:**
 - User feedback changes core assumptions
@@ -172,136 +131,41 @@ In 6 months, success means:
 
 **Structure (20-60 pages or modular):**
 
-#### Standard Architecture Document
-```markdown
-# [Product Name] - Technical Architecture
+See `docs/spec-pyramid-guide.md` → Appendix B: Architecture Template
 
-## Tech Stack
-### Frontend
-- Framework: [React 18.2.0, exact version]
-- Language: [TypeScript 5.0.4]
-- Build Tool: [Vite 4.3.9]
-- State Management: [Zustand 4.3.9]
-- Styling: [Tailwind CSS 3.3.2]
-- UI Components: [DaisyUI 5.3.9]
-
-### Backend
-- Runtime: [Rails 8.1.0]
-- Language: [Ruby 3.3+]
-- Database: [PostgreSQL 15.3]
-- Background Jobs: [SolidQueue (Rails 8 Solid Stack)]
-- Caching: [SolidCache (Rails 8 Solid Stack)]
-- WebSockets: [SolidCable (Rails 8 Solid Stack)]
-
-### Testing
-- Unit Tests: [Minitest (Rails default)]
-- Integration Tests: [Minitest]
-- E2E Tests: [Playwright 1.36.0]
-
-## System Architecture
-[Component diagrams with ASCII art or Mermaid]
-[Data flow diagrams]
-[System boundaries]
-
-## Data Models
-[Complete TypeScript/Ruby interfaces for ALL entities]
-[Relationships and associations]
-[Validation rules]
-
-## Database Schema
-[Complete SQL DDL for all tables]
-[Indexes, constraints, foreign keys]
-[Migration strategy]
-
-## API Contracts
-[Every endpoint with full signatures]
-[Request/response examples]
-[Error responses]
-
-## File Structure
-[Complete directory layout]
-[Naming conventions]
-[Organization principles]
-
-## Security Architecture
-[Authentication strategy]
-[Authorization patterns]
-[Data encryption]
-[Security measures]
-
-## Non-Functional Requirements
-- Performance: [Specific metrics]
-- Scalability: [Specific limits]
-- Reliability: [Uptime targets]
-- Accessibility: [WCAG 2.1 AA compliance]
-```
+**Key Sections:**
+- **Tech Stack:** Rails 8.1+, Ruby 3.3+, exact versions for all dependencies
+  - Query Context7 for current versions
+  - Reference TEAM_RULES.md for required stack (SolidQueue, Minitest)
+- **System Architecture:** Component diagrams, data flow, boundaries
+- **Data Models:** Coordinate with @backend for ActiveRecord patterns
+  - Reference `skills/backend/activerecord-patterns.md`
+- **Database Schema:** SQL DDL with indexes, constraints
+  - Reference `skills/backend/activerecord-patterns.md` for schema patterns
+- **API Contracts:** RESTful endpoints only (TEAM RULE #3)
+  - Reference `skills/backend/controller-restful.md`
+- **File Structure:** Rails conventions with ViewComponent organization
+- **Security Architecture:** Reference `skills/security/` for patterns
+- **Non-Functional Requirements:** Performance, scalability, accessibility (WCAG 2.1 AA)
 
 #### Modular Architecture (For Large Projects >20 pages)
 
 **When to Use Modular:**
 - Architecture document > 20 pages
-- Multiple distinct subsystems (auth, AI, email, payments)
+- Multiple distinct subsystems (auth, email, payments, background jobs)
 - Working with AI tools with context limits
 - Multiple developers referencing different sections
 - Frequent updates to specific areas
 
 **Structure:**
-```
-docs/
-├── architecture/
-│   ├── index.md              # Overview with links to all sub-docs
-│   ├── local-development.md  # Dev environment setup
-│   ├── tech-stack.md         # Technologies and exact versions
-│   ├── system-design.md      # High-level architecture
-│   ├── data-models.md        # Entities and schemas
-│   ├── api-contracts.md      # Server Actions, APIs, endpoints
-│   ├── file-structure.md     # Directory layout
-│   ├── security.md           # Security architecture
-│   ├── email-system.md       # Email integration (if applicable)
-│   ├── ai-integration.md     # AI/ML systems (if applicable)
-│   ├── rate-limiting.md      # Protection mechanisms
-│   ├── conventions.md        # Code style and patterns
-│   ├── requirements.md       # Non-functional requirements
-│   ├── workflow.md           # Development workflow
-│   └── deployment.md         # Deployment strategy
-```
 
-**index.md Pattern:**
-```markdown
-# Technical Architecture
+See `docs/spec-pyramid-guide.md` → Modular Architecture Documentation section
 
-**Version:** 3.0
-**Date:** 2025-10-31
-
-## Overview
-[Brief summary of architecture goals and benefits]
-
-## Architecture Documents
-
-### 1. [Local Development](./local-development.md)
-Dev environment setup with Docker, database, cache...
-
-### 2. [Tech Stack](./tech-stack.md)
-Complete list of technologies with exact versions...
-
-[... other sections ...]
-
-## Quick Navigation
-
-**For AI-Assisted Development:**
-1. Start with Local Development
-2. Review Tech Stack for exact versions
-3. Reference Data Models for schemas
-4. Check API Contracts for endpoints
-[... more guidance ...]
-```
-
-**Benefits:**
-- ✅ Each document stays under AI context limits (25,000 tokens)
-- ✅ Easy to update specific sections
-- ✅ Quick navigation to relevant info
+**Key Benefits:**
+- ✅ Each document stays under AI context limits
+- ✅ Easy to update specific sections without affecting others
+- ✅ Quick navigation to relevant information
 - ✅ Clear separation of concerns
-- ✅ Can read only what you need
 
 **Maintenance Triggers:**
 - Adding new technology or library
@@ -330,133 +194,76 @@ Complete list of technologies with exact versions...
 - ✅ User requests specific feature
 
 **Structure (10-30 pages per feature):**
-```markdown
-# Feature Spec: [Feature Name]
 
-**Feature ID:** F-XXX
-**Dependencies:** [F-001: Database Setup, F-003: User Authentication]
-**Status:** Draft | Ready | In Progress | Complete
+See `docs/spec-pyramid-guide.md` → Appendix C: Feature Spec Template
 
-## User Story
-As a [specific user], I need to [specific action] so that [specific value].
+**Key Sections:**
 
-## Acceptance Criteria
-### Must Have
-1. ✓ [Specific, testable criterion]
-2. ✓ [Another testable criterion]
+### 1. User Story & Acceptance Criteria
+- User story: As [specific user], I need to [action] so that [value]
+- Must Have / Should Have / Won't Have (MoSCoW method)
+- All criteria must be testable and measurable
 
-### Should Have
-1. [Nice-to-have feature]
-2. [Enhancement]
+### 2. Technical Implementation
 
-### Won't Have (V1)
-- [Feature explicitly excluded]
-- [Future enhancement]
+**Coordinate with domain agents for technical details:**
 
-## Technical Implementation
+- **Data Models:** Work with @backend to define
+  - Reference `skills/backend/activerecord-patterns.md` for model structure
+  - Include associations, validations, scopes
+  - Ensure proper use of concerns if needed (`skills/backend/concerns-models.md`)
 
-### Data Models
-```typescript
-interface FeatureModel {
-  id: string;
-  field: string;          // Description
-  timestamp: number;      // Unix timestamp
-}
-```
+- **Database Changes:** Work with @backend for migrations
+  - SQL DDL with indexes, constraints, foreign keys
+  - Follow migration best practices from skills
 
-### Database Changes
-```sql
-CREATE TABLE feature_table (
-  id TEXT PRIMARY KEY,
-  field TEXT NOT NULL,
-  created_at INTEGER NOT NULL
-);
+- **Controller Design:** Must follow REST conventions (TEAM RULE #3)
+  - Reference `skills/backend/controller-restful.md`
+  - Only 7 standard actions (index, show, new, create, edit, update, destroy)
+  - Create child controllers for non-REST actions (`skills/backend/nested-resources.md`)
 
-CREATE INDEX idx_feature_field ON feature_table(field);
-```
+- **Component Breakdown:** Work with @frontend for UI structure
+  - Reference `skills/frontend/viewcomponent-basics.md` for component patterns
+  - Include slots if needed (`skills/frontend/viewcomponent-slots.md`)
+  - Specify variants (`skills/frontend/viewcomponent-variants.md`)
 
-### Component Breakdown
-- Component1.tsx (props, state, responsibilities)
-- Component2.tsx (props, state, responsibilities)
+- **Service Objects:** For complex business logic
+  - Reference `skills/backend/form-objects.md` for multi-model forms
+  - Reference `skills/backend/query-objects.md` for complex queries
 
-### Service Functions
-```typescript
-interface FeatureService {
-  createFeature(data: CreateInput): Promise<Feature>;
-  getFeature(id: string): Promise<Feature | null>;
-}
-```
+### 3. UI/UX Specification
 
-## UI/UX Specification
+**Coordinate with @frontend for implementation details:**
 
-### ASCII Wireframes
-```
-┌─────────────────────────────────────┐
-│  Feature Header              [×]    │
-├─────────────────────────────────────┤
-│  [Input field            ]  [Save]  │
-│  Error message appears here         │
-└─────────────────────────────────────┘
-```
+- **ASCII Wireframes:** Show layout and structure
+- **Exact Styling:** Reference DaisyUI components first
+  - `skills/frontend/daisyui-components.md` for component library
+  - `skills/frontend/tailwind-utility-first.md` for custom styling
+- **User Flow:** Step-by-step with all success/error paths
+- **Interactive States:** Default, hover, active, disabled, loading, error
+- **Accessibility:** Reference `skills/frontend/accessibility-patterns.md`
 
-### Exact Styling (Tailwind Classes)
-```tsx
-<div className="min-h-screen bg-gray-50 p-4">
-  <h1 className="text-2xl font-bold text-gray-900 mb-4">
-    Feature Title
-  </h1>
-  <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700
-                     text-white rounded-lg transition-colors">
-    Action
-  </button>
-</div>
-```
+### 4. Error Handling
 
-### User Flow Step-by-Step
-1. User clicks "Create Feature"
-2. System validates input (3-50 chars)
-   - ✓ Valid → Create feature, show success
-   - ✗ Invalid → Show error: "Title must be 3-50 characters"
-3. User sees confirmation
-   - ✓ Success → Navigate to feature view
-   - ✗ Network error → Show retry: "Failed to create. [Retry]"
+**Coordinate with @security for validation:**
 
-### Interactive States
-- Default: [Description]
-- Hover: [bg-blue-700, cursor-pointer]
-- Active: [bg-blue-800]
-- Disabled: [bg-gray-400, cursor-not-allowed]
-- Loading: [Show spinner, disable button]
+- All error cases documented with exact messages
+- Reference security skills for input validation patterns
+- Follow error handling conventions from skills
 
-## Error Handling
-| Error Case | Handling | User Message |
-|------------|----------|--------------|
-| Input too short | Show inline error | "Title must be at least 3 characters" |
-| Network timeout | Show retry option | "Request timed out. [Retry]" |
-| Server error | Show error + log | "Something went wrong. Please try again." |
+### 5. Testing Requirements
 
-## Testing Requirements
-### Test Cases
-- [ ] Valid input creates feature successfully
-- [ ] Invalid input shows appropriate error
-- [ ] Network error shows retry option
-- [ ] Loading state displays correctly
-- [ ] Disabled state prevents interaction
+**Coordinate with @tests for test strategy:**
 
-### Performance Criteria
-- Component render: < 50ms
-- API response: < 200ms
-- No N+1 queries
+- Reference `skills/testing/tdd-minitest.md` for TDD approach
+- Must write tests FIRST (RED-GREEN-REFACTOR)
+- Include model tests (`skills/testing/model-testing-advanced.md`)
+- Include component tests (`skills/testing/viewcomponent-testing.md`)
 
-## Dependencies
-**Must Exist Before This:**
-- F-001: Database Setup (tables exist)
-- F-002: Authentication (user context available)
-- F-005: Base UI Components (button, input)
-
-**This Enables:**
-- F-010: Advanced Feature (depends on this)
-```
+### 6. Dependencies
+- List all features that must exist first
+- List all features this enables
+- Never assume build order
 
 **Feature Breakdown Strategy:**
 - Break product into 15-30 distinct features
@@ -487,100 +294,67 @@ interface FeatureService {
 - ✅ User requests specific task breakdown
 
 **Structure (1-3 paragraphs per task):**
-```markdown
-## Task ID: T-F003-002
 
-**Feature:** Message Composer (F-003)
-**Title:** Implement Token Counter Display
-**Estimated Time:** 30 minutes
-**Dependencies:** T-F003-001 (Message input component exists)
-**Status:** Not Started | In Progress | Complete
+See `docs/spec-pyramid-guide.md` → Appendix D: Task Template
 
-### Description
-Add a real-time token counter to the message input that updates as the
-user types. Counter should show current tokens and warn when approaching
-model limit (4000 tokens for Claude Sonnet).
+**Task Characteristics:**
+- **Atomic:** Can't be broken down further (one focused session)
+- **Specific:** Exact Rails files, classes, methods named
+- **Complete:** Everything needed to implement (references to skills for patterns)
+- **Testable:** Clear definition of "done" with test criteria
+- **Skill-Referenced:** Point to relevant skills instead of duplicating examples
 
-### Files to Create/Modify
-**Create:**
-- `src/utils/tokenCounter.ts`
+**Key Sections:**
 
-**Modify:**
-- `src/components/MessageComposer.tsx`
+### 1. Task Identification
+- Task ID (T-FXXX-NNN format)
+- Feature reference
+- Title (action-oriented: "Add email validation to User model")
+- Estimated time
+- Dependencies (other tasks that must complete first)
 
-### Implementation Steps
-1. Create `tokenCounter.ts` with `estimateTokens(text: string): number`
-   - Use simple heuristic: words * 1.3 (good enough approximation)
-2. Add `tokenCount` state to MessageComposer
-3. Update `tokenCount` on every input change (debounced 100ms)
-4. Display in bottom-right of textarea
-5. Turn orange when > 3500 tokens, red when > 4000
+### 2. Description
+- 2-3 sentences explaining what needs to be done and why
+- Reference the Feature Spec for context
 
-### Code to Add
+### 3. Files to Create/Modify
+- Exact Rails file paths
+- Follow Rails conventions (app/models/, app/controllers/, app/components/)
 
-**Location: src/utils/tokenCounter.ts**
-```typescript
-export function estimateTokens(text: string): number {
-  const words = text.split(/\s+/).filter(w => w.length > 0).length;
-  return Math.ceil(words * 1.3);
-}
-```
+### 4. Implementation Steps
 
-**Location: src/components/MessageComposer.tsx**
-```typescript
-// Add import
-import { estimateTokens } from '../utils/tokenCounter';
+**Coordinate with appropriate agent for technical details:**
 
-// Add state
-const [tokenCount, setTokenCount] = useState(0);
+- **For models:** Reference `skills/backend/activerecord-patterns.md`
+- **For controllers:** Reference `skills/backend/controller-restful.md`
+- **For components:** Reference `skills/frontend/viewcomponent-basics.md`
+- **For forms:** Reference `skills/backend/form-objects.md`
+- **For validations:** Reference `skills/backend/custom-validators.md`
 
-// Add effect for debounced counting
-useEffect(() => {
-  const timer = setTimeout(() => {
-    setTokenCount(estimateTokens(message));
-  }, 100);
-  return () => clearTimeout(timer);
-}, [message]);
+**Don't include code snippets** - instead reference:
+- "Follow pattern in `skills/backend/activerecord-patterns.md` → Validations section"
+- "Use RESTful controller pattern from `skills/backend/controller-restful.md`"
+- "Apply DaisyUI button component from `skills/frontend/daisyui-components.md`"
 
-// Add to render (bottom-right of textarea container)
-<div className={`absolute bottom-2 right-2 text-sm ${
-  tokenCount > 4000 ? 'text-red-500' :
-  tokenCount > 3500 ? 'text-orange-500' :
-  'text-gray-500'
-}`}>
-  {tokenCount} tokens
-</div>
-```
+### 5. Styling (UI Tasks Only)
 
-### Styling
-- Text: `text-sm text-gray-500`
-- Warning (>3500): `text-orange-500`
-- Error (>4000): `text-red-500`
-- Position: `absolute bottom-2 right-2`
+**Coordinate with @frontend:**
+- Reference `skills/frontend/daisyui-components.md` for components first
+- Reference `skills/frontend/tailwind-utility-first.md` for custom classes
+- Specify exact component variants and modifiers
 
-### Acceptance Criteria
-✓ Counter updates within 100ms of typing
-✓ Color changes at correct thresholds (3500, 4000)
-✓ Doesn't impact typing performance
-✓ Accessible via screen readers (aria-live="polite")
+### 6. Acceptance Criteria
+- ✓ Testable, measurable criteria
+- ✓ No subjective terms ("looks good", "works well")
+- ✓ Clear success conditions
 
-### Testing
-**Manual test:**
-```bash
-npm run dev
-# 1. Navigate to message composer
-# 2. Type long message (100+ words)
-# 3. Verify count updates
-# 4. Verify color changes at thresholds
-```
+### 7. Testing
 
-**Unit test location:** `src/utils/__tests__/tokenCounter.test.ts`
-
-**Test cases to add:**
-- [ ] Empty string returns 0 tokens
-- [ ] "Hello world" returns ~3 tokens
-- [ ] 100 words returns ~130 tokens
-```
+**Coordinate with @tests:**
+- Reference `skills/testing/tdd-minitest.md` for TDD approach
+- Test file location (test/models/, test/controllers/, test/components/)
+- Reference appropriate testing skill for patterns
+- Must write tests FIRST (RED-GREEN-REFACTOR)
 
 **Task Characteristics:**
 - **Atomic:** Can't be broken down further
@@ -609,117 +383,33 @@ npm run dev
 - ✅ Future direction changes
 
 **Architecture Decision Record (ADR) Format:**
-```markdown
-## ADR-XXX: [Decision Title]
 
-**Date:** 2025-10-31
-**Status:** Proposed | Accepted | Deprecated | Superseded
-**Context:** [What situation led to this decision?]
+See `docs/spec-pyramid-guide.md` → Decision Recording section for complete ADR template
 
-### Decision
-[What we decided to do]
+**Key Sections:**
+- **Context:** What situation led to this decision?
+- **Decision:** What we decided to do
+- **Rationale:** Why this decision (with alternatives considered)
+- **Consequences:** Positive, negative, and risks with mitigations
+- **Implementation Notes:** Specific guidance for implementation
+- **Review Date:** When to revisit this decision
 
-### Rationale
-**Reasons for this decision:**
-- [Reason 1]
-- [Reason 2]
-- [Reason 3]
-
-**Alternatives Considered:**
-- **Option A:** [Description] - Rejected because [reason]
-- **Option B:** [Description] - Rejected because [reason]
-
-### Consequences
-**Positive:**
-+ [Benefit 1]
-+ [Benefit 2]
-
-**Negative:**
-- [Drawback 1]
-- [Drawback 2]
-
-**Risks:**
-- [Risk 1 and mitigation]
-- [Risk 2 and mitigation]
-
-### Implementation Notes
-[Specific guidance for implementing this decision]
-
-### Review Date
-[When to revisit this decision]
-```
-
-**Example ADR:**
-```markdown
-## ADR-003: Use SQLite Instead of PostgreSQL for Desktop App
-
-**Date:** 2025-10-31
-**Status:** Accepted
-
-**Context:** Need local database for desktop app with user privacy focus.
-
-### Decision
-Use SQLite 3.42+ with SQLCipher for encryption.
-
-### Rationale
-**Reasons:**
-- No server setup required
-- Built-in encryption available (SQLCipher)
-- Excellent Electron support
-- Perfect for single-user desktop app
-- 10x simpler than PostgreSQL for this use case
-
-**Alternatives Considered:**
-- **PostgreSQL:** Overkill for local app, requires server
-- **IndexedDB:** No SQL capabilities, browser-only
-- **Realm:** Unnecessary complexity, sync not needed
-
-### Consequences
-**Positive:**
-+ Simple deployment (single file database)
-+ Better privacy (local-only, encrypted)
-+ No network dependencies
-+ Smaller app size
-
-**Negative:**
-- Can't sync across devices (acceptable for V1)
-- Limited concurrent writes (not an issue for single user)
-- Less powerful than PostgreSQL (adequate for our needs)
-
-**Risks:**
-- Future multi-device support requires architecture change
-- Mitigation: Design data models with future sync in mind
-
-### Implementation Notes
-- Use SQLCipher gem for encryption
-- PRAGMA settings for performance: `journal_mode=WAL`, `synchronous=NORMAL`
-- Regular VACUUM for database maintenance
-- Backup strategy: User-initiated export to JSON
-
-### Review Date
-Q4 2025 - When considering multi-device support
-```
+**Coordinate with @architect and domain agents:**
+- @architect validates technical decisions
+- @backend for backend technology choices
+- @frontend for frontend technology choices
+- @security for security-related decisions
 
 **Known Issues Format:**
-```markdown
-## Known Issues
 
-### Issue: [Short Title]
-**Severity:** Low | Medium | High | Critical
-**Impact:** [Who/what is affected]
-**Status:** Open | In Progress | Resolved | Wont Fix
+See `docs/spec-pyramid-guide.md` → Decision Recording section
 
-**Description:**
-[Detailed description of the issue]
-
-**Workaround:**
-[Temporary solution if available]
-
-**Permanent Fix:**
-[Long-term solution and effort estimate]
-
-**Tracked In:** [Issue #XXX or decision to accept]
-```
+**Key Fields:**
+- Severity (Low | Medium | High | Critical)
+- Impact (who/what is affected)
+- Status (Open | In Progress | Resolved | Won't Fix)
+- Description, Workaround, Permanent Fix
+- Tracking reference
 
 **Storage:**
 - ADRs: `docs/decisions/` directory
@@ -1065,89 +755,69 @@ Before marking planning work complete:
 
 ---
 
-## Example Planning Session
+## Example Planning Workflow
 
-```
-User: "I want to build a feedback collection app for anonymous workplace feedback"
+**User Request:** "I want to build a Rails app for anonymous workplace feedback"
 
-@plan Analysis:
-- Scope: Medium-sized project
-- Needs: Vision → Architecture → Features → Tasks
-- Approach: Start with Vision, validate, then Architecture
+### Planning Agent Process:
 
-Step 1 - Vision Document:
-Create 5-10 page Vision doc covering:
-- Product overview (anonymous workplace feedback platform)
-- Problem statement (workplace feedback barriers)
-- 5-10 specific use cases (e.g., "Sarah gives feedback to manager")
-- Success criteria (measurable engagement, response rates)
-- Scope boundaries (V1 vs Future)
-- Key decisions (anonymous vs authenticated, email vs in-app)
+**Step 1 - Vision Document Creation:**
+1. Analyze request scope (medium-sized project)
+2. Create Vision doc (5-10 pages) with:
+   - Product overview
+   - Problem statement (workplace feedback barriers)
+   - Core use cases (5-10 specific scenarios)
+   - Success criteria (measurable outcomes)
+   - Scope boundaries (V1 vs Future)
+3. Coordinate with @architect for validation
+4. Record key decisions as ADRs
 
-Coordinate: @architect reviews Vision doc
+**Step 2 - Architecture Document Creation:**
+1. Query Context7 for Rails 8.1+ patterns:
+   - SolidQueue for background jobs
+   - rate_limit DSL for abuse prevention
+   - Hotwire patterns for real-time updates
+2. Define tech stack (Rails 8.1.0, Ruby 3.3+, exact versions)
+3. Work with @backend to design data models (reference skills)
+4. Work with @frontend for component architecture (reference skills)
+5. Work with @security for security patterns (reference skills)
+6. Create Architecture doc (20-60 pages or modular)
+7. Coordinate with @architect, @backend, @frontend, @security for review
 
-Step 2 - Architecture Document:
-Create Architecture doc (or modular docs/) covering:
-- Tech stack: Rails 8.1.0, Ruby 3.3+, Hotwire, ViewComponent, Tailwind, DaisyUI
-- System architecture: Diagrams, data flow
-- Data models: Feedback, Recipient, Response, AbuseReport
-- Database schema: Complete DDL with indexes, constraints
-- API contracts: All controller actions, strong parameters
-- Security: Anonymous tracking, abuse prevention, rate limiting
-- File structure: Complete directory layout
-- Non-functional: Performance, scalability, accessibility
+**Step 3 - Feature Breakdown:**
+1. Identify 15-30 distinct features
+2. Order by dependencies:
+   - F-001: Database Setup (foundation)
+   - F-002: Anonymous Feedback Submission
+   - F-003: Feedback Tracking
+   - F-004: Recipient Dashboard
+   - F-005: Response System
+   - F-006: Abuse Reporting
+   - ... etc.
+3. Prioritize by value and dependencies
 
-Query Context7 for:
-- Rails 8.1 rate_limit DSL patterns
-- SolidQueue background job setup
-- Hotwire Turbo patterns
+**Step 4 - Feature Specification (Just-in-Time):**
+1. Select 3-5 foundation features for initial specs
+2. For each feature, coordinate with domain agents:
+   - @backend for data models (reference `skills/backend/`)
+   - @frontend for UI/UX (reference `skills/frontend/`)
+   - @tests for testing strategy (reference `skills/testing/`)
+   - @security for security requirements (reference `skills/security/`)
+3. Create 10-30 page spec per feature with skill references
+4. @architect reviews and approves
 
-Coordinate: @architect, @backend, @frontend review Architecture
+**Step 5 - Task Breakdown:**
+1. Break feature into atomic tasks (5-15 tasks per feature)
+2. Each task references appropriate skills for implementation patterns
+3. No code examples - point to skills instead
+4. Ready for @architect to assign to implementation agents
 
-Step 3 - Feature Breakdown:
-Break into features:
-- F-001: Database Setup
-- F-002: Anonymous Feedback Submission
-- F-003: Feedback Tracking (view status)
-- F-004: Recipient Dashboard
-- F-005: Response System
-- F-006: Abuse Reporting
-- F-007: Admin Moderation
-- ... (15-30 total features)
-
-Prioritize: F-001 → F-002 → F-003 → F-004 → F-005 → ...
-
-Step 4 - Initial Feature Specs:
-Create specs for foundation features:
-- F-001: Database Setup (10 pages)
-- F-002: Anonymous Feedback Submission (20 pages)
-- F-003: Feedback Tracking (15 pages)
-
-Each spec includes:
-- User story, acceptance criteria
-- Data models, database schema
-- Component breakdown
-- UI wireframes with exact Tailwind classes
-- Error handling (all cases documented)
-- Testing requirements
-- Dependencies
-
-Coordinate: @architect approves specs
-
-Step 5 - Task Breakdown:
-For F-002 (Anonymous Feedback Submission):
-- T-F002-001: Create Feedback model and migration
-- T-F002-002: Create FeedbacksController with create action
-- T-F002-003: Create feedback form component
-- T-F002-004: Add rate limiting
-- T-F002-005: Create tracking token system
-- T-F002-006: Add validation and error handling
-- T-F002-007: Write tests
-
-Each task: Atomic, specific files, exact code, clear done criteria
-
-Result: Ready for @architect to assign to implementation agents
-```
+**Result:** Systematic documentation enabling LLM-driven development with:
+- Clear vision and goals
+- Solid technical foundation
+- Precise feature specifications
+- Executable task breakdowns
+- All referencing established skills and patterns
 
 ---
 

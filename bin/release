@@ -363,63 +363,109 @@ Co-Authored-By: Claude <noreply@anthropic.com>"
 
 print_success "Changelog committed"
 
-# Create git tag
-print_section "🏷️  Creating Git Tag"
-git tag -a "v$NEW_VERSION" -m "Release v$NEW_VERSION
+# Create release branch
+print_section "🌿 Creating Release Branch"
+RELEASE_BRANCH="release-v$NEW_VERSION"
+git checkout -b "$RELEASE_BRANCH"
+print_success "Created branch: $RELEASE_BRANCH"
 
-$RELEASE_NOTES"
-print_success "Tag v$NEW_VERSION created"
+# Push release branch to GitHub
+print_section "📤 Pushing Release Branch"
+print_info "Pushing release branch to GitHub..."
+git push -u origin "$RELEASE_BRANCH"
+print_success "Pushed $RELEASE_BRANCH to GitHub"
 
-# Push to GitHub
-print_section "📤 Pushing to GitHub"
-print_info "Pushing commits and tags..."
-git push origin $CURRENT_BRANCH
-git push origin "v$NEW_VERSION"
-print_success "Pushed to GitHub"
+# Create Pull Request for release
+print_section "🔀 Creating Release Pull Request"
+print_info "Creating PR for release..."
+
+PR_BODY="## Release v$NEW_VERSION
+
+$RELEASE_NOTES
+
+---
+
+## Release Checklist
+
+- [x] CHANGELOG.md updated
+- [x] Plugin version updated in marketplace.json
+- [x] Release notes reviewed
+- [ ] PR approved and merged
+- [ ] Tag created after merge
+- [ ] GitHub release created
+
+## Post-Merge Instructions
+
+After this PR is merged to master, run these commands to complete the release:
+
+\`\`\`bash
+# Switch to master and pull
+git checkout master
+git pull origin master
+
+# Create and push tag
+git tag -a v$NEW_VERSION -m \"Release v$NEW_VERSION\"
+git push origin v$NEW_VERSION
 
 # Create GitHub release
-print_section "🚀 Creating GitHub Release"
-print_info "Creating release on GitHub..."
-
-# Format release notes for GitHub
-GITHUB_RELEASE_NOTES="$RELEASE_NOTES
+gh release create v$NEW_VERSION \\
+  --title \"v$NEW_VERSION\" \\
+  --notes-file <(cat <<'EOF'
+$RELEASE_NOTES
 
 ---
 
 ## Installation
 
-\`\`\`bash
+\\\`\\\`\\\`bash
 # Via Claude Code plugin
 /plugin marketplace add zerobearing2/rails-ai
 /plugin install rails-ai
-\`\`\`
+\\\`\\\`\\\`
 
 ## What's Changed
 
 See [CHANGELOG.md](https://github.com/zerobearing2/rails-ai/blob/master/CHANGELOG.md) for full details.
 
-**Full Changelog**: https://github.com/zerobearing2/rails-ai/compare/v$CURRENT_VERSION...v$NEW_VERSION"
-
-gh release create "v$NEW_VERSION" \
-  --title "v$NEW_VERSION" \
-  --notes "$GITHUB_RELEASE_NOTES" \
+**Full Changelog**: https://github.com/zerobearing2/rails-ai/compare/v$CURRENT_VERSION...v$NEW_VERSION
+EOF
+) \\
   --latest
+\`\`\`
 
-print_success "GitHub release created"
+🤖 Generated with [Claude Code](https://claude.com/claude-code)"
+
+gh pr create \
+  --draft \
+  --title "Release v$NEW_VERSION" \
+  --body "$PR_BODY" \
+  --base master \
+  --head "$RELEASE_BRANCH"
+
+PR_URL=$(gh pr view "$RELEASE_BRANCH" --json url -q .url)
+print_success "Release PR created: $PR_URL"
 
 # Summary
-print_section "✨ Release Complete"
+print_section "✨ Release Preparation Complete"
 echo ""
 echo -e "${GREEN}╔═══════════════════════════════════════════╗${NC}"
-echo -e "${GREEN}║     🎉 RELEASE v$NEW_VERSION COMPLETE     ║${NC}"
+echo -e "${GREEN}║   🎉 RELEASE v$NEW_VERSION PREPARED      ║${NC}"
 echo -e "${GREEN}╚═══════════════════════════════════════════╝${NC}"
 echo ""
 print_success "Version: $NEW_VERSION"
-print_success "Tag: v$NEW_VERSION"
+print_success "Branch: $RELEASE_BRANCH"
 print_success "CHANGELOG.md updated"
 print_success "Plugin version updated"
-print_success "Pushed to GitHub"
-print_success "GitHub release created"
+print_success "Release PR created (draft)"
 echo ""
-print_info "View release: https://github.com/zerobearing2/rails-ai/releases/tag/v$NEW_VERSION"
+print_info "Next steps:"
+echo "  1. Review the PR: $PR_URL"
+echo "  2. Mark PR as ready for review"
+echo "  3. Merge the PR to master"
+echo "  4. Follow post-merge instructions in PR description to:"
+echo "     - Create git tag v$NEW_VERSION"
+echo "     - Push tag to GitHub"
+echo "     - Create GitHub release"
+echo ""
+print_warning "⚠️  Don't forget to complete post-merge steps!"
 echo ""

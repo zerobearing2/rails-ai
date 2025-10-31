@@ -293,11 +293,12 @@ if [ "$DRY_RUN" = true ]; then
   echo ""
   print_info "What would happen:"
   echo "  1. Update CHANGELOG.md with version $NEW_VERSION"
-  echo "  2. Commit changelog with release notes"
-  echo "  3. Create git tag v$NEW_VERSION"
-  echo "  4. Push to origin/$CURRENT_BRANCH"
-  echo "  5. Push tag v$NEW_VERSION"
-  echo "  6. Create GitHub release"
+  echo "  2. Update .claude-plugin/marketplace.json version to $NEW_VERSION"
+  echo "  3. Commit changelog and plugin version with release notes"
+  echo "  4. Create git tag v$NEW_VERSION"
+  echo "  5. Push to origin/$CURRENT_BRANCH"
+  echo "  6. Push tag v$NEW_VERSION"
+  echo "  7. Create GitHub release"
   echo ""
   print_success "Dry run complete. Run without --dry-run to execute."
   exit 0
@@ -310,10 +311,12 @@ if [[ ! $REPLY =~ ^[Yy]$ ]]; then
   exit 1
 fi
 
-# Update CHANGELOG.md
-print_section "📝 Updating CHANGELOG.md"
+# Update CHANGELOG.md and plugin version
+print_section "📝 Updating Version Files"
 TODAY=$(date +%Y-%m-%d)
 
+# Update CHANGELOG.md
+print_info "Updating CHANGELOG.md..."
 # Create new changelog entry
 NEW_ENTRY="## [$NEW_VERSION] - $TODAY
 
@@ -327,9 +330,24 @@ $NEW_ENTRY" CHANGELOG.md
 
 print_success "CHANGELOG.md updated"
 
-# Commit changelog
-print_info "Committing changelog..."
+# Update Claude plugin version in marketplace.json
+if [ -f ".claude-plugin/marketplace.json" ]; then
+  print_info "Updating .claude-plugin/marketplace.json..."
+
+  # Use sed to update the version field in the JSON
+  sed -i "s/\"version\": \"[0-9]*\.[0-9]*\.[0-9]*\"/\"version\": \"$NEW_VERSION\"/" .claude-plugin/marketplace.json
+
+  print_success "Plugin version updated to $NEW_VERSION"
+else
+  print_warning ".claude-plugin/marketplace.json not found, skipping plugin version update"
+fi
+
+# Commit changelog and plugin version
+print_info "Committing version changes..."
 git add CHANGELOG.md
+if [ -f ".claude-plugin/marketplace.json" ]; then
+  git add .claude-plugin/marketplace.json
+fi
 git commit -m "Release $NEW_VERSION
 
 $RELEASE_NOTES
@@ -394,6 +412,7 @@ echo ""
 print_success "Version: $NEW_VERSION"
 print_success "Tag: v$NEW_VERSION"
 print_success "CHANGELOG.md updated"
+print_success "Plugin version updated"
 print_success "Pushed to GitHub"
 print_success "GitHub release created"
 echo ""

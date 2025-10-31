@@ -176,7 +176,9 @@ CURRENT_VERSION=$(grep -m 1 '\[.*\]' CHANGELOG.md | ...)
 # Major: 0.2.0 → 1.0.0
 ```
 
-### 3. CHANGELOG Update
+### 3. Version File Updates
+
+**CHANGELOG.md:**
 ```markdown
 ## [Unreleased]
 
@@ -189,10 +191,23 @@ CURRENT_VERSION=$(grep -m 1 '\[.*\]' CHANGELOG.md | ...)
 ...
 ```
 
+**Claude Plugin (.claude-plugin/marketplace.json):**
+```json
+{
+  "plugins": [
+    {
+      "name": "rails-ai",
+      "version": "0.2.0",     ← Updated to match release
+      ...
+    }
+  ]
+}
+```
+
 ### 4. Git Operations
 ```bash
-# Commit changelog
-git add CHANGELOG.md
+# Commit changelog and plugin version
+git add CHANGELOG.md .claude-plugin/marketplace.json
 git commit -m "Release 0.2.0\n\n[release notes]"
 
 # Create annotated tag
@@ -223,12 +238,15 @@ The GitHub release includes:
 If you need to create a release manually:
 
 ```bash
-# 1. Update CHANGELOG.md
+# 1. Update version files
 vim CHANGELOG.md
 # Add new version entry under [Unreleased]
 
+vim .claude-plugin/marketplace.json
+# Update "version" field to match release
+
 # 2. Commit
-git add CHANGELOG.md
+git add CHANGELOG.md .claude-plugin/marketplace.json
 git commit -m "Release v0.2.0"
 
 # 3. Tag

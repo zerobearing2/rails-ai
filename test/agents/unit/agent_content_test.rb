@@ -48,6 +48,42 @@ class AgentContentTest < Minitest::Test
     end
   end
 
+  # Test that architect has critical delegation enforcement sections
+  def test_architect_has_delegation_enforcement
+    coordinator = @agent_files.find { |f| f.include?("architect.md") }
+    content = File.read(coordinator)
+
+    # Should have delegation-protocol section with critical priority
+    assert_match(/<delegation-protocol\s+priority="critical">/i, content,
+                 "Architect: missing <delegation-protocol priority=\"critical\"> section")
+
+    # Should have ABSOLUTE RULES section
+    assert_match(/ABSOLUTE RULES.*NO EXCEPTIONS/im, content,
+                 "Architect: missing 'ABSOLUTE RULES (NO EXCEPTIONS)' in delegation protocol")
+
+    # Should explicitly forbid Write/Edit/NotebookEdit tools
+    assert_match(/NEVER.*Write.*Edit.*NotebookEdit/im, content,
+                 "Architect: should explicitly forbid Write/Edit/NotebookEdit tools")
+
+    # Should have ONLY use Task tool instruction
+    assert_match(/ONLY use Task tool/i, content,
+                 "Architect: should have 'ONLY use Task tool' instruction")
+
+    # Should have critical anti-pattern section for direct implementation
+    assert_match(/CRITICAL ANTI-PATTERN.*Architect Doing Implementation/im, content,
+                 "Architect: missing critical anti-pattern section for direct implementation")
+
+    # Should have examples of forbidden vs correct behavior
+    assert_match(/FORBIDDEN.*behavior/i, content,
+                 "Architect: should have examples of FORBIDDEN behavior")
+    assert_match(/CORRECT.*behavior/i, content,
+                 "Architect: should have examples of CORRECT behavior")
+
+    # Should have critical-reminder section
+    assert_match(/<critical-reminder>/i, content,
+                 "Architect: should have <critical-reminder> section")
+  end
+
   # Test that skill names mentioned in preset sections exist in registry
   def test_skill_presets_reference_valid_skills
     specialized_agents = @agent_files.reject { |f| f.include?("architect.md") }

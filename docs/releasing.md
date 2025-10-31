@@ -78,16 +78,16 @@ The script will guide you through:
 
 The script uses **Claude CLI** to automatically generate release notes from your git commits!
 
-### How it works:
+### How it works
 
 1. **Analyzes commits** - Gets all commits since last version tag
 2. **Summarizes with AI** - Claude reads commits and generates clean changelog
 3. **Keep a Changelog format** - Automatically categorizes into Added, Changed, Fixed, etc.
 4. **Review & edit** - You can approve, edit, or reject the AI-generated notes
 
-### Example:
+### Example
 
-```
+```text
 Commits since last version:
 - Add bin/release script for automated releases
 - Fix settings.json: Remove invalid JSON comments
@@ -110,7 +110,7 @@ Claude CLI generates:
 Use these release notes? (y/n/e to edit)
 ```
 
-### No Claude CLI?
+### No Claude CLI
 
 If Claude CLI is not installed, the script falls back to manual entry. Install with:
 
@@ -384,7 +384,7 @@ Examples:
 - `0.2.1` - Bug fix
 - `1.0.0` - Stable release, ready for production
 
-## Questions?
+## Questions
 
 - Check the [bin/release](../bin/release) script source
 - Review [CHANGELOG.md](../CHANGELOG.md) for examples

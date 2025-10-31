@@ -96,12 +96,12 @@ else
   print_error "YAML validation failed"
 fi
 
-# Markdown linting (informational only)
+# Markdown linting
 print_info "Linting Markdown files..."
 if bundle exec mdl skills/ docs/ *.md --style .mdl_style.rb; then
   print_success "Markdown linting passed"
 else
-  print_warning "Markdown linting found issues (informational only)"
+  print_error "Markdown linting failed"
 fi
 
 # ==============================================================================

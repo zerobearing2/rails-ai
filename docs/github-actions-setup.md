@@ -235,6 +235,7 @@ integration-tests:
 ```
 
 **Add more jobs:**
+
 ```yaml
 jobs:
   lint-and-test:

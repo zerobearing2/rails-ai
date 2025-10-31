@@ -8,7 +8,7 @@ The following is a set of guidelines for contributing to rails-ai. These are mos
 
 This project and everyone participating in it is governed by our [Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code.
 
-## How Can I Contribute?
+## How Can I Contribute
 
 ### Reporting Bugs
 
@@ -117,7 +117,7 @@ This project follows Rails conventions and 37signals philosophy:
 
 ## Project Structure
 
-```
+```text
 rails-ai/
 ├── agents/          # 6 specialized Rails agents
 ├── skills/          # Modular skills registry

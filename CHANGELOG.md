@@ -22,7 +22,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Manual installation section from README
 
-
 ### Added
 - Claude Code project settings (`.claude/settings.json`) with pre-approved commands
 - Comprehensive `.claude/README.md` documenting settings system
@@ -60,6 +59,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0] - 2025-10-30
 
 ### Added
+
 - **Claude Code Plugin Support** - rails-ai is now installable as a Claude Code plugin
   - `.claude-plugin/marketplace.json` for plugin distribution
   - One-command installation: `/plugin marketplace add zerobearing2/rails-ai`
@@ -67,6 +67,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Skills registry system for centralized skill management
 
 ### Changed
+
 - **Agent Naming Convention** - Simplified agent names by removing `rails-` prefix
   - `rails.md` → `architect.md` (uses `@rails-ai:architect`)
   - `rails-backend.md` → `backend.md` (uses `@rails-ai:backend`)

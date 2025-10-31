@@ -12,12 +12,12 @@ We release patches for security vulnerabilities. Currently supported versions:
 
 We take the security of rails-ai seriously. If you believe you have found a security vulnerability, please report it to us as described below.
 
-### Please do NOT:
+### Please do NOT
 
 - Open a public GitHub issue for security vulnerabilities
 - Disclose the vulnerability publicly before it has been addressed
 
-### Please DO:
+### Please DO
 
 1. **Report via GitHub Security Advisories**
    - Go to the [Security tab](https://github.com/zerobearing2/rails-ai/security/advisories) of this repository
@@ -32,7 +32,7 @@ We take the security of rails-ai seriously. If you believe you have found a secu
    - Proof-of-concept or exploit code (if possible)
    - Impact of the vulnerability (what an attacker could do)
 
-### What to expect:
+### What to expect
 
 - We will acknowledge receipt of your vulnerability report within 48 hours
 - We will send a more detailed response within 5 business days indicating next steps

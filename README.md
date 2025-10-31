@@ -88,7 +88,7 @@ cd rails-ai
 
 # Install locally for development
 # In Claude Code:
-/plugin marketplace add /home/dave/Projects/rails-ai
+/plugin marketplace add /home/zerobearing2/Projects/rails-ai
 /plugin install rails-ai
 ```
 

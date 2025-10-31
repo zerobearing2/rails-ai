@@ -108,9 +108,9 @@ architect_delegation:
         delegates_to: "tests"
         task: "Debug and fix CI failures"
 
-      - request: "Add system tests for feedback flow"
+      - request: "Add integration tests for feedback flow"
         delegates_to: "tests"
-        task: "Write comprehensive system tests for user flow"
+        task: "Write comprehensive integration tests for user flow"
 
   # Debugging tasks
   debug_task:
@@ -135,6 +135,35 @@ architect_delegation:
             backend_issue: "backend"
             frontend_issue: "frontend"
             both: ["backend", "frontend"]
+
+  # Planning tasks
+  planning_task:
+    condition: "new_project OR feature_planning OR architecture_design OR specification_pyramid"
+    strategy: "delegate_to_plan"
+    examples:
+      - request: "Create Vision document for new project"
+        delegates_to: "plan"
+        task: "Create Vision document using Specification Pyramid framework"
+
+      - request: "Design architecture for user authentication system"
+        delegates_to: "plan"
+        task: "Create Architecture document for authentication system"
+
+      - request: "Break down the shopping cart feature into tasks"
+        delegates_to: "plan"
+        task: "Create Feature specification with task breakdown"
+
+      - request: "Document the decision to use ViewComponent"
+        delegates_to: "plan"
+        task: "Record Architecture Decision Record (ADR) for ViewComponent choice"
+
+      - request: "Plan a new Rails 8 e-commerce application"
+        phase_1:
+          delegates_to: "plan"
+          task: "Create Vision and Architecture documents"
+        phase_2:
+          delegates_to: "plan"
+          task: "Break down features and coordinate with domain agents"
 
   # Complex, multi-concern tasks
   complex_task:
@@ -294,6 +323,15 @@ agent_selection_quick_lookup:
     error: "debug"
     bug: "debug"
     performance: "debug"
+
+    plan: "plan"
+    planning: "plan"
+    vision: "plan"
+    architecture: "plan"
+    feature: "plan (for feature specification)"
+    specification: "plan"
+    spec_pyramid: "plan"
+    adr: "plan (Architecture Decision Records)"
 
     review: "architect (orchestrate PR review)"
     pr: "architect (orchestrate PR review)"

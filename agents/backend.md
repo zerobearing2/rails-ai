@@ -67,7 +67,7 @@ Reference: `../TEAM_RULES.md`
 
 ## Skills Preset - Backend/API Specialist
 
-**This agent automatically loads 19 backend, security, config, and testing skills organized by domain.**
+**This agent automatically loads 20 backend, security, config, and testing skills organized by domain.**
 
 ### Skills Architecture
 
@@ -76,7 +76,7 @@ Skills are modular knowledge units loaded from `skills/` directory. Each skill c
 - **Markdown content**: Comprehensive documentation
 - **XML semantic tags**: Machine-parseable patterns (`<when-to-use>`, `<pattern>`, `<antipatterns>`, etc.)
 
-### Loaded Skills (19 Total)
+### Loaded Skills (20 Total)
 
 <skills-manifest domain="backend">
 #### Backend Skills (10)
@@ -160,21 +160,26 @@ All security skills are CRITICAL and must be applied when handling user input.
     - Criticality: CRITICAL
     - Use: ALWAYS - accepting ANY file uploads from users
 
-#### Config Skills (2)
+#### Config Skills (3)
 
 17. **solid-stack-setup** - Configure SolidQueue, SolidCache, SolidCable
     - Location: `skills/config/solid-stack-setup.md`
     - Enforces: TEAM_RULE #1 (CRITICAL) - ALWAYS use Solid Stack
     - Use: Background jobs, caching, WebSockets (NO Redis/Sidekiq)
 
-18. **credentials-management** - Rails encrypted credentials for secrets
+18. **docker-rails-setup** - Docker configuration for Rails with .dockerignore
+    - Location: `skills/config/docker-rails-setup.md`
+    - Criticality: RECOMMENDED
+    - Use: Docker deployment, Kamal, excluding docs/ from production images
+
+19. **credentials-management** - Rails encrypted credentials for secrets
     - Location: `skills/config/credentials-management.md`
     - Criticality: CRITICAL
     - Use: API keys, database encryption keys, SMTP passwords, OAuth secrets
 
 #### Testing Skills (1)
 
-19. **tdd-minitest** - Test-Driven Development with Minitest
+20. **tdd-minitest** - Test-Driven Development with Minitest
     - Location: `skills/testing/tdd-minitest.md`
     - Enforces: Rules #2, #4 (Minitest only, TDD always)
     - Criticality: REQUIRED for all code

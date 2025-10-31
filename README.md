@@ -94,25 +94,6 @@ cd rails-ai
 
 Changes to agent files will be available after restarting Claude Code (hot-reload testing in progress).
 
-### Manual Installation (Alternative)
-
-If you prefer not to use the plugin system:
-
-```bash
-# Clone repo
-cd ~/Projects/rails-ai
-
-# For Claude Code:
-ln -s $(pwd)/agents ~/.claude/agents
-ln -s $(pwd)/rules ~/.claude/rules
-
-# For Cursor:
-ln -s $(pwd)/agents ~/.cursor/agents
-ln -s $(pwd)/rules ~/.cursor/rules
-```
-
-This will symlink the agents and rules so they're available in all your Rails projects.
-
 ## Usage
 
 In any Rails project with Claude Code:

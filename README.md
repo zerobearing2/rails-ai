@@ -198,6 +198,41 @@ See [docs/github-actions-setup.md](docs/github-actions-setup.md) for setup instr
 - 🔜 Add more real-world examples
 - 🔜 Enhanced Cursor support
 
+## Known Issues
+
+### Claude Code v2.0.30 - Agent Launch Failures with MCP Servers
+
+**Issue**: Task agents and subagents fail to launch when MCP servers are configured, returning:
+```
+API Error: 400 tools: Tool names must be unique
+```
+
+**Affected Versions**: Claude Code v2.0.30 (possibly v2.0.29)
+
+**Impact**:
+- All agents in rails-ai plugin cannot be invoked
+- Built-in agents (Explore, Plan) also affected
+- Occurs with any MCP server configuration (single or multiple)
+
+**Root Cause**: A regression in v2.0.30 that duplicates tool names during subprocess initialization when making MCP tools available to sub-agents.
+
+**Workarounds**:
+
+1. **Downgrade to v2.0.28** (recommended):
+   ```bash
+   npm install -g @anthropic-ai/claude-code@2.0.28
+   ```
+
+2. **Temporarily disable MCP servers**: Comment out MCP configurations in `.claude.json` before using agents
+
+3. **Use minimal MCP configuration**: Reduce to essential MCP servers only
+
+**Status**: High priority issue tracked at [anthropics/claude-code#10668](https://github.com/anthropics/claude-code/issues/10668)
+
+**Note**: This is a Claude Code platform issue, not specific to rails-ai. Once fixed upstream, rails-ai agents will work normally with MCP servers.
+
+---
+
 ## Contributing
 
 We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.

@@ -81,24 +81,13 @@ module Ui
     include ViewComponentContrib::StyleVariants
 
     style do
-      base {
-        %w[
-          font-medium
-          rounded-lg
-          transition-colors
-          duration-200
-          focus:outline-none
-          focus:ring-2
-          focus:ring-offset-2
-        ]
-      }
+      base { %w[font-medium rounded-lg transition-colors focus:ring-2] }
 
       variants {
         color {
           primary { %w[bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500] }
           secondary { %w[bg-purple-600 text-white hover:bg-purple-700 focus:ring-purple-500] }
           danger { %w[bg-red-600 text-white hover:bg-red-700 focus:ring-red-500] }
-          success { %w[bg-green-600 text-white hover:bg-green-700 focus:ring-green-500] }
         }
 
         size {
@@ -108,15 +97,11 @@ module Ui
         }
       }
 
-      defaults {
-        { color: :primary, size: :md }
-      }
+      defaults { { color: :primary, size: :md } }
     end
 
     def initialize(color: nil, size: nil, disabled: false)
-      @color = color
-      @size = size
-      @disabled = disabled
+      @color, @size, @disabled = color, size, disabled
     end
 
     private
@@ -140,21 +125,10 @@ end
 **Usage:**
 ```erb
 <%# Uses defaults: primary color, md size %>
-<%= render Ui::ButtonComponent.new do %>
-  Save
-<% end %>
+<%= render Ui::ButtonComponent.new { "Save" } %>
 
 <%# Custom variants %>
-<%= render Ui::ButtonComponent.new(color: :danger, size: :lg) do %>
-  Delete Account
-<% end %>
-```
-
-**Rendered Output:**
-```html
-<button class="font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 px-6 py-3 text-lg">
-  Delete Account
-</button>
+<%= render Ui::ButtonComponent.new(color: :danger, size: :lg) { "Delete" } %>
 ```
 </pattern>
 
@@ -169,22 +143,13 @@ module Ui
     include ViewComponentContrib::StyleVariants
 
     style do
-      base {
-        %w[
-          inline-flex
-          items-center
-          rounded-full
-          font-medium
-          transition-colors
-        ]
-      }
+      base { %w[inline-flex items-center rounded-full font-medium] }
 
       variants {
         status {
           pending { %w[bg-yellow-100 text-yellow-800 border border-yellow-200] }
           active { %w[bg-green-100 text-green-800 border border-green-200] }
           inactive { %w[bg-gray-100 text-gray-800 border border-gray-200] }
-          error { %w[bg-red-100 text-red-800 border border-red-200] }
         }
 
         size {
@@ -194,14 +159,11 @@ module Ui
         }
       }
 
-      defaults {
-        { status: :inactive, size: :md }
-      }
+      defaults { { status: :inactive, size: :md } }
     end
 
     def initialize(status:, size: nil)
-      @status = status.to_sym
-      @size = size
+      @status, @size = status.to_sym, size
     end
 
     private
@@ -221,13 +183,8 @@ end
 
 **Usage:**
 ```erb
-<%= render Ui::BadgeComponent.new(status: :active) do %>
-  Active
-<% end %>
-
-<%= render Ui::BadgeComponent.new(status: :pending, size: :lg) do %>
-  Pending Review
-<% end %>
+<%= render Ui::BadgeComponent.new(status: :active) { "Active" } %>
+<%= render Ui::BadgeComponent.new(status: :pending, size: :lg) { "Pending" } %>
 ```
 </pattern>
 
@@ -311,14 +268,10 @@ end
 **Usage:**
 ```erb
 <%# Large primary button gets uppercase + bold from compound variant %>
-<%= render Ui::AdvancedButtonComponent.new(size: :lg, theme: :primary) do %>
-  Call to Action
-<% end %>
+<%= render Ui::AdvancedButtonComponent.new(size: :lg, theme: :primary) { "CTA" } %>
 
 <%# Outline button with hover effects %>
-<%= render Ui::AdvancedButtonComponent.new(theme: :outline) do %>
-  Secondary Action
-<% end %>
+<%= render Ui::AdvancedButtonComponent.new(theme: :outline) { "Secondary" } %>
 ```
 </pattern>
 
@@ -333,15 +286,7 @@ module FeedbackComponents
     include ViewComponentContrib::StyleVariants
 
     style do
-      base {
-        %w[
-          inline-flex
-          items-center
-          rounded-full
-          font-medium
-          transition-colors
-        ]
-      }
+      base { %w[inline-flex items-center rounded-full font-medium] }
 
       variants {
         status {
@@ -363,24 +308,14 @@ module FeedbackComponents
         }
       }
 
-      # Large badges are always bold
-      compound(size: :lg) {
-        %w[font-bold]
-      }
+      compound(size: :lg) { %w[font-bold] }
+      compound(status: :pending, size: :lg) { %w[animate-pulse] }
 
-      # Large pending badges get pulse animation
-      compound(status: :pending, size: :lg) {
-        %w[animate-pulse]
-      }
-
-      defaults {
-        { size: :md, with_icon: :no }
-      }
+      defaults { { size: :md, with_icon: :no } }
     end
 
     def initialize(status:, size: nil, with_icon: false)
-      @status = status.to_sym
-      @size = size
+      @status, @size = status.to_sym, size
       @with_icon = with_icon ? :yes : :no
     end
 
@@ -389,12 +324,7 @@ module FeedbackComponents
     attr_reader :status, :size, :with_icon
 
     def icon
-      case status
-      when :pending then "⏳"
-      when :reviewed then "👀"
-      when :responded then "✓"
-      when :archived then "📦"
-      end
+      { pending: "⏳", reviewed: "👀", responded: "✓", archived: "📦" }[status]
     end
   end
 end
@@ -414,10 +344,9 @@ end
 **Usage:**
 ```erb
 <%# Large pending badge with icon - gets pulse animation %>
-<%= render FeedbackComponents::StatusBadgeComponent.new(status: :pending, size: :lg, with_icon: true) %>
-
-<%# Standard responded badge %>
-<%= render FeedbackComponents::StatusBadgeComponent.new(status: :responded) %>
+<%= render FeedbackComponents::StatusBadgeComponent.new(
+  status: :pending, size: :lg, with_icon: true
+) %>
 ```
 </pattern>
 
@@ -504,13 +433,10 @@ end
 **Usage:**
 ```erb
 <%= render Ui::CardWithImageComponent.new(
-  variant: :glass,
-  image_orient: :portrait,
-  content_padding: :lg,
-  image_src: "/images/product.jpg"
+  variant: :glass, image_orient: :portrait, image_src: "/product.jpg"
 ) do %>
   <h3>Product Name</h3>
-  <p>Product description here.</p>
+  <p>Description...</p>
 <% end %>
 ```
 </pattern>
@@ -541,23 +467,13 @@ module Ui
           # Ruby block receives all variant values
           primary do |size:, **|
             classes = %w[bg-blue-600 text-white hover:bg-blue-700]
-
-            # Add uppercase and bold only for large buttons
-            if size == :lg
-              classes.concat(%w[uppercase font-bold tracking-wide])
-            end
-
+            classes.concat(%w[uppercase font-bold]) if size == :lg
             classes
           end
 
           secondary do |size:, **|
             classes = %w[bg-purple-600 text-white hover:bg-purple-700]
-
-            # Large secondary buttons get different padding
-            if size == :lg
-              classes << "px-8"
-            end
-
+            classes << "px-8" if size == :lg
             classes
           end
         }
@@ -567,8 +483,7 @@ module Ui
     end
 
     def initialize(size: nil, theme: nil)
-      @size = size
-      @theme = theme
+      @size, @theme = size, theme
     end
 
     private
@@ -576,14 +491,6 @@ module Ui
     attr_reader :size, :theme
   end
 end
-```
-
-**Usage:**
-```erb
-<%# Large primary button gets uppercase + bold from dynamic logic %>
-<%= render Ui::DynamicButtonComponent.new(size: :lg, theme: :primary) do %>
-  Call to Action
-<% end %>
 ```
 </pattern>
 
@@ -714,10 +621,7 @@ end
 
 **Usage:**
 ```erb
-<%# Variant classes + custom classes %>
-<%= render Ui::ButtonComponent.new(size: :lg, color: :primary) do %>
-  <%= tag.span "Special", class: "ml-2" %>
-<% end %>
+<%= render Ui::ButtonComponent.new(size: :lg, color: :primary) { "Button" } %>
 ```
 </pattern>
 
@@ -779,9 +683,7 @@ end
 
 **Usage:**
 ```erb
-<%= render Ui::DaisyButtonComponent.new(variant: :ghost, size: :lg) do %>
-  Ghost Button
-<% end %>
+<%= render Ui::DaisyButtonComponent.new(variant: :ghost, size: :lg) { "Ghost" } %>
 ```
 </pattern>
 
@@ -790,39 +692,16 @@ end
 <antipatterns>
 <antipattern>
 <description>Using inline conditionals instead of variant system</description>
-<reason>Becomes unreadable and hard to maintain as complexity grows</reason>
+<reason>Unreadable and hard to maintain as complexity grows</reason>
 <bad-example>
 ```ruby
 # ❌ BAD - Inline conditional class logic
 class ButtonComponent < ViewComponent::Base
-  def initialize(color:, size:, disabled:)
-    @color = color
-    @size = size
-    @disabled = disabled
-  end
-
   def button_classes
     classes = ["font-medium", "rounded-lg"]
-
-    if color == :primary
-      classes += ["bg-blue-600", "text-white", "hover:bg-blue-700"]
-    elsif color == :secondary
-      classes += ["bg-purple-600", "text-white", "hover:bg-purple-700"]
-    elsif color == :danger
-      classes += ["bg-red-600", "text-white", "hover:bg-red-700"]
-    end
-
-    if size == :sm
-      classes += ["px-3", "py-1.5", "text-sm"]
-    elsif size == :md
-      classes += ["px-4", "py-2", "text-base"]
-    elsif size == :lg
-      classes += ["px-6", "py-3", "text-lg"]
-    end
-
+    classes += ["bg-blue-600"] if color == :primary
+    classes += ["px-4", "py-2"] if size == :md
     classes << "uppercase" if size == :lg && color == :primary
-    classes << "font-bold" if size == :lg && color == :primary
-
     classes.join(" ")
   end
 end
@@ -836,25 +715,11 @@ class ButtonComponent < ViewComponent::Base
 
   style do
     base { %w[font-medium rounded-lg] }
-
     variants {
-      color {
-        primary { %w[bg-blue-600 text-white hover:bg-blue-700] }
-        secondary { %w[bg-purple-600 text-white hover:bg-purple-700] }
-        danger { %w[bg-red-600 text-white hover:bg-red-700] }
-      }
-
-      size {
-        sm { %w[px-3 py-1.5 text-sm] }
-        md { %w[px-4 py-2 text-base] }
-        lg { %w[px-6 py-3 text-lg] }
-      }
+      color { primary { %w[bg-blue-600 text-white] } }
+      size { md { %w[px-4 py-2] } }
     }
-
-    compound(size: :lg, color: :primary) {
-      %w[uppercase font-bold]
-    }
-
+    compound(size: :lg, color: :primary) { %w[uppercase font-bold] }
     defaults { { color: :primary, size: :md } }
   end
 end
@@ -863,214 +728,43 @@ end
 </antipattern>
 
 <antipattern>
-<description>Duplicating variant logic across components</description>
-<reason>Inconsistent styling and maintenance burden</reason>
-<bad-example>
-```ruby
-# ❌ BAD - Size variants duplicated across multiple components
-class ButtonComponent < ViewComponent::Base
-  def size_classes
-    case @size
-    when :sm then "px-3 py-1.5 text-sm"
-    when :md then "px-4 py-2 text-base"
-    when :lg then "px-6 py-3 text-lg"
-    end
-  end
-end
-
-class BadgeComponent < ViewComponent::Base
-  def size_classes
-    case @size
-    when :sm then "px-2 py-0.5 text-xs"  # Different!
-    when :md then "px-4 py-2 text-base"   # Inconsistent
-    when :lg then "px-6 py-3 text-lg"
-    end
-  end
-end
-```
-</bad-example>
-<good-example>
-```ruby
-# ✅ GOOD - Shared base component or consistent variant definitions
-module Ui
-  class BaseComponent < ViewComponent::Base
-    include ViewComponentContrib::StyleVariants
-
-    style do
-      variants {
-        size {
-          sm { %w[text-sm] }
-          md { %w[text-base] }
-          lg { %w[text-lg] }
-        }
-      }
-    end
-  end
-
-  class ButtonComponent < BaseComponent
-    style do
-      variants(strategy: :merge) {
-        size {
-          sm { %w[px-3 py-1.5] }
-          md { %w[px-4 py-2] }
-          lg { %w[px-6 py-3] }
-        }
-      }
-    end
-  end
-
-  class BadgeComponent < BaseComponent
-    style do
-      variants(strategy: :merge) {
-        size {
-          sm { %w[px-2 py-0.5] }
-          md { %w[px-3 py-1] }
-          lg { %w[px-4 py-1.5] }
-        }
-      }
-    end
-  end
-end
-```
-</good-example>
-</antipattern>
-
-<antipattern>
 <description>Not setting defaults for required variants</description>
-<reason>Forces users to always specify all variants explicitly</reason>
+<reason>Forces explicit variant specification every time</reason>
 <bad-example>
 ```ruby
-# ❌ BAD - No defaults defined
+# ❌ BAD - No defaults
 class ButtonComponent < ViewComponent::Base
   include ViewComponentContrib::StyleVariants
-
   style do
     variants {
-      color {
-        primary { %w[bg-blue-600] }
-        secondary { %w[bg-purple-600] }
-      }
-      size {
-        sm { %w[text-sm] }
-        md { %w[text-base] }
-      }
+      color { primary { %w[bg-blue-600] } }
+      size { md { %w[text-base] } }
     }
     # No defaults!
   end
 end
-
-# Usage requires all variants every time
-<%= render ButtonComponent.new(color: :primary, size: :md) %>
 ```
 </bad-example>
 <good-example>
 ```ruby
-# ✅ GOOD - Sensible defaults provided
+# ✅ GOOD - Sensible defaults
 class ButtonComponent < ViewComponent::Base
   include ViewComponentContrib::StyleVariants
-
   style do
     variants {
-      color {
-        primary { %w[bg-blue-600] }
-        secondary { %w[bg-purple-600] }
-      }
-      size {
-        sm { %w[text-sm] }
-        md { %w[text-base] }
-      }
+      color { primary { %w[bg-blue-600] } }
+      size { md { %w[text-base] } }
     }
-
-    defaults {
-      { color: :primary, size: :md }
-    }
+    defaults { { color: :primary, size: :md } }
   end
 end
-
-# Simple usage with defaults
-<%= render ButtonComponent.new %>
-# Override only what you need
-<%= render ButtonComponent.new(color: :secondary) %>
-```
-</good-example>
-</antipattern>
-
-<antipattern>
-<description>Mixing variant system with manual class concatenation</description>
-<reason>Defeats the purpose of using variants; creates confusion</reason>
-<bad-example>
-```ruby
-# ❌ BAD - Mixing variant DSL with manual class building
-class ButtonComponent < ViewComponent::Base
-  include ViewComponentContrib::StyleVariants
-
-  style do
-    variants {
-      color {
-        primary { %w[bg-blue-600] }
-      }
-    }
-  end
-
-  def button_classes
-    # Mixing variant system with manual concatenation
-    base = style(color:)
-    base + " " + additional_classes
-  end
-
-  def additional_classes
-    classes = []
-    classes << "uppercase" if @uppercase
-    classes << "w-full" if @full_width
-    classes.join(" ")
-  end
-end
-```
-</bad-example>
-<good-example>
-```ruby
-# ✅ GOOD - All styling through variant system
-class ButtonComponent < ViewComponent::Base
-  include ViewComponentContrib::StyleVariants
-
-  style do
-    variants {
-      color {
-        primary { %w[bg-blue-600] }
-      }
-
-      uppercase {
-        yes { %w[uppercase] }
-        no { %w[] }
-      }
-
-      full_width {
-        yes { %w[w-full] }
-        no { %w[] }
-      }
-    }
-
-    defaults {
-      { color: :primary, uppercase: :no, full_width: :no }
-    }
-  end
-
-  def initialize(color: nil, uppercase: false, full_width: false)
-    @color = color
-    @uppercase = uppercase ? :yes : :no
-    @full_width = full_width ? :yes : :no
-  end
-end
-
-# Template:
-# <button class="<%= style(color:, uppercase:, full_width:) %>">
 ```
 </good-example>
 </antipattern>
 </antipatterns>
 
 <testing>
-Test style variants to ensure correct class generation:
+Test variant class generation:
 
 ```ruby
 # test/components/ui/button_component_test.rb
@@ -1079,52 +773,24 @@ require "test_helper"
 class Ui::ButtonComponentTest < ViewComponent::TestCase
   test "applies default variants" do
     render_inline(Ui::ButtonComponent.new) { "Click" }
-
-    # Should have base classes
-    assert_selector("button.font-medium.rounded-lg")
-
-    # Should have default color (primary)
-    assert_selector("button.bg-blue-600")
-
-    # Should have default size (md)
-    assert_selector("button.px-4.py-2")
+    assert_selector("button.font-medium.rounded-lg.bg-blue-600.px-4.py-2")
   end
 
-  test "applies custom color variant" do
-    render_inline(Ui::ButtonComponent.new(color: :danger)) { "Delete" }
-
-    assert_selector("button.bg-red-600")
-    assert_selector("button.text-white")
+  test "applies custom variants" do
+    render_inline(Ui::ButtonComponent.new(color: :danger, size: :lg)) { "Delete" }
+    assert_selector("button.bg-red-600.px-6.py-3")
   end
 
-  test "applies custom size variant" do
-    render_inline(Ui::ButtonComponent.new(size: :lg)) { "Large" }
-
-    assert_selector("button.px-6.py-3.text-lg")
-  end
-
-  test "compound variants apply correctly" do
-    render_inline(
-      Ui::AdvancedButtonComponent.new(size: :lg, theme: :primary)
-    ) { "Large Primary" }
-
-    # Should have compound variant classes
+  test "compound variants apply" do
+    render_inline(Ui::AdvancedButtonComponent.new(size: :lg, theme: :primary)) { "CTA" }
     assert_selector("button.uppercase.font-bold")
   end
 
-  test "multiple independent style sets" do
-    render_inline(
-      Ui::CardWithImageComponent.new(
-        variant: :glass,
-        image_orient: :portrait,
-        image_src: "/test.jpg"
-      )
-    ) { "Content" }
-
-    # Card variant
+  test "multiple style sets" do
+    render_inline(Ui::CardWithImageComponent.new(
+      variant: :glass, image_orient: :portrait, image_src: "/test.jpg"
+    )) { "Content" }
     assert_selector("div.bg-white\\/80.backdrop-blur-sm")
-
-    # Image variant
     assert_selector("img.w-32.h-48")
   end
 end
@@ -1133,28 +799,9 @@ end
 require "test_helper"
 
 class FeedbackComponents::StatusBadgeComponentTest < ViewComponent::TestCase
-  test "pending status applies correct color" do
-    render_inline(
-      FeedbackComponents::StatusBadgeComponent.new(status: :pending)
-    )
-
-    assert_selector("span.bg-yellow-100.text-yellow-800")
-  end
-
-  test "large size applies bold from compound variant" do
-    render_inline(
-      FeedbackComponents::StatusBadgeComponent.new(status: :pending, size: :lg)
-    )
-
-    assert_selector("span.font-bold")
-  end
-
-  test "large pending badge has pulse animation" do
-    render_inline(
-      FeedbackComponents::StatusBadgeComponent.new(status: :pending, size: :lg)
-    )
-
-    assert_selector("span.animate-pulse")
+  test "compound variant applies pulse to large pending badges" do
+    render_inline(FeedbackComponents::StatusBadgeComponent.new(status: :pending, size: :lg))
+    assert_selector("span.font-bold.animate-pulse")
   end
 end
 ```
@@ -1169,8 +816,7 @@ end
 </related-skills>
 
 <resources>
-- [view_component-contrib GitHub](https://github.com/palkan/view_component-contrib)
-- [Style Variants Documentation](https://github.com/palkan/view_component-contrib#style-variants)
-- [ViewComponent Documentation](https://viewcomponent.org/)
-- [CVA (Class Variance Authority)](https://cva.style/docs) - JavaScript inspiration
+- [view_component-contrib](https://github.com/palkan/view_component-contrib)
+- [Style Variants Docs](https://github.com/palkan/view_component-contrib#style-variants)
+- [ViewComponent](https://viewcomponent.org/)
 </resources>

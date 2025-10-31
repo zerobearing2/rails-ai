@@ -16,7 +16,6 @@ Prevent malicious JavaScript execution by properly escaping user input and imple
 - Rendering HTML from external sources
 - Building rich text editors or comment systems
 - Allowing formatted content (markdown, HTML)
-- Implementing search results or user profiles
 - ALWAYS - XSS prevention is ALWAYS required
 </when-to-use>
 
@@ -24,7 +23,6 @@ Prevent malicious JavaScript execution by properly escaping user input and imple
 - **Script Injection** - `<script>alert('XSS')</script>`
 - **Event Handlers** - `<img src=x onerror="alert('XSS')">`
 - **JavaScript URLs** - `<a href="javascript:alert('XSS')">Click</a>`
-- **Style Injection** - `<style>body{background:url('javascript:alert(1)')}</style>`
 - **SVG Injection** - `<svg onload="alert('XSS')"></svg>`
 - **Data URIs** - `<img src="data:text/html,<script>alert('XSS')</script>">`
 </attack-vectors>
@@ -36,7 +34,6 @@ Prevent malicious JavaScript execution by properly escaping user input and imple
 - Implement Content Security Policy (CSP) headers
 - Validate and sanitize ALL user input
 - Use ViewComponent for complex rendering (automatic escaping)
-- Never trust data from cookies, URLs, or forms
 - Encode output based on context (HTML, JavaScript, URL, CSS)
 </standards>
 
@@ -75,24 +72,21 @@ Browser displays the text, doesn't execute it.
 
 **DANGEROUS:**
 ```erb
-<%# ❌ DANGEROUS - Executes malicious scripts %>
+<%# ❌ Executes malicious scripts %>
 <%= @feedback.content.html_safe %>
 <%= raw(@feedback.content) %>
 ```
 
-**When html_safe IS appropriate:**
+**Safe usage:**
 ```erb
-<%# ✅ SAFE - Developer-controlled HTML %>
+<%# ✅ Developer-controlled HTML %>
 <%= content_tag(:div, "Hello", class: "message").html_safe %>
 
-<%# ✅ SAFE - Sanitized user content %>
+<%# ✅ Sanitized user content %>
 <%= sanitize(@feedback.content, tags: %w[p br strong em]).html_safe %>
 ```
 
-**Rule:** Only use `html_safe` on:
-- Developer-written HTML
-- Content already sanitized with explicit allowlist
-- Output from trusted Rails helpers
+Only use `html_safe` on developer-written HTML, sanitized content, or trusted Rails helpers.
 </pattern>
 
 ## Sanitizing User Content
@@ -100,31 +94,18 @@ Browser displays the text, doesn't execute it.
 <pattern name="sanitize-with-allowlist">
 <description>Allow specific HTML tags while stripping dangerous content</description>
 
-**Strict Allowlist:**
 ```erb
-<%# ✅ SECURE - Only allow specific tags %>
-<%
-  allowed_tags = %w[p br strong em a ul ol li]
-  allowed_attributes = %w[href title]
-%>
-<%= sanitize(@feedback.content, tags: allowed_tags, attributes: allowed_attributes) %>
+<%# ✅ Only allow specific tags %>
+<%= sanitize(@feedback.content,
+    tags: %w[p br strong em a ul ol li],
+    attributes: %w[href title]) %>
 ```
 
-**Input:**
-```html
-<p>Hello <strong>world</strong></p>
-<script>alert('XSS')</script>
-<a href="javascript:alert('XSS')">Click</a>
-```
+**Input:** `<p>Hello <strong>world</strong></p><script>alert('XSS')</script>`
 
-**Output:**
-```html
-<p>Hello <strong>world</strong></p>
+**Output:** `<p>Hello <strong>world</strong></p>` (script stripped)
 
-<a>Click</a>
-```
-
-Scripts and javascript: URLs are stripped.
+Scripts and javascript: URLs are automatically removed.
 </pattern>
 
 <pattern name="markdown-safe-rendering">
@@ -135,23 +116,17 @@ Scripts and javascript: URLs are stripped.
 # app/models/feedback.rb
 class Feedback < ApplicationRecord
   def content_html
-    # Use a markdown parser with XSS protection
     markdown = Redcarpet::Markdown.new(
       Redcarpet::Render::HTML.new(
-        filter_html: true,  # Strip HTML tags
-        no_styles: true,    # Strip style attributes
-        safe_links_only: true  # Only allow http/https links
+        filter_html: true, no_styles: true, safe_links_only: true
       ),
-      autolink: true,
-      tables: true,
-      fenced_code_blocks: true
+      autolink: true, tables: true, fenced_code_blocks: true
     )
 
-    # Parse markdown and sanitize output
     html = markdown.render(content)
     ActionController::Base.helpers.sanitize(
       html,
-      tags: %w[p br strong em a ul ol li pre code h1 h2 h3 h4 h5 h6 blockquote table thead tbody tr th td],
+      tags: %w[p br strong em a ul ol li pre code h1 h2 h3 blockquote],
       attributes: %w[href title]
     )
   end
@@ -160,7 +135,6 @@ end
 
 **View:**
 ```erb
-<%# Safe to render - already sanitized %>
 <div class="markdown-content">
   <%= @feedback.content_html.html_safe %>
 </div>
@@ -172,86 +146,53 @@ end
 <pattern name="csp-configuration">
 <description>Implement Content Security Policy to block inline scripts</description>
 
-**Initializer:**
 ```ruby
 # config/initializers/content_security_policy.rb
 Rails.application.config.content_security_policy do |policy|
-  # Only load resources from same origin and HTTPS
   policy.default_src :self, :https
-
-  # Font sources
   policy.font_src :self, :https, :data
-
-  # Image sources
   policy.img_src :self, :https, :data, "https://cdn.example.com"
-
-  # Prevent embedding in iframes
   policy.frame_ancestors :none
-
-  # Block objects (Flash, etc.)
   policy.object_src :none
-
-  # Only allow scripts from self and specific CDNs
   policy.script_src :self, :https, "https://cdn.jsdelivr.net"
-
-  # Only allow styles from self
   policy.style_src :self, :https
-
-  # Report violations to this endpoint
   policy.report_uri "/csp-violation-report"
 end
 
-# Generate nonces for inline scripts (if needed)
 Rails.application.config.content_security_policy_nonce_generator = ->(request) {
   SecureRandom.base64(16)
 }
-
-# Apply nonces to script-src directive
 Rails.application.config.content_security_policy_nonce_directives = %w[script-src]
 ```
 
 **View with Nonce:**
 ```erb
-<%# Inline script with nonce (allowed by CSP) %>
 <%= javascript_tag nonce: true do %>
   console.log('This is allowed');
 <% end %>
-<%# Generates: <script nonce="random_value">console.log('This is allowed');</script> %>
 ```
 </pattern>
 
 <pattern name="csp-violation-reporting">
 <description>Log CSP violations for security monitoring</description>
 
-**Controller:**
 ```ruby
 # app/controllers/csp_reports_controller.rb
 class CspReportsController < ApplicationController
-  skip_before_action :verify_authenticity_token  # CSP reports don't include CSRF token
+  skip_before_action :verify_authenticity_token
 
   def create
     violation = JSON.parse(request.body.read)["csp-report"]
-
     Rails.logger.warn(
-      "CSP Violation: " \
-      "document-uri=#{violation['document-uri']} " \
-      "blocked-uri=#{violation['blocked-uri']} " \
-      "violated-directive=#{violation['violated-directive']}"
+      "CSP Violation: document-uri=#{violation['document-uri']} " \
+      "blocked-uri=#{violation['blocked-uri']}"
     )
-
-    # Could also store in database for analysis
-    # CspViolation.create!(violation_data: violation)
-
     head :no_content
   end
 end
 ```
 
-**Route:**
-```ruby
-# config/routes.rb
-post "/csp-violation-report", to: "csp_reports#create"
-```
+Route: `post "/csp-violation-report", to: "csp_reports#create"`
 </pattern>
 
 ## ViewComponent Safety
@@ -259,7 +200,6 @@ post "/csp-violation-report", to: "csp_reports#create"
 <pattern name="viewcomponent-escaping">
 <description>ViewComponents automatically escape content</description>
 
-**Component:**
 ```ruby
 # app/components/user_comment_component.rb
 class UserCommentComponent < ViewComponent::Base
@@ -268,28 +208,19 @@ class UserCommentComponent < ViewComponent::Base
   end
 
   private
-
   attr_reader :comment
 end
 ```
 
-**Template:**
 ```erb
 <%# app/components/user_comment_component.html.erb %>
 <div class="comment">
   <div class="author"><%= comment.author_name %></div>
-  <div class="content">
-    <%# ✅ SECURE - Auto-escaped %>
-    <%= comment.content %>
-  </div>
+  <div class="content"><%= comment.content %></div>
 </div>
 ```
 
-**Benefits:**
-- Automatic escaping like ERB
-- Encapsulated logic
-- Testable in isolation
-- No accidental `html_safe` on user data
+Benefits: Automatic escaping, encapsulated logic, testable, no accidental `html_safe`.
 </pattern>
 
 <antipatterns>
@@ -299,19 +230,14 @@ end
 <bad-example>
 ```erb
 <%# ❌ CRITICAL VULNERABILITY %>
-<div class="comment">
-  <%= @comment.html_safe %>
-</div>
+<%= @comment.html_safe %>
 ```
 </bad-example>
 <good-example>
 ```erb
 <%# ✅ SECURE - Auto-escaped or sanitized %>
-<div class="comment">
-  <%= @comment %>
-  <%# Or with sanitization: %>
-  <%= sanitize(@comment, tags: %w[p br strong em]) %>
-</div>
+<%= @comment %>
+<%= sanitize(@comment, tags: %w[p br strong em]) %>
 ```
 </good-example>
 </antipattern>
@@ -321,40 +247,33 @@ end
 <reason>Allows HTML injection attacks</reason>
 <bad-example>
 ```erb
-<%# ❌ VULNERABLE - Renders user HTML as-is %>
-<div class="content">
-  <%= @post.body.html_safe %>
-</div>
+<%# ❌ VULNERABLE %>
+<%= @post.body.html_safe %>
 ```
 </bad-example>
 <good-example>
 ```erb
-<%# ✅ SECURE - Sanitize with explicit allowlist %>
-<div class="content">
-  <%= sanitize(@post.body, tags: %w[p br strong em a], attributes: %w[href]) %>
-</div>
+<%# ✅ SECURE - Explicit allowlist %>
+<%= sanitize(@post.body, tags: %w[p br strong em a], attributes: %w[href]) %>
 ```
 </good-example>
 </antipattern>
 
 <antipattern>
-<description>Allowing javascript: URLs in user content</description>
+<description>Allowing javascript: URLs</description>
 <reason>Enables XSS through link clicks</reason>
 <bad-example>
 ```ruby
-# ❌ VULNERABLE - Doesn't filter javascript: URLs
-sanitize(user_content, tags: %w[a], attributes: %w[href])
-# Allows: <a href="javascript:alert('XSS')">Click</a>
+# ❌ Without URL validation
+sanitize(content, tags: %w[a], attributes: %w[href])
 ```
 </bad-example>
 <good-example>
 ```ruby
-# ✅ SECURE - Rails sanitizer blocks javascript: by default
-sanitize(user_content, tags: %w[a], attributes: %w[href])
-# Strips: <a href="javascript:alert('XSS')">Click</a>
-# Result: <a>Click</a>
+# ✅ Rails sanitizer blocks javascript: by default
+sanitize(content, tags: %w[a], attributes: %w[href])
 
-# Or validate URLs explicitly
+# Or validate explicitly
 def safe_url?(url)
   uri = URI.parse(url)
   %w[http https].include?(uri.scheme)
@@ -367,27 +286,18 @@ end
 </antipatterns>
 
 <testing>
-Test XSS prevention in controller and system tests:
-
 ```ruby
 # test/models/feedback_test.rb
 class FeedbackTest < ActiveSupport::TestCase
   test "content_html sanitizes malicious scripts" do
     feedback = Feedback.new(content: "<script>alert('XSS')</script>Hello")
-
-    html = feedback.content_html
-
-    assert_not_includes html, "<script>"
-    assert_includes html, "Hello"
+    assert_not_includes feedback.content_html, "<script>"
+    assert_includes feedback.content_html, "Hello"
   end
 
   test "content_html allows safe markdown" do
     feedback = Feedback.new(content: "**bold** and *italic*")
-
-    html = feedback.content_html
-
-    assert_includes html, "<strong>bold</strong>"
-    assert_includes html, "<em>italic</em>"
+    assert_includes feedback.content_html, "<strong>bold</strong>"
   end
 end
 
@@ -395,15 +305,10 @@ end
 class XssPreventionTest < ApplicationSystemTestCase
   test "user cannot inject scripts via comment" do
     visit new_comment_path
-
     fill_in "Comment", with: "<script>alert('XSS')</script>"
     click_button "Submit"
 
-    # Script should be escaped, not executed
-    assert_text "<script>alert('XSS')</script>"
-
-    # No alert dialog should appear
-    assert_no_selector "div.alert"  # If your app shows alerts this way
+    assert_text "<script>alert('XSS')</script>"  # Script escaped, not executed
   end
 end
 ```
@@ -413,11 +318,10 @@ end
 - security-csrf - CSRF protection
 - security-sql-injection - SQL injection prevention
 - viewcomponent-basics - Safe component rendering
-- content-security-policy - Advanced CSP configuration
 </related-skills>
 
 <resources>
 - [Rails Security Guide - XSS](https://guides.rubyonrails.org/security.html#cross-site-scripting-xss)
-- [OWASP XSS Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html)
+- [OWASP XSS Prevention](https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html)
 - [Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP)
 </resources>

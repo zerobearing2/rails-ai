@@ -20,31 +20,28 @@ enforces_team_rule:
 ViewComponent is a framework for building reusable, testable, and encapsulated view components in Ruby on Rails.
 
 <when-to-use>
-- Building reusable UI components across your application
-- Need to test view logic in isolation
-- Want type-safe view code (Ruby methods vs local variables)
-- Performance matters (ViewComponent is up to 10x faster than partials)
-- Complex UI that benefits from component-based architecture
+- Building reusable UI components
+- Testing view logic in isolation
+- Type-safe view code (Ruby methods vs local variables)
+- Performance-critical UIs (10x faster than partials)
 </when-to-use>
 
 <benefits>
-- **Encapsulation** - Components are self-contained units
+- **Encapsulation** - Self-contained units
 - **Reusability** - Build once, use everywhere
-- **Testability** - Test components in isolation with ViewComponent::TestCase
+- **Testability** - Test with ViewComponent::TestCase
 - **Performance** - Significantly faster than partials
-- **Type Safety** - Ruby methods instead of local variables
-- **Organization** - Clear structure for complex UIs
+- **Type Safety** - Ruby methods over local variables
 </benefits>
 
 <standards>
-- Components go in `app/components/` directory
-- Component class inherits from `ViewComponent::Base`
-- Component template is `component_name.html.erb` in same directory
-- Use `initialize` to accept parameters (not locals)
-- Make instance variables available to template via `attr_reader` or directly
-- Follow Rails naming conventions: `FooComponent` → `foo_component.rb` + `foo_component.html.erb`
-- Compatible with Hotwire (Turbo + Stimulus)
-- Works seamlessly with Tailwind CSS + DaisyUI
+- Components in `app/components/` directory
+- Inherit from `ViewComponent::Base`
+- Template is `component_name.html.erb` (sidecar file)
+- Pass parameters via `initialize` (not locals)
+- Use `attr_reader` for instance variables
+- Naming: `FooComponent` → `foo_component.rb` + `foo_component.html.erb`
+- Compatible with Hotwire, Tailwind, DaisyUI
 </standards>
 
 ## Patterns
@@ -77,9 +74,8 @@ end
 </pattern>
 
 <pattern name="component-with-content">
-<description>Component that accepts content via block</description>
+<description>Component accepting content via block</description>
 
-**Component Class:**
 ```ruby
 # app/components/card_component.rb
 class CardComponent < ViewComponent::Base
@@ -94,86 +90,53 @@ class CardComponent < ViewComponent::Base
 
   def card_classes
     base = "card bg-base-100 shadow-xl"
-    case variant
-    when :bordered
-      "#{base} card-bordered"
-    when :compact
-      "#{base} card-compact"
-    else
-      base
-    end
+    variant == :bordered ? "#{base} card-bordered" : base
   end
 end
 ```
 
-**Component Template:**
 ```erb
 <!-- app/components/card_component.html.erb -->
 <div class="<%= card_classes %>">
   <div class="card-body">
     <h2 class="card-title"><%= title %></h2>
-    <div class="card-content">
-      <%= content %>
-    </div>
+    <%= content %>
   </div>
 </div>
 ```
 
-**Usage:**
 ```erb
+<!-- Usage -->
 <%= render CardComponent.new(title: "My Card", variant: :bordered) do %>
-  <p>This is the card content!</p>
+  <p>Card content here</p>
 <% end %>
 ```
 </pattern>
 
 <pattern name="component-with-helpers">
-<description>Component with private helper methods for view logic</description>
+<description>Component with helper methods for view logic</description>
 
-**Component Class:**
 ```ruby
 # app/components/button_component.rb
 class ButtonComponent < ViewComponent::Base
-  def initialize(text:, variant: :primary, size: :md, disabled: false)
+  def initialize(text:, variant: :primary, disabled: false)
     @text = text
     @variant = variant
-    @size = size
     @disabled = disabled
   end
 
   private
 
-  attr_reader :text, :variant, :size, :disabled
+  attr_reader :text, :variant, :disabled
 
   def button_classes
-    classes = ["btn"]
-    classes << variant_class
-    classes << size_class
+    classes = ["btn", "btn-#{variant}"]
     classes << "btn-disabled" if disabled
     classes.join(" ")
-  end
-
-  def variant_class
-    {
-      primary: "btn-primary",
-      secondary: "btn-secondary",
-      accent: "btn-accent",
-      ghost: "btn-ghost"
-    }.fetch(variant, "btn-primary")
-  end
-
-  def size_class
-    {
-      xs: "btn-xs",
-      sm: "btn-sm",
-      md: "",
-      lg: "btn-lg"
-    }.fetch(size, "")
   end
 end
 ```
 
-**Component Template:**
 ```erb
 <!-- app/components/button_component.html.erb -->
 <button class="<%= button_classes %>" <%= "disabled" if disabled %>>
@@ -181,125 +144,77 @@ end
 </button>
 ```
 
-**Usage:**
 ```erb
-<%= render ButtonComponent.new(text: "Save", variant: :primary, size: :lg) %>
-<%= render ButtonComponent.new(text: "Cancel", variant: :ghost) %>
+<!-- Usage -->
+<%= render ButtonComponent.new(text: "Save", variant: :primary) %>
 ```
 </pattern>
 
 <pattern name="component-generator">
-<description>Using Rails generator to create components</description>
+<description>Rails generator for components</description>
 
-**Generate Component:**
 ```bash
-# Generate component with template
 rails generate component Example title:string
-
-# Creates:
-# - app/components/example_component.rb
-# - app/components/example_component.html.erb
-# - test/components/example_component_test.rb
-```
-
-**Generated Component:**
-```ruby
-# app/components/example_component.rb
-class ExampleComponent < ViewComponent::Base
-  def initialize(title:)
-    @title = title
-  end
-end
+# Creates: component class, template, and test
 ```
 </pattern>
 
 <antipatterns>
 <antipattern>
-<description>Putting business logic in components</description>
-<reason>Components should be presentational only. Business logic belongs in models, services, or form objects.</reason>
+<description>Business logic in components</description>
+<reason>Components are presentational. Business logic belongs in models/services.</reason>
 <bad-example>
 ```ruby
-# ❌ BAD - Business logic in component
-class UserCardComponent < ViewComponent::Base
-  def initialize(user:)
-    @user = user
-  end
-
-  def should_show_premium_badge?
-    @user.subscription_active? && @user.paid_last_month?
-  end
+# ❌ Business logic in component
+def should_show_premium_badge?
+  @user.subscription_active? && @user.paid_last_month?
 end
 ```
 </bad-example>
 <good-example>
 ```ruby
-# ✅ GOOD - Business logic in model
+# ✅ Business logic in model
 class User < ApplicationRecord
   def premium?
     subscription_active? && paid_last_month?
   end
 end
-
-class UserCardComponent < ViewComponent::Base
-  def initialize(user:)
-    @user = user
-  end
-end
-
-# Template: <%= "Premium" if @user.premium? %>
 ```
 </good-example>
 </antipattern>
 
 <antipattern>
-<description>Using local variables instead of instance variables</description>
-<reason>Instance variables provide type safety and make testing easier. Avoid passing data as locals.</reason>
+<description>Using locals instead of initialize</description>
+<reason>Instance variables provide type safety and easier testing.</reason>
 <bad-example>
 ```ruby
-# ❌ BAD - Using locals (like partials)
 <%= render ButtonComponent.new, text: "Click me" %>
 ```
 </bad-example>
 <good-example>
 ```ruby
-# ✅ GOOD - Pass data via initialize
 <%= render ButtonComponent.new(text: "Click me") %>
 ```
 </good-example>
 </antipattern>
 
 <antipattern>
-<description>Not using attr_reader for instance variables</description>
-<reason>Using attr_reader makes code cleaner and enables better testing.</reason>
+<description>Not using attr_reader</description>
+<reason>Makes code cleaner and testing easier.</reason>
 <bad-example>
 ```ruby
-# ❌ BAD - Direct instance variable access in methods
-class CardComponent < ViewComponent::Base
-  def initialize(title:)
-    @title = title
-  end
-
-  def formatted_title
-    @title.upcase
-  end
+def formatted_title
+  @title.upcase
 end
 ```
 </bad-example>
 <good-example>
 ```ruby
-# ✅ GOOD - Use attr_reader
-class CardComponent < ViewComponent::Base
-  def initialize(title:)
-    @title = title
-  end
+private
+attr_reader :title
 
-  private
-
-  attr_reader :title
-
-  def formatted_title
-    title.upcase
-  end
+def formatted_title
+  title.upcase
 end
 ```
 </good-example>
@@ -307,45 +222,33 @@ end
 </antipatterns>
 
 <testing>
-Components are tested using `ViewComponent::TestCase`:
+Test components with `ViewComponent::TestCase`:
 
 ```ruby
 # test/components/button_component_test.rb
-require "test_helper"
-
 class ButtonComponentTest < ViewComponent::TestCase
-  test "renders button with text" do
-    render_inline(ButtonComponent.new(text: "Click me"))
-
-    assert_selector "button", text: "Click me"
+  test "renders button" do
+    render_inline(ButtonComponent.new(text: "Save"))
+    assert_selector "button", text: "Save"
   end
 
-  test "applies variant classes" do
+  test "applies classes" do
     render_inline(ButtonComponent.new(text: "Save", variant: :primary))
-
     assert_selector "button.btn-primary"
-  end
-
-  test "renders disabled state" do
-    render_inline(ButtonComponent.new(text: "Submit", disabled: true))
-
-    assert_selector "button[disabled]"
   end
 end
 ```
 </testing>
 
 <related-skills>
-- viewcomponent-slots - For components with multiple content areas
-- viewcomponent-previews - For component development and documentation
-- viewcomponent-variants - For style variants and polymorphic rendering
-- hotwire-turbo - For dynamic updates with Turbo Frames/Streams
-- tailwind-utility-first - For styling components with Tailwind
-- daisyui-components - For using DaisyUI component classes
+- viewcomponent-slots - Multiple content areas
+- viewcomponent-previews - Development and documentation
+- viewcomponent-variants - Style variants
+- hotwire-turbo - Dynamic updates
+- tailwind-utility-first - Styling
 </related-skills>
 
 <resources>
-- [ViewComponent Documentation](https://viewcomponent.org/)
-- [ViewComponent GitHub](https://github.com/ViewComponent/view_component)
-- [Rails Guides - ViewComponent](https://guides.rubyonrails.org/view_component.html)
+- [ViewComponent Docs](https://viewcomponent.org/)
+- [GitHub](https://github.com/ViewComponent/view_component)
 </resources>

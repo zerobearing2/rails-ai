@@ -28,14 +28,13 @@ Prevent mass assignment vulnerabilities by explicitly permitting only safe param
 </attack-vectors>
 
 <standards>
-- NEVER pass params directly to model methods (create, update, new)
-- Use `expect()` for strict parameter validation (Rails 8.1+)
-- Use `require().permit()` for more lenient validation
+- NEVER pass params directly to model methods
+- Use `expect()` for strict validation (Rails 8.1+)
+- Use `require().permit()` for lenient validation
 - Create private methods for parameter filtering
-- Use different parameter methods for different contexts (user vs admin)
+- Use different parameter methods for different contexts
 - NEVER use `permit!` on user-submitted data
 - Validate nested attributes and associations
-- Sanitize LIKE wildcards in search parameters
 </standards>
 
 ## Vulnerable Patterns
@@ -76,11 +75,7 @@ Rails prevents this with `ForbiddenAttributesError`, but you must use strong par
 class FeedbacksController < ApplicationController
   def create
     @feedback = Feedback.new(feedback_params)
-    if @feedback.save
-      redirect_to @feedback, notice: "Feedback created"
-    else
-      render :new, status: :unprocessable_entity
-    end
+    # ... save and respond ...
   end
 
   private
@@ -106,7 +101,6 @@ end
 def tag_params
   params.expect(post: [:title, :body, tags: []])
 end
-
 # Accepts: { post: { title: "...", body: "...", tags: ["rails", "ruby"] } }
 ```
 
@@ -128,19 +122,13 @@ class PeopleController < ApplicationController
   def person_params
     params.expect(
       person: [
-        :name,
-        :age,
+        :name, :age,
         addresses_attributes: [:id, :street, :city, :state, :_destroy]
       ]
     )
   end
 end
-
-# Model setup required:
-# class Person < ApplicationRecord
-#   has_many :addresses
-#   accepts_nested_attributes_for :addresses, allow_destroy: true
-# end
+# Model: accepts_nested_attributes_for :addresses, allow_destroy: true
 ```
 
 **Complex Nested Structure:**
@@ -159,21 +147,8 @@ def complex_params
     ]
   )
 end
-
-# Accepts:
-# {
-#   person: {
-#     name: "Martin",
-#     emails: ["me@example.com"],
-#     friends: [
-#       {
-#         name: "André",
-#         family: { name: "RubyGems" },
-#         hobbies: ["keyboards", "card games"]
-#       }
-#     ]
-#   }
-# }
+# Accepts: { person: { name: "Martin", emails: ["me@example.com"],
+#   friends: [{ name: "André", family: { name: "RubyGems" }, hobbies: ["..."] }] } }
 ```
 </pattern>
 
@@ -185,27 +160,8 @@ end
 **Basic Usage:**
 ```ruby
 # ✅ SECURE - Returns empty hash if :feedback missing
-class FeedbacksController < ApplicationController
-  private
-
-  def feedback_params
-    params.require(:feedback).permit(:content, :recipient_email, :sender_name, :ai_enabled)
-  end
-end
-```
-
-**Multiple Permitted Attributes:**
-```ruby
-# ✅ SECURE
-def user_params
-  params.require(:user).permit(
-    :name,
-    :email,
-    :password,
-    :password_confirmation,
-    :bio,
-    :avatar_url
-  )
+def feedback_params
+  params.require(:feedback).permit(:content, :recipient_email, :sender_name, :ai_enabled)
 end
 ```
 
@@ -214,9 +170,7 @@ end
 # ✅ SECURE
 def article_params
   params.require(:article).permit(
-    :title,
-    :body,
-    :published,
+    :title, :body, :published,
     tag_ids: [],
     comments_attributes: [:id, :body, :author_name, :_destroy]
   )
@@ -240,21 +194,14 @@ end
 class UsersController < ApplicationController
   def create
     @user = User.new(user_params)
-    if @user.save
-      redirect_to @user, notice: "Account created"
-    else
-      render :new, status: :unprocessable_entity
-    end
+    # ... save and respond ...
   end
 
   def admin_update
     authorize_admin!  # Ensure user is admin
     @user = User.find(params[:id])
-    if @user.update(admin_user_params)
-      redirect_to @user, notice: "User updated"
-    else
-      render :edit, status: :unprocessable_entity
-    end
+    @user.update(admin_user_params)
+    # ... respond ...
   end
 
   private
@@ -267,14 +214,8 @@ class UsersController < ApplicationController
   def admin_user_params
     # Admins can set additional privileged attributes
     params.expect(user: [
-      :name,
-      :email,
-      :password,
-      :password_confirmation,
-      :role,
-      :confirmed_at,
-      :banned_at,
-      :admin_notes
+      :name, :email, :password, :password_confirmation,
+      :role, :confirmed_at, :banned_at, :admin_notes
     ])
   end
 end
@@ -287,13 +228,10 @@ def post_params
   base_params = [:title, :body, :category]
 
   if current_user.admin?
-    # Admins can set featured and sticky flags
     params.expect(post: base_params + [:featured, :sticky, :editor_notes])
   elsif @post.published?
-    # Published posts have limited editable fields
-    params.expect(post: [:body])  # Only body can be edited
+    params.expect(post: [:body])  # Only body editable when published
   else
-    # Draft posts allow more fields
     params.expect(post: base_params + [:published])
   end
 end
@@ -342,15 +280,7 @@ end
 def product_params
   params.expect(product: [:name, :price, data: {}])
 end
-
-# Accepts:
-# {
-#   product: {
-#     name: "Widget",
-#     price: 19.99,
-#     data: { color: "red", size: "large", custom_field: "anything" }
-#   }
-# }
+# Accepts: { product: { name: "Widget", price: 19.99, data: { color: "red", ... } } }
 ```
 
 **When Appropriate:**
@@ -362,11 +292,7 @@ end
 ```ruby
 # ✅ BETTER - Explicitly permit known keys
 def product_params
-  params.expect(product: [
-    :name,
-    :price,
-    data: [:color, :size, :weight, :dimensions]
-  ])
+  params.expect(product: [:name, :price, data: [:color, :size, :weight, :dimensions]])
 end
 ```
 </pattern>
@@ -377,30 +303,16 @@ end
 <reason>CRITICAL - Allows mass assignment of any attribute</reason>
 <bad-example>
 ```ruby
-# ❌ CRITICAL VULNERABILITY
-class UsersController < ApplicationController
-  def create
-    @user = User.create(params[:user])  # Raises ForbiddenAttributesError
-  end
-end
-
+# ❌ CRITICAL - Raises ForbiddenAttributesError
+@user = User.create(params[:user])
 # Attack: params[:user][:admin] = true
-# Impact: User becomes admin
 ```
 </bad-example>
 <good-example>
 ```ruby
 # ✅ SECURE - Use strong parameters
-class UsersController < ApplicationController
-  def create
-    @user = User.create(user_params)
-  end
-
-  private
-
-  def user_params
-    params.expect(user: [:name, :email, :password, :password_confirmation])
-  end
+def user_params
+  params.expect(user: [:name, :email, :password, :password_confirmation])
 end
 ```
 </good-example>
@@ -411,13 +323,10 @@ end
 <reason>CRITICAL - Bypasses all security checks</reason>
 <bad-example>
 ```ruby
-# ❌ CRITICAL VULNERABILITY
+# ❌ CRITICAL - Allows EVERYTHING
 def user_params
-  params.require(:user).permit!  # Allows EVERYTHING
+  params.require(:user).permit!
 end
-
-# Attack: params[:user][:admin] = true
-# Impact: Complete security bypass
 ```
 </bad-example>
 <good-example>
@@ -425,35 +334,6 @@ end
 # ✅ SECURE - Explicitly permit attributes
 def user_params
   params.require(:user).permit(:name, :email, :password, :password_confirmation)
-end
-```
-</good-example>
-</antipattern>
-
-<antipattern>
-<description>Not filtering nested attributes</description>
-<reason>Allows attackers to manipulate associated records</reason>
-<bad-example>
-```ruby
-# ❌ VULNERABLE - Permits nested attributes without control
-def post_params
-  params.require(:post).permit!  # Includes all nested attributes
-end
-
-# Attack: params[:post][:comments_attributes][0][:approved] = true
-# Impact: Attacker can approve their own comments
-```
-</bad-example>
-<good-example>
-```ruby
-# ✅ SECURE - Explicitly permit nested attributes
-def post_params
-  params.expect(post: [
-    :title,
-    :body,
-    comments_attributes: [:id, :body, :_destroy]
-    # Note: :approved is NOT permitted
-  ])
 end
 ```
 </good-example>
@@ -468,9 +348,6 @@ end
 def user_params
   params.expect(user: [:name, :email, :role, :confirmed_at])
 end
-
-# Attack: Regular user sets params[:user][:role] = "admin"
-# Impact: Privilege escalation
 ```
 </bad-example>
 <good-example>
@@ -481,7 +358,7 @@ def user_params
 end
 
 def admin_user_params
-  authorize_admin!  # Verify admin access first
+  authorize_admin!
   params.expect(user: [:name, :email, :role, :confirmed_at])
 end
 ```
@@ -495,27 +372,15 @@ Test strong parameters in controller tests:
 ```ruby
 # test/controllers/feedbacks_controller_test.rb
 class FeedbacksControllerTest < ActionDispatch::IntegrationTest
-  test "creates feedback with permitted parameters" do
+  test "filters unpermitted parameters" do
     post feedbacks_url, params: {
-      feedback: {
-        content: "Great job!",
-        recipient_email: "user@example.com",
-        sender_name: "John Doe",
-        admin: true  # ⚠️ This should be filtered out
-      }
+      feedback: { content: "Great!", admin: true }  # admin filtered
     }
 
-    assert_response :redirect
-
-    feedback = Feedback.last
-    assert_equal "Great job!", feedback.content
-    assert_equal "user@example.com", feedback.recipient_email
-    assert_equal "John Doe", feedback.sender_name
-    assert_nil feedback.admin  # Strong parameters blocked this
+    assert_nil Feedback.last.admin  # Strong parameters blocked this
   end
 
-  test "rejects request when required key is missing (expect)" do
-    # expect() raises when key is missing
+  test "rejects request when required key missing (expect)" do
     assert_raises(ActionController::ParameterMissing) do
       post feedbacks_url, params: { wrong_key: { content: "test" } }
     end
@@ -524,17 +389,12 @@ class FeedbacksControllerTest < ActionDispatch::IntegrationTest
   test "filters unpermitted nested attributes" do
     post articles_url, params: {
       article: {
-        title: "Test",
-        body: "Content",
-        comments_attributes: [
-          { body: "Comment", approved: true }  # approved should be filtered
-        ]
+        title: "Test", body: "Content",
+        comments_attributes: [{ body: "Comment", approved: true }]
       }
     }
 
-    comment = Article.last.comments.first
-    assert_equal "Comment", comment.body
-    assert_not comment.approved  # Should be false (default)
+    assert_not Article.last.comments.first.approved  # Filtered
   end
 end
 
@@ -542,61 +402,19 @@ end
 class UsersControllerTest < ActionDispatch::IntegrationTest
   test "regular users cannot set admin role" do
     post users_url, params: {
-      user: {
-        name: "Hacker",
-        email: "hacker@example.com",
-        password: "password",
-        role: "admin"  # ⚠️ Should be filtered
-      }
+      user: { name: "Hacker", email: "h@ex.com", role: "admin" }
     }
 
-    user = User.last
-    assert_equal "Hacker", user.name
-    assert_not_equal "admin", user.role  # Should be default role
+    assert_not_equal "admin", User.last.role  # Filtered
   end
 
   test "admins can set user role" do
-    admin = users(:admin)
-    sign_in admin
-
+    sign_in users(:admin)
     patch admin_user_url(users(:regular)), params: {
       user: { role: "moderator" }
     }
 
     assert_equal "moderator", users(:regular).reload.role
-  end
-end
-
-# test/models/strong_parameters_test.rb
-class StrongParametersTest < ActiveSupport::TestCase
-  test "expect raises on missing required key" do
-    params = ActionController::Parameters.new(wrong_key: { name: "test" })
-
-    assert_raises(ActionController::ParameterMissing) do
-      params.expect(user: [:name])
-    end
-  end
-
-  test "permit returns empty hash on missing key" do
-    params = ActionController::Parameters.new(wrong_key: { name: "test" })
-
-    result = params.fetch(:user, {}).permit(:name)
-
-    assert_equal({}, result.to_h)
-  end
-
-  test "expect properly structures nested arrays" do
-    params = ActionController::Parameters.new(
-      person: {
-        name: "John",
-        emails: ["john@example.com", "john@work.com"]
-      }
-    )
-
-    result = params.expect(person: [:name, emails: []])
-
-    assert_equal "John", result[:name]
-    assert_equal ["john@example.com", "john@work.com"], result[:emails]
   end
 end
 ```
@@ -606,7 +424,6 @@ end
 - security-sql-injection - Prevent SQL injection
 - security-xss - Prevent XSS attacks
 - security-csrf - CSRF protection
-- activerecord-validations - Model-level validation
 - authorization - Role-based access control
 </related-skills>
 
@@ -614,5 +431,4 @@ end
 - [Rails Strong Parameters Guide](https://guides.rubyonrails.org/action_controller_overview.html#strong-parameters)
 - [Rails 8.1 Parameters expect() method](https://edgeguides.rubyonrails.org/action_controller_overview.html#parameters-expect)
 - [Mass Assignment Vulnerability](https://owasp.org/www-community/vulnerabilities/Mass_Assignment)
-- [Rails Security Guide](https://guides.rubyonrails.org/security.html#mass-assignment)
 </resources>

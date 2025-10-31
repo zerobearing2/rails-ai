@@ -56,27 +56,10 @@ pluralize(5, "feedback")  # => "5 feedbacks"
 
 # Time ago in words
 time_ago_in_words(3.days.ago)  # => "3 days"
-time_ago_in_words(2.hours.ago) # => "about 2 hours"
-
-# Simple format (converts newlines to <br>)
-simple_format("Line 1\nLine 2")
-# => "<p>Line 1<br />Line 2</p>"
 
 # Sanitize HTML (removes dangerous tags/attributes)
 sanitize("<script>alert('xss')</script><p>Safe</p>")
 # => "<p>Safe</p>"
-
-# Strip tags
-strip_tags("<p>Hello <strong>world</strong></p>")
-# => "Hello world"
-
-# Word wrap
-word_wrap("This is a very long sentence", line_width: 15)
-# => "This is a very\nlong sentence"
-
-# Highlight search terms
-highlight("Ruby on Rails", "Rails", highlighter: '<mark>\1</mark>')
-# => "Ruby on <mark>Rails</mark>"
 ```
 
 **In Views:**
@@ -101,21 +84,15 @@ highlight("Ruby on Rails", "Rails", highlighter: '<mark>\1</mark>')
 ```ruby
 # Currency
 number_to_currency(1234.56)           # => "$1,234.56"
-number_to_currency(1234.56, unit: "€") # => "€1,234.56"
 
 # Percentage
-number_to_percentage(85.5)            # => "85.5%"
 number_to_percentage(85.5, precision: 0) # => "86%"
 
 # Delimiter (commas)
 number_with_delimiter(1234567)        # => "1,234,567"
 
-# Human readable
-number_to_human(1234567)              # => "1.23 Million"
+# Human readable size
 number_to_human_size(1234567890)      # => "1.15 GB"
-
-# Phone number
-number_to_phone(5551234567)           # => "555-123-4567"
 ```
 
 **In Views:**
@@ -139,34 +116,19 @@ number_to_phone(5551234567)           # => "555-123-4567"
 
 ```ruby
 # Basic link
-link_to "Home", root_path
-# => <a href="/">Home</a>
-
-# Link with CSS classes
 link_to "Home", root_path, class: "btn btn-primary"
 
 # Link with data attributes (Turbo)
 link_to "Delete", feedback_path(@feedback),
   data: { turbo_method: :delete, turbo_confirm: "Are you sure?" }
 
-# Link with block
-link_to root_path do
-  content_tag(:span, "Home", class: "icon")
-end
-
 # Email link
-mail_to "support@example.com"
-# => <a href="mailto:support@example.com">support@example.com</a>
-
-mail_to "support@example.com", "Contact Us",
-  subject: "Feedback Question",
-  body: "I have a question about..."
+mail_to "support@example.com", "Contact Us"
 
 # Button (creates form with single button)
 button_to "Delete", feedback_path(@feedback),
   method: :delete,
-  data: { turbo_confirm: "Are you sure?" },
-  class: "btn btn-danger"
+  data: { turbo_confirm: "Are you sure?" }
 ```
 
 **In Views:**
@@ -188,32 +150,18 @@ button_to "Delete", feedback_path(@feedback),
 <description>Build HTML tags programmatically</description>
 
 ```ruby
-# Content tag (older style)
-content_tag(:div, "Hello", class: "alert")
-# => <div class="alert">Hello</div>
-
 # Tag builder (modern Rails 8.1+)
 tag.div class: "card" do
   tag.h2("Title") + tag.p("Content")
 end
-# => <div class="card"><h2>Title</h2><p>Content</p></div>
-
-# Self-closing tag
-tag.br
-# => <br>
 
 # Data attributes
 tag.button "Click me",
   data: { action: "click->controller#method" }
-# => <button data-action="click->controller#method">Click me</button>
 
 # Nested tags
 tag.ul class: "list" do
-  safe_join([
-    tag.li("Item 1"),
-    tag.li("Item 2"),
-    tag.li("Item 3")
-  ])
+  safe_join([tag.li("Item 1"), tag.li("Item 2")])
 end
 ```
 
@@ -235,25 +183,15 @@ end
 ```ruby
 # Stylesheets
 stylesheet_link_tag "application", "data-turbo-track": "reload"
-# => <link rel="stylesheet" href="/assets/application.css" data-turbo-track="reload" />
 
 # JavaScript (Rails 8.1+ with importmaps)
 javascript_importmap_tags
-# => <script type="importmap">...</script>
 
 # Images
-image_tag "logo.png", alt: "Company Logo", class: "logo"
-# => <img src="/assets/logo.png" alt="Company Logo" class="logo" />
-
-# Image with size
-image_tag "avatar.jpg", size: "50x50"
-# => <img src="/assets/avatar.jpg" width="50" height="50" />
+image_tag "logo.png", alt: "Company Logo", size: "50x50"
 
 # Favicon
-favicon_link_tag "favicon.ico"
-
-# Video
-video_tag "intro.mp4", controls: true, width: 640
+favicon_link_tag
 ```
 
 **In Views:**
@@ -277,21 +215,12 @@ video_tag "intro.mp4", controls: true, width: 640
 
 ```ruby
 # Distance of time in words
-distance_of_time_in_words(Time.current, 2.days.from_now)
-# => "2 days"
-
 distance_of_time_in_words_to_now(3.hours.ago)
 # => "about 3 hours"
 
 # Localized date/time (uses I18n)
 l(Date.today)                    # => "12/25/2025"
 l(Time.current, format: :long)   # => "December 25, 2025 14:30"
-l(Time.current, format: :short)  # => "Dec 25, 14:30"
-
-# Form date/time selects
-date_select :feedback, :submitted_on
-time_select :feedback, :created_at
-datetime_select :meeting, :scheduled_at
 ```
 
 **In Views:**
@@ -606,7 +535,6 @@ Organize domain-specific helpers in dedicated modules.
 ```ruby
 # app/helpers/feedbacks_helper.rb
 module FeedbacksHelper
-  # AI improved badge
   def ai_improved_badge(feedback)
     return unless feedback.ai_improved?
 
@@ -615,19 +543,14 @@ module FeedbacksHelper
     end
   end
 
-  # Feedback status icon
   def feedback_status_icon(status)
     icons = {
-      "pending" => "clock",
-      "reviewed" => "eye",
-      "responded" => "check-circle",
-      "archived" => "archive"
+      "pending" => "clock", "reviewed" => "eye",
+      "responded" => "check-circle", "archived" => "archive"
     }
-
     icon(icons[status] || "circle")
   end
 
-  # Character count with color coding
   def character_count_display(content, max_length: 1000)
     count = content.to_s.length
     percentage = (count.to_f / max_length * 100).round
@@ -640,12 +563,9 @@ module FeedbacksHelper
       "text-base-content"
     end
 
-    content_tag :span, class: color_class do
-      "#{count} / #{max_length}"
-    end
+    content_tag :span, "#{count} / #{max_length}", class: color_class
   end
 
-  # Response time display
   def response_time_display(feedback)
     return "No response yet" unless feedback.responded_at
 
@@ -662,18 +582,11 @@ module FeedbacksHelper
     end
   end
 
-  # Feedback excerpt with search highlight
   def feedback_excerpt(feedback, query: nil, length: 150)
     text = truncate(feedback.content, length: length)
-
-    if query.present?
-      highlight(text, query, highlighter: '<mark>\1</mark>')
-    else
-      text
-    end
+    query.present? ? highlight(text, query, highlighter: '<mark>\1</mark>') : text
   end
 
-  # Sender display (anonymous vs identified)
   def sender_display(feedback)
     if feedback.sender_name.present?
       content_tag :span do
@@ -721,7 +634,6 @@ Share functionality across multiple helpers using concerns.
 module DateFormatting
   extend ActiveSupport::Concern
 
-  # Format date relative to now
   def format_relative_date(date)
     return "Never" if date.nil?
 
@@ -736,7 +648,6 @@ module DateFormatting
     end
   end
 
-  # Format date range
   def format_date_range(start_date, end_date)
     if start_date.year == end_date.year
       if start_date.month == end_date.month
@@ -748,19 +659,6 @@ module DateFormatting
       "#{start_date.strftime('%b %d, %Y')} - #{end_date.strftime('%b %d, %Y')}"
     end
   end
-
-  # Smart date format (today/yesterday/date)
-  def smart_date(date)
-    return "" if date.nil?
-
-    if date.to_date == Date.current
-      "Today"
-    elsif date.to_date == Date.yesterday
-      "Yesterday"
-    else
-      l(date.to_date, format: :short)
-    end
-  end
 end
 ```
 
@@ -769,15 +667,6 @@ end
 # app/helpers/application_helper.rb
 module ApplicationHelper
   include DateFormatting
-
-  # Now has access to format_relative_date, format_date_range, etc.
-end
-
-# app/helpers/feedbacks_helper.rb
-module FeedbacksHelper
-  include DateFormatting
-
-  # Also has access to date formatting methods
 end
 ```
 
@@ -785,10 +674,6 @@ end
 ```erb
 <div class="timestamp">
   <%= format_relative_date(@feedback.created_at) %>
-</div>
-
-<div class="report-period">
-  <%= format_date_range(@report.start_date, @report.end_date) %>
 </div>
 ```
 </pattern>
@@ -850,8 +735,7 @@ module ApplicationHelper
       content_tag :div, class: "stats" do
         safe_join([
           content_tag(:div, "#{resource.views} views", class: "stat"),
-          content_tag(:div, "#{resource.likes} likes", class: "stat"),
-          content_tag(:div, "#{resource.shares} shares", class: "stat")
+          content_tag(:div, "#{resource.likes} likes", class: "stat")
         ])
       end
     end
@@ -862,12 +746,7 @@ end
 **In Views:**
 ```erb
 <%= cached_user_info(@user) %>
-<%= cached_stats(@post) %>
 ```
-
-**Cache expires when:**
-- User/resource is updated (cache key includes updated_at)
-- Manual cache clearing: `user.touch`
 </pattern>
 
 <pattern name="component-style-helpers">
@@ -878,23 +757,12 @@ end
 module ComponentHelper
   def alert_component(type:, message:, dismissible: true)
     render partial: "shared/alert",
-      locals: {
-        type: type,
-        message: message,
-        dismissible: dismissible
-      }
+      locals: { type: type, message: message, dismissible: dismissible }
   end
 
   def card_component(title: nil, &block)
-    content = capture(&block)
-
     render partial: "shared/card",
-      locals: { title: title, content: content }
-  end
-
-  def button_component(text, href: nil, method: :get, **options)
-    render partial: "shared/button",
-      locals: { text: text, href: href, method: method, options: options }
+      locals: { title: title, content: capture(&block) }
   end
 end
 ```
@@ -906,11 +774,7 @@ end
 <%= card_component(title: "User Profile") do %>
   <p>User information goes here</p>
 <% end %>
-
-<%= button_component("Save Changes", href: @feedback, method: :patch, class: "btn-primary") %>
 ```
-
-**Note:** For complex components, prefer ViewComponent over this pattern.
 </pattern>
 
 <pattern name="markdown-helper">
@@ -922,42 +786,25 @@ module ApplicationHelper
   def markdown(text)
     return "" if text.blank?
 
-    # Using Redcarpet gem
     markdown = Redcarpet::Markdown.new(
       Redcarpet::Render::HTML.new(
-        hard_wrap: true,
-        filter_html: true,    # Strip HTML
-        no_styles: true,      # Strip style attributes
-        safe_links_only: true # Only http/https links
+        hard_wrap: true, filter_html: true, safe_links_only: true
       ),
-      autolink: true,
-      tables: true,
-      fenced_code_blocks: true,
-      strikethrough: true
+      autolink: true, tables: true, fenced_code_blocks: true
     )
 
-    # Sanitize output for safety
-    sanitized = sanitize(
+    sanitize(
       markdown.render(text),
-      tags: %w[p br strong em a ul ol li pre code h1 h2 h3 h4 h5 h6 blockquote table thead tbody tr th td],
+      tags: %w[p br strong em a ul ol li pre code h1 h2 h3],
       attributes: %w[href title]
-    )
-
-    sanitized.html_safe
+    ).html_safe
   end
 end
 ```
 
-**Gemfile:**
-```ruby
-gem "redcarpet"
-```
-
 **In Views:**
 ```erb
-<div class="markdown-content">
-  <%= markdown(@post.body) %>
-</div>
+<%= markdown(@post.body) %>
 ```
 </pattern>
 
@@ -1098,95 +945,6 @@ end
 </good-example>
 </antipattern>
 
-<antipattern>
-<description>Not testing custom helpers</description>
-<reason>Helpers are code too - they need tests</reason>
-<bad-example>
-```ruby
-# ❌ BAD - No tests for helper methods
-module FeedbacksHelper
-  def response_time_display(feedback)
-    # Complex logic with no tests
-  end
-end
-```
-</bad-example>
-<good-example>
-```ruby
-# ✅ GOOD - Comprehensive helper tests
-# test/helpers/feedbacks_helper_test.rb
-require "test_helper"
-
-class FeedbacksHelperTest < ActionView::TestCase
-  test "response_time_display shows hours for same day" do
-    feedback = Feedback.new(
-      created_at: 3.hours.ago,
-      responded_at: Time.current
-    )
-
-    result = response_time_display(feedback)
-
-    assert_equal "3 hours", result
-  end
-
-  test "response_time_display shows days for multiple days" do
-    feedback = Feedback.new(
-      created_at: 2.days.ago,
-      responded_at: Time.current
-    )
-
-    result = response_time_display(feedback)
-
-    assert_equal "2 days", result
-  end
-
-  test "response_time_display handles no response" do
-    feedback = Feedback.new(created_at: 1.day.ago, responded_at: nil)
-
-    result = response_time_display(feedback)
-
-    assert_equal "No response yet", result
-  end
-end
-```
-</good-example>
-</antipattern>
-
-<antipattern>
-<description>Returning raw strings instead of safe HTML</description>
-<reason>Forces view to call html_safe, easy to forget</reason>
-<bad-example>
-```ruby
-# ❌ BAD - Returns raw string
-def icon(name)
-  "<i class='icon icon-#{name}'></i>"
-end
-```
-
-**View must remember to call html_safe:**
-```erb
-<%= icon("user").html_safe %>  <%# Easy to forget! %>
-```
-</bad-example>
-<good-example>
-```ruby
-# ✅ GOOD - Returns safe HTML
-def icon(name)
-  content_tag :i, "", class: "icon icon-#{name}"
-end
-
-# Or with tag builder
-def icon(name)
-  tag.i class: "icon icon-#{name}"
-end
-```
-
-**View just uses it:**
-```erb
-<%= icon("user") %>  <%# Works correctly %>
-```
-</good-example>
-</antipattern>
 </antipatterns>
 
 <testing>
@@ -1199,81 +957,29 @@ require "test_helper"
 class FeedbacksHelperTest < ActionView::TestCase
   test "ai_improved_badge shows badge for AI improved feedback" do
     feedback = feedbacks(:ai_improved)
-
     result = ai_improved_badge(feedback)
-
     assert_includes result, "AI Enhanced"
-    assert_includes result, "badge"
   end
 
-  test "ai_improved_badge returns nil for non-AI feedback" do
-    feedback = feedbacks(:regular)
-
-    result = ai_improved_badge(feedback)
-
-    assert_nil result
-  end
-
-  test "character_count_display shows correct color for different percentages" do
-    # Under 75% - normal color
+  test "character_count_display shows correct color" do
+    # Under 75%
     result = character_count_display("a" * 500, max_length: 1000)
     assert_includes result, "text-base-content"
-    assert_includes result, "500 / 1000"
 
-    # 75-90% - warning color
-    result = character_count_display("a" * 800, max_length: 1000)
-    assert_includes result, "text-warning"
-
-    # Over 90% - error color
+    # Over 90%
     result = character_count_display("a" * 950, max_length: 1000)
     assert_includes result, "text-error"
   end
 
-  test "response_time_display formats correctly for different durations" do
-    # Less than 1 hour
+  test "response_time_display formats correctly" do
     feedback = Feedback.new(
       created_at: 30.minutes.ago,
       responded_at: Time.current
     )
     assert_equal "Less than 1 hour", response_time_display(feedback)
 
-    # Multiple hours
-    feedback.created_at = 5.hours.ago
-    assert_equal "5 hours", response_time_display(feedback)
-
-    # Multiple days
     feedback.created_at = 3.days.ago
     assert_equal "3 days", response_time_display(feedback)
-
-    # No response
-    feedback.responded_at = nil
-    assert_equal "No response yet", response_time_display(feedback)
-  end
-
-  test "feedback_excerpt truncates and highlights query" do
-    feedback = Feedback.new(content: "This is a long feedback message that should be truncated")
-
-    # Without query
-    result = feedback_excerpt(feedback, length: 30)
-    assert_equal "This is a long feedback...", result
-
-    # With query highlighting
-    result = feedback_excerpt(feedback, query: "feedback", length: 100)
-    assert_includes result, "<mark>feedback</mark>"
-  end
-
-  test "sender_display shows name or anonymous" do
-    # With name
-    feedback = Feedback.new(sender_name: "John Doe")
-    result = sender_display(feedback)
-    assert_includes result, "John Doe"
-    assert_includes result, "icon-user"
-
-    # Anonymous
-    feedback = Feedback.new(sender_name: nil)
-    result = sender_display(feedback)
-    assert_includes result, "Anonymous"
-    assert_includes result, "icon-user-secret"
   end
 end
 
@@ -1286,55 +992,24 @@ class ApplicationHelperTest < ActionView::TestCase
     assert_equal "Dashboard | The Feedback Agent", result
   end
 
-  test "page_title without custom title" do
-    result = page_title
-    assert_equal "The Feedback Agent", result
-  end
-
-  test "page_title with nil" do
-    result = page_title(nil)
-    assert_equal "The Feedback Agent", result
-  end
-
   test "status_badge returns correct variant" do
     result = status_badge("pending")
     assert_includes result, "badge-warning"
-    assert_includes result, "Pending"
-
-    result = status_badge("responded")
-    assert_includes result, "badge-success"
   end
 
   test "active_link_to adds active class for current page" do
-    # Mock current_page? helper
     def current_page?(path)
       path == "/dashboard"
     end
 
     result = active_link_to("Dashboard", "/dashboard", class: "nav-link")
     assert_includes result, 'class="nav-link active"'
-
-    result = active_link_to("Settings", "/settings", class: "nav-link")
-    assert_not_includes result, "active"
   end
 end
 ```
 
-**Test Fixtures:**
-```yaml
-# test/fixtures/feedbacks.yml
-regular:
-  content: "Regular feedback"
-  ai_improved: false
-
-ai_improved:
-  content: "AI improved feedback"
-  ai_improved: true
-```
-
 **Running Tests:**
 ```bash
-rails test test/helpers/feedbacks_helper_test.rb
 rails test test/helpers  # All helper tests
 ```
 </testing>

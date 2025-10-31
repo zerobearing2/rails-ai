@@ -54,9 +54,8 @@ Follow WCAG 2.1 Level AA compliance:
 <pattern name="semantic-structure">
 <description>Use semantic HTML5 elements for proper document structure</description>
 
-**Proper Page Structure:**
 ```erb
-<%# ✅ ACCESSIBLE - Semantic landmarks %>
+<%# Semantic landmarks with proper hierarchy %>
 <header>
   <h1>Feedback Application</h1>
   <nav aria-label="Main navigation">
@@ -71,94 +70,20 @@ Follow WCAG 2.1 Level AA compliance:
   <h2>Recent Feedback</h2>
   <section aria-labelledby="pending-heading">
     <h3 id="pending-heading">Pending Items</h3>
-    <%# Content %>
   </section>
-
-  <aside aria-label="Related information">
-    <h3>Help & Support</h3>
-    <%# Sidebar content %>
-  </aside>
 </main>
 
 <footer>
   <p>&copy; 2025 Feedback App</p>
 </footer>
+
+<%# Skip link - hidden until focused %>
+<a href="#main-content" class="sr-only focus:not-sr-only">
+  Skip to main content
+</a>
 ```
 
-**Heading Hierarchy:**
-```erb
-<%# ✅ GOOD - Logical hierarchy %>
-<h1>Main Page Title</h1>
-  <h2>Section Title</h2>
-    <h3>Subsection</h3>
-    <h3>Another Subsection</h3>
-  <h2>Another Section</h2>
-
-<%# ❌ BAD - Skipping levels %>
-<h1>Main Title</h1>
-  <h4>Skipped to h4</h4>  <%# Don't skip heading levels %>
-```
-
-**Why:** Screen readers use landmarks and headings to navigate. Proper structure allows users to jump directly to content sections.
-</pattern>
-
-<pattern name="skip-navigation">
-<description>Provide skip links for keyboard users</description>
-
-**Skip to Main Content:**
-```erb
-<%# app/views/layouts/application.html.erb %>
-<body>
-  <%# Skip link - hidden until focused %>
-  <a href="#main-content"
-     class="sr-only focus:not-sr-only focus:absolute focus:top-0 focus:left-0 focus:z-50 focus:p-4 focus:bg-blue-600 focus:text-white">
-    Skip to main content
-  </a>
-
-  <header>
-    <%# Navigation with many links %>
-    <nav>
-      <%= link_to "Home", root_path %>
-      <%= link_to "About", about_path %>
-      <%= link_to "Feedbacks", feedbacks_path %>
-      <%# ... more links ... %>
-    </nav>
-  </header>
-
-  <main id="main-content" tabindex="-1">
-    <%= yield %>
-  </main>
-</body>
-```
-
-**Tailwind CSS for Skip Link:**
-```css
-/* Ensures skip link is visible when focused */
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border-width: 0;
-}
-
-.focus\:not-sr-only:focus {
-  position: static;
-  width: auto;
-  height: auto;
-  padding: 1rem;
-  margin: 0;
-  overflow: visible;
-  clip: auto;
-  white-space: normal;
-}
-```
-
-**Why:** Keyboard users can skip repetitive navigation and jump directly to main content.
+**Why:** Screen readers use landmarks and headings to navigate. Use logical h1-h6 hierarchy (don't skip levels). Skip links let keyboard users bypass repetitive navigation.
 </pattern>
 
 ## ARIA Attributes
@@ -166,155 +91,80 @@ Follow WCAG 2.1 Level AA compliance:
 <pattern name="aria-labels">
 <description>Provide accessible names for elements without visible text</description>
 
-**Icon-Only Buttons:**
 ```erb
-<%# ✅ ACCESSIBLE - aria-label provides name %>
+<%# Icon-only button - aria-label provides name %>
 <button aria-label="Close modal" class="btn btn-ghost btn-sm">
-  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-  </svg>
+  <svg class="w-4 h-4">...</svg>
 </button>
 
 <%= button_to "Delete", feedback_path(@feedback),
               method: :delete,
               aria: { label: "Delete feedback from #{@feedback.sender_name}" },
-              data: { turbo_confirm: "Are you sure?" },
               class: "btn btn-error btn-sm" %>
 
-<%# ❌ BAD - No accessible name %>
-<button class="btn">
-  <%= icon("edit") %>  <%# Screen reader announces nothing useful %>
-</button>
-```
-
-**aria-labelledby for Complex Labels:**
-```erb
-<%# References another element's ID %>
-<div id="modal-title" class="text-lg font-bold">
-  Feedback Details
-</div>
+<%# aria-labelledby references another element %>
 <dialog aria-labelledby="modal-title" aria-modal="true">
-  <%# Modal content %>
+  <h3 id="modal-title">Feedback Details</h3>
 </dialog>
+
+<%# aria-describedby for hints %>
+<%= form.text_field :email, aria: { describedby: "email-hint" } %>
+<span id="email-hint">We'll never share your email</span>
 ```
 
-**aria-describedby for Additional Context:**
-```erb
-<%= form.text_field :email,
-                    aria: { describedby: "email-hint" },
-                    class: "input input-bordered" %>
-<span id="email-hint" class="text-sm text-gray-600">
-  We'll never share your email with anyone
-</span>
-```
-
-**Why:** Screen readers need text alternatives for visual-only elements. ARIA provides accessible names and descriptions.
+**Why:** Screen readers need text alternatives for visual-only elements. Use aria-label for icon buttons, aria-labelledby for complex labels, aria-describedby for hints.
 </pattern>
 
 <pattern name="aria-live-regions">
 <description>Announce dynamic content changes to screen readers</description>
 
-**Status Messages:**
 ```erb
-<%# app/views/layouts/application.html.erb %>
-<div aria-live="polite"
-     aria-atomic="true"
-     class="fixed top-4 right-4 z-50">
+<%# Flash messages with live region %>
+<div aria-live="polite" aria-atomic="true">
   <% if flash[:notice] %>
     <div role="status" class="alert alert-success">
       <%= flash[:notice] %>
     </div>
   <% end %>
-
   <% if flash[:alert] %>
     <div role="alert" class="alert alert-error">
       <%= flash[:alert] %>
     </div>
   <% end %>
 </div>
-```
 
-**Loading States:**
-```erb
-<div data-controller="loading">
-  <button data-action="loading#submit"
-          data-loading-target="button"
-          class="btn btn-primary">
-    <span data-loading-target="text">Submit Feedback</span>
-    <span data-loading-target="spinner"
-          class="loading loading-spinner hidden"
-          aria-hidden="true"></span>
-  </button>
-
-  <div role="status"
-       aria-live="polite"
-       data-loading-target="status"
-       class="sr-only">
-    <%# Announces to screen readers %>
-  </div>
+<%# Loading state announcement %>
+<div role="status" aria-live="polite" class="sr-only" data-loading-target="status">
+  <%# Updated via JS: "Submitting feedback, please wait..." %>
 </div>
 ```
 
-**Stimulus Controller:**
-```javascript
-// app/javascript/controllers/loading_controller.js
-export default class extends Controller {
-  static targets = ["button", "text", "spinner", "status"]
+**Values:** `aria-live="polite"` (announces when idle), `aria-live="assertive"` (interrupts - use sparingly), `aria-atomic="true"` (reads entire region).
 
-  submit() {
-    this.buttonTarget.disabled = true
-    this.textTarget.textContent = "Submitting..."
-    this.spinnerTarget.classList.remove("hidden")
-    this.statusTarget.textContent = "Submitting feedback, please wait..."
-  }
-}
-```
-
-**ARIA Live Values:**
-- `aria-live="polite"` - Announces when screen reader is idle
-- `aria-live="assertive"` - Interrupts current announcement (use sparingly)
-- `aria-atomic="true"` - Reads entire region, not just changes
-
-**Why:** Screen readers don't automatically detect dynamic content changes. ARIA live regions announce updates.
+**Why:** Screen readers don't automatically detect dynamic content changes.
 </pattern>
 
 <pattern name="aria-current">
-<description>Indicate the current item in navigation</description>
+<description>Indicate current item in navigation</description>
 
-**Navigation with Current Page:**
 ```erb
 <nav aria-label="Main navigation">
-  <ul class="menu menu-horizontal">
-    <li>
-      <%= link_to "Home",
-                  root_path,
-                  aria: { current: current_page?(root_path) ? "page" : nil },
-                  class: "#{current_page?(root_path) ? 'active' : ''}" %>
-    </li>
-    <li>
-      <%= link_to "Feedbacks",
-                  feedbacks_path,
-                  aria: { current: current_page?(feedbacks_path) ? "page" : nil },
-                  class: "#{current_page?(feedbacks_path) ? 'active' : ''}" %>
-    </li>
-  </ul>
+  <%= link_to "Home", root_path,
+              aria: { current: current_page?(root_path) ? "page" : nil } %>
+  <%= link_to "Feedbacks", feedbacks_path,
+              aria: { current: current_page?(feedbacks_path) ? "page" : nil } %>
 </nav>
-```
 
-**Breadcrumbs:**
-```erb
+<%# Breadcrumbs %>
 <nav aria-label="Breadcrumb">
-  <ol class="breadcrumbs">
+  <ol>
     <li><%= link_to "Home", root_path %></li>
-    <li><%= link_to "Feedbacks", feedbacks_path %></li>
-    <li aria-current="page">
-      <span>Edit Feedback #<%= @feedback.id %></span>
-    </li>
+    <li aria-current="page"><span>Edit Feedback</span></li>
   </ol>
 </nav>
 ```
 
-**Why:** Screen readers announce the current location, helping users understand where they are in the application.
+**Why:** Announces current location to screen reader users.
 </pattern>
 
 ## Keyboard Navigation
@@ -322,176 +172,83 @@ export default class extends Controller {
 <pattern name="keyboard-accessibility">
 <description>Ensure all interactive elements are keyboard accessible</description>
 
-**Native Buttons (Already Accessible):**
 ```erb
-<%# ✅ ACCESSIBLE - Keyboard works by default %>
-<button type="button"
-        data-action="click->modal#open"
-        class="btn btn-primary">
-  Open Modal
-</button>
+<%# Use native elements - keyboard works by default %>
+<button type="button" data-action="click->modal#open">Open Modal</button>
+<%= button_to "Delete", feedback_path(@feedback), method: :delete %>
 
-<%= button_to "Delete",
-              feedback_path(@feedback),
-              method: :delete,
-              class: "btn btn-error" %>
-```
-
-**Custom Interactive Elements:**
-```erb
-<%# Making a div act like a button %>
-<div tabindex="0"
-     role="button"
-     data-action="click->controller#action keydown.enter->controller#action keydown.space->controller#action"
-     class="custom-button">
+<%# Custom interactive element needs full keyboard support %>
+<div tabindex="0" role="button"
+     data-action="click->controller#action keydown.enter->controller#action keydown.space->controller#action">
   Custom Button
 </div>
 ```
 
-**Stimulus Controller for Keyboard Events:**
-```javascript
-// app/javascript/controllers/custom_button_controller.js
-export default class extends Controller {
-  action(event) {
-    // Handle both click and keyboard activation
-    if (event.type === "click" ||
-        event.key === "Enter" ||
-        event.key === " ") {
-      event.preventDefault()
-      // Perform action
-      console.log("Button activated")
-    }
-  }
-}
-```
-
-**Focus Indicators:**
 ```css
-/* Ensure visible focus indicators */
-button:focus,
-a:focus,
-input:focus,
-select:focus,
-textarea:focus {
+/* Always provide visible focus indicators */
+button:focus, a:focus, input:focus {
   outline: 2px solid #3b82f6;
   outline-offset: 2px;
 }
 
-/* Never remove focus indicators without providing alternative */
-/* ❌ BAD */
-*:focus {
-  outline: none;
-}
+/* NEVER remove without alternative */
+*:focus { outline: none; } /* ❌ BAD */
 ```
 
-**Why:** Not all users can use a mouse. Keyboard accessibility is essential for many assistive technologies.
+**Key Events:** Enter and Space must activate buttons. Tab navigates between elements. Escape closes modals.
+
+**Why:** Many users rely on keyboard navigation. All functionality must be keyboard accessible.
 </pattern>
 
 <pattern name="focus-management-modals">
 <description>Trap and manage focus in modal dialogs</description>
 
-**Accessible Modal:**
 ```erb
-<dialog id="feedback-modal"
-        class="modal"
-        aria-labelledby="modal-title"
-        aria-modal="true"
+<dialog id="feedback-modal" aria-labelledby="modal-title" aria-modal="true"
         data-controller="modal-focus">
-
-  <div class="modal-box" role="document">
-    <%# First focusable element %>
-    <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-            aria-label="Close dialog"
-            data-action="modal-focus#close"
-            data-modal-focus-target="firstFocusable">
-      ✕
-    </button>
-
-    <h3 id="modal-title" class="font-bold text-lg">
-      Feedback Details
-    </h3>
-
-    <div class="py-4">
-      <%= @feedback.content %>
-    </div>
-
-    <div class="modal-action">
-      <button class="btn" data-action="modal-focus#close">
-        Close
-      </button>
-      <button class="btn btn-primary"
-              data-modal-focus-target="lastFocusable">
-        Respond
-      </button>
-    </div>
+  <div class="modal-box">
+    <button aria-label="Close" data-action="modal-focus#close">✕</button>
+    <h3 id="modal-title">Feedback Details</h3>
+    <p><%= @feedback.content %></p>
+    <button class="btn" data-action="modal-focus#close">Close</button>
   </div>
 </dialog>
 ```
 
-**Stimulus Controller:**
 ```javascript
 // app/javascript/controllers/modal_focus_controller.js
 export default class extends Controller {
-  static targets = ["firstFocusable", "lastFocusable"]
-
-  connect() {
-    this.previousFocus = null
-    this.boundTrapFocus = this.trapFocus.bind(this)
-  }
-
   open() {
-    // Save current focus
     this.previousFocus = document.activeElement
-
-    // Show modal
     this.element.showModal()
-
-    // Focus first element
-    this.firstFocusableTarget.focus()
-
-    // Trap focus
-    this.element.addEventListener("keydown", this.boundTrapFocus)
+    this.element.querySelector('button').focus()
+    this.element.addEventListener("keydown", this.trapFocus.bind(this))
   }
 
   close() {
-    // Remove focus trap
-    this.element.removeEventListener("keydown", this.boundTrapFocus)
-
-    // Close modal
+    this.element.removeEventListener("keydown", this.trapFocus.bind(this))
     this.element.close()
-
-    // Return focus to trigger element
-    this.previousFocus?.focus()
+    this.previousFocus?.focus()  // Return focus to trigger
   }
 
   trapFocus(event) {
     if (event.key !== "Tab") return
+    const focusable = this.element.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')
+    const first = focusable[0]
+    const last = focusable[focusable.length - 1]
 
-    const focusableElements = this.element.querySelectorAll(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-    )
-    const firstElement = focusableElements[0]
-    const lastElement = focusableElements[focusableElements.length - 1]
-
-    // Shift+Tab on first element -> focus last
-    if (event.shiftKey && document.activeElement === firstElement) {
+    if (event.shiftKey && document.activeElement === first) {
       event.preventDefault()
-      lastElement.focus()
-    }
-    // Tab on last element -> focus first
-    else if (!event.shiftKey && document.activeElement === lastElement) {
+      last.focus()
+    } else if (!event.shiftKey && document.activeElement === last) {
       event.preventDefault()
-      firstElement.focus()
+      first.focus()
     }
-  }
-
-  disconnect() {
-    this.element.removeEventListener("keydown", this.boundTrapFocus)
   }
 }
 ```
 
-**Why:** Modal dialogs must trap focus to prevent keyboard users from accidentally interacting with background content.
+**Why:** Modal dialogs must trap focus to prevent keyboard users from tabbing to background content. Always return focus to the trigger element on close.
 </pattern>
 
 ## Accessible Forms
@@ -499,148 +256,72 @@ export default class extends Controller {
 <pattern name="form-labels">
 <description>Associate labels with form inputs</description>
 
-**Explicit Labels:**
 ```erb
-<%= form_with model: @feedback, html: { class: "space-y-4" } do |form| %>
+<%= form_with model: @feedback do |form| %>
   <div class="form-control">
-    <%# ✅ ACCESSIBLE - Explicit label association %>
-    <%= form.label :content, "Your Feedback", class: "label" %>
-    <%= form.text_area :content,
-                       required: true,
-                       aria: { required: "true", describedby: "content-hint" },
-                       class: "textarea textarea-bordered" %>
-    <span id="content-hint" class="label-text-alt">
-      Minimum 10 characters required
-    </span>
+    <%= form.label :content, "Your Feedback" %>
+    <%= form.text_area :content, required: true,
+                       aria: { required: "true", describedby: "content-hint" } %>
+    <span id="content-hint">Minimum 10 characters required</span>
   </div>
 
-  <%# Grouping related fields %>
-  <fieldset class="border p-4 rounded">
-    <legend class="text-lg font-semibold px-2">Sender Information</legend>
-
-    <div class="form-control">
-      <%= form.label :sender_name, "Name" %>
-      <%= form.text_field :sender_name, class: "input input-bordered" %>
-    </div>
-
-    <div class="form-control">
-      <%= form.label :sender_email, "Email" %>
-      <%= form.email_field :sender_email,
-                           autocomplete: "email",
-                           class: "input input-bordered" %>
-    </div>
+  <%# Group related fields %>
+  <fieldset>
+    <legend>Sender Information</legend>
+    <%= form.label :sender_name, "Name" %>
+    <%= form.text_field :sender_name %>
+    <%= form.label :sender_email, "Email" %>
+    <%= form.email_field :sender_email, autocomplete: "email" %>
   </fieldset>
 
   <%# Required field indicator %>
-  <div class="form-control">
-    <%= form.label :recipient_email do %>
-      Recipient Email
-      <abbr title="required" aria-label="required" class="text-error">*</abbr>
-    <% end %>
-    <%= form.email_field :recipient_email,
-                         required: true,
-                         aria: { required: "true" },
-                         autocomplete: "email",
-                         class: "input input-bordered" %>
-  </div>
+  <%= form.label :recipient_email do %>
+    Email <abbr title="required" aria-label="required">*</abbr>
+  <% end %>
+  <%= form.email_field :recipient_email, required: true, autocomplete: "email" %>
 
-  <%= form.submit "Submit Feedback",
-                  class: "btn btn-primary",
-                  data: { disable_with: "Submitting..." } %>
+  <%= form.submit "Submit", data: { disable_with: "Submitting..." } %>
 <% end %>
 ```
 
-**Why:** Labels provide accessible names for inputs and create larger click targets for mouse users.
+**Why:** Labels provide accessible names and larger click targets. Never use placeholder as label.
 </pattern>
 
 <pattern name="form-errors">
 <description>Display and announce form errors accessibly</description>
 
-**Error Summary:**
 ```erb
 <% if @feedback.errors.any? %>
-  <div role="alert"
-       class="alert alert-error mb-4"
-       tabindex="-1"
-       id="error-summary">
-    <h2 class="font-bold">
-      <%= pluralize(@feedback.errors.count, "error") %>
-      prohibited this feedback from being saved:
-    </h2>
-    <ul class="list-disc list-inside">
-      <% @feedback.errors.full_messages.each do |message| %>
-        <li><%= message %></li>
+  <div role="alert" id="error-summary" tabindex="-1">
+    <h2><%= pluralize(@feedback.errors.count, "error") %> prohibited saving:</h2>
+    <ul>
+      <% @feedback.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
       <% end %>
     </ul>
   </div>
-
-  <%# Focus error summary after page load %>
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("error-summary")?.focus()
     })
   </script>
 <% end %>
-```
 
-**Inline Field Errors:**
-```erb
-<div class="form-control">
-  <%= form.label :content, "Feedback Content", class: "label" %>
-  <%= form.text_area :content,
-                     class: "textarea textarea-bordered #{@feedback.errors[:content].any? ? 'textarea-error' : ''}",
-                     aria: {
-                       describedby: @feedback.errors[:content].any? ? "content-error" : "content-hint",
-                       invalid: @feedback.errors[:content].any? ? "true" : nil
-                     } %>
-
-  <% if @feedback.errors[:content].any? %>
-    <span id="content-error"
-          class="label-text-alt text-error"
-          role="alert">
-      <%= @feedback.errors[:content].first %>
-    </span>
-  <% else %>
-    <span id="content-hint" class="label-text-alt">
-      Share your thoughts (minimum 10 characters)
-    </span>
-  <% end %>
-</div>
-```
-
-**Why:** Screen readers need to be notified of errors. `role="alert"` announces changes, and `aria-invalid` identifies problematic fields.
-</pattern>
-
-<pattern name="form-autocomplete">
-<description>Use autocomplete attributes to help users fill forms</description>
-
-**Autocomplete for Common Fields:**
-```erb
-<%= form_with model: @user do |form| %>
-  <%= form.text_field :name,
-                      autocomplete: "name" %>
-
-  <%= form.email_field :email,
-                       autocomplete: "email" %>
-
-  <%= form.tel_field :phone,
-                     autocomplete: "tel" %>
-
-  <%= form.text_field :street_address,
-                      autocomplete: "street-address" %>
-
-  <%= form.text_field :city,
-                      autocomplete: "address-level2" %>
-
-  <%= form.text_field :postal_code,
-                      autocomplete: "postal-code" %>
-
-  <%= form.password_field :password,
-                          autocomplete: "new-password" %>
+<%# Inline field error %>
+<%= form.text_area :content,
+                   class: "#{@feedback.errors[:content].any? ? 'error' : ''}",
+                   aria: {
+                     describedby: @feedback.errors[:content].any? ? "content-error" : "content-hint",
+                     invalid: @feedback.errors[:content].any? ? "true" : nil
+                   } %>
+<% if @feedback.errors[:content].any? %>
+  <span id="content-error" role="alert">
+    <%= @feedback.errors[:content].first %>
+  </span>
 <% end %>
 ```
 
-**Why:** Autocomplete helps users with cognitive disabilities and makes forms faster for everyone. Password managers rely on these attributes.
+**Why:** `role="alert"` announces errors. `aria-invalid` marks problematic fields. Focus error summary on page load.
 </pattern>
 
 ## Buttons and Links
@@ -648,56 +329,26 @@ export default class extends Controller {
 <pattern name="buttons-vs-links">
 <description>Use buttons for actions, links for navigation</description>
 
-**Correct Usage:**
 ```erb
-<%# ✅ LINK - Navigates to a different page %>
-<%= link_to "View Feedback Details", feedback_path(@feedback), class: "btn" %>
+<%# Links navigate to different pages %>
+<%= link_to "View Feedback Details", feedback_path(@feedback) %>
 
-<%# ✅ BUTTON - Performs an action %>
-<button type="button"
-        data-action="modal#open"
-        class="btn btn-primary">
-  Open Modal
-</button>
+<%# Buttons perform actions %>
+<button type="button" data-action="modal#open">Open Modal</button>
+<%= form.submit "Save Feedback" %>
+<%= button_to "Delete", feedback_path(@feedback), method: :delete %>
 
-<%# ✅ BUTTON - Submits a form %>
-<%= form.submit "Save Feedback", class: "btn btn-success" %>
-
-<%# ✅ BUTTON - Destructive action %>
-<%= button_to "Delete",
-              feedback_path(@feedback),
-              method: :delete,
-              form: { data: { turbo_confirm: "Are you sure?" } },
-              class: "btn btn-error" %>
-
-<%# ❌ BAD - Link performing an action %>
+<%# ❌ BAD - Don't use links for actions or buttons for navigation %>
 <a href="#" onclick="deleteItem()">Delete</a>
+<button onclick="window.location='/feedbacks'">View</button>
 
-<%# ❌ BAD - Button for navigation %>
-<button onclick="window.location='/feedbacks'">View Feedbacks</button>
-```
-
-**Descriptive Link Text:**
-```erb
-<%# ❌ BAD - Generic text %>
-<%= link_to "Click here", feedback_path(@feedback) %>
-<%= link_to "Read more", article_path(@article) %>
-
-<%# ✅ GOOD - Descriptive text %>
+<%# Descriptive link text - avoid "click here" or "read more" %>
 <%= link_to "View feedback details", feedback_path(@feedback) %>
-<%= link_to "Read the full article: #{@article.title}", article_path(@article) %>
-
-<%# ✅ GOOD - Context from surrounding text %>
-<div class="card">
-  <h3><%= @feedback.title %></h3>
-  <p><%= @feedback.content.truncate(100) %></p>
-  <%= link_to "Read more",
-              feedback_path(@feedback),
-              aria: { label: "Read more about #{@feedback.title}" } %>
-</div>
+<%= link_to "Read more", feedback_path(@feedback),
+            aria: { label: "Read more about #{@feedback.title}" } %>
 ```
 
-**Why:** Screen readers can list all links or buttons on a page. "Click here" appears dozens of times with no context.
+**Why:** Screen readers list all links/buttons. "Click here" provides no context. Use semantic elements for proper keyboard and screen reader behavior.
 </pattern>
 
 ## Images and Media
@@ -705,104 +356,55 @@ export default class extends Controller {
 <pattern name="image-alt-text">
 <description>Provide meaningful alternative text for images</description>
 
-**Informative Images:**
 ```erb
-<%# ✅ GOOD - Describes the content %>
-<%= image_tag "user-profile.jpg",
-              alt: "Sarah Johnson's profile photo" %>
+<%# Informative images - describe the content %>
+<%= image_tag "user-profile.jpg", alt: "Sarah Johnson's profile photo" %>
+<%= image_tag "chart.png", alt: "Bar chart: 85% positive feedback in March 2025" %>
 
-<%= image_tag "feedback-chart.png",
-              alt: "Bar chart showing 85% positive feedback in March 2025",
-              aria: { describedby: "chart-details" } %>
-<div id="chart-details" class="sr-only">
-  Detailed description: The chart displays monthly feedback ratings...
+<%# Complex images - use aria-describedby for details %>
+<%= image_tag "diagram.png", alt: "Workflow diagram",
+              aria: { describedby: "diagram-desc" } %>
+<div id="diagram-desc" class="sr-only">
+  Submission → Validation → Categorization → Assignment → Resolution
 </div>
-```
 
-**Decorative Images:**
-```erb
-<%# ✅ GOOD - Empty alt for decorative images %>
-<%= image_tag "decorative-pattern.svg",
-              alt: "",
-              role: "presentation" %>
+<%# Decorative images - empty alt %>
+<%= image_tag "decoration.svg", alt: "", role: "presentation" %>
 
-<%# Background images are automatically decorative %>
-<div class="hero" style="background-image: url('<%= asset_path('hero-bg.jpg') %>')">
-  <h1>Welcome to Feedback App</h1>
-</div>
-```
-
-**Functional Images (Links/Buttons):**
-```erb
-<%# ✅ GOOD - Describes the action %>
+<%# Functional images - describe the action %>
 <%= link_to feedback_path(@feedback) do %>
   <%= image_tag "view-icon.svg", alt: "View feedback details" %>
 <% end %>
 
 <button aria-label="Close modal">
-  <%= image_tag "close-icon.svg", alt: "", aria: { hidden: "true" } %>
+  <%= image_tag "close.svg", alt: "", aria: { hidden: "true" } %>
 </button>
 ```
 
-**Complex Images:**
-```erb
-<%# Use longdesc or aria-describedby for complex diagrams %>
-<%= image_tag "workflow-diagram.png",
-              alt: "Feedback processing workflow",
-              aria: { describedby: "workflow-description" } %>
-<div id="workflow-description" class="sr-only">
-  The workflow begins with user submission, proceeds through validation,
-  then automated categorization, followed by assignment to a team member,
-  and concludes with resolution and notification.
-</div>
-```
-
-**Why:** Screen reader users rely on alt text to understand image content. Empty alt for decorative images prevents clutter.
+**Why:** Screen readers rely on alt text. Informative images need descriptions, decorative images need empty alt to avoid clutter.
 </pattern>
 
 <pattern name="video-captions">
 <description>Provide captions and transcripts for video content</description>
 
-**Accessible Video:**
 ```erb
-<video controls class="w-full">
+<video controls>
   <source src="<%= asset_path('tutorial.mp4') %>" type="video/mp4">
-  <source src="<%= asset_path('tutorial.webm') %>" type="video/webm">
-
-  <%# Captions for deaf/hard of hearing %>
-  <track kind="captions"
-         src="<%= asset_path('tutorial-captions-en.vtt') %>"
-         srclang="en"
-         label="English"
-         default>
-
-  <track kind="captions"
-         src="<%= asset_path('tutorial-captions-es.vtt') %>"
-         srclang="es"
-         label="Spanish">
-
-  <%# Descriptions for blind users %>
-  <track kind="descriptions"
-         src="<%= asset_path('tutorial-descriptions.vtt') %>"
-         srclang="en"
-         label="English descriptions">
-
-  <p>
-    Your browser doesn't support HTML5 video.
-    <a href="<%= asset_path('tutorial.mp4') %>">Download the video</a> instead.
-  </p>
+  <track kind="captions" src="<%= asset_path('captions-en.vtt') %>"
+         srclang="en" label="English" default>
+  <track kind="descriptions" src="<%= asset_path('descriptions.vtt') %>"
+         srclang="en" label="Audio descriptions">
+  <p>Your browser doesn't support video.
+     <a href="<%= asset_path('tutorial.mp4') %>">Download</a></p>
 </video>
 
-<%# Transcript below video %>
-<details class="mt-4">
-  <summary class="font-semibold cursor-pointer">Video Transcript</summary>
-  <div class="prose mt-2">
-    <%= render "videos/tutorial_transcript" %>
-  </div>
+<details>
+  <summary>Video Transcript</summary>
+  <%= render "videos/transcript" %>
 </details>
 ```
 
-**Why:** Captions help deaf/hard of hearing users, descriptions help blind users, and transcripts help everyone (searchable, translatable).
+**Why:** Captions for deaf/hard of hearing, audio descriptions for blind users, transcripts for everyone. Never auto-play video.
 </pattern>
 
 ## Tables
@@ -810,18 +412,14 @@ export default class extends Controller {
 <pattern name="accessible-tables">
 <description>Create accessible data tables with proper markup</description>
 
-**Simple Data Table:**
 ```erb
-<table class="table w-full">
-  <caption class="text-lg font-semibold mb-2">
-    Feedback Submissions - March 2025
-  </caption>
+<table>
+  <caption>Feedback Submissions - March 2025</caption>
   <thead>
     <tr>
       <th scope="col">Date</th>
       <th scope="col">Sender</th>
       <th scope="col">Content</th>
-      <th scope="col">Status</th>
       <th scope="col">Actions</th>
     </tr>
   </thead>
@@ -832,37 +430,22 @@ export default class extends Controller {
         <td><%= feedback.sender_name || "Anonymous" %></td>
         <td><%= feedback.content.truncate(50) %></td>
         <td>
-          <span class="badge <%= status_badge_class(feedback.status) %>">
-            <%= feedback.status.titleize %>
-          </span>
-        </td>
-        <td>
-          <%= link_to "View",
-                      feedback_path(feedback),
-                      aria: { label: "View feedback from #{feedback.sender_name || 'anonymous sender'}" },
-                      class: "btn btn-sm btn-ghost" %>
-          <%= link_to "Edit",
-                      edit_feedback_path(feedback),
-                      aria: { label: "Edit feedback from #{feedback.sender_name || 'anonymous sender'}" },
-                      class: "btn btn-sm btn-ghost" %>
+          <%= link_to "View", feedback_path(feedback),
+                      aria: { label: "View feedback from #{feedback.sender_name || 'anonymous'}" } %>
         </td>
       </tr>
     <% end %>
   </tbody>
 </table>
-```
 
-**Complex Table with Row/Column Headers:**
-```erb
-<table class="table">
-  <caption class="sr-only">Quarterly feedback statistics by category</caption>
+<%# Complex table with row headers %>
+<table>
+  <caption>Quarterly feedback by category</caption>
   <thead>
     <tr>
       <th scope="col">Category</th>
-      <th scope="col">Q1 2025</th>
-      <th scope="col">Q2 2025</th>
-      <th scope="col">Q3 2025</th>
-      <th scope="col">Total</th>
+      <th scope="col">Q1</th>
+      <th scope="col">Q2</th>
     </tr>
   </thead>
   <tbody>
@@ -870,21 +453,17 @@ export default class extends Controller {
       <th scope="row">Bug Reports</th>
       <td>45</td>
       <td>38</td>
-      <td>29</td>
-      <td>112</td>
     </tr>
     <tr>
-      <th scope="row">Feature Requests</th>
+      <th scope="row">Features</th>
       <td>23</td>
       <td>31</td>
-      <td>42</td>
-      <td>96</td>
     </tr>
   </tbody>
 </table>
 ```
 
-**Why:** Screen readers use `scope` attributes to associate data cells with headers, making complex tables understandable.
+**Why:** `scope` attributes associate data cells with headers. Always include `<caption>` (can use class="sr-only" to hide visually).
 </pattern>
 
 ## Color and Contrast
@@ -893,70 +472,35 @@ export default class extends Controller {
 <description>Ensure sufficient color contrast for text readability</description>
 
 **WCAG AA Requirements:**
-- Normal text (< 18px): 4.5:1 contrast ratio
-- Large text (≥ 18px or bold ≥ 14px): 3:1 contrast ratio
-- UI components and graphics: 3:1 contrast ratio
+- Normal text (< 18px): 4.5:1 ratio minimum
+- Large text (≥ 18px or bold ≥ 14px): 3:1 ratio minimum
+- UI components: 3:1 ratio minimum
 
-**Accessible Color Combinations:**
 ```erb
 <%# ✅ GOOD - High contrast %>
-<div class="bg-gray-900 text-white p-4">
-  Dark background with white text (21:1 ratio)
-</div>
-
-<div class="bg-white text-gray-900 p-4">
-  White background with dark text (21:1 ratio)
-</div>
-
-<button class="bg-blue-600 text-white hover:bg-blue-700">
-  Primary Button (4.5:1+ ratio)
-</button>
+<div class="bg-gray-900 text-white">Dark bg with white text (21:1)</div>
+<button class="bg-blue-600 text-white">Primary (4.5:1+)</button>
 
 <%# ❌ BAD - Insufficient contrast %>
-<div class="bg-gray-100 text-gray-300 p-4">
-  Low contrast - fails WCAG AA (1.7:1 ratio)
-</div>
+<div class="bg-gray-100 text-gray-300">Fails WCAG AA (1.7:1)</div>
 
-<button class="bg-yellow-200 text-yellow-400">
-  Insufficient contrast (1.4:1 ratio)
-</button>
-```
-
-**Don't Rely on Color Alone:**
-```erb
+<%# Don't rely on color alone - add icons/text/patterns %>
 <%# ❌ BAD - Color only %>
-<span class="text-error">Required field</span>
-<span class="text-success">Valid</span>
+<span class="text-error">Required</span>
 
-<%# ✅ GOOD - Color + icon/text/pattern %>
+<%# ✅ GOOD - Color + icon + text %>
 <span class="text-error">
-  <svg class="inline w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-  </svg>
-  <span class="font-semibold">Error:</span> This field is required
+  <svg aria-hidden="true">...</svg>
+  <strong>Error:</strong> This field is required
 </span>
 
 <span class="text-success">
-  <svg class="inline w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-  </svg>
-  <span class="font-semibold">Valid</span> email address
+  <svg aria-hidden="true">...</svg>
+  <strong>Valid</strong> email address
 </span>
 ```
 
-**Status Indicators:**
-```erb
-<div class="flex items-center gap-2">
-  <span class="badge badge-success">
-    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-    </svg>
-    Completed
-  </span>
-</div>
-```
-
-**Why:** Color-blind users (8% of men, 0.5% of women) cannot rely on color alone. Sufficient contrast helps users with low vision.
+**Why:** Color-blind users (8% of men) cannot rely on color alone. Sufficient contrast helps low vision users. Test with [WebAIM Contrast Checker](https://webaim.org/resources/contrastchecker/).
 </pattern>
 
 <antipatterns>
@@ -965,23 +509,13 @@ export default class extends Controller {
 <reason>Placeholders disappear when typing and have insufficient contrast</reason>
 <bad-example>
 ```erb
-<%# ❌ BAD - No label, only placeholder %>
-<input type="email"
-       placeholder="Enter your email"
-       class="input input-bordered">
+<input type="email" placeholder="Enter your email">  <%# ❌ No label %>
 ```
 </bad-example>
 <good-example>
 ```erb
-<%# ✅ GOOD - Label + optional placeholder %>
-<label for="email" class="label">
-  <span class="label-text">Email Address</span>
-</label>
-<input type="email"
-       id="email"
-       name="email"
-       placeholder="you@example.com"
-       class="input input-bordered">
+<label for="email">Email Address</label>
+<input type="email" id="email" placeholder="you@example.com">  <%# ✅ Label + placeholder %>
 ```
 </good-example>
 </antipattern>
@@ -991,29 +525,13 @@ export default class extends Controller {
 <reason>Keyboard users cannot see where they are on the page</reason>
 <bad-example>
 ```css
-/* ❌ BAD - Removes all focus indicators */
-*:focus {
-  outline: none;
-}
-
-button:focus {
-  outline: 0;
-}
+*:focus { outline: none; }  /* ❌ Removes all focus indicators */
 ```
 </bad-example>
 <good-example>
 ```css
-/* ✅ GOOD - Provide visible focus indicators */
-button:focus,
-a:focus,
-input:focus {
-  outline: 2px solid #3b82f6;
-  outline-offset: 2px;
-}
-
-/* Or use focus-visible for mouse vs keyboard */
-button:focus-visible {
-  outline: 2px solid #3b82f6;
+button:focus, a:focus, input:focus {
+  outline: 2px solid #3b82f6;  /* ✅ Visible focus */
   outline-offset: 2px;
 }
 ```
@@ -1022,205 +540,63 @@ button:focus-visible {
 
 <antipattern>
 <description>Using div/span for buttons</description>
-<reason>No keyboard accessibility, wrong semantics for screen readers</reason>
+<reason>No keyboard accessibility, wrong semantics</reason>
 <bad-example>
 ```erb
-<%# ❌ BAD - Not keyboard accessible, wrong role %>
-<div class="btn" onclick="submitForm()">
-  Submit
-</div>
-
-<span class="link" onclick="navigate()">
-  Click here
-</span>
+<div onclick="submit()">Submit</div>  <%# ❌ Not keyboard accessible %>
 ```
 </bad-example>
 <good-example>
 ```erb
-<%# ✅ GOOD - Use semantic elements %>
-<button type="button"
-        data-action="form#submit"
-        class="btn">
-  Submit
-</button>
-
-<%= link_to "View Details",
-            feedback_path(@feedback),
-            class: "link" %>
-
-<%# Only if absolutely necessary, add full keyboard support %>
-<div tabindex="0"
-     role="button"
-     data-action="click->form#submit keydown.enter->form#submit keydown.space->form#submit"
-     class="btn">
-  Custom Submit Button
-</div>
-```
-</good-example>
-</antipattern>
-
-<antipattern>
-<description>Inaccessible modals without focus trap</description>
-<reason>Keyboard users can tab to background elements, losing context</reason>
-<bad-example>
-```erb
-<%# ❌ BAD - No focus management %>
-<div id="modal" class="modal">
-  <div class="modal-content">
-    <h2>Modal Title</h2>
-    <button onclick="closeModal()">Close</button>
-  </div>
-</div>
-```
-</bad-example>
-<good-example>
-```erb
-<%# ✅ GOOD - Proper modal with focus trap %>
-<dialog id="modal"
-        aria-labelledby="modal-title"
-        aria-modal="true"
-        data-controller="modal-focus">
-  <div class="modal-box">
-    <button aria-label="Close"
-            data-action="modal-focus#close"
-            data-modal-focus-target="firstFocusable">
-      ×
-    </button>
-    <h2 id="modal-title">Modal Title</h2>
-    <%# Content %>
-  </div>
-</dialog>
-```
-</good-example>
-</antipattern>
-
-<antipattern>
-<description>Auto-playing video or audio</description>
-<reason>Disrupts screen reader users and violates WCAG</reason>
-<bad-example>
-```erb
-<%# ❌ BAD - Auto-plays, no user control %>
-<video autoplay>
-  <source src="promo.mp4" type="video/mp4">
-</video>
-```
-</bad-example>
-<good-example>
-```erb
-<%# ✅ GOOD - User-controlled playback %>
-<video controls>
-  <source src="promo.mp4" type="video/mp4">
-  <track kind="captions" src="captions.vtt" srclang="en" label="English">
-</video>
+<button type="button" data-action="form#submit">Submit</button>  <%# ✅ Semantic %>
 ```
 </good-example>
 </antipattern>
 </antipatterns>
 
 <testing>
-Test accessibility in system tests and with automated tools:
-
+**System Tests:**
 ```ruby
 # test/system/accessibility_test.rb
 class AccessibilityTest < ApplicationSystemTestCase
-  test "feedback form has accessible labels" do
+  test "form has accessible labels" do
     visit new_feedback_path
-
-    # Check for label association
     assert_selector "label[for='feedback_content']"
-    assert_selector "input#feedback_content"
-
-    # Check for required attributes
-    assert_selector "input[required][aria-required='true']"
+    assert_selector "input#feedback_content[required][aria-required='true']"
   end
 
   test "keyboard navigation works" do
     visit feedbacks_path
-
-    # Tab to first link
     page.execute_script("document.querySelector('a').focus()")
-    focused_element = page.evaluate_script("document.activeElement.tagName")
-    assert_equal "A", focused_element
-
-    # Press Enter to activate
-    page.send_keys(:enter)
-
-    # Should navigate
-    assert_current_path(/\/feedbacks\/\d+/)
+    assert_equal "A", page.evaluate_script("document.activeElement.tagName")
   end
 
-  test "modal traps focus" do
-    visit feedbacks_path
-
-    # Open modal
-    click_button "View Details"
-    assert_selector "dialog[open]"
-
-    # First element should be focused
-    focused = page.evaluate_script("document.activeElement.getAttribute('aria-label')")
-    assert_equal "Close", focused
-
-    # Tab through modal elements
-    # (More complex test - ensure focus stays within modal)
-  end
-
-  test "error messages are announced" do
+  test "errors are announced" do
     visit new_feedback_path
-
-    fill_in "Content", with: ""
     click_button "Submit"
-
-    # Error should have alert role
     assert_selector "[role='alert']"
     assert_selector "[aria-invalid='true']"
   end
-
-  test "images have alt text" do
-    visit feedbacks_path
-
-    # All images should have alt attribute
-    images = page.all("img")
-    images.each do |img|
-      assert img[:alt].present?, "Image missing alt text: #{img[:src]}"
-    end
-  end
 end
-
-# Manual Testing Checklist:
-# □ Test with keyboard only (unplug mouse)
-# □ Test with screen reader (NVDA, JAWS, VoiceOver)
-# □ Test with browser zoom (200%, 400%)
-# □ Test with high contrast mode
-# □ Run axe DevTools or Lighthouse accessibility audit
-# □ Validate HTML (invalid HTML breaks accessibility)
 ```
 
 **Automated Testing with axe-core:**
 ```ruby
-# Gemfile
-gem 'axe-core-rspec', group: :test
-
-# test/system/axe_accessibility_test.rb
+# Gemfile: gem 'axe-core-rspec', group: :test
 require 'axe/rspec'
 
-class AxeAccessibilityTest < ApplicationSystemTestCase
-  test "homepage is accessible" do
-    visit root_path
-
-    # Run axe accessibility audit
-    expect(page).to be_axe_clean.according_to(:wcag2a, :wcag2aa)
-  end
-
-  test "feedback form is accessible" do
-    visit new_feedback_path
-
-    # Run audit with specific rules
-    expect(page).to be_axe_clean
-      .excluding('.third-party-widget')  # Exclude external widgets
-      .according_to(:wcag2a, :wcag2aa)
-  end
+test "page is accessible" do
+  visit root_path
+  expect(page).to be_axe_clean.according_to(:wcag2a, :wcag2aa)
 end
 ```
+
+**Manual Testing Checklist:**
+- Test with keyboard only (Tab, Enter, Space, Escape)
+- Test with screen reader (NVDA, JAWS, VoiceOver)
+- Test browser zoom (200%, 400%)
+- Run axe DevTools or Lighthouse audit
+- Validate HTML (W3C validator)
 </testing>
 
 <related-skills>

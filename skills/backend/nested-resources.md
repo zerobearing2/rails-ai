@@ -83,24 +83,13 @@ Use for managing aspects/settings of the parent entity itself:
 **Routes:**
 ```ruby
 # config/routes.rb
-Rails.application.routes.draw do
-  resources :feedbacks do
-    # Singular resources for single actions
-    resource :sending, only: [:create], module: :feedbacks
-    resource :retry, only: [:create], module: :feedbacks
-    resource :publication, only: [:create, :destroy], module: :feedbacks
-
-    # Plural resources for full CRUD
-    resources :responses, only: [:index, :create, :destroy], module: :feedbacks
-    resources :attachments, only: [:index, :create, :destroy], module: :feedbacks
-  end
+resources :feedbacks do
+  resource :sending, only: [:create], module: :feedbacks     # Singular for single action
+  resources :responses, only: [:index, :create, :destroy], module: :feedbacks  # Plural for CRUD
 end
 
-# Generated routes:
+# Generates:
 # POST   /feedbacks/:feedback_id/sending           feedbacks/sendings#create
-# POST   /feedbacks/:feedback_id/retry             feedbacks/retries#create
-# POST   /feedbacks/:feedback_id/publication       feedbacks/publications#create
-# DELETE /feedbacks/:feedback_id/publication       feedbacks/publications#destroy
 # GET    /feedbacks/:feedback_id/responses         feedbacks/responses#index
 # POST   /feedbacks/:feedback_id/responses         feedbacks/responses#create
 # DELETE /feedbacks/:feedback_id/responses/:id     feedbacks/responses#destroy
@@ -113,12 +102,10 @@ module Feedbacks
   class SendingsController < ApplicationController
     before_action :set_feedback
 
-    # POST /feedbacks/:feedback_id/sending
     def create
       if @feedback.ready_to_send?
         @feedback.start_sending!
         SendFeedbackEmailJob.perform_later(@feedback.id)
-
         redirect_to @feedback, notice: "Feedback is being sent"
       else
         redirect_to @feedback, alert: "Feedback is not ready to send"
@@ -126,7 +113,6 @@ module Feedbacks
     end
 
     private
-
     def set_feedback
       @feedback = Feedback.find(params[:feedback_id])
     end
@@ -142,15 +128,12 @@ module Feedbacks
     before_action :set_feedback
     before_action :set_response, only: [:destroy]
 
-    # GET /feedbacks/:feedback_id/responses
     def index
       @responses = @feedback.responses.order(created_at: :desc)
     end
 
-    # POST /feedbacks/:feedback_id/responses
     def create
       @response = @feedback.responses.build(response_params)
-
       if @response.save
         redirect_to feedback_responses_path(@feedback), notice: "Response added"
       else
@@ -158,14 +141,12 @@ module Feedbacks
       end
     end
 
-    # DELETE /feedbacks/:feedback_id/responses/:id
     def destroy
       @response.destroy
       redirect_to feedback_responses_path(@feedback), notice: "Response deleted"
     end
 
     private
-
     def set_feedback
       @feedback = Feedback.find(params[:feedback_id])
     end
@@ -180,52 +161,27 @@ module Feedbacks
   end
 end
 ```
-
-**View Usage:**
-```erb
-<%# app/views/feedbacks/show.html.erb %>
-<%= button_to "Send Feedback", feedback_sending_path(@feedback), method: :post %>
-<%= button_to "Retry AI", feedback_retry_path(@feedback), method: :post %>
-<%= link_to "View Responses", feedback_responses_path(@feedback) %>
-<%= link_to "Manage Attachments", feedback_attachments_path(@feedback) %>
-```
 </pattern>
 
 <pattern name="domain-specific-controllers">
 <description>Controllers for managing singular aspects of a parent entity using singular namespace</description>
 
 **When to Use:**
-- Managing settings, profiles, or preferences for a parent entity
-- The parent has_one relationship (not has_many)
+- Managing settings/profiles/preferences (has_one relationship)
 - Controller manages an aspect of the parent, not a separate collection
-- Avoid flat naming like UsersSettingsController or UserSettingsController
 
 **Routes:**
 ```ruby
 # config/routes.rb
-Rails.application.routes.draw do
-  # Domain-specific controllers use singular parent path
-  scope :users do
-    resource :settings, only: [:show, :edit, :update], controller: "users/settings"
-    resource :profile, only: [:show, :edit, :update], controller: "users/profile"
-    resource :preferences, only: [:show, :update], controller: "users/preferences"
-  end
-
-  # Or namespace approach (cleaner for multiple domain controllers)
-  namespace :users do
-    resource :settings, only: [:show, :edit, :update]
-    resource :profile, only: [:show, :edit, :update]
-    resource :preferences, only: [:show, :update]
-  end
+namespace :users do
+  resource :settings, only: [:show, :edit, :update]
+  resource :profile, only: [:show, :edit, :update]
 end
 
-# Generated routes:
+# Generates:
 # GET    /users/settings           users/settings#show
 # GET    /users/settings/edit      users/settings#edit
 # PATCH  /users/settings           users/settings#update
-# GET    /users/profile            users/profile#show
-# GET    /users/profile/edit       users/profile#edit
-# PATCH  /users/profile            users/profile#update
 ```
 
 **Domain Controller:**
@@ -236,27 +192,18 @@ module Users
     before_action :authenticate_user!
     before_action :set_setting
 
-    # GET /users/settings
-    def show
-      # @setting set by before_action
-    end
+    def show; end
+    def edit; end
 
-    # GET /users/settings/edit
-    def edit
-      # @setting set by before_action
-    end
-
-    # PATCH /users/settings
     def update
       if @setting.update(setting_params)
-        redirect_to users_settings_path, notice: "Settings updated successfully"
+        redirect_to users_settings_path, notice: "Settings updated"
       else
         render :edit, status: :unprocessable_entity
       end
     end
 
     private
-
     def set_setting
       @setting = current_user.setting || current_user.build_setting
     end
@@ -274,92 +221,25 @@ end
 module User
   class Setting < ApplicationRecord
     belongs_to :user
-
     validates :theme, inclusion: { in: %w[light dark auto] }
-    validates :notifications_enabled, inclusion: { in: [true, false] }
-    validates :language, inclusion: { in: I18n.available_locales.map(&:to_s) }
   end
 end
 
 # app/models/user.rb
 class User < ApplicationRecord
   has_one :setting, class_name: "User::Setting", dependent: :destroy
-
-  after_create :create_default_setting
-
-  private
-
-  def create_default_setting
-    create_setting(theme: "light", notifications_enabled: true, language: "en")
-  end
 end
 ```
 
-**File Organization:**
-```
-app/
-├── controllers/
-│   └── users/
-│       ├── settings_controller.rb    # module Users; class SettingsController
-│       ├── profile_controller.rb     # module Users; class ProfileController
-│       └── preferences_controller.rb # module Users; class PreferencesController
-├── models/
-│   ├── user.rb
-│   └── user/
-│       ├── setting.rb                # module User; class Setting
-│       ├── profile.rb                # module User; class Profile
-│       └── preference.rb             # module User; class Preference
-└── views/
-    └── users/
-        ├── settings/
-        │   ├── show.html.erb
-        │   └── edit.html.erb
-        └── profile/
-            ├── show.html.erb
-            └── edit.html.erb
-```
-
-**View Helpers:**
+**Comparison:**
 ```ruby
-# In views
-<%= link_to "Settings", users_settings_path %>
-<%= link_to "Edit Profile", edit_users_profile_path %>
+# Domain Controller (SINGULAR) - has_one relationship
+Users::SettingsController       # Manages user's settings
+route: /users/settings          # No parent ID needed
 
-# Forms
-<%= form_with model: @setting, url: users_settings_path, method: :patch do |f| %>
-  <%= f.select :theme, %w[light dark auto] %>
-  <%= f.check_box :notifications_enabled %>
-  <%= f.submit "Save Settings" %>
-<% end %>
-```
-
-**Good Examples:**
-```ruby
-# ✅ GOOD - Domain controllers with singular namespace
-Users::SettingsController      # app/controllers/users/settings_controller.rb
-Users::ProfileController        # app/controllers/users/profile_controller.rb
-Accounts::BillingController     # app/controllers/accounts/billing_controller.rb
-Companies::ConfigurationController
-
-# ❌ BAD - Flat naming obscures relationship
-UserSettingsController          # Flat, unclear namespace
-UsersSettingsController         # Wrong plural on parent
-SettingsController              # Too generic, namespace missing
-```
-
-**Comparison with Child Controllers:**
-```ruby
-# Domain Controller (SINGULAR parent) - manages aspect of parent
-# User has_one Setting
-Users::SettingsController       # Manages THE user's settings
-route: /users/settings          # Singular path
-model: User::Setting            # Singular namespace
-
-# Child Controller (PLURAL parent) - manages collection
-# User has_many Posts
+# Child Controller (PLURAL) - has_many relationship
 Users::PostsController          # Manages user's posts collection
-route: /users/:user_id/posts    # Plural path with parent ID
-model: Users::Post              # Plural namespace
+route: /users/:user_id/posts    # Parent ID required
 ```
 </pattern>
 
@@ -371,46 +251,10 @@ model: Users::Post              # Plural namespace
 # app/models/feedbacks/response.rb
 module Feedbacks
   class Response < ApplicationRecord
-    # Table name: feedbacks_responses (automatically inferred)
-    # Foreign key: feedback_id (singular parent name)
-
+    # Table: feedbacks_responses, Foreign key: feedback_id
     belongs_to :feedback
-
     validates :content, presence: true, length: { minimum: 10 }
-    validates :author_name, presence: true
-
     scope :recent, -> { order(created_at: :desc) }
-    scope :by_author, ->(name) { where(author_name: name) }
-
-    def summary
-      content.truncate(100)
-    end
-  end
-end
-```
-
-**Another Child Model:**
-```ruby
-# app/models/feedbacks/attachment.rb
-module Feedbacks
-  class Attachment < ApplicationRecord
-    # Table name: feedbacks_attachments
-    # Foreign key: feedback_id
-
-    belongs_to :feedback
-
-    has_one_attached :file
-
-    validates :file, presence: true
-    validates :filename, presence: true
-
-    def image?
-      file.content_type.start_with?("image/")
-    end
-
-    def pdf?
-      file.content_type == "application/pdf"
-    end
   end
 end
 ```
@@ -419,29 +263,16 @@ end
 ```ruby
 # app/models/feedback.rb
 class Feedback < ApplicationRecord
-  # Associations to namespaced child models
   has_many :responses, class_name: "Feedbacks::Response", dependent: :destroy
-  has_many :attachments, class_name: "Feedbacks::Attachment", dependent: :destroy
-
   validates :content, presence: true
-  validates :recipient_email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
 
-  # State management methods for child controllers
   def ready_to_send?
     ai_processed? && improved_content.present?
-  end
-
-  def can_retry_ai?
-    ai_failed? || ai_processing_timeout?
-  end
-
-  def start_sending!
-    update!(status: :sending, sending_started_at: Time.current)
   end
 end
 ```
 
-**Migrations:**
+**Migration:**
 ```ruby
 # db/migrate/20251030000001_create_feedbacks_responses.rb
 class CreateFeedbacksResponses < ActiveRecord::Migration[8.1]
@@ -449,24 +280,6 @@ class CreateFeedbacksResponses < ActiveRecord::Migration[8.1]
     create_table :feedbacks_responses do |t|
       t.references :feedback, null: false, foreign_key: true
       t.text :content, null: false
-      t.string :author_name, null: false
-
-      t.timestamps
-    end
-
-    add_index :feedbacks_responses, [:feedback_id, :created_at]
-  end
-end
-
-# db/migrate/20251030000002_create_feedbacks_attachments.rb
-class CreateFeedbacksAttachments < ActiveRecord::Migration[8.1]
-  def change
-    create_table :feedbacks_attachments do |t|
-      t.references :feedback, null: false, foreign_key: true
-      t.string :filename, null: false
-      t.string :content_type
-      t.integer :file_size
-
       t.timestamps
     end
   end
@@ -477,25 +290,22 @@ end
 <pattern name="shallow-nesting">
 <description>Shallow nesting for resources that need parent context only on creation</description>
 
-**When to Use Shallow:**
-- Child resources that need parent context only for `index` and `create`
-- `show`, `edit`, `update`, `destroy` actions where child ID is sufficient
-- Keeps URLs shorter and more RESTful
+**When to Use:**
+- Parent context needed only for `index` and `create`
+- Other actions (show/edit/update/destroy) work with child ID alone
 
 **Routes:**
 ```ruby
-# config/routes.rb
 resources :projects do
   resources :tasks, shallow: true, module: :projects
 end
 
 # Generates:
-# GET    /projects/:project_id/tasks          projects/tasks#index
-# POST   /projects/:project_id/tasks          projects/tasks#create
-# GET    /tasks/:id                           projects/tasks#show
-# GET    /tasks/:id/edit                      projects/tasks#edit
-# PATCH  /tasks/:id                           projects/tasks#update
-# DELETE /tasks/:id                           projects/tasks#destroy
+# GET    /projects/:project_id/tasks    projects/tasks#index
+# POST   /projects/:project_id/tasks    projects/tasks#create
+# GET    /tasks/:id                     projects/tasks#show
+# PATCH  /tasks/:id                     projects/tasks#update
+# DELETE /tasks/:id                     projects/tasks#destroy
 ```
 
 **Controller:**
@@ -504,47 +314,28 @@ end
 module Projects
   class TasksController < ApplicationController
     before_action :set_project, only: [:index, :create]
-    before_action :set_task, only: [:show, :edit, :update, :destroy]
+    before_action :set_task, only: [:show, :update, :destroy]
 
-    # GET /projects/:project_id/tasks
     def index
       @tasks = @project.tasks.includes(:assignee)
     end
 
-    # POST /projects/:project_id/tasks
     def create
       @task = @project.tasks.build(task_params)
-
       if @task.save
-        redirect_to @task, notice: "Task created."
+        redirect_to @task, notice: "Task created"
       else
         render :index, status: :unprocessable_entity
       end
     end
 
-    # GET /tasks/:id
-    def show
-      # @task set by before_action
-    end
-
-    # PATCH /tasks/:id
-    def update
-      if @task.update(task_params)
-        redirect_to @task, notice: "Task updated."
-      else
-        render :edit, status: :unprocessable_entity
-      end
-    end
-
-    # DELETE /tasks/:id
     def destroy
-      project = @task.project  # Save for redirect
+      project = @task.project
       @task.destroy
-      redirect_to project_tasks_path(project), notice: "Task deleted."
+      redirect_to project_tasks_path(project), notice: "Task deleted"
     end
 
     private
-
     def set_project
       @project = Project.find(params[:project_id])
     end
@@ -554,7 +345,7 @@ module Projects
     end
 
     def task_params
-      params.require(:task).permit(:title, :description, :assignee_id)
+      params.require(:task).permit(:title, :description)
     end
   end
 end
@@ -564,107 +355,38 @@ end
 <pattern name="directory-structure">
 <description>Complete directory structure for nested resources</description>
 
-**Project Layout:**
 ```
 app/
   controllers/
     feedbacks_controller.rb              # FeedbacksController
     feedbacks/
       sendings_controller.rb             # Feedbacks::SendingsController
-      retries_controller.rb              # Feedbacks::RetriesController
-      publications_controller.rb         # Feedbacks::PublicationsController
       responses_controller.rb            # Feedbacks::ResponsesController
-      attachments_controller.rb          # Feedbacks::AttachmentsController
   models/
     feedback.rb                          # Feedback
     feedbacks/
       response.rb                        # Feedbacks::Response
-      attachment.rb                      # Feedbacks::Attachment
   views/
     feedbacks/
-      index.html.erb
       show.html.erb
-      new.html.erb
-      edit.html.erb
       responses/
-        index.html.erb
-      attachments/
         index.html.erb
 
 test/
-  controllers/
-    feedbacks_controller_test.rb
-    feedbacks/
-      sendings_controller_test.rb
-      responses_controller_test.rb
-      attachments_controller_test.rb
-  models/
-    feedback_test.rb
-    feedbacks/
-      response_test.rb
-      attachment_test.rb
-  fixtures/
-    feedbacks.yml
-    feedbacks/
-      responses.yml
-      attachments.yml
-
-db/
-  migrate/
-    20251030000001_create_feedbacks.rb
-    20251030000002_create_feedbacks_responses.rb
-    20251030000003_create_feedbacks_attachments.rb
+  controllers/feedbacks/
+    responses_controller_test.rb
+  models/feedbacks/
+    response_test.rb
+  fixtures/feedbacks/
+    responses.yml
 ```
 
 **Key Points:**
 - PLURAL parent directory (feedbacks/, not feedback/)
-- Tests mirror code structure
-- Fixtures mirror model structure
-- Views can be flat or nested (preference)
+- Tests and fixtures mirror code structure
 </pattern>
 
 <antipatterns>
-<antipattern>
-<description>Using singular parent directory name</description>
-<reason>Inconsistent with controller namespacing and Rails conventions</reason>
-<bad-example>
-```ruby
-# ❌ BAD - Singular parent directory
-# app/models/feedback/response.rb
-module Feedback  # Singular
-  class Response < ApplicationRecord
-    belongs_to :feedback
-  end
-end
-
-# app/controllers/feedbacks/responses_controller.rb
-module Feedbacks  # Plural
-  class ResponsesController < ApplicationController
-    # Inconsistent with model namespace!
-  end
-end
-```
-</bad-example>
-<good-example>
-```ruby
-# ✅ GOOD - Consistent plural parent directory
-# app/models/feedbacks/response.rb
-module Feedbacks  # Plural
-  class Response < ApplicationRecord
-    belongs_to :feedback
-  end
-end
-
-# app/controllers/feedbacks/responses_controller.rb
-module Feedbacks  # Plural
-  class ResponsesController < ApplicationController
-    # Consistent!
-  end
-end
-```
-</good-example>
-</antipattern>
-
 <antipattern>
 <description>Deep nesting (more than 1 level)</description>
 <reason>Creates overly long URLs and complex routing</reason>
@@ -678,66 +400,18 @@ resources :organizations do
     end
   end
 end
-
-# Results in: /organizations/:organization_id/projects/:project_id/tasks/:task_id/comments
-# Too long, too complex!
+# Results in: /organizations/:org_id/projects/:proj_id/tasks/:task_id/comments
 ```
 </bad-example>
 <good-example>
 ```ruby
 # ✅ GOOD - Use shallow nesting
-resources :organizations do
-  resources :projects, shallow: true
-end
-
 resources :projects do
   resources :tasks, shallow: true
 end
 
 resources :tasks do
   resources :comments, shallow: true
-end
-
-# Or scope child resources without nesting:
-resources :organizations
-resources :projects
-resources :tasks
-resources :comments
-
-# Filter in controller/queries instead:
-# @project.tasks, @task.comments, etc.
-```
-</good-example>
-</antipattern>
-
-<antipattern>
-<description>Using custom controller parameter instead of module</description>
-<reason>Doesn't leverage Rails conventions, harder to maintain</reason>
-<bad-example>
-```ruby
-# ❌ BAD - Custom controller parameter
-resources :feedbacks do
-  resource :sending, only: [:create], controller: "feedback_sendings"
-end
-
-# app/controllers/feedback_sendings_controller.rb (flat structure)
-class FeedbackSendingsController < ApplicationController
-  # ...
-end
-```
-</bad-example>
-<good-example>
-```ruby
-# ✅ GOOD - Module parameter with nested directory
-resources :feedbacks do
-  resource :sending, only: [:create], module: :feedbacks
-end
-
-# app/controllers/feedbacks/sendings_controller.rb (nested structure)
-module Feedbacks
-  class SendingsController < ApplicationController
-    # ...
-  end
 end
 ```
 </good-example>
@@ -750,11 +424,9 @@ end
 ```ruby
 # ❌ BAD - Missing module wrapper
 # app/models/feedbacks/response.rb
-class Response < ApplicationRecord  # Missing module Feedbacks
+class Response < ApplicationRecord
   belongs_to :feedback
 end
-
-# Rails looks for Feedbacks::Response but finds ::Response
 ```
 </bad-example>
 <good-example>
@@ -764,43 +436,6 @@ end
 module Feedbacks
   class Response < ApplicationRecord
     belongs_to :feedback
-  end
-end
-
-# Rails correctly finds Feedbacks::Response
-```
-</good-example>
-</antipattern>
-
-<antipattern>
-<description>Mixing flat and nested structures</description>
-<reason>Inconsistent codebase, confusing for team members</reason>
-<bad-example>
-```ruby
-# ❌ BAD - Inconsistent structure
-# app/controllers/feedback_sendings_controller.rb (flat)
-class FeedbackSendingsController < ApplicationController
-end
-
-# app/controllers/feedbacks/retries_controller.rb (nested)
-module Feedbacks
-  class RetriesController < ApplicationController
-  end
-end
-```
-</bad-example>
-<good-example>
-```ruby
-# ✅ GOOD - Consistent nested structure
-# app/controllers/feedbacks/sendings_controller.rb
-module Feedbacks
-  class SendingsController < ApplicationController
-  end
-end
-
-# app/controllers/feedbacks/retries_controller.rb
-module Feedbacks
-  class RetriesController < ApplicationController
   end
 end
 ```
@@ -815,8 +450,7 @@ end
 # ❌ BAD - No parent scoping
 def destroy
   @response = Feedbacks::Response.find(params[:id])
-  @response.destroy
-  # User can delete any response by ID!
+  @response.destroy  # User can delete any response!
 end
 ```
 </bad-example>
@@ -826,20 +460,8 @@ end
 before_action :set_feedback
 before_action :set_response, only: [:destroy]
 
-def destroy
-  @response.destroy
-  redirect_to feedback_responses_path(@feedback)
-end
-
-private
-
-def set_feedback
-  @feedback = Feedback.find(params[:feedback_id])
-end
-
 def set_response
-  # Scoped to parent - can only access responses for this feedback
-  @response = @feedback.responses.find(params[:id])
+  @response = @feedback.responses.find(params[:id])  # Scoped to parent
 end
 ```
 </good-example>
@@ -850,39 +472,6 @@ end
 Test nested resources with controller tests that verify parent scoping:
 
 ```ruby
-# test/controllers/feedbacks/sendings_controller_test.rb
-require "test_helper"
-
-module Feedbacks
-  class SendingsControllerTest < ActionDispatch::IntegrationTest
-    setup do
-      @feedback = feedbacks(:one)
-      @feedback.update!(status: :ai_processed, improved_content: "Improved")
-    end
-
-    test "should send feedback when ready" do
-      assert_enqueued_with job: SendFeedbackEmailJob do
-        post feedback_sending_url(@feedback)
-      end
-
-      assert_redirected_to @feedback
-      assert_equal "Feedback is being sent", flash[:notice]
-
-      @feedback.reload
-      assert @feedback.sending?
-    end
-
-    test "should not send when not ready" do
-      @feedback.update!(status: :draft)
-
-      post feedback_sending_url(@feedback)
-
-      assert_redirected_to @feedback
-      assert_equal "Feedback is not ready to send", flash[:alert]
-    end
-  end
-end
-
 # test/controllers/feedbacks/responses_controller_test.rb
 require "test_helper"
 
@@ -904,28 +493,14 @@ module Feedbacks
           response: { content: "Thank you!", author_name: "John" }
         }
       end
-
       assert_redirected_to feedback_responses_url(@feedback)
     end
 
-    test "should destroy only responses belonging to feedback" do
-      other_feedback = feedbacks(:two)
-      other_response = Feedbacks::Response.create!(
-        feedback: other_feedback,
-        content: "Other response",
-        author_name: "Jane"
-      )
-
-      # Try to delete other feedback's response - should raise error
+    test "should only destroy responses belonging to feedback" do
+      other_response = Feedbacks::Response.create!(feedback: feedbacks(:two), content: "Other", author_name: "Jane")
       assert_raises(ActiveRecord::RecordNotFound) do
-        delete feedback_response_url(@feedback, other_response)
+        delete "/feedbacks/#{@feedback.id}/responses/#{other_response.id}"
       end
-    end
-
-    private
-
-    def feedback_response_url(feedback, response)
-      "/feedbacks/#{feedback.id}/responses/#{response.id}"
     end
   end
 end
@@ -936,19 +511,12 @@ require "test_helper"
 module Feedbacks
   class ResponseTest < ActiveSupport::TestCase
     test "belongs to feedback" do
-      response = feedbacks_responses(:one)
-      assert_instance_of Feedback, response.feedback
+      assert_instance_of Feedback, feedbacks_responses(:one).feedback
     end
 
-    test "requires content" do
+    test "validates content presence" do
       response = Feedbacks::Response.new(author_name: "John")
       assert_not response.valid?
-      assert_includes response.errors[:content], "can't be blank"
-    end
-
-    test "recent scope orders by created_at desc" do
-      responses = Feedbacks::Response.recent.to_a
-      assert_equal responses, responses.sort_by(&:created_at).reverse
     end
   end
 end
@@ -959,15 +527,8 @@ end
 # test/fixtures/feedbacks/responses.yml
 one:
   feedback: one
-  content: "This is a response to the feedback"
+  content: "Response content"
   author_name: "John Doe"
-  created_at: <%= 1.day.ago %>
-
-two:
-  feedback: one
-  content: "Another response"
-  author_name: "Jane Smith"
-  created_at: <%= 2.days.ago %>
 ```
 </testing>
 

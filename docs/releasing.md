@@ -32,18 +32,26 @@ Before creating a release, ensure you have:
 bin/release
 ```
 
+Or for a dry run (see what will happen without making changes):
+
+```bash
+bin/release --dry-run
+```
+
 The script will guide you through:
 
-1. **Pull latest changes** from GitHub
-2. **Run CI checks** (linting + tests) - must pass
+1. **Pull latest changes** from GitHub (skipped in dry-run)
+2. **Run CI checks** (linting + tests) - must pass (skipped in dry-run)
 3. **Version bump** - Choose patch/minor/major or custom
-4. **Release notes** - Enter what's new in this version
-5. **Review** - Confirm the release details
-6. **Update CHANGELOG.md** - Automatically inserts new version
-7. **Commit changes** - Commits changelog with release notes
-8. **Create git tag** - Tags commit with version (e.g., v1.0.0)
-9. **Push to GitHub** - Pushes commits and tags
-10. **Create GitHub Release** - Creates release with formatted notes
+4. **Analyze commits** - Gets all commits since last version tag
+5. **Generate release notes** - Uses Claude CLI to summarize commits (if available)
+6. **Review & edit** - Confirm or edit AI-generated notes
+7. **Review release** - Confirm the complete release details
+8. **Update CHANGELOG.md** - Automatically inserts new version (dry-run shows preview)
+9. **Commit changes** - Commits changelog with release notes
+10. **Create git tag** - Tags commit with version (e.g., v1.0.0)
+11. **Push to GitHub** - Pushes commits and tags
+12. **Create GitHub Release** - Creates release with formatted notes
 
 ## Release Types
 
@@ -66,9 +74,62 @@ The script will guide you through:
 - Version: Any valid semver (e.g., `2.5.3`)
 - When: Special cases, pre-releases, version corrections
 
+## AI-Powered Release Notes
+
+The script uses **Claude CLI** to automatically generate release notes from your git commits!
+
+### How it works:
+
+1. **Analyzes commits** - Gets all commits since last version tag
+2. **Summarizes with AI** - Claude reads commits and generates clean changelog
+3. **Keep a Changelog format** - Automatically categorizes into Added, Changed, Fixed, etc.
+4. **Review & edit** - You can approve, edit, or reject the AI-generated notes
+
+### Example:
+
+```
+Commits since last version:
+- Add bin/release script for automated releases
+- Fix settings.json: Remove invalid JSON comments
+- Update AGENTS.md for open source release
+- Add Claude Code project settings
+
+Claude CLI generates:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+### Added
+- Automated release script (bin/release) for version bumping and GitHub releases
+- Claude Code project settings with pre-approved commands
+
+### Changed
+- Updated AGENTS.md documentation for open source architecture
+
+### Fixed
+- Fixed invalid JSON comments in settings.json
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Use these release notes? (y/n/e to edit)
+```
+
+### No Claude CLI?
+
+If Claude CLI is not installed, the script falls back to manual entry. Install with:
+
+```bash
+npm install -g @anthropics/claude-cli
+```
+
 ## Release Notes Format
 
-When prompted for release notes, describe what's new:
+Release notes use standard [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) categories:
+
+- **Added** - New features
+- **Changed** - Changes to existing functionality
+- **Fixed** - Bug fixes
+- **Removed** - Removed features
+- **Deprecated** - Soon-to-be removed features
+- **Security** - Security improvements
+
+Example:
 
 ```markdown
 ### Added
@@ -86,14 +147,6 @@ When prompted for release notes, describe what's new:
 ### Removed
 - Deprecated rails-config agent (merged into backend)
 ```
-
-Use standard [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) categories:
-- **Added** - New features
-- **Changed** - Changes to existing functionality
-- **Deprecated** - Soon-to-be removed features
-- **Removed** - Removed features
-- **Fixed** - Bug fixes
-- **Security** - Security improvements
 
 ## What Happens During Release
 
@@ -216,6 +269,32 @@ git revert HEAD
 git push origin master
 ```
 
+## Dry Run Mode
+
+Test the release process without making any changes:
+
+```bash
+bin/release --dry-run
+```
+
+This will:
+- ✅ Skip CI checks
+- ✅ Skip git pull
+- ✅ Allow uncommitted changes
+- ✅ Show version bump calculation
+- ✅ Analyze commits and generate release notes
+- ✅ Show preview of what would be released
+- ❌ **Not** update CHANGELOG.md
+- ❌ **Not** create commits or tags
+- ❌ **Not** push to GitHub
+- ❌ **Not** create GitHub release
+
+Perfect for:
+- Testing the script
+- Previewing release notes
+- Verifying commit analysis
+- Planning next release
+
 ## Troubleshooting
 
 ### CI Checks Fail
@@ -226,6 +305,18 @@ rake test:skills:unit  # Run tests
 
 # Re-run CI
 bin/ci
+```
+
+### Claude CLI Not Working
+```bash
+# Check if installed
+which claude
+
+# Install/reinstall
+npm install -g @anthropics/claude-cli
+
+# Test it
+echo "Hello" | claude
 ```
 
 ### Wrong Version Released

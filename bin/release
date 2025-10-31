@@ -11,6 +11,13 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
+# Dry run mode flag
+DRY_RUN=false
+if [ "$1" = "--dry-run" ] || [ "$1" = "-n" ]; then
+  DRY_RUN=true
+  print_warning "🔍 DRY RUN MODE - No changes will be made"
+fi
+
 # Print section header
 print_section() {
   echo ""
@@ -46,57 +53,78 @@ if [ ! -f "Gemfile" ]; then
   exit 1
 fi
 
-# Check if gh CLI is installed
-if ! command -v gh &> /dev/null; then
-  print_error "GitHub CLI (gh) not installed. Install: https://cli.github.com/"
-  exit 1
+# Check if gh CLI is installed (skip in dry-run)
+if [ "$DRY_RUN" = false ]; then
+  if ! command -v gh &> /dev/null; then
+    print_error "GitHub CLI (gh) not installed. Install: https://cli.github.com/"
+    exit 1
+  fi
+
+  # Check if gh is authenticated
+  if ! gh auth status &> /dev/null; then
+    print_error "GitHub CLI not authenticated. Run: gh auth login"
+    exit 1
+  fi
 fi
 
-# Check if gh is authenticated
-if ! gh auth status &> /dev/null; then
-  print_error "GitHub CLI not authenticated. Run: gh auth login"
-  exit 1
+# Check if Claude CLI is available
+CLAUDE_CLI_AVAILABLE=false
+if command -v claude &> /dev/null; then
+  CLAUDE_CLI_AVAILABLE=true
+  print_info "Claude CLI detected - will use AI for release note summarization"
+else
+  print_warning "Claude CLI not found - will use manual release notes"
+  print_info "Install Claude CLI for AI-powered summaries: npm install -g @anthropics/claude-cli"
 fi
 
 # Welcome message
 echo ""
 echo -e "${BLUE}╔═══════════════════════════════════════════╗${NC}"
 echo -e "${BLUE}║       Rails AI - Release Script          ║${NC}"
+if [ "$DRY_RUN" = true ]; then
+  echo -e "${YELLOW}║              (DRY RUN MODE)               ║${NC}"
+fi
 echo -e "${BLUE}╚═══════════════════════════════════════════╝${NC}"
 echo ""
 
-# Check for uncommitted changes
-if [ -n "$(git status --porcelain)" ]; then
-  print_error "You have uncommitted changes. Please commit or stash them first."
-  git status --short
-  exit 1
-fi
-
-# Make sure we're on main/master branch
-CURRENT_BRANCH=$(git branch --show-current)
-if [ "$CURRENT_BRANCH" != "master" ] && [ "$CURRENT_BRANCH" != "main" ]; then
-  print_warning "You're on branch '$CURRENT_BRANCH', not master/main"
-  read -p "Continue anyway? (y/n) " -n 1 -r
-  echo
-  if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-    print_info "Release cancelled"
+# Check for uncommitted changes (skip in dry-run)
+if [ "$DRY_RUN" = false ]; then
+  if [ -n "$(git status --porcelain)" ]; then
+    print_error "You have uncommitted changes. Please commit or stash them first."
+    git status --short
     exit 1
   fi
 fi
 
-# Pull latest changes
-print_section "📥 Pulling Latest Changes"
-git pull origin $CURRENT_BRANCH
-print_success "Up to date with remote"
+# Make sure we're on main/master branch (skip in dry-run)
+CURRENT_BRANCH=$(git branch --show-current)
+if [ "$DRY_RUN" = false ]; then
+  if [ "$CURRENT_BRANCH" != "master" ] && [ "$CURRENT_BRANCH" != "main" ]; then
+    print_warning "You're on branch '$CURRENT_BRANCH', not master/main"
+    read -p "Continue anyway? (y/n) " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+      print_info "Release cancelled"
+      exit 1
+    fi
+  fi
 
-# Run CI checks
-print_section "🧪 Running CI Checks"
-print_info "Running bin/ci to ensure everything passes..."
-if ./bin/ci; then
-  print_success "All CI checks passed"
-else
-  print_error "CI checks failed. Fix issues before releasing."
-  exit 1
+  # Pull latest changes
+  print_section "📥 Pulling Latest Changes"
+  git pull origin $CURRENT_BRANCH
+  print_success "Up to date with remote"
+fi
+
+# Run CI checks (skip in dry-run)
+if [ "$DRY_RUN" = false ]; then
+  print_section "🧪 Running CI Checks"
+  print_info "Running bin/ci to ensure everything passes..."
+  if ./bin/ci; then
+    print_success "All CI checks passed"
+  else
+    print_error "CI checks failed. Fix issues before releasing."
+    exit 1
+  fi
 fi
 
 # Get current version from CHANGELOG
@@ -107,6 +135,15 @@ if [ -z "$CURRENT_VERSION" ]; then
 fi
 
 print_info "Current version: $CURRENT_VERSION"
+
+# Get last version tag
+LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+if [ -z "$LAST_TAG" ]; then
+  print_warning "No previous tags found"
+  LAST_TAG="HEAD~10"  # Use last 10 commits if no tags
+else
+  print_info "Last tag: $LAST_TAG"
+fi
 
 # Ask for new version
 print_section "📝 Version Bump"
@@ -156,12 +193,86 @@ esac
 
 print_info "New version will be: $NEW_VERSION"
 
-# Get release notes
-print_section "📋 Release Notes"
-echo "Enter release notes (what's new in this version?)"
-echo "Press Ctrl+D when done, or Ctrl+C to cancel"
+# Get commits since last version
+print_section "📋 Generating Release Notes"
+print_info "Analyzing commits since $LAST_TAG..."
+
+# Get commit log with formatting
+COMMIT_LOG=$(git log $LAST_TAG..HEAD --pretty=format:"- %s" --no-merges)
+
+if [ -z "$COMMIT_LOG" ]; then
+  print_warning "No commits found since last version"
+  COMMIT_LOG="- No changes"
+fi
+
 echo ""
-RELEASE_NOTES=$(cat)
+echo "Commits since last version:"
+echo "$COMMIT_LOG"
+echo ""
+
+# Generate release notes
+if [ "$CLAUDE_CLI_AVAILABLE" = true ]; then
+  print_info "Using Claude CLI to generate release notes summary..."
+
+  # Create prompt for Claude
+  CLAUDE_PROMPT="Analyze these git commits and generate a concise CHANGELOG entry in Keep a Changelog format.
+
+Commits:
+$COMMIT_LOG
+
+Instructions:
+- Use categories: Added, Changed, Fixed, Removed, Security, Deprecated
+- Be concise but informative
+- Focus on user-facing changes
+- Omit internal refactors unless significant
+- Use bullet points
+- No intro/outro text, just the categorized bullets
+- Only include categories that have changes
+
+Example format:
+### Added
+- New feature X for Y
+
+### Fixed
+- Bug in Z component"
+
+  # Call Claude CLI and capture output
+  RELEASE_NOTES=$(echo "$CLAUDE_PROMPT" | claude --no-stream 2>/dev/null || echo "")
+
+  if [ -z "$RELEASE_NOTES" ]; then
+    print_warning "Claude CLI failed to generate notes, falling back to manual"
+    CLAUDE_CLI_AVAILABLE=false
+  else
+    print_success "Generated release notes with Claude CLI"
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "$RELEASE_NOTES"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+
+    read -p "Use these release notes? (y/n/e to edit) " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Ee]$ ]]; then
+      print_info "Opening editor for release notes..."
+      TEMP_FILE=$(mktemp)
+      echo "$RELEASE_NOTES" > "$TEMP_FILE"
+      ${EDITOR:-vim} "$TEMP_FILE"
+      RELEASE_NOTES=$(cat "$TEMP_FILE")
+      rm "$TEMP_FILE"
+    elif [[ ! $REPLY =~ ^[Yy]$ ]]; then
+      CLAUDE_CLI_AVAILABLE=false
+    fi
+  fi
+fi
+
+# Manual release notes if Claude not available or user declined
+if [ "$CLAUDE_CLI_AVAILABLE" = false ]; then
+  print_info "Enter release notes manually (or press Ctrl+C to cancel)"
+  echo "Use Keep a Changelog format (Added, Changed, Fixed, etc.)"
+  echo "Press Ctrl+D when done"
+  echo ""
+  RELEASE_NOTES=$(cat)
+fi
 
 if [ -z "$RELEASE_NOTES" ]; then
   print_error "Release notes cannot be empty"
@@ -173,8 +284,26 @@ print_section "🔍 Review Release"
 echo "Version: $NEW_VERSION"
 echo ""
 echo "Release Notes:"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "$RELEASE_NOTES"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
+
+if [ "$DRY_RUN" = true ]; then
+  print_warning "DRY RUN MODE - No changes made"
+  echo ""
+  print_info "What would happen:"
+  echo "  1. Update CHANGELOG.md with version $NEW_VERSION"
+  echo "  2. Commit changelog with release notes"
+  echo "  3. Create git tag v$NEW_VERSION"
+  echo "  4. Push to origin/$CURRENT_BRANCH"
+  echo "  5. Push tag v$NEW_VERSION"
+  echo "  6. Create GitHub release"
+  echo ""
+  print_success "Dry run complete. Run without --dry-run to execute."
+  exit 0
+fi
+
 read -p "Create this release? (y/n) " -n 1 -r
 echo
 if [[ ! $REPLY =~ ^[Yy]$ ]]; then

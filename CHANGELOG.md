@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.3] - 2025-10-31
+
+### Added
+- Planning Agent for Specification Pyramid Framework
+- Context7 MCP support for up-to-date Rails documentation
+
+### Changed
+- Updated concerns location conventions for better organization
+- Enforced markdown linting in CI with all violations fixed
+
+### Fixed
+- Architect agent delegation enforcement
+
+
 ## [0.1.2] - 2025-10-31
 
 ### Added

@@ -2,6 +2,7 @@
 
 require_relative "../../test_helper"
 require "yaml"
+require "date"
 
 class SkillsRegistrySyncTest < Minitest::Test
   def setup

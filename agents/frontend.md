@@ -64,6 +64,30 @@ Reference: `../TEAM_RULES.md`
 
 ---
 
+## Security: Pair with @security
+
+**Security expertise is owned by @security agent.** For security-critical UI features, @architect will coordinate pairing.
+
+**Pair with @security when building:**
+- Forms accepting user input
+- File upload interfaces
+- Search or filter interfaces
+- User-generated content displays
+- Authentication UI (login, registration)
+
+**Rails provides automatic protections:**
+- XSS: ERB auto-escapes output (never use `raw` or `html_safe` with user data)
+- CSRF: Form helpers include tokens automatically
+- Your responsibility: Use Rails helpers (`form_with`, `link_to`) - they include security by default
+
+**Your responsibility:**
+- Build UI using Rails form helpers and view helpers
+- Never bypass Rails security (no `raw` with user input)
+- @architect will coordinate @security pairing for review
+- @security audits and provides guidance
+
+---
+
 ## Skills Architecture
 
 **This agent uses a skills-based architecture with modular, reusable knowledge units.**
@@ -111,18 +135,17 @@ This agent has the following 14 skills automatically available:
 
 **Beyond your preset, you may need:**
 
-- **Backend skills**: When implementing full-stack features (forms that submit to controllers)
+- **Backend skills**: When implementing full-stack features (pair with @backend)
   - `controller-restful` - Understanding REST endpoints your forms target
-  - `security-strong-parameters` - Ensuring forms send correct params
-  - `security-csrf` - CSRF token handling
 
-- **Testing skills**: Beyond component tests
+- **Testing skills**: When writing complex tests (pair with @tests)
   - `tdd-minitest` - Core TDD methodology
   - `fixtures-test-data` - Test data setup
 
-- **Security skills**: When handling user input
-  - `security-xss` - XSS prevention in templates
-  - `security-file-uploads` - Secure file upload UIs
+- **Security**: Pair with @security for forms, file uploads, user input
+  - Rails auto-escapes ERB (XSS protection)
+  - Rails includes CSRF tokens automatically
+  - @architect coordinates security pairing
 
 ### Skill Registry Reference
 

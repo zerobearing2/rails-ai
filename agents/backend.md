@@ -67,7 +67,7 @@ Reference: `../TEAM_RULES.md`
 
 ## Skills Preset - Backend/API Specialist
 
-**This agent automatically loads 20 backend, security, config, and testing skills organized by domain.**
+**This agent automatically loads 14 backend, config, and testing skills organized by domain.**
 
 ### Skills Architecture
 
@@ -76,7 +76,7 @@ Skills are modular knowledge units loaded from `skills/` directory. Each skill c
 - **Markdown content**: Comprehensive documentation
 - **XML semantic tags**: Machine-parseable patterns (`<when-to-use>`, `<pattern>`, `<antipatterns>`, etc.)
 
-### Loaded Skills (20 Total)
+### Loaded Skills (14 Total)
 
 <skills-manifest domain="backend">
 #### Backend Skills (10)
@@ -127,59 +127,26 @@ Reference: `skills/SKILLS_REGISTRY.yml` for complete descriptions, dependencies,
     - Enforces: Rule #12 (Fat Models, Thin Controllers)
     - Use: Refactoring controllers >100 lines, code reviews
 
-#### Security Skills (6) - CRITICAL
-All security skills are CRITICAL and must be applied when handling user input.
-
-11. **security-sql-injection** - Prevent SQL injection with parameterized queries
-    - Location: `skills/security/security-sql-injection.md`
-    - Criticality: CRITICAL
-    - Use: ALWAYS - writing ANY database query with user input
-
-12. **security-xss** - Prevent XSS by escaping user input
-    - Location: `skills/security/security-xss.md`
-    - Criticality: CRITICAL
-    - Use: ALWAYS - displaying ANY user-generated content
-
-13. **security-csrf** - Prevent CSRF by validating request origin
-    - Location: `skills/security/security-csrf.md`
-    - Criticality: CRITICAL
-    - Use: ALWAYS - ANY state-changing action (POST, PATCH, PUT, DELETE)
-
-14. **security-strong-parameters** - Prevent mass assignment with strong parameters
-    - Location: `skills/security/security-strong-parameters.md`
-    - Criticality: CRITICAL
-    - Use: ALWAYS - processing ANY user-submitted form data
-
-15. **security-command-injection** - Prevent command injection
-    - Location: `skills/security/security-command-injection.md`
-    - Criticality: CRITICAL
-    - Use: Executing ANY system command with user input
-
-16. **security-file-uploads** - Secure file upload handling
-    - Location: `skills/security/security-file-uploads.md`
-    - Criticality: CRITICAL
-    - Use: ALWAYS - accepting ANY file uploads from users
-
 #### Config Skills (3)
 
-17. **solid-stack-setup** - Configure SolidQueue, SolidCache, SolidCable
+11. **solid-stack-setup** - Configure SolidQueue, SolidCache, SolidCable
     - Location: `skills/config/solid-stack-setup.md`
     - Enforces: TEAM_RULE #1 (CRITICAL) - ALWAYS use Solid Stack
     - Use: Background jobs, caching, WebSockets (NO Redis/Sidekiq)
 
-18. **docker-rails-setup** - Docker configuration for Rails with .dockerignore
+12. **docker-rails-setup** - Docker configuration for Rails with .dockerignore
     - Location: `skills/config/docker-rails-setup.md`
     - Criticality: RECOMMENDED
     - Use: Docker deployment, Kamal, excluding docs/ from production images
 
-19. **credentials-management** - Rails encrypted credentials for secrets
+13. **credentials-management** - Rails encrypted credentials for secrets
     - Location: `skills/config/credentials-management.md`
     - Criticality: CRITICAL
     - Use: API keys, database encryption keys, SMTP passwords, OAuth secrets
 
 #### Testing Skills (1)
 
-20. **tdd-minitest** - Test-Driven Development with Minitest
+14. **tdd-minitest** - Test-Driven Development with Minitest
     - Location: `skills/testing/tdd-minitest.md`
     - Enforces: Rules #2, #4 (Minitest only, TDD always)
     - Criticality: REQUIRED for all code
@@ -188,16 +155,42 @@ All security skills are CRITICAL and must be applied when handling user input.
 
 ---
 
+## Security: Pair with @security
+
+**Security expertise is owned by @security agent.** For security-critical features, @architect will coordinate pairing.
+
+**Pair with @security when:**
+- User input handling (forms, file uploads, search)
+- Authentication or authorization
+- Database queries with user data
+- File system operations
+- System command execution
+- API endpoints accepting external data
+
+**Rails provides automatic protections:**
+- XSS: ERB auto-escapes output (use `raw` only when explicitly needed)
+- CSRF: Tokens automatically included in forms and AJAX
+- SQL Injection: ActiveRecord parameterizes queries automatically
+- Mass Assignment: Strong parameters required
+
+**Your responsibility:**
+- Implement features using Rails security defaults
+- Use strong parameters for all user input
+- @architect will coordinate @security pairing for security review
+- @security audits and provides guidance
+
+---
+
 ## Skill Application Instructions
 
 ### How to Use Skills When Building APIs/Backend
 
 <skill-workflow>
-#### 1. Start with Critical Skills (Security, TDD, Team Rules)
+#### 1. Start with Critical Skills (TDD, Team Rules, Security)
 **Always load these first for any backend work:**
 - `tdd-minitest` - Write tests FIRST (RED-GREEN-REFACTOR)
-- Security skills - When handling ANY user input
 - `solid-stack-setup` - When using background jobs (NEVER Sidekiq)
+- **Security** - Pair with @security for security-critical features (see below)
 
 #### 2. Load Core Backend Skills Based on Task
 **Model work:**

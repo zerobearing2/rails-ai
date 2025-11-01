@@ -67,7 +67,7 @@ Reference: `../TEAM_RULES.md`
 
 ## Skills Preset - Backend/API Specialist
 
-**This agent automatically loads 14 backend, config, and testing skills organized by domain.**
+**This agent automatically loads 13 backend and config skills organized by domain.**
 
 ### Skills Architecture
 
@@ -76,7 +76,7 @@ Skills are modular knowledge units loaded from `skills/` directory. Each skill c
 - **Markdown content**: Comprehensive documentation
 - **XML semantic tags**: Machine-parseable patterns (`<when-to-use>`, `<pattern>`, `<antipatterns>`, etc.)
 
-### Loaded Skills (14 Total)
+### Loaded Skills (13 Total)
 
 <skills-manifest domain="backend">
 #### Backend Skills (10)
@@ -143,15 +143,27 @@ Reference: `skills/SKILLS_REGISTRY.yml` for complete descriptions, dependencies,
     - Location: `skills/config/credentials-management.md`
     - Criticality: CRITICAL
     - Use: API keys, database encryption keys, SMTP passwords, OAuth secrets
-
-#### Testing Skills (1)
-
-14. **tdd-minitest** - Test-Driven Development with Minitest
-    - Location: `skills/testing/tdd-minitest.md`
-    - Enforces: Rules #2, #4 (Minitest only, TDD always)
-    - Criticality: REQUIRED for all code
-    - Use: ALWAYS - TDD is enforced for all development
 </skills-manifest>
+
+---
+
+## Testing: Pair with @tests
+
+**Testing expertise is owned by @tests agent.** For complex testing scenarios, @architect will coordinate pairing.
+
+**Pair with @tests when:**
+- Complex mocking or stubbing needed (external APIs, time-dependent code)
+- Edge cases requiring deep test strategy (race conditions, error paths)
+- Test performance optimization needed (fixtures, test database)
+- Advanced Minitest features (parametrized tests, custom assertions)
+
+**Your responsibility:**
+- Write tests FIRST following TDD (RED-GREEN-REFACTOR)
+- Test models: validations, associations, business logic, scopes
+- Test controllers: actions, strong params, status codes, rate limits
+- Test services: success paths, error handling, transactions
+- @architect will coordinate @tests pairing for complex scenarios
+- @tests guides testing strategy and reviews test quality
 
 ---
 
@@ -186,10 +198,10 @@ Reference: `skills/SKILLS_REGISTRY.yml` for complete descriptions, dependencies,
 ### How to Use Skills When Building APIs/Backend
 
 <skill-workflow>
-#### 1. Start with Critical Skills (TDD, Team Rules, Security)
+#### 1. Start with Critical Skills (Team Rules, Security)
 **Always load these first for any backend work:**
-- `tdd-minitest` - Write tests FIRST (RED-GREEN-REFACTOR)
 - `solid-stack-setup` - When using background jobs (NEVER Sidekiq)
+- **Testing** - Follow TDD (RED-GREEN-REFACTOR). Pair with @tests for complex scenarios (see below)
 - **Security** - Pair with @security for security-critical features (see below)
 
 #### 2. Load Core Backend Skills Based on Task
@@ -211,8 +223,8 @@ Reference: `skills/SKILLS_REGISTRY.yml` for complete descriptions, dependencies,
 
 #### 3. When to Load Additional Skills
 **Load skills from other domains when:**
-- Frontend integration needed → Load frontend skills from `skills/SKILLS_REGISTRY.yml`
-- Advanced testing needed → Load `fixtures-test-data`, `minitest-mocking`
+- Frontend integration needed → Pair with @frontend
+- Advanced testing needed → Pair with @tests (mocking, fixtures, edge cases)
 - Configuration needed → Load `initializers-best-practices`, `environment-configuration`
 
 **How to load:**

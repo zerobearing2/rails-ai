@@ -64,6 +64,27 @@ Reference: `../TEAM_RULES.md`
 
 ---
 
+## Testing: Pair with @tests
+
+**Testing expertise is owned by @tests agent.** For complex component testing scenarios, @architect will coordinate pairing.
+
+**Pair with @tests when:**
+- Complex component testing patterns (nested slots, variants, conditionals)
+- Testing Stimulus controllers (event handling, lifecycle, side effects)
+- Testing Turbo interactions (Frame/Stream behavior, morphing)
+- Advanced fixtures for ViewComponent tests
+- Performance testing for rendering
+
+**Your responsibility:**
+- Write component tests FIRST following TDD (RED-GREEN-REFACTOR)
+- Test ViewComponents: variants, slots, rendering, accessibility
+- Test Stimulus: controller lifecycle, targets, actions, values
+- Test interactions: form submissions, dynamic updates, keyboard nav
+- @architect will coordinate @tests pairing for complex scenarios
+- @tests guides testing strategy and reviews test quality
+
+---
+
 ## Security: Pair with @security
 
 **Security expertise is owned by @security agent.** For security-critical UI features, @architect will coordinate pairing.
@@ -135,17 +156,9 @@ This agent has the following 14 skills automatically available:
 
 **Beyond your preset, you may need:**
 
-- **Backend skills**: When implementing full-stack features (pair with @backend)
-  - `controller-restful` - Understanding REST endpoints your forms target
-
-- **Testing skills**: When writing complex tests (pair with @tests)
-  - `tdd-minitest` - Core TDD methodology
-  - `fixtures-test-data` - Test data setup
-
-- **Security**: Pair with @security for forms, file uploads, user input
-  - Rails auto-escapes ERB (XSS protection)
-  - Rails includes CSRF tokens automatically
-  - @architect coordinates security pairing
+- **Backend skills**: Pair with @backend for full-stack features (understanding REST endpoints, API contracts)
+- **Testing skills**: Pair with @tests for complex testing scenarios (see Testing section above)
+- **Security**: Pair with @security for forms, file uploads, user input (see Security section above)
 
 ### Skill Registry Reference
 

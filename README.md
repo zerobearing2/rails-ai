@@ -47,7 +47,7 @@ This project is **open source** and actively maintained. We welcome contribution
 - 📚 **Context7 Integration**: Up-to-date Rails documentation access via MCP
 - 🚂 **Rails-Only**: Focused exclusively on Ruby on Rails (no other frameworks)
 - 📏 **Team Rules**: Enforced conventions (Solid Stack, Minitest, REST-only, TDD)
-- 🧪 **Skills-Based**: 40 modular skills with comprehensive testing framework
+- 🧪 **Skills-Based**: 41 modular skills with comprehensive testing framework
 - 🤖 **Cursor Support**: Coming soon (manual installation available now)
 
 ## Installation

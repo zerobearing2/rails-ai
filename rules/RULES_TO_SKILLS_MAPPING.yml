@@ -9,6 +9,70 @@ metadata:
   rules_without_skills: 9
   coverage_percent: 53
 
+# === RULES BY DOMAIN (Quick Lookup) ===
+# Organized by agent specialization for faster rule discovery
+
+rules_by_domain:
+  stack_architecture:
+    description: "Technology and infrastructure choices"
+    rules:
+      - rule_1_solid_stack
+      - rule_2_minitest
+    agents: ["backend"]
+
+  routing:
+    description: "URL structure and controller organization"
+    rules:
+      - rule_3_rest_routes
+    agents: ["backend"]
+
+  testing:
+    description: "Test methodology and quality standards"
+    rules:
+      - rule_4_tdd
+      - rule_18_webmock
+      - rule_19_no_system_tests
+    agents: ["tests", "backend", "frontend"]
+
+  frontend:
+    description: "UI component and interaction patterns"
+    rules:
+      - rule_7_turbo_morph
+      - rule_13_progressive_enhancement
+      - rule_15_viewcomponent
+    agents: ["frontend"]
+
+  backend:
+    description: "Business logic and data layer organization"
+    rules:
+      - rule_5_namespacing
+      - rule_12_fat_models
+    agents: ["backend"]
+
+  workflow:
+    description: "Development process and coordination"
+    rules:
+      - rule_6_architect_review
+      - rule_11_draft_prs
+      - rule_17_ci_must_pass
+    agents: ["architect"]
+
+  philosophy:
+    description: "Guiding principles for code quality"
+    rules:
+      - rule_8_be_concise
+      - rule_9_dont_overengineer
+      - rule_10_reduce_complexity
+      - rule_14_no_premature_optimization
+    agents: ["all"]
+
+  code_quality:
+    description: "Style and consistency standards"
+    rules:
+      - rule_16_double_quotes
+    agents: ["all"]
+    enforced_by: "rubocop"
+
 # === RULES WITH IMPLEMENTATION SKILLS ===
 
 rules_with_skills:

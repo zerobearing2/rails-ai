@@ -79,21 +79,24 @@ architect_delegation:
   # Security tasks
   security_task:
     condition: "involves_security OR vulnerability OR authentication OR authorization"
-    strategy: "security_first_then_fix"
+    strategy: "pair_programming"
+    note: "Security expertise centralized in @security (Phase 2). Use pairing for security-critical features."
     examples:
       - request: "Review authentication for vulnerabilities"
+        strategy: "audit_then_fix"
         phase_1:
           delegates_to: "security"
           task: "Audit authentication system for vulnerabilities"
         phase_2_if_issues:
-          delegates_to: "backend"
-          task: "Fix security issues found in audit"
+          agents: ["security", "backend"]
+          strategy: "pair_programming"
+          task: "Security guides fix design, Backend implements secure solution"
 
       - request: "Add rate limiting to API endpoints"
-        delegates_to: "backend"
-        task: "Add Rails 8.1 rate_limit DSL to controllers"
-        coordinate_with: "security"
-        task_security: "Review rate limiting strategy"
+        agents: ["security", "backend"]
+        strategy: "pair_programming"
+        task: "Design rate limiting strategy together, implement with Rails 8.1 rate_limit DSL"
+        why: "Rate limiting is security control - pair to design correctly"
 
   # Testing tasks
   testing_task:
@@ -247,6 +250,137 @@ parallel_vs_sequential:
   execution_pattern:
     parallel: "Single message with multiple Task tool calls"
     sequential: "Wait for completion, then next task"
+
+pair_programming_patterns:
+  description: "When agents should pair program (real-time collaboration) vs. sequential delegation"
+
+  decision_criteria:
+    use_pairing_when:
+      - "Security-critical features (user input, auth, file uploads, database queries)"
+      - "Full-stack features requiring API contract coordination"
+      - "Complex testing scenarios (mocking, edge cases, test strategy)"
+      - "Performance-critical work (N+1, caching, optimization)"
+
+    use_sequential_when:
+      - "Simple CRUD operations (single domain)"
+      - "Read-only features (low risk)"
+      - "Single-agent expertise sufficient"
+      - "No cross-domain coordination needed"
+
+  # Security-Critical Pairing
+  security_critical_pairing:
+    when:
+      - "User input processing (forms, search, filters)"
+      - "Authentication or authorization features"
+      - "File upload handling"
+      - "Database queries with user data"
+      - "System command execution"
+      - "API endpoints accepting external data"
+
+    agents: ["security", "backend"]  # or "frontend" depending on implementation layer
+    coordination_strategy: "Build security in from design, not review after"
+
+    execution_pattern: "Single Task tool call with both agents"
+
+    examples:
+      - request: "Add file upload for user avatars"
+        agents: ["security", "backend"]
+        task: "Implement secure file upload with validation, sanitization, and storage"
+        why: "File uploads are security-critical (OWASP A04:2021)"
+
+      - request: "Implement user authentication"
+        agents: ["security", "backend"]
+        task: "Design and implement authentication system with security best practices"
+        why: "Auth is highest security risk"
+
+      - request: "Add search with user input"
+        agents: ["security", "backend"]
+        task: "Implement search with SQL injection protection and input sanitization"
+        why: "User input requires SQL injection prevention"
+
+  # Full-Stack Pairing
+  full_stack_pairing:
+    when:
+      - "Backend API + Frontend UI needed"
+      - "Data contract between layers"
+      - "Real-time updates (Turbo Streams)"
+      - "Complex form submissions"
+
+    agents: ["backend", "frontend"]
+    coordination_strategy: "Agree on API contract first, then implement in parallel"
+
+    execution_pattern: "Single Task tool call with both agents"
+
+    examples:
+      - request: "Add categories feature with filtering UI"
+        agents: ["backend", "frontend"]
+        task: "Backend creates Category model/controller, Frontend builds UI - coordinate on JSON structure"
+        why: "Requires data contract agreement upfront"
+
+      - request: "Implement real-time notifications"
+        agents: ["backend", "frontend"]
+        task: "Backend sets up Turbo Streams, Frontend handles UI updates - coordinate on channel structure"
+        why: "Real-time features need tight coordination"
+
+  # Testing Pairing
+  testing_pairing:
+    when:
+      - "Complex mocking needed (external APIs, time-dependent)"
+      - "Edge cases requiring test strategy"
+      - "Test performance optimization"
+      - "Advanced Minitest features needed"
+
+    agents: ["tests", "backend"]  # or "frontend" depending on what's being tested
+    coordination_strategy: "Design test approach together, especially mocking strategy"
+
+    execution_pattern: "Single Task tool call with both agents"
+
+    examples:
+      - request: "Test external API integration"
+        agents: ["tests", "backend"]
+        task: "Design mocking strategy and implement API client with comprehensive tests"
+        why: "External APIs need WebMock strategy"
+
+      - request: "Test time-dependent business logic"
+        agents: ["tests", "backend"]
+        task: "Design time mocking approach and implement feature with tests"
+        why: "Time-dependent code needs careful test design"
+
+  # Performance/Debugging Pairing
+  performance_debug_pairing:
+    when:
+      - "N+1 query issues"
+      - "Memory leaks or high memory usage"
+      - "Slow endpoints or timeouts"
+      - "Database performance problems"
+
+    agents: ["debug", "backend"]  # or "frontend" for client-side performance
+    coordination_strategy: "Investigate together, fix with domain expertise"
+
+    execution_pattern: "Single Task tool call with both agents"
+
+    examples:
+      - request: "Fix N+1 query in feedback list"
+        agents: ["debug", "backend"]
+        task: "Debug identifies N+1 with Bullet, Backend adds includes/preload"
+        why: "Debug finds issue, Backend has ActiveRecord expertise"
+
+      - request: "Optimize slow dashboard page"
+        agents: ["debug", "frontend"]
+        task: "Debug profiles performance, Frontend optimizes rendering/interactions"
+        why: "Client-side performance needs Frontend expertise"
+
+  # When NOT to Pair
+  no_pairing_needed:
+    when:
+      - "Simple model changes (add field, validation)"
+      - "UI styling tweaks (CSS, Tailwind)"
+      - "Configuration updates"
+      - "Documentation updates"
+      - "Simple bug fixes (typo, missing validation)"
+
+    strategy: "Single agent delegation"
+    reason: "Single domain, low risk, no coordination needed"
 
 team_rules_enforcement:
   description: "How to enforce TEAM_RULES.md violations"

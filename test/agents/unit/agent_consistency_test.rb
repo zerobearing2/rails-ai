@@ -61,11 +61,14 @@ class AgentConsistencyTest < Minitest::Test
                  "AGENTS.md should not reference old 6 or 8-agent architecture")
   end
 
-  def test_decision_matrices_match_agents
-    decision_matrices = YAML.load_file("rules/DECISION_MATRICES.yml")
+  def test_architect_decisions_match_agents
+    architect_decisions = YAML.load_file("rules/ARCHITECT_DECISIONS.yml")
 
-    # Check keyword_lookup section references valid agents
-    keyword_lookup = decision_matrices["keyword_lookup"]
+    # Check agent_selection_quick_lookup section references valid agents
+    quick_lookup = architect_decisions["agent_selection_quick_lookup"]
+    skip unless quick_lookup
+
+    keyword_lookup = quick_lookup["keywords_to_agent"]
     skip unless keyword_lookup
 
     existing_agents = Dir.glob("agents/*.md").map { |f| File.basename(f, ".md") }
@@ -75,7 +78,7 @@ class AgentConsistencyTest < Minitest::Test
 
       if agent_name.match?(/^(architect|plan|backend|frontend|tests|security|debug)$/)
         assert_includes existing_agents, agent_name,
-                        "DECISION_MATRICES.yml references non-existent agent '#{agent_name}'"
+                        "ARCHITECT_DECISIONS.yml references non-existent agent '#{agent_name}'"
       end
     end
   end

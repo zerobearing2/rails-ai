@@ -98,6 +98,68 @@ rule_index:
 
 ---
 
+<domain-index id="rules-by-domain">
+
+## Rules by Domain
+
+**Quick navigation by technical concern - all 19 rules organized by domain.**
+
+### Stack Architecture & Technology
+Rules governing technology choices and infrastructure.
+
+- **Rule #1:** [Solid Stack Only](#1-solid-stack-only) - Use SolidQueue/SolidCache/SolidCable (no Redis/Sidekiq)
+- **Rule #2:** [Minitest Only](#2-minitest-only-no-rspec) - Use Minitest for all tests (no RSpec)
+
+### Routing & Controllers
+Rules for URL structure and controller organization.
+
+- **Rule #3:** [RESTful Routes Only](#3-restful-routes-only-no-custom-actions) - REST resources only (create child controllers for custom actions)
+- **Rule #12:** [Fat Models, Thin Controllers](#12-fat-models-thin-controllers) - Business logic in models, controllers coordinate
+
+### Testing
+Rules for test methodology and quality standards.
+
+- **Rule #4:** [TDD Always](#4-tdd-always-red-green-refactor) - Write tests FIRST (RED-GREEN-REFACTOR)
+- **Rule #18:** [WebMock: No Live HTTP in Tests](#18-webmock-no-live-http-in-tests) - Mock external requests (use WebMock)
+- **Rule #19:** [No System Tests](#19-no-system-tests-deprecated) - Use integration tests instead
+
+### Frontend
+Rules for UI components and interaction patterns.
+
+- **Rule #7:** [Turbo Morph Default](#7-turbo-morph-default-stream-only-when-needed) - Prefer Turbo Morph over Streams
+- **Rule #13:** [Progressive Enhancement](#13-progressive-enhancement) - Features work without JavaScript
+- **Rule #15:** [ViewComponent for All UI](#15-viewcomponent-for-all-ui) - Use ViewComponent for reusable UI
+
+### Backend & Data Layer
+Rules for business logic and data organization.
+
+- **Rule #5:** [Proper Namespacing](#5-proper-namespacing) - Use module namespacing (Feedbacks::, not FeedbacksHelper)
+- **Rule #12:** [Fat Models, Thin Controllers](#12-fat-models-thin-controllers) - Business logic in models
+
+### Workflow & Process
+Rules for development process and team coordination.
+
+- **Rule #6:** [Architect Reviews Everything](#6-architect-reviews-everything) - @architect coordinates all work
+- **Rule #11:** [Draft PRs & Code Reviews](#11-draft-prs-code-reviews) - Open PRs as drafts, request reviews
+- **Rule #17:** [bin/ci Must Pass](#17-binci-must-pass) - All checks pass before merge
+
+### Philosophy & Principles
+Guiding principles for code quality and decision-making.
+
+- **Rule #8:** [Be Concise](#8-be-concise-resist-over-engineering) - Simple solutions over complex abstractions
+- **Rule #9:** [Don't Over-Engineer](#9-dont-over-engineer-yagni) - YAGNI - build what you need now
+- **Rule #10:** [Reduce Complexity Always](#10-reduce-complexity-always) - Simplicity over cleverness
+- **Rule #14:** [No Premature Optimization](#14-no-premature-optimization) - Optimize what you measure, not imagine
+
+### Code Quality & Style
+Standards for consistency and maintainability.
+
+- **Rule #16:** [Double Quotes Always](#16-double-quotes-always) - Use double quotes for strings (enforced by Rubocop)
+
+</domain-index>
+
+---
+
 ## Core Principles
 
 1. **Convention over Configuration** - Follow Rails conventions religiously

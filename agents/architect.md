@@ -611,9 +611,9 @@ Phase 2 (Sequential, after Phase 1):
 <decision-matrix>
 ## Decision Framework
 
-**Machine-Readable Decision Logic**: [DECISION_MATRICES.yml](../DECISION_MATRICES.yml)
+**Machine-Readable Decision Logic**: [ARCHITECT_DECISIONS.yml](../rules/ARCHITECT_DECISIONS.yml)
 
-**Quick Agent Selection**: Use keyword lookup in DECISION_MATRICES.yml for instant routing.
+**Quick Agent Selection**: Use keyword lookup in ARCHITECT_DECISIONS.yml for instant routing.
 
 ### When User Makes a Request:
 

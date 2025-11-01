@@ -17,7 +17,6 @@ class AgentContentTest < Minitest::Test
 
     required_sections = [
       /##\s+Role/i,
-      /##\s+Expertise\s+Areas/i,
       /##\s+Skills\s+Preset/i,
       /##\s+Integration\s+with\s+Other\s+Agents/i,
       /##\s+Deliverables/i

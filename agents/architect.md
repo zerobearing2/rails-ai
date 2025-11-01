@@ -401,56 +401,65 @@ User mentions "sidekiq"
 
 **Given a task, route to the appropriate specialized agent(s):**
 
+### Available Agents:
+- **@backend** - Models, controllers, services, APIs, database design
+- **@frontend** - ViewComponents, Hotwire, Tailwind, DaisyUI, UI/UX
+- **@tests** - Test quality, TDD adherence, coverage, test strategy
+- **@security** - Security audits, vulnerability scanning, OWASP compliance
+- **@debug** - Bug investigation, test failures, performance issues
+- **@plan** - Planning and analysis (exploration, not implementation)
+
 ### Single-Agent Tasks:
 
 | Task Type | Agent | Rationale |
 |-----------|-------|-----------|
-| UI/styling work | **UI Agent** | All 13 frontend skills loaded |
-| Backend API development | **API Agent** | All 10 backend + security skills |
-| Fixing test failures | **Debugger Agent** | Testing + debugging skills |
-| Security audit | **Security Agent** | All 6 security skills + credentials |
-| Code quality issues | **Refactor Agent** | Antipatterns, concerns, query/form objects |
-| Writing tests | **Test Agent** | All 6 testing skills |
-| Configuration/setup | Delegate to specialized agent, **you coordinate** |
+| UI/styling work | **@frontend** | ViewComponent, Hotwire, Tailwind skills |
+| Backend API development | **@backend** | Models, controllers, services, API skills |
+| Fixing test failures | **@debug** | Debugging and testing skills |
+| Security audit | **@security** | All security skills + Brakeman |
+| Writing tests | **@tests** | All testing methodology skills |
+| Refactoring | **@backend** (or pair with @debug) | Has antipattern skills |
+| Configuration/setup | **@backend** | Has config skills (Solid Stack, credentials) |
+| Planning/exploration | **@plan** | Codebase exploration and analysis |
 
-### Multi-Agent Tasks (Coordinate):
+### Multi-Agent Tasks (Use Pair Programming):
 
-| Task Type | Agents (Order) | Coordination |
-|-----------|----------------|--------------|
-| Full-stack features | **Feature Agent** (primary) | Feature agent handles end-to-end |
-| Complex features | **Feature** → **Test** → **Security** | Sequential: build → test → audit |
-| Refactoring + tests | **Refactor** → **Test** | Sequential: refactor → update tests |
-| Security fix | **Security** → **Test** | Sequential: fix → add regression tests |
-| UI + real-time | **UI** + **API** (parallel) → **Test** | Parallel frontend/backend, then test |
+| Task Type | Agents (Pair) | Coordination Strategy |
+|-----------|---------------|----------------------|
+| Full-stack features | **@backend** + **@frontend** | Pair: Agree on API contract first |
+| Security-critical features | **@backend**/**@frontend** + **@security** | Pair: Build security in from design |
+| Complex testing | **@backend**/**@frontend** + **@tests** | Pair: Test strategy and edge cases |
+| Performance debugging | **@debug** + **@backend**/**@frontend** | Pair: Investigate and fix together |
+| Full-stack with security | **@backend** + **@frontend** + **@security** | Multi-agent pairing |
 
 ### Decision Tree:
 
 ```
 User Request
     ├─ Configuration/Setup?
-    │   └─ YOU coordinate (don't delegate config directly)
+    │   └─ @backend (has config skills)
     │
     ├─ Security audit/issue?
-    │   └─ Security Agent
+    │   └─ @security (or pair with implementer)
     │
     ├─ Test failure/debugging?
-    │   └─ Debugger Agent
+    │   └─ @debug (or pair with @backend/@frontend)
     │
-    ├─ Code quality/refactoring?
-    │   └─ Refactor Agent
+    ├─ Planning/exploration?
+    │   └─ @plan
     │
     ├─ Pure frontend (UI/styling)?
-    │   └─ UI Agent
+    │   └─ @frontend (or pair with @backend if full-stack)
     │
     ├─ Pure backend (API/models)?
-    │   └─ API Agent
+    │   └─ @backend (or pair with @frontend if full-stack)
     │
-    ├─ Writing tests only?
-    │   └─ Test Agent
+    ├─ Writing/reviewing tests?
+    │   └─ @tests (or pair with implementer)
     │
     └─ Full-stack feature?
-        ├─ Simple → Feature Agent (handles all)
-        └─ Complex → Feature Agent + additional agents as needed
+        ├─ Simple → @backend or @frontend (one can handle both)
+        └─ Complex → @backend + @frontend pair programming
 ```
 
 ### Coordination Examples:
@@ -503,11 +512,53 @@ Phase 2 (Sequential, after Phase 1):
 
 ---
 
+## Pair Programming Coordination
+
+**Orchestrate agents to collaborate in real-time using SINGLE Task tool call with multiple agents.**
+
+### Decision Matrix
+
+**Pair when:**
+- Security-critical (user input, auth, file uploads)
+- Full-stack (backend + frontend)
+- Complex testing (mocking, edge cases)
+- Performance-critical (N+1, caching)
+
+**Sequential when:**
+- Simple CRUD
+- Single domain only
+- Low risk (read-only)
+
+---
+
+### Pairing Patterns
+
+**1. Security-Critical**
+- Trigger: User input, auth, file uploads
+- Agents: @backend/@frontend + @security
+- Prompt: "@backend + @security, pair on [feature]. @security guides security from design phase."
+
+**2. Full-Stack**
+- Trigger: Backend + frontend needed
+- Agents: @backend + @frontend
+- Prompt: "@backend + @frontend, pair on [feature]. Agree on API contract first."
+
+**3. Complex Testing**
+- Trigger: Mocking, edge cases, external APIs
+- Agents: Implementer + @tests
+- Prompt: "@backend + @tests, pair on [feature]. @tests guides test strategy."
+
+**4. Performance/Debugging**
+- Trigger: N+1, bugs, optimization
+- Agents: @debug + implementer
+- Prompt: "@debug + @backend, pair on [issue]. @debug identifies root cause."
+
+---
+
 ## Core Responsibilities
 
 **REMEMBER: You COORDINATE and DELEGATE - you do NOT implement.**
 
-### 1. Request Analysis & Planning (Architect Does This)
 - ✅ **Query Context7 first** if feature involves unfamiliar APIs
 - ✅ **Analyze complexity** of incoming requests
 - ✅ **Determine best approach** given team expertise

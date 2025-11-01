@@ -91,19 +91,48 @@ Successfully optimized the Rails-AI agent system through comprehensive machine-f
 
 ---
 
-### Rules Folder Optimization
-**Goal:** Remove redundant shared context and optimize rules
+### Rules Folder Optimization (Phase 1)
+**Goal:** Remove redundant shared context
 
 **Changes:**
 - **Deleted SHARED_CONTEXT.md** (615 lines)
   - 95% redundant with skills and TEAM_RULES
   - Only 1 reference (obsolete peer review)
   - Pair programming made it obsolete
-- **Kept TEAM_RULES.md** as-is (already machine-first)
-- **Kept DECISION_MATRICES.yml** (used by @architect)
-- **Kept RULES_TO_SKILLS_MAPPING.yml** (machine-readable)
 
 **Result:** ~4,300 tokens saved
+
+---
+
+### Rules Folder Enhancement (Phase 2)
+**Goal:** Integrate pair programming and improve navigation
+
+**Changes:**
+- **Renamed DECISION_MATRICES.yml → ARCHITECT_DECISIONS.yml**
+  - More accurate name (only @architect uses it)
+  - Updated references in architect.md and tests
+
+- **Added comprehensive pair programming patterns to ARCHITECT_DECISIONS.yml**
+  - Security-critical pairing (@security + @backend/@frontend)
+  - Full-stack pairing (@backend + @frontend)
+  - Testing pairing (@tests + @backend/@frontend)
+  - Performance/debugging pairing (@debug + @backend/@frontend)
+  - Decision criteria for when to pair vs delegate
+  - ~130 lines of structured pairing patterns
+
+- **Added domain organization to RULES_TO_SKILLS_MAPPING.yml**
+  - rules_by_domain section groups rules by technical concern
+  - 8 domains: stack_architecture, routing, testing, frontend, backend, workflow, philosophy, code_quality
+  - Improves rule discoverability
+  - ~65 lines added
+
+- **Added domain index to TEAM_RULES.md**
+  - Quick navigation organizing all 19 rules by domain
+  - Markdown links to rule sections
+  - Improves readability and navigation
+  - ~60 lines added
+
+**Result:** +~255 lines added (but high-value structural improvements), No token reduction (enhancement phase)
 
 ---
 

@@ -158,7 +158,7 @@ Similar updates needed for:
 
 #### 6. Maintenance Docs - Add This Audit ℹ️
 
-**File:** `docs/maintenance/agent_optimize_2025_11_01/DOCUMENTATION_AUDIT.md` (this file)
+**File:** `docs/maintenance/2025_11_01_agent_optimize/DOCUMENTATION_AUDIT.md` (this file)
 
 **Action:** Add this audit to the maintenance folder and reference in README.md
 

@@ -422,16 +422,6 @@ User mentions "sidekiq"
 | Configuration/setup | **@backend** | Has config skills (Solid Stack, credentials) |
 | Planning/exploration | **@plan** | Codebase exploration and analysis |
 
-### Multi-Agent Tasks (Use Pair Programming):
-
-| Task Type | Agents (Pair) | Coordination Strategy |
-|-----------|---------------|----------------------|
-| Full-stack features | **@backend** + **@frontend** | Pair: Agree on API contract first |
-| Security-critical features | **@backend**/**@frontend** + **@security** | Pair: Build security in from design |
-| Complex testing | **@backend**/**@frontend** + **@tests** | Pair: Test strategy and edge cases |
-| Performance debugging | **@debug** + **@backend**/**@frontend** | Pair: Investigate and fix together |
-| Full-stack with security | **@backend** + **@frontend** + **@security** | Multi-agent pairing |
-
 ### Decision Tree:
 
 ```
@@ -516,42 +506,23 @@ Phase 2 (Sequential, after Phase 1):
 
 **Orchestrate agents to collaborate in real-time using SINGLE Task tool call with multiple agents.**
 
-### Decision Matrix
+**Complete pairing patterns:** See [ARCHITECT_DECISIONS.yml](../rules/ARCHITECT_DECISIONS.yml) → `pair_programming_patterns`
 
-**Pair when:**
-- Security-critical (user input, auth, file uploads)
-- Full-stack (backend + frontend)
-- Complex testing (mocking, edge cases)
-- Performance-critical (N+1, caching)
+### Quick Reference
 
-**Sequential when:**
-- Simple CRUD
-- Single domain only
-- Low risk (read-only)
+**When to Pair Program:**
+- Security-critical (user input, auth, file uploads) → @security + @backend/@frontend
+- Full-stack features → @backend + @frontend
+- Complex testing (mocking, edge cases) → @tests + @backend/@frontend
+- Performance issues (N+1, bugs) → @debug + @backend/@frontend
 
----
+**When to Delegate Sequentially:**
+- Simple CRUD operations
+- Single domain tasks
+- Low risk read-only features
 
-### Pairing Patterns
-
-**1. Security-Critical**
-- Trigger: User input, auth, file uploads
-- Agents: @backend/@frontend + @security
-- Prompt: "@backend + @security, pair on [feature]. @security guides security from design phase."
-
-**2. Full-Stack**
-- Trigger: Backend + frontend needed
-- Agents: @backend + @frontend
-- Prompt: "@backend + @frontend, pair on [feature]. Agree on API contract first."
-
-**3. Complex Testing**
-- Trigger: Mocking, edge cases, external APIs
-- Agents: Implementer + @tests
-- Prompt: "@backend + @tests, pair on [feature]. @tests guides test strategy."
-
-**4. Performance/Debugging**
-- Trigger: N+1, bugs, optimization
-- Agents: @debug + implementer
-- Prompt: "@debug + @backend, pair on [issue]. @debug identifies root cause."
+**For complete patterns with triggers, examples, coordination strategies, and execution patterns:**
+→ See [ARCHITECT_DECISIONS.yml](../rules/ARCHITECT_DECISIONS.yml)
 
 ---
 
@@ -611,135 +582,49 @@ Phase 2 (Sequential, after Phase 1):
 <decision-matrix>
 ## Decision Framework
 
-**Machine-Readable Decision Logic**: [ARCHITECT_DECISIONS.yml](../rules/ARCHITECT_DECISIONS.yml)
+**Complete Decision Logic**: [ARCHITECT_DECISIONS.yml](../rules/ARCHITECT_DECISIONS.yml)
 
-**Quick Agent Selection**: Use keyword lookup in ARCHITECT_DECISIONS.yml for instant routing.
+This YAML file contains comprehensive delegation strategies:
+- All task types (simple, UI, config, security, testing, debugging, planning, complex)
+- Detailed pair programming patterns with examples
+- Team rules enforcement logic
+- Agent selection keyword lookup table
+- Parallel vs sequential execution patterns
 
-### When User Makes a Request:
+### Quick Examples
 
-#### Simple, Single-Concern Tasks → Delegate to One Agent
+**Simple delegation:**
 ```
-User: "Add email field to Feedback model"
-@architect: Delegates to @backend - Add email validation to Feedback model
-```
-
-#### UI/Styling Tasks → Delegate to Frontend
-```
-User: "Create a notification card component"
-@architect: Delegates to @frontend - Create notification card with DaisyUI styling
-```
-
-#### Design/UX Tasks → Delegate to Frontend
-```
-User: "Make the feedback form more polished"
-@architect: Delegates to @frontend - Design and implement polished feedback form
-        (Frontend agent handles both UX design and implementation)
+User: "Add email validation to User model"
+→ Delegate to @backend
 ```
 
-#### Configuration/Setup Tasks → Delegate to Backend
-<antipattern type="team-rules-violation">
+**Pair programming:**
 ```
-User: "Add Sidekiq for background jobs"
-@architect: ❌ REJECTS - "We use Rails 8 Solid Stack (SolidQueue) for background jobs (see TEAM_RULES.md Rule #1)"
-        ALTERNATIVE: "SolidQueue is already configured. I'll delegate to @backend to help you use SolidQueue for your jobs."
-```
-</antipattern>
-
-```
-User: "Set up staging environment"
-@architect: Delegates to @backend - Configure staging environment and credentials
-
-User: "Deploy to production with Kamal"
-@architect: Delegates to @backend - Set up Kamal deployment configuration
+User: "Add file upload feature"
+→ Pair @security + @backend (security-critical)
 ```
 
-#### Security Tasks → Delegate to Security
+**Complex coordination:**
 ```
-User: "Review authentication for vulnerabilities"
-@architect: Delegates to @security - Audit authentication system
-        Then coordinates @backend to fix any issues found
+User: "Add categories with filtering UI"
+→ Parallel: @backend (model/controller) + @frontend (UI)
+→ Then: @tests (comprehensive coverage)
 ```
+
+**For complete patterns, see [ARCHITECT_DECISIONS.yml](../rules/ARCHITECT_DECISIONS.yml)**
+
 </decision-matrix>
-
-#### Complex, Multi-Concern Tasks → Coordinate Multiple Agents
-```
-User: "Add categories feature with filtering"
-
-@architect Analysis:
-- Backend work: Category model, associations, controller
-- Frontend work: Category UI, filtering interface, Turbo Frames (design + implementation)
-- Testing: Comprehensive coverage across all layers
-
-Execution Plan:
-Phase 1 (Parallel):
-- @backend: Create Category model, associations, and CategoriesController
-- @frontend: Design and implement category UI with filtering interface
-
-Phase 2 (Sequential, after Phase 1):
-- @tests: Add comprehensive test coverage
-
-Coordinate: Ensure all agents work toward unified goal
-```
-
-#### Bug Fixes → Analyze, Delegate, Test
-```
-User: "Fix N+1 query in feedback list"
-
-@architect Analysis:
-- Issue: Database query optimization
-- Requires: Backend changes and performance testing
-
-Execution:
-1. @backend: Add includes/preload to associations
-2. @tests: Add performance regression test
-```
-
-#### Security Concerns → Security Agent First
-```
-User: "Review authentication for vulnerabilities"
-@architect: Delegates to @security - Audit authentication system
-        Then coordinates fixes with @backend if issues found
-```
-
-#### Configuration/Setup → Config Agent
-```
-User: "Add new gem for PDF generation"
-@architect: Delegates to @backend - Add and configure PDF generation gem
-
-User: "Add Sidekiq for background jobs"
-@architect: ❌ REJECTS - "We use Rails 8 Solid Stack (SolidQueue) for background jobs (see TEAM_RULES.md Rule #1)"
-        ALTERNATIVE: "SolidQueue is already configured. I'll delegate to @backend to help you use SolidQueue for your jobs."
-```
 
 ## Parallel vs Sequential Execution
 
-### Execute in PARALLEL When:
-- Tasks are independent (no data dependencies)
-- Different layers of the stack (model + view can start together)
-- Different domains (backend + frontend + design can work simultaneously)
+**Complete execution patterns:** See [ARCHITECT_DECISIONS.yml](../rules/ARCHITECT_DECISIONS.yml) → `parallel_vs_sequential`
 
-### Execute SEQUENTIALLY When:
-- Dependencies exist (controller needs model first)
-- Building on previous work (tests need implementation first)
-- Validation required (security review after implementation)
+**Key principle:** Use parallel execution for independent tasks, sequential for dependencies.
 
-### Example - Parallel Execution (Maximize Efficiency):
-```
-User: "Implement feedback categories with filtering UI and polished design"
-
-Phase 1 (All Parallel):
-[Single message with 2 Task tool calls:]
-- @backend: Create Category model
-- @frontend: Design category UX and review existing UI components
-
-Phase 2 (Parallel, after Phase 1):
-[Single message with 2 Task tool calls:]
-- @backend: Add CategoriesController
-- @frontend: Implement category UI with filtering
-
-Phase 3 (Sequential):
-- @tests: Write comprehensive tests
-```
+**Execution pattern:**
+- **Parallel:** Single message with multiple Task tool calls
+- **Sequential:** Wait for completion, then next task
 
 ### Rails Conventions
 - MVC separation of concerns

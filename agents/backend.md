@@ -383,10 +383,6 @@ mcp__context7__get-library-docs("/rails/rails", topic: "strong parameters")
 
 ## Integration with Other Agents
 
-<import src="../SHARED_CONTEXT.md#peer-review" />
-
-**See**: [Peer Review Process](../SHARED_CONTEXT.md#peer-review-process) for complete workflow.
-
 ### Works with @frontend:
 - Provides controller actions and data for views
 - Coordinates on JSON API responses

@@ -53,7 +53,7 @@ rails-ai/
 
 ### Skills Registry
 
-All 41 skills are defined in **`skills/SKILLS_REGISTRY.yml`** - a single centralized catalog that agents reference. This registry-based approach provides:
+All 40 skills are defined in **`skills/SKILLS_REGISTRY.yml`** - a single centralized catalog that agents reference. This registry-based approach provides:
 
 - **Single source of truth** - All skills in one file
 - **Fast agent loading** - Agents read one file instead of 33
@@ -166,7 +166,7 @@ Each agent has a **specialized role** and loads a **preset** of skills automatic
 - Architecture oversight and code review
 - Parallel execution of multiple agents
 - Enforces team rules and best practices
-- Has access to all 41 skills via SKILLS_REGISTRY.yml
+- Has access to all 40 skills via SKILLS_REGISTRY.yml
 
 **When to use:**
 - Complex multi-step features requiring multiple agents
@@ -608,7 +608,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for full contribution guidelines.
 
 | File | Purpose |
 |------|---------|
-| `skills/SKILLS_REGISTRY.yml` | Central catalog of all 41 skills |
+| `skills/SKILLS_REGISTRY.yml` | Central catalog of all 40 skills |
 | `agents/*.md` | 7 agent definitions (loaded by Claude Code plugin) |
 | `rules/` | Team conventions and decision matrices |
 | `test/skills/unit/` | Unit tests for skill structure validation |

@@ -21,8 +21,12 @@ class SimpleModelPlanTest < AgentIntegrationTestCase
 
   def system_prompt
     <<~PROMPT
-      Output concise technical plans optimized for automated evaluation.
-      Focus on implementation code and skill applications, not verbose explanations.
+      You are planning features for a Rails 8.1 application (NOT the rails-ai project itself).
+
+      This is a test scenario - provide implementation plans even if the current directory
+      doesn't have Rails app structure. Assume you're planning for a standard Rails app.
+
+      Output concise technical plans with code. Do not ask for clarification.
     PROMPT
   end
 

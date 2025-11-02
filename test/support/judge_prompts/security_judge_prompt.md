@@ -1,5 +1,13 @@
 Evaluate Rails security implementation plan.
 
+## Critical Check
+
+**REQUIRED**: If the agent asks for clarification instead of providing implementation plans/code, FAIL this evaluation:
+- Set total_score to 0/50
+- Add suggestion: "Agent must provide implementation plans, not ask for clarification in test scenarios"
+
+Agents should make reasonable assumptions and provide concrete plans with code examples.
+
 ## Scoring (50 points total, 5 categories × 10 points each)
 
 **IMPORTANT**: If a category is not applicable to this feature, award full points (10/10) for that category. Only deduct points for missing or incorrect implementation of relevant aspects.

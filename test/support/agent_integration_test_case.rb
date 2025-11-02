@@ -102,38 +102,31 @@ class AgentIntegrationTestCase < Minitest::Test
   private
 
   def run_agent
-    # Create temp files for prompts
-    system_prompt_file = Tempfile.new(["system_prompt", ".txt"])
-    agent_prompt_file = Tempfile.new(["agent_prompt", ".txt"])
+    log_live "  Invoking Claude CLI with agent prompt..."
+    log_live "  " + ("-" * 76)
 
-    begin
-      system_prompt_file.write(system_prompt)
-      system_prompt_file.flush
+    # Run claude CLI with streaming output
+    cmd = [
+      "claude",
+      "--print",
+      "--stream",
+      "--system-prompt",
+      system_prompt
+    ]
 
-      agent_prompt_file.write(agent_prompt)
-      agent_prompt_file.flush
+    stdout, stderr, status = run_command_with_streaming(cmd, agent_prompt)
 
-      # Run claude CLI
-      cmd = [
-        "claude",
-        "--print",
-        "--system-prompt",
-        system_prompt
-      ]
+    log_live "  " + ("-" * 76)
 
-      stdout, stderr, status = Open3.capture3(*cmd, stdin_data: agent_prompt)
-
-      unless status.success?
-        raise "Claude CLI failed with status #{status.exitstatus}:\n#{stderr}"
-      end
-
-      stdout
-    ensure
-      system_prompt_file.close
-      system_prompt_file.unlink
-      agent_prompt_file.close
-      agent_prompt_file.unlink
+    unless status.success?
+      log_live "  ✗ ERROR: Claude CLI failed!"
+      log_live ""
+      log_live "Exit status: #{status.exitstatus}"
+      log_live "STDERR: #{stderr}" unless stderr.empty?
+      raise "Claude CLI failed with status #{status.exitstatus}"
     end
+
+    stdout
   end
 
   def judge_output(agent_output)
@@ -167,24 +160,19 @@ class AgentIntegrationTestCase < Minitest::Test
     coordinator_prompt = build_coordinator_judge_prompt(agent_output)
 
     log_live "  Invoking Claude CLI for parallel judging..."
+    log_live "  " + ("-" * 76)
 
-    # Run claude CLI once with parallel tasks
-    stdout, stderr, status = Open3.capture3(
-      "claude",
-      "--print",
-      stdin_data: coordinator_prompt
-    )
+    # Run claude CLI once with parallel tasks (with streaming)
+    cmd = ["claude", "--print", "--stream"]
+    stdout, stderr, status = run_command_with_streaming(cmd, coordinator_prompt)
+
+    log_live "  " + ("-" * 76)
 
     unless status.success?
       log_live "  ✗ ERROR: Coordinator judge failed!"
       log_live ""
       log_live "Exit status: #{status.exitstatus}"
-      log_live ""
-      log_live "STDERR:"
-      log_live stderr
-      log_live ""
-      log_live "STDOUT:"
-      log_live stdout
+      log_live "STDERR: #{stderr}" unless stderr.empty?
       log_live ""
 
       raise "Coordinator judge failed with status #{status.exitstatus}. See live log for details."
@@ -571,5 +559,45 @@ class AgentIntegrationTestCase < Minitest::Test
 
     # Also print to stdout for immediate feedback
     puts message
+  end
+
+  def run_command_with_streaming(cmd, stdin_data)
+    # Run command and stream output to live log in real-time
+    stdout_data = []
+    stderr_data = []
+
+    Open3.popen3(*cmd) do |stdin, stdout, stderr, wait_thr|
+      # Write input
+      stdin.write(stdin_data)
+      stdin.close
+
+      # Read stdout and stderr in real-time
+      # Use select to read from both streams without blocking
+      streams = [stdout, stderr]
+      until streams.all?(&:eof?)
+        ready = IO.select(streams, nil, nil, 0.1)
+        next unless ready
+
+        ready[0].each do |stream|
+          begin
+            data = stream.read_nonblock(4096)
+            if stream == stdout
+              stdout_data << data
+              # Stream stdout to live log (this is the LLM output!)
+              log_live(data.chomp) unless data.strip.empty?
+            else
+              stderr_data << data
+            end
+          rescue IO::WaitReadable
+            # Not ready yet, will try again
+          rescue EOFError
+            # Stream ended
+          end
+        end
+      end
+
+      status = wait_thr.value
+      [stdout_data.join, stderr_data.join, status]
+    end
   end
 end

@@ -30,13 +30,9 @@ class SimpleModelPlanTest < AgentIntegrationTestCase
     <<~PROMPT
       @rails-ai:architect
 
-      Plan implementation for Article model. Coordinate with specialist agents for complete plan.
+      I'm working on a blog application (Rails 8.1.1) and need to add articles. We already have users set up. Here's what we have so far:
 
-      ## Current Application State
-
-      You are working on a **Rails 8.1.1 blog application** with the following existing code:
-
-      ### app/models/user.rb
+      **app/models/user.rb**
       ```ruby
       class User < ApplicationRecord
         validates :name, presence: true
@@ -44,7 +40,7 @@ class SimpleModelPlanTest < AgentIntegrationTestCase
       end
       ```
 
-      ### db/schema.rb (excerpt)
+      **db/schema.rb** (excerpt)
       ```ruby
       ActiveRecord::Schema[8.1].define(version: 2025_11_01_120000) do
         create_table "users", force: :cascade do |t|
@@ -58,31 +54,22 @@ class SimpleModelPlanTest < AgentIntegrationTestCase
       end
       ```
 
-      ### config/routes.rb
+      **config/routes.rb**
       ```ruby
       Rails.application.routes.draw do
         resources :users, only: [:index, :show]
       end
       ```
 
-      ## Article Model Requirements
+      For the Article model, I need:
+      - A title (required, max 200 characters)
+      - A body (required, can be long)
+      - An optional published_at timestamp
+      - Link to the author (the User who wrote it)
 
-      Attributes:
-      - title: string, required, max 200 chars
-      - body: text, required
-      - published_at: datetime, optional
-      - author_id: integer, required FK → users
+      Users should be able to have many articles. Also, we'll need a way to query for published articles (ones that have a published_at date in the past).
 
-      Implementation:
-      - Validations on all fields
-      - belongs_to :author (User)
-      - User has_many :articles
-      - Scope: published (published_at not null, in past)
-      - Reversible migration with indexes
-      - Model tests
-
-      Output: Complete code for model, migration, User changes, tests.
-      Be concise - evaluated programmatically.
+      Can you plan out the model, migration, update the User model for the association, and include tests? Make sure the migration is reversible and has proper indexes.
     PROMPT
   end
 

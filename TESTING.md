@@ -132,7 +132,7 @@ This creates `test/unit/skills/my-skill_test.rb` with standard test structure.
 
 **Architecture:**
 - **LLM Adapter Pattern**: Tests use an adapter interface (`LLMAdapter`) for flexibility. Current implementation uses `ClaudeAdapter` with Claude CLI, but this pattern allows easy addition of other LLMs (e.g., Codex) in the future.
-- **True Streaming**: Uses `--output-format stream-json --include-partial-messages` for real-time token-by-token streaming output visibility in live logs.
+- **Streaming to Log File**: Uses `--output-format stream-json --include-partial-messages` to stream LLM responses token-by-token to `tmp/test/integration/live.log` for debugging. Console shows only periodic status updates for clean output.
 - **Parallel Judging**: Single coordinated LLM call evaluates all 4 domains in parallel, leveraging the LLM's native parallel task execution instead of Ruby threads.
 - **File-Based Evaluation**: Agent output is written to a temp file and referenced in the judge prompt (via the Read tool) to avoid exceeding token limits with large implementation plans.
 
@@ -176,22 +176,24 @@ rake test:integration  # ❌ Disabled - shows error message
 ```
 
 **Live Output:**
-Integration tests stream output to **both console and log file** with **true real-time streaming**:
+Integration tests provide clean console output with detailed logging:
 
-1. **Console (stdout)**: You see LLM responses streaming token-by-token in real-time directly in your terminal
-2. **Log file**: Saved to `tmp/test/integration/live.log` for later review
+1. **Console (stdout)**: Shows periodic status updates for clean, readable progress
+   - Step markers (Step 1/2, Step 2/2)
+   - Status messages ("Invoking...", "✓ Completed in X.Xs")
+   - Timing information and final results
 
-The test will show:
-- Progress markers (Step 1/2, Step 2/2) immediately
-- **LLM responses streaming token-by-token** as they're generated
-- Timing information and status updates throughout execution
+2. **Log file**: Full streaming output saved to `tmp/test/integration/live.log`
+   - Real-time token-by-token LLM responses for debugging
+   - Complete transcript of agent and judge outputs
+   - Useful for troubleshooting issues
 
-**Optional**: If you want to watch the log file in a separate terminal:
+**Monitoring the log file** (optional):
 ```bash
 tail -f tmp/test/integration/live.log
 ```
 
-But this is not necessary - you'll see everything in your main terminal where you ran the test.
+This lets you see the detailed LLM streaming output while the test runs, but it's not necessary - the console provides sufficient progress updates.
 
 **When to Run Integration Tests:**
 - Before releasing a new version

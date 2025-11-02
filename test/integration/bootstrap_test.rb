@@ -43,20 +43,18 @@ class BootstrapTest < AgentIntegrationTestCase
     # Step 1: Run the agent
     log_live "Step 1/1: Running agent (testing LLM adapter + streaming)..."
     log_live "  Invoking #{llm_adapter.name} with agent prompt..."
-    log_live "  " + ("-" * 76)
+    log_live "  (Streaming to log file, this may take a few seconds...)"
 
     agent_start = Time.now
     agent_output = llm_adapter.execute(
       prompt: agent_prompt,
       system_prompt: system_prompt,
       streaming: true,
-      on_chunk: ->(text) { log_live(text, newline: false) }
+      on_chunk: ->(text) { log_live(text, newline: false, console: false) }
     )
     agent_duration = Time.now - agent_start
 
-    log_live ""
-    log_live "  " + ("-" * 76)
-    log_live "✓ Agent completed in #{format_duration(agent_duration)}"
+    log_live "  ✓ Agent completed in #{format_duration(agent_duration)}"
 
     # Skip judging - not needed for bootstrap test
     log_live "\nSkipping judging (bootstrap test only verifies infrastructure)"

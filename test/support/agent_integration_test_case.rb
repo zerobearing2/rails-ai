@@ -117,18 +117,17 @@ class AgentIntegrationTestCase < Minitest::Test
 
   def run_agent
     log_live "  Invoking #{llm_adapter.name} with agent prompt..."
-    log_live "  " + ("-" * 76)
+    log_live "  (This may take several minutes...)"
 
-    # Use LLM adapter with streaming support
+    # Stream to log file but not console
     agent_output = llm_adapter.execute(
       prompt: agent_prompt,
       system_prompt: system_prompt,
       streaming: true,
-      on_chunk: ->(text) { log_live(text, newline: false) }
+      on_chunk: ->(text) { log_live(text, newline: false, console: false) }
     )
 
-    log_live ""  # Final newline after streaming completes
-    log_live "  " + ("-" * 76)
+    log_live "  ✓ Agent response received"
 
     agent_output
   rescue StandardError => e
@@ -175,17 +174,16 @@ class AgentIntegrationTestCase < Minitest::Test
     coordinator_prompt = build_coordinator_judge_prompt(agent_output_file)
 
     log_live "  Invoking #{llm_adapter.name} for parallel judging..."
-    log_live "  " + ("-" * 76)
+    log_live "  (This may take several minutes...)"
 
-    # Use LLM adapter with streaming support
+    # Stream to log file but not console
     judge_output = llm_adapter.execute(
       prompt: coordinator_prompt,
       streaming: true,
-      on_chunk: ->(text) { log_live(text, newline: false) }
+      on_chunk: ->(text) { log_live(text, newline: false, console: false) }
     )
 
-    log_live ""  # Final newline after streaming completes
-    log_live "  " + ("-" * 76)
+    log_live "  ✓ Judging complete"
     log_live "  Parsing domain judgments from coordinator response..."
 
     # Parse the coordinated response to extract each domain's judgment
@@ -565,7 +563,7 @@ class AgentIntegrationTestCase < Minitest::Test
     puts "  Tail with: tail -f #{@live_log_file}\n\n"
   end
 
-  def log_live(message, newline: true)
+  def log_live(message, newline: true, console: true)
     # Write to log file
     File.open(@live_log_file, "a") do |f|
       if newline
@@ -576,7 +574,9 @@ class AgentIntegrationTestCase < Minitest::Test
       f.flush
     end
 
-    # Also print to stdout for immediate feedback
+    # Optionally print to stdout (default: true for status updates)
+    return unless console
+
     if newline
       puts message
     else

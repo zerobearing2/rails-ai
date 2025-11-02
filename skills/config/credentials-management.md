@@ -410,7 +410,7 @@ Rails.application.credentials.dig(:stripe, :secret_key)
 - security-strong-parameters
 - security-csrf
 - config-environment-variables
-- deployment-kamal
+- docker-rails-setup
 </related-skills>
 
 <resources>

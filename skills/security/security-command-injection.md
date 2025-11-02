@@ -449,7 +449,7 @@ end
 - security-sql-injection - SQL injection prevention
 - file-uploads - Safe file handling
 - activestorage - Image processing without shell
-- background-jobs - Isolating risky operations
+- solid-stack-setup - Isolating risky operations
 </related-skills>
 
 <resources>

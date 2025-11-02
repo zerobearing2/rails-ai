@@ -346,7 +346,7 @@ end
 
 <related-skills>
 - strong-parameters - Secure parameter filtering
-- activerecord-queries - Efficient database queries
+- activerecord-patterns - Efficient ActiveRecord patterns
 - hotwire-turbo - Turbo Frame/Stream responses
 </related-skills>
 

@@ -391,7 +391,7 @@ end
 </testing>
 
 <related-skills>
-- background-jobs - Using SolidQueue for email delivery
+- solid-stack-setup - Using SolidQueue for email delivery
 - activerecord-callbacks - Triggering emails from model callbacks
 - form-objects - Sending emails from form objects
 - testing-minitest - Testing strategies for mailers

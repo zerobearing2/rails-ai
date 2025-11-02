@@ -282,7 +282,7 @@ end
 
 <related-skills>
 - strong-parameters - Filter allowed parameters
-- activerecord-queries - Safe query patterns
+- activerecord-patterns - Efficient ActiveRecord patterns
 - security-xss - Output escaping
 </related-skills>
 

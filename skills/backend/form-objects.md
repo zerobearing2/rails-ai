@@ -661,7 +661,7 @@ end
 <related-skills>
 - activemodel-validations - Custom validations
 - controller-restful - Using in controllers
-- service-objects - Services vs forms
+
 </related-skills>
 
 <resources>

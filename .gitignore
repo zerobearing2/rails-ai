@@ -29,3 +29,6 @@ Gemfile.lock
 # Test reports
 test/reports/
 coverage/
+
+# Integration test artifacts
+tmp/

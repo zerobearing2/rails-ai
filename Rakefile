@@ -15,10 +15,34 @@ namespace :test do
       t.warning = false
     end
 
-    desc "Run all agent integration tests (slow, uses LLMs)"
-    task :integration do
-      puts "Agent integration tests not yet implemented (deferred post-MVP)"
-      puts "Agent unit tests provide structural validation for MVP"
+    desc "Run all agent integration tests (slow, uses Claude CLI)"
+    Rake::TestTask.new(:integration) do |t|
+      t.libs << "test"
+      t.test_files = FileList["test/agents/integration/*_test.rb"]
+      t.verbose = true
+      t.warning = false
+    end
+
+    desc "Run a specific agent integration test"
+    task :scenario, [:scenario_name] do |_t, args|
+      scenario_name = args[:scenario_name]
+      raise "Usage: rake test:agents:scenario[scenario_name]" unless scenario_name
+
+      test_file = "test/agents/integration/#{scenario_name}_test.rb"
+
+      if File.exist?(test_file)
+        puts "Running integration test: #{test_file}"
+        system("ruby -Itest #{test_file}")
+      else
+        puts "Error: Integration test not found: #{test_file}"
+        puts ""
+        puts "Available scenarios:"
+        Dir.glob("test/agents/integration/*_test.rb").each do |file|
+          name = File.basename(file, "_test.rb")
+          puts "  - #{name}"
+        end
+        exit 1
+      end
     end
 
     desc "Run all agent tests (unit + integration)"

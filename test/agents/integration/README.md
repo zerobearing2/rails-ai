@@ -37,15 +37,16 @@ rake test:agents:integration
 ### Test Structure
 
 ```
-test/agents/integration/
-├── agent_integration_test_base.rb       # Base class with common logic
-├── simple_model_plan_test.rb            # Individual test scenario
-├── support/
-│   └── judge_prompts/
-│       ├── backend_judge_prompt.md      # Backend evaluation criteria
-│       ├── tests_judge_prompt.md        # Tests evaluation criteria
-│       └── security_judge_prompt.md     # Security evaluation criteria
-└── README.md                            # This file
+test/agents/
+├── agent_integration_test_case.rb       # Base class with common logic
+└── integration/
+    ├── simple_model_plan_test.rb        # Individual test scenario
+    ├── support/
+    │   └── judge_prompts/
+    │       ├── backend_judge_prompt.md  # Backend evaluation criteria
+    │       ├── tests_judge_prompt.md    # Tests evaluation criteria
+    │       └── security_judge_prompt.md # Security evaluation criteria
+    └── README.md                        # This file
 ```
 
 ### Scoring System
@@ -78,9 +79,9 @@ Each domain has 5 criteria scored 0-10 points each.
 
 ```ruby
 # test/agents/integration/my_scenario_test.rb
-require_relative "agent_integration_test_base"
+require_relative "../agent_integration_test_case"
 
-class MyScenarioTest < AgentIntegrationTestBase
+class MyScenarioTest < AgentIntegrationTestCase
   def scenario_name
     "my_scenario"
   end
@@ -222,7 +223,7 @@ See [agent_output.md](./agent_output.md) for full agent response.
 
 ## Base Class Features
 
-The `AgentIntegrationTestBase` class provides:
+The `AgentIntegrationTestCase` class provides:
 
 ### Automatic Agent Invocation
 - Constructs Claude CLI commands
@@ -308,7 +309,7 @@ grep -A 2 "Backend:" tmp/test/integration/JUDGE_LOG.md | grep -B 1 "[12][0-9]/50
 
 ### Adjust Pass Threshold
 
-Edit `agent_integration_test_base.rb`:
+Edit `test/agents/agent_integration_test_case.rb`:
 
 ```ruby
 PASS_THRESHOLD = (MAX_TOTAL_SCORE * 0.7).to_i  # Currently 105/150 (70%)

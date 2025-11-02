@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "agent_integration_test_base"
+require_relative "../agent_integration_test_case"
 
 # Integration test for simple model planning scenario
 #
@@ -14,7 +14,7 @@ require_relative "agent_integration_test_base"
 # - User model association changes
 # - Comprehensive model tests
 #
-class SimpleModelPlanTest < AgentIntegrationTestBase
+class SimpleModelPlanTest < AgentIntegrationTestCase
   def scenario_name
     "simple_model_plan"
   end

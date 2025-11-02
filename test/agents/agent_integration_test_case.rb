@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "../../test_helper"
+require_relative "../test_helper"
 require "open3"
 require "tmpdir"
 
@@ -17,7 +17,7 @@ require "tmpdir"
 # - Define agent_prompt
 # - Define expected_pass (true/false)
 # - Optionally define custom assertions in test_scenario method
-class AgentIntegrationTestBase < Minitest::Test
+class AgentIntegrationTestCase < Minitest::Test
   DOMAINS = %w[backend tests security].freeze
   MAX_SCORE_PER_DOMAIN = 50
   MAX_TOTAL_SCORE = DOMAINS.size * MAX_SCORE_PER_DOMAIN # 150

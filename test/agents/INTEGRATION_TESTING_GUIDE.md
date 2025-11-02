@@ -26,15 +26,16 @@ test/agents/integration/
 
 ### After (Minitest)
 ```
-test/agents/integration/
-├── agent_integration_test_base.rb    # Base class with common logic
-├── simple_model_plan_test.rb         # Individual test scenario
-├── support/
-│   └── judge_prompts/
-│       ├── backend_judge_prompt.md
-│       ├── tests_judge_prompt.md
-│       └── security_judge_prompt.md
-└── README.md
+test/agents/
+├── agent_integration_test_case.rb    # Base class with common logic
+└── integration/
+    ├── simple_model_plan_test.rb     # Individual test scenario
+    ├── support/
+    │   └── judge_prompts/
+    │       ├── backend_judge_prompt.md
+    │       ├── tests_judge_prompt.md
+    │       └── security_judge_prompt.md
+    └── README.md
 ```
 
 **Workflow**: `rake test:agents:scenario[simple_model_plan]` → Everything automatic
@@ -102,9 +103,9 @@ ruby -Itest test/agents/integration/simple_model_plan_test.rb
 
 ```ruby
 # test/agents/integration/my_new_scenario_test.rb
-require_relative "agent_integration_test_base"
+require_relative "../agent_integration_test_case"
 
-class MyNewScenarioTest < AgentIntegrationTestBase
+class MyNewScenarioTest < AgentIntegrationTestCase
   def scenario_name
     "my_new_scenario"
   end
@@ -158,7 +159,7 @@ cat tmp/test/integration/JUDGE_LOG.md
 
 ## Base Class Features
 
-The `AgentIntegrationTestBase` class provides:
+The `AgentIntegrationTestCase` class provides:
 
 - **Agent Invocation**: Automatically calls Claude CLI with prompts
 - **Parallel Judges**: Spawns 3 threads for concurrent evaluation

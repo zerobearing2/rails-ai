@@ -158,7 +158,7 @@ git commit -m "Fix linting issues"
 **Solution:**
 ```bash
 # Locally
-rake test:skills:unit      # Run tests
+rake test:unit      # Run tests
 # Fix the failing tests
 bin/ci                     # Verify passes
 git commit -m "Fix failing tests"

@@ -21,27 +21,34 @@ bundle exec rake -T
 
 ```bash
 # Run all unit tests
-rake test:skills:unit
+rake test:unit
+
+# Run skill unit tests only
+rake test:unit:skills
+
+# Run agent unit tests only
+rake test:unit:agents
 
 # Run specific skill test
-ruby -Itest test/skills/unit/turbo_page_refresh_test.rb
+ruby -Itest test/unit/skills/turbo_page_refresh_test.rb
 
 # Run with verbose output
-rake test:skills:unit TESTOPTS="-v"
+rake test:unit TESTOPTS="-v"
 ```
 
-### Integration Tests (Slow - Requires LLM APIs)
+### Integration Tests (Slow - Requires Claude CLI)
 
 ```bash
-# Run all integration tests
-INTEGRATION=1 rake test:skills:integration
+# Run bootstrap test (fast verification, ~40s)
+rake test:integration:bootstrap
 
-# Run with cross-validation
-INTEGRATION=1 CROSS_VALIDATE=1 rake test:skills:integration
+# Run specific scenario
+rake test:integration:scenario[simple_model_plan]
 
-# Set API keys
-export OPENAI_API_KEY="sk-..."
-export ANTHROPIC_API_KEY="sk-ant-..."
+# List available scenarios
+rake test:integration:list
+
+# NOTE: Integration tests must be run individually (no bulk run)
 ```
 
 ## Linting
@@ -135,14 +142,14 @@ jobs:
         with:
           ruby-version: 3.3
           bundler-cache: true
-      - run: bundle exec rake test:skills:unit
+      - run: bundle exec rake test:unit
 ```
 
 ## Coverage Report
 
 ```bash
 # Generate test coverage report
-rake test:skills:report
+rake test:report
 
 # Output:
 # === Skill Test Coverage Report ===

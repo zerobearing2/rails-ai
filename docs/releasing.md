@@ -319,7 +319,7 @@ Perfect for:
 ```bash
 # Fix issues
 rake lint:fix          # Auto-fix linting
-rake test:skills:unit  # Run tests
+rake test:unit  # Run tests
 
 # Re-run CI
 bin/ci

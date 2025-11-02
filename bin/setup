@@ -92,7 +92,7 @@ fi
 # Run quick test
 print_section "🧪 Running Quick Test"
 print_info "Running unit tests..."
-if bundle exec rake test:skills:unit; then
+if bundle exec rake test:unit; then
   print_success "Unit tests passed"
 else
   echo "❌ Unit tests failed"
@@ -106,7 +106,8 @@ echo ""
 echo "You're all set! Next steps:"
 echo ""
 echo "  bin/ci                           # Run full CI pipeline"
-echo "  rake test:skills:unit            # Run unit tests"
+echo "  rake test:unit                   # Run all unit tests"
+echo "  rake test:unit:skills            # Run skill unit tests only"
 echo "  rake lint                        # Run linters"
 echo "  rake -T                          # See all tasks"
 echo ""

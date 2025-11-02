@@ -1,41 +1,34 @@
 Evaluate Rails security implementation plan.
 
-## Scoring Criteria (50 points total)
+## Scoring (50 points total, 5 categories × 10 points each)
 
-**Authorization (0-10)**
-- Access control considered
-- Authorization checks where needed
-- User permissions
-- Scope isolation (users see only their data)
-- Missing authorization identified
+Score the plan against these security skills:
 
-**Mass Assignment Protection (0-10)**
-- Strong parameters usage
-- Only necessary fields exposed
-- No sensitive fields in permitted params
-- Nested attributes handled securely
-
-**Data Validation (0-10)**
-- Input validation comprehensive
-- Format validations for user input
-- Length limits (DoS prevention)
-- Uniqueness validations
-- SQL injection prevention (parameterized queries)
-
-**Sensitive Data Handling (0-10)**
-- No plain-text passwords
-- Sensitive fields identified
-- Encryption considerations
-- PII handling
-- Secrets not hardcoded
-- Rails credentials/secrets management
-- Environment variables for config
-
-**Security Best Practices (0-10)**
-- CSRF protection (Rails default)
-- XSS prevention
-- Secure defaults
+**Input Validation & Injection (0-10)**
+- skills/security/security-sql-injection.md
+- skills/security/security-command-injection.md
+- Parameterized queries, input validation
 - No dangerous methods (eval, send with user input)
-- Security headers (if needed)
-- CORS settings (if API)
+
+**Mass Assignment & Parameters (0-10)**
+- skills/security/security-strong-parameters.md
+- Strong parameters, only necessary fields
+- No sensitive fields in permitted params
+
+**XSS & CSRF Protection (0-10)**
+- skills/security/security-xss.md
+- skills/security/security-csrf.md
+- Output escaping, CSRF tokens
+- Secure defaults, Rails protections
+
+**File Upload Security (0-10)**
+- skills/security/security-file-uploads.md
+- File type validation, size limits
+- Secure storage, virus scanning
+
+**Authorization & Data Protection (0-10)**
+- Access control, authorization checks
+- Scope isolation (users see only their data)
+- No plain-text passwords, encryption
+- Rails credentials, environment variables
 - Session/cookie security

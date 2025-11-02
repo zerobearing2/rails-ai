@@ -1,41 +1,32 @@
 Evaluate Rails frontend implementation plan.
 
-## Scoring Criteria (50 points total)
+## Scoring (50 points total, 5 categories × 10 points each)
+
+Score the plan against these frontend skills:
 
 **View Structure (0-10)**
-- File organization (views/controller/action.html.erb)
-- Partials for reusability
-- Layouts usage
-- Component breakdown
-- DRY principles
+- skills/frontend/partials-layouts.md
+- skills/frontend/view-helpers.md
+- Component organization, DRY principles
 
 **Hotwire (0-10)**
-- Turbo Frames for targeted updates
-- Turbo Streams where appropriate
-- Stimulus controllers for interactivity
-- Data attributes and targets
-- Progressive enhancement
-- Importmap/build config
+- skills/frontend/hotwire-turbo.md
+- skills/frontend/hotwire-stimulus.md
+- skills/frontend/turbo-page-refresh.md
+- Turbo Frames, Streams, progressive enhancement
 
 **Styling & UI (0-10)**
-- Tailwind utility classes
-- DaisyUI components
-- Responsive design
-- Spacing, typography, colors
-- Component composition
+- skills/frontend/tailwind-utility-first.md
+- skills/frontend/daisyui-components.md
+- Responsive design, component composition
 
-**Forms & Input (0-10)**
-- Form helpers (form_with)
-- Field types, validations
-- Error message display
-- CSRF token
-- Labels, hints
-- Submit states
+**ViewComponents (0-10)**
+- skills/frontend/viewcomponent-basics.md
+- skills/frontend/viewcomponent-slots.md
+- skills/frontend/viewcomponent-variants.md
+- skills/frontend/viewcomponent-previews.md
 
-**Accessibility & UX (0-10)**
-- Semantic HTML
-- ARIA labels
-- Keyboard navigation
-- Focus management
-- Loading states, feedback
-- Error handling
+**Accessibility & Forms (0-10)**
+- skills/frontend/accessibility-patterns.md
+- skills/frontend/forms-nested.md
+- Semantic HTML, ARIA, keyboard navigation, form helpers

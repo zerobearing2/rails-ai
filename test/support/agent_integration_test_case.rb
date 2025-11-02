@@ -175,34 +175,36 @@ class AgentIntegrationTestCase < Minitest::Test
     # Run each domain judge sequentially to avoid prompt length issues
     results = {}
     DOMAINS.each_with_index do |domain, index|
-      log_live "  [#{index + 1}/4] Evaluating #{domain}..."
+      begin
+        log_live "  [#{index + 1}/4] Evaluating #{domain}..."
 
-      judge_prompt = build_single_domain_judge_prompt(domain, agent_output_file)
+        judge_prompt = build_single_domain_judge_prompt(domain, agent_output_file)
 
-      judge_output = llm_adapter.execute(
-        prompt: judge_prompt,
-        streaming: true,
-        on_chunk: ->(text) { log_live(text, newline: false, console: false) }
-      )
+        judge_output = llm_adapter.execute(
+          prompt: judge_prompt,
+          streaming: true,
+          on_chunk: ->(text) { log_live(text, newline: false, console: false) }
+        )
 
-      score = parse_score_from_judgment(judge_output, domain)
-      results[domain] = {
-        domain: domain,
-        score: score,
-        judgment_text: judge_output
-      }
+        score = parse_score_from_judgment(judge_output, domain)
+        results[domain] = {
+          domain: domain,
+          score: score,
+          judgment_text: judge_output
+        }
 
-      log_live "  ✓ #{domain.capitalize}: #{score}/#{MAX_SCORE_PER_DOMAIN}"
+        log_live "  ✓ #{domain.capitalize}: #{score}/#{MAX_SCORE_PER_DOMAIN}"
+      rescue StandardError => e
+        log_live "  ✗ ERROR: Judge failed for #{domain}!"
+        log_live ""
+        log_live "Error: #{e.message}"
+        raise
+      end
     end
 
     log_live "  ✓ All judges complete"
 
     results
-  rescue StandardError => e
-    log_live "  ✗ ERROR: Judge failed for #{domain}!"
-    log_live ""
-    log_live "Error: #{e.message}"
-    raise
   end
 
   def build_single_domain_judge_prompt(domain, agent_output_file)
@@ -346,6 +348,47 @@ class AgentIntegrationTestCase < Minitest::Test
       File.join(run_dir, "summary.md"),
       build_summary_markdown(judgment)
     )
+
+    # Update results table in TESTING.md
+    update_results_table(judgment)
+  end
+
+  def update_results_table(judgment)
+    testing_file = File.join(ROOT_PATH, "TESTING.md")
+    content = File.read(testing_file)
+
+    # Format the result emoji
+    result_emoji = judgment[:pass] ? "✅ PASS" : "❌ FAIL"
+
+    # Format the row data
+    last_run = judgment[:timestamp].strftime("%Y-%m-%d")
+    agent_time = format_duration(judgment[:timing][:agent_duration])
+    judge_time = format_duration(judgment[:timing][:judge_duration])
+    total_time = format_duration(judgment[:timing][:total_duration])
+    total_score = "#{judgment[:total_score]}/200"
+    backend_score = "#{judgment[:domain_scores]["backend"][:score]}/50"
+    frontend_score = "#{judgment[:domain_scores]["frontend"][:score]}/50"
+    tests_score = "#{judgment[:domain_scores]["tests"][:score]}/50"
+    security_score = "#{judgment[:domain_scores]["security"][:score]}/50"
+
+    # Build the new row
+    new_row = "| #{scenario_name} | #{last_run} | #{agent_time} | #{judge_time} | #{total_time} | #{total_score} | #{backend_score} | #{frontend_score} | #{tests_score} | #{security_score} | #{result_emoji} |"
+
+    # Find and replace the row for this scenario
+    # Match pattern: | scenario_name | ... |
+    pattern = /^\| #{Regexp.escape(scenario_name)} \|.*\|$/
+
+    if content =~ pattern
+      # Update existing row
+      content.gsub!(pattern, new_row)
+    else
+      # Add new row after the header separator
+      header_separator = "|----------|----------|------------|------------|------------|-------------|---------|----------|-------|----------|--------|"
+      content.sub!(header_separator, "#{header_separator}\n#{new_row}")
+    end
+
+    # Write back to file
+    File.write(testing_file, content)
   end
 
   def build_summary_markdown(judgment)
@@ -413,6 +456,11 @@ class AgentIntegrationTestCase < Minitest::Test
 
   def support_dir
     File.join(ROOT_PATH, "test", "support")
+  end
+
+  def load_judge_prompt(domain)
+    prompt_file = File.join(support_dir, "judge_prompts", "#{domain}_judge_prompt.md")
+    File.read(prompt_file)
   end
 
   def git_sha

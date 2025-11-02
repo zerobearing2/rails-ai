@@ -123,7 +123,7 @@ This project follows Rails conventions and 37signals philosophy:
 
 ```text
 rails-ai/
-├── agents/          # 6 specialized Rails agents
+├── agents/          # 7 specialized Rails agents
 ├── skills/          # Modular skills registry
 ├── rules/           # Team rules and decision matrices
 ├── test/            # Minitest-based testing framework
@@ -135,10 +135,11 @@ rails-ai/
 
 ### Adding New Skills
 1. Add skill to appropriate domain directory in `skills/`
-2. Write unit tests in `test/unit/skills/`
-3. Skills are validated through agent integration tests
+2. Write unit tests in `test/unit/skills/` (required for CI)
+3. Skills are validated through unit tests (structure, syntax, metadata)
 4. Update agent prompts if the skill changes their capabilities
 5. Document the skill with clear description and when to use it
+6. Integration tests validate agents use skills correctly (manual, before releases)
 
 ### Modifying Agents
 1. Agent files are in `agents/` directory

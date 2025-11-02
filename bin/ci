@@ -119,25 +119,21 @@ else
   print_error "Unit tests failed"
 fi
 
-# Integration tests (slow, only if INTEGRATION=1)
+# Integration tests - disabled for bulk run
 if [ "$INTEGRATION" = "1" ]; then
-  print_info "Running integration tests (slow, requires LLM APIs/Claude CLI)..."
-  START_TIME=$(date +%s)
-
-  if [ -z "$OPENAI_API_KEY" ] && [ -z "$ANTHROPIC_API_KEY" ]; then
-    print_warning "No LLM API keys found. Skipping integration tests."
-    print_info "Set OPENAI_API_KEY or ANTHROPIC_API_KEY to run integration tests"
-  else
-    if INTEGRATION=1 bundle exec rake test:integration; then
-      END_TIME=$(date +%s)
-      DURATION=$((END_TIME - START_TIME))
-      print_success "Integration tests passed in ${DURATION}s"
-    else
-      print_error "Integration tests failed"
+  print_warning "Integration tests cannot be run in bulk (too expensive/time-consuming)"
+  print_info "Run individual scenarios instead:"
+  print_info "  rake test:integration:scenario[simple_model_plan]"
+  print_info ""
+  print_info "Available scenarios:"
+  for file in test/integration/*_test.rb; do
+    if [ -f "$file" ]; then
+      scenario=$(basename "$file" _test.rb)
+      print_info "  - $scenario"
     fi
-  fi
+  done
 else
-  print_info "Integration tests skipped (set INTEGRATION=1 to run)"
+  print_info "Integration tests skipped (run individually with rake test:integration:scenario[name])"
 fi
 
 # ==============================================================================

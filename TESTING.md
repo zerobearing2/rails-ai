@@ -19,15 +19,14 @@ Comprehensive testing framework for rails-ai using minitest.
 # Run all unit tests (fast, < 1 second)
 rake test:unit
 
-# Run all integration tests (slow, requires Claude CLI)
-rake test:integration
-
-# Run specific integration scenario
+# Run specific integration scenario (individual scenarios only)
 rake test:integration:scenario[simple_model_plan]
 
 # Show test coverage report
 rake test:report
 ```
+
+**Important:** Bulk integration test runs (`rake test:integration`) are **disabled** due to cost and time. Integration tests must be run individually.
 
 ## Test Organization
 
@@ -125,16 +124,27 @@ This creates `test/unit/skills/my-skill_test.rb` with standard test structure.
 
 ### Running Integration Tests
 
-```bash
-# All integration tests (long-running!)
-rake test:integration
+**Important:** Integration tests are run **individually only** due to cost and time.
 
-# Specific scenario
+```bash
+# Run specific scenario (ONLY way to run integration tests)
 rake test:integration:scenario[simple_model_plan]
 
-# Run directly with ruby
+# Or run directly with ruby
 ruby -Itest test/integration/simple_model_plan_test.rb
+
+# Bulk run is DISABLED (will show error with available scenarios)
+rake test:integration  # ❌ Disabled - shows error message
 ```
+
+**When to Run Integration Tests:**
+- Before releasing a new version
+- After significant changes to agents or skills
+- When adding new agent capabilities
+- When troubleshooting agent planning issues
+
+**Selective Testing Strategy:**
+Choose scenarios that test the areas affected by your changes. No need to run all scenarios on every change.
 
 ### Integration Test Output
 
@@ -235,8 +245,8 @@ This table is updated each time an integration test runs. It provides a quick re
 # Quick check (linting + unit tests)
 bin/ci
 
-# With integration tests (run manually when needed)
-INTEGRATION=1 bin/ci
+# Note: INTEGRATION=1 flag shows warning - integration tests must be run individually
+INTEGRATION=1 bin/ci  # ⚠️ Shows warning, doesn't run integration tests
 ```
 
 ### GitHub Actions

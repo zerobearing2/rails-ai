@@ -182,11 +182,12 @@ rake test:unit:skills              # Skills only
 rake test:unit:agents              # Agents only
 ```
 
-**Tier 2: Integration Tests** (slow, requires Claude CLI)
+**Tier 2: Integration Tests** (slow, requires Claude CLI - individual scenarios only)
 ```bash
-rake test:integration              # Run all integration scenarios
-rake test:integration:scenario[X]  # Run specific scenario
+rake test:integration:scenario[simple_model_plan]  # Run specific scenario
 ```
+
+**Note:** Bulk integration runs are disabled. Tests must be run individually.
 
 See [TESTING.md](TESTING.md) for comprehensive testing documentation.
 

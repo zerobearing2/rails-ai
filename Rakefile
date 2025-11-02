@@ -16,21 +16,33 @@ namespace :test do
   end
 
   # Integration tests (slow) - agent planning scenarios
-  desc "Run all integration tests (slow, uses Claude CLI)"
+  # Note: Bulk test run disabled due to cost/time. Use test:integration:scenario[name] instead.
+  desc "Run all integration tests (DISABLED - use test:integration:scenario[name] instead)"
   task :integration do
-    ENV["INTEGRATION"] = "1"
-    Rake::TestTask.new(:integration_runner) do |t|
-      t.libs << "test"
-      t.test_files = FileList["test/integration/*_test.rb"]
-      t.verbose = true
-      t.warning = false
+    puts "\n" + ("=" * 80)
+    puts "ERROR: Bulk integration test run is disabled"
+    puts ("=" * 80)
+    puts ""
+    puts "Integration tests are expensive and time-consuming."
+    puts "Run individual scenarios instead:"
+    puts ""
+    puts "  rake test:integration:scenario[scenario_name]"
+    puts ""
+    puts "Available scenarios:"
+    Dir.glob("test/integration/*_test.rb").each do |file|
+      name = File.basename(file, "_test.rb")
+      puts "  - #{name}"
     end
-    Rake::Task[:integration_runner].invoke
+    puts ""
+    puts "To run a specific scenario:"
+    puts "  rake test:integration:scenario[simple_model_plan]"
+    puts ""
+    exit 1
   end
 
   # Run all tests
-  desc "Run all tests (unit + integration)"
-  task all: %i[unit integration]
+  desc "Run all tests (unit only - integration tests must be run individually)"
+  task all: :unit
 
   # Category-specific tasks for backward compatibility and granular control
   namespace :unit do

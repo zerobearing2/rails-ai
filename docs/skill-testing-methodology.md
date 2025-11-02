@@ -76,7 +76,7 @@ Every skill must have:
 ### Example Unit Test
 
 ```ruby
-# test/skills/unit/turbo_page_refresh_test.rb
+# test/unit/skills/turbo_page_refresh_test.rb
 class TurboPageRefreshTest < SkillTestCase
   self.skill_domain = "frontend"
   self.skill_name = "turbo-page-refresh"
@@ -135,7 +135,7 @@ end
 rake test:unit:skills
 
 # Run specific skill test
-ruby -Itest test/skills/unit/turbo_page_refresh_test.rb
+ruby -Itest test/unit/skills/turbo_page_refresh_test.rb
 
 # Generate new unit test template
 rake test:new_skill[my-skill,backend]
@@ -178,7 +178,7 @@ Integration tests use an **LLM-as-judge** pattern to evaluate if agents apply sk
 ### Example Integration Test
 
 ```ruby
-# test/skills/integration/turbo_page_refresh_integration_test.rb
+# test/integration/turbo_page_refresh_integration_test.rb
 class TurboPageRefreshIntegrationTest < SkillTestCase
   self.skill_domain = "frontend"
   self.skill_name = "turbo-page-refresh"
@@ -263,7 +263,7 @@ export ANTHROPIC_API_KEY="sk-ant-..."
 INTEGRATION=1 CROSS_VALIDATE=1 rake test:integration:scenario[NAME]
 
 # Run specific integration test
-INTEGRATION=1 ruby -Itest test/skills/integration/turbo_page_refresh_integration_test.rb
+INTEGRATION=1 ruby -Itest test/integration/turbo_page_refresh_integration_test.rb
 ```
 
 ### Benefits of Integration Tests
@@ -446,7 +446,7 @@ rake test:new_skill[my-skill,backend]
 Or manually create:
 
 ```ruby
-# test/skills/unit/my_skill_test.rb
+# test/unit/skills/my_skill_test.rb
 require_relative "../skill_test_case"
 
 class MySkillTest < SkillTestCase
@@ -474,7 +474,7 @@ end
 ### 2. Create Integration Test (Optional)
 
 ```ruby
-# test/skills/integration/my_skill_integration_test.rb
+# test/integration/my_skill_integration_test.rb
 require_relative "../skill_test_case"
 
 class MySkillIntegrationTest < SkillTestCase
@@ -504,10 +504,10 @@ end
 
 ```bash
 # Unit test only
-ruby -Itest test/skills/unit/my_skill_test.rb
+ruby -Itest test/unit/skills/my_skill_test.rb
 
 # Integration test
-INTEGRATION=1 ruby -Itest test/skills/integration/my_skill_integration_test.rb
+INTEGRATION=1 ruby -Itest test/integration/my_skill_integration_test.rb
 ```
 
 ---
@@ -601,7 +601,7 @@ Run tests:
 Ensure you run with `-Itest` flag:
 
 ```bash
-ruby -Itest test/skills/unit/turbo_page_refresh_test.rb
+ruby -Itest test/unit/skills/turbo_page_refresh_test.rb
 ```
 
 ### Integration tests are skipped
@@ -609,7 +609,7 @@ ruby -Itest test/skills/unit/turbo_page_refresh_test.rb
 Set `INTEGRATION=1`:
 
 ```bash
-INTEGRATION=1 ruby -Itest test/skills/integration/turbo_page_refresh_integration_test.rb
+INTEGRATION=1 ruby -Itest test/integration/turbo_page_refresh_integration_test.rb
 ```
 
 ### LLM API errors

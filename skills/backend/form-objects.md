@@ -659,7 +659,7 @@ end
 </testing>
 
 <related-skills>
-- activemodel-validations - Custom validations
+- custom-validators - Custom validations
 - controller-restful - Using in controllers
 
 </related-skills>

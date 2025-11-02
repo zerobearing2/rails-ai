@@ -21,23 +21,23 @@ class BootstrapTest < AgentIntegrationTestCase
 
   def agent_prompt
     <<~PROMPT
-      Create a simple implementation plan for a basic Rails feature:
+      Create an implementation plan for a basic Rails feature:
 
       Feature: Display a welcome page with user greeting
 
       Requirements:
-      - Create a WelcomeController with an index action
-      - Create a view that displays "Hello, [User Name]!"
-      - Add a route for the welcome page
-      - Basic tests for the controller action
+      - WelcomeController with index action
+      - View displaying "Hello, [User Name]!"
+      - Route for welcome page
+      - Controller tests
 
-      Provide a complete but concise plan covering:
-      - Backend (controller, any models if needed)
-      - Frontend (view with proper structure)
-      - Tests (what to test)
-      - Security (any basic considerations)
+      Apply relevant skills from:
+      - Backend: skills/backend/controller-restful.md, skills/backend/antipattern-fat-controllers.md
+      - Frontend: skills/frontend/partials-layouts.md, skills/frontend/view-helpers.md
+      - Testing: skills/testing/tdd-minitest.md
+      - Security: skills/security/security-xss.md, skills/security/security-csrf.md
 
-      Keep it simple but cover all domains properly.
+      Provide complete plan covering all domains.
     PROMPT
   end
 

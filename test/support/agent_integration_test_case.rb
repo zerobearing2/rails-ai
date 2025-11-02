@@ -42,11 +42,26 @@ class AgentIntegrationTestCase < Minitest::Test
 
   # Main test method - subclasses can override to add custom assertions
   def test_scenario
+    start_time = Time.now
+
     # Run the agent
+    agent_start = Time.now
     agent_output = run_agent
+    agent_duration = Time.now - agent_start
 
     # Judge the output
+    judge_start = Time.now
     judgment = judge_output(agent_output)
+    judge_duration = Time.now - judge_start
+
+    total_duration = Time.now - start_time
+
+    # Add timing data to judgment
+    judgment[:timing] = {
+      agent_duration: agent_duration,
+      judge_duration: judge_duration,
+      total_duration: total_duration
+    }
 
     # Log results
     log_judgment(judgment)
@@ -124,62 +139,123 @@ class AgentIntegrationTestCase < Minitest::Test
   end
 
   def run_parallel_judges(agent_output)
-    threads = DOMAINS.map do |domain|
-      Thread.new do
-        judge_domain(domain, agent_output)
-      end
-    end
+    # Build a single prompt that asks Claude to evaluate all domains in parallel
+    coordinator_prompt = build_coordinator_judge_prompt(agent_output)
 
-    # Wait for all judges and collect results
-    results = threads.map(&:value)
-
-    # Convert to hash keyed by domain
-    DOMAINS.zip(results).to_h
-  end
-
-  def judge_domain(domain, agent_output)
-    # Load judge prompt
-    judge_prompt = load_judge_prompt(domain)
-
-    # Load domain context (skills/rules)
-    domain_context = load_domain_context(domain)
-
-    # Build full judge input
-    judge_input = [
-      judge_prompt,
-      "",
-      "## Domain Context (Skills & Rules)",
-      "",
-      domain_context,
-      "",
-      "## Scenario Requirements",
-      "",
-      agent_prompt,
-      "",
-      "## Agent Output to Evaluate",
-      "",
-      agent_output
-    ].join("\n")
-
-    # Run claude CLI as judge
+    # Run claude CLI once with parallel tasks
     stdout, stderr, status = Open3.capture3(
       "claude",
       "--print",
-      stdin_data: judge_input
+      stdin_data: coordinator_prompt
     )
 
     unless status.success?
-      raise "Judge (#{domain}) failed with status #{status.exitstatus}:\n#{stderr}"
+      raise "Coordinator judge failed with status #{status.exitstatus}:\n#{stderr}"
     end
 
-    # Parse score from output
-    score = parse_score_from_judgment(stdout, domain)
+    # Parse the coordinated response to extract each domain's judgment
+    parse_coordinator_response(stdout)
+  end
 
-    {
-      domain: domain,
-      score: score,
-      judgment_text: stdout
-    }
+  def build_coordinator_judge_prompt(agent_output)
+    # Load all judge prompts and domain contexts
+    domain_contexts = DOMAINS.map do |domain|
+      {
+        domain: domain,
+        judge_prompt: load_judge_prompt(domain),
+        context: load_domain_context(domain)
+      }
+    end
+
+    <<~PROMPT
+      You are coordinating 4 parallel domain judges to evaluate a Rails implementation plan.
+
+      **IMPORTANT**: You must evaluate all 4 domains IN PARALLEL using separate tasks. This is more efficient than sequential evaluation.
+
+      ## Scenario Requirements
+
+      #{agent_prompt}
+
+      ## Agent Output to Evaluate
+
+      #{agent_output}
+
+      ## Your Task
+
+      Create 4 parallel evaluation tasks - one for each domain. Each task should independently evaluate the agent's plan according to its domain's criteria and context.
+
+      #{domain_contexts.map { |d| build_domain_task_prompt(d) }.join("\n\n")}
+
+      ## Output Format
+
+      You MUST output each domain's evaluation in this exact format:
+
+      ```
+      ### DOMAIN: backend
+      [Full backend evaluation following the backend judge prompt format]
+      ### END DOMAIN: backend
+
+      ### DOMAIN: frontend
+      [Full frontend evaluation following the frontend judge prompt format]
+      ### END DOMAIN: frontend
+
+      ### DOMAIN: tests
+      [Full tests evaluation following the tests judge prompt format]
+      ### END DOMAIN: tests
+
+      ### DOMAIN: security
+      [Full security evaluation following the security judge prompt format]
+      ### END DOMAIN: security
+      ```
+
+      Each domain evaluation MUST include its total score in the exact format specified by that domain's judge prompt (e.g., "## Backend Total: XX/50").
+    PROMPT
+  end
+
+  def build_domain_task_prompt(domain_info)
+    <<~TASK
+      ### #{domain_info[:domain].capitalize} Domain Task
+
+      **Criteria**: Evaluate according to this judge prompt:
+
+      #{domain_info[:judge_prompt]}
+
+      **Domain Context** (Skills & Rules to reference):
+
+      #{domain_info[:context]}
+    TASK
+  end
+
+  def parse_coordinator_response(response)
+    # Extract each domain's judgment from the coordinated response
+    judgments = {}
+
+    DOMAINS.each do |domain|
+      # Extract text between ### DOMAIN: {domain} and ### END DOMAIN: {domain}
+      pattern = /### DOMAIN: #{domain}\s*(.*?)\s*### END DOMAIN: #{domain}/m
+      match = response.match(pattern)
+
+      if match
+        judgment_text = match[1].strip
+        score = parse_score_from_judgment(judgment_text, domain)
+
+        judgments[domain] = {
+          domain: domain,
+          score: score,
+          judgment_text: judgment_text
+        }
+      else
+        # Fallback if format not followed
+        warn "Warning: Could not parse #{domain} judgment from coordinator response"
+        judgments[domain] = {
+          domain: domain,
+          score: 0,
+          judgment_text: "ERROR: Could not parse judgment from coordinator response"
+        }
+      end
+    end
+
+    judgments
   end
 
   def load_judge_prompt(domain)
@@ -306,6 +382,12 @@ class AgentIntegrationTestCase < Minitest::Test
       f.puts "**Git SHA**: #{judgment[:git_sha]}"
       f.puts "**Git Branch**: #{judgment[:git_branch]}"
       f.puts ""
+      f.puts "### Timing"
+      f.puts ""
+      f.puts "- **Agent Duration**: #{format_duration(judgment[:timing][:agent_duration])}"
+      f.puts "- **Judge Duration**: #{format_duration(judgment[:timing][:judge_duration])}"
+      f.puts "- **Total Duration**: #{format_duration(judgment[:timing][:total_duration])}"
+      f.puts ""
       f.puts "### Domain Scores"
       f.puts ""
       judgment[:domain_scores].each do |domain, result|
@@ -362,6 +444,12 @@ class AgentIntegrationTestCase < Minitest::Test
       **Total Score**: #{judgment[:total_score]}/#{judgment[:max_score]} (#{judgment[:percentage]}%)
       **Threshold**: #{judgment[:threshold]}/#{judgment[:max_score]} (70%)
 
+      ## Timing
+
+      - **Agent Duration**: #{format_duration(judgment[:timing][:agent_duration])}
+      - **Judge Duration**: #{format_duration(judgment[:timing][:judge_duration])}
+      - **Total Duration**: #{format_duration(judgment[:timing][:total_duration])}
+
       ## Domain Scores
 
       #{judgment[:domain_scores].map { |d, r| "- **#{d.capitalize}**: #{r[:score]}/#{MAX_SCORE_PER_DOMAIN}" }.join("\n")}
@@ -375,6 +463,18 @@ class AgentIntegrationTestCase < Minitest::Test
 
       See [agent_output.md](./agent_output.md) for full agent response.
     MARKDOWN
+  end
+
+  def format_duration(seconds)
+    if seconds < 1
+      "#{(seconds * 1000).round}ms"
+    elsif seconds < 60
+      "#{seconds.round(1)}s"
+    else
+      minutes = (seconds / 60).floor
+      remaining_seconds = (seconds % 60).round
+      "#{minutes}m #{remaining_seconds}s"
+    end
   end
 
   def build_failure_message(judgment, base_message)

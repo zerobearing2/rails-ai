@@ -111,14 +111,17 @@ This creates `test/unit/skills/my-skill_test.rb` with standard test structure.
 
 1. **Invoke real agent** via Claude CLI with a planning scenario
 2. **Agent produces implementation plan** using rails-ai agents
-3. **4 parallel judges evaluate** the plan across domains:
+3. **Single LLM call coordinates 4 parallel domain judges** to evaluate the plan:
    - Backend (models, migrations, validations, Rails conventions)
    - Frontend (views, Hotwire, Tailwind, forms, accessibility)
    - Tests (test planning, coverage, Minitest usage)
    - Security (authorization, validation, sensitive data, best practices)
 4. **Score against 200-point rubric** (50 points per domain)
 5. **Pass threshold:** 140 points (70%)
-6. **Log results** to timestamped directories and update results table
+6. **Track timing data**: Agent duration, judge duration, total duration
+7. **Log results** to timestamped directories and update results table
+
+**Architecture Note:** Instead of spawning 4 separate LLM calls with Ruby threads, we use a single Claude CLI call that coordinates parallel evaluation tasks internally. This is more efficient and takes advantage of the LLM's native parallel task execution capabilities.
 
 ### Running Integration Tests
 
@@ -206,16 +209,21 @@ Then run: `rake test:integration:scenario[my_scenario]`
 
 ## Integration Test Results
 
-This table is automatically updated each time an integration test runs. It provides a quick reference of test health per feature branch.
+This table is updated each time an integration test runs. It provides a quick reference of test health and performance per feature branch.
 
-| Scenario | Last Run | Total Score | Backend | Frontend | Tests | Security | Result |
-|----------|----------|-------------|---------|----------|-------|----------|--------|
-| simple_model_plan | - | -/200 | -/50 | -/50 | -/50 | -/50 | PENDING |
+| Scenario | Last Run | Agent Time | Judge Time | Total Time | Total Score | Backend | Frontend | Tests | Security | Result |
+|----------|----------|------------|------------|------------|-------------|---------|----------|-------|----------|--------|
+| simple_model_plan | - | - | - | - | -/200 | -/50 | -/50 | -/50 | -/50 | ⏸️ PENDING |
 
 **Legend:**
 - ✅ PASS: Score ≥ 140/200 (70%)
 - ❌ FAIL: Score < 140/200
 - ⏸️ PENDING: Not yet run on this branch
+
+**Timing Notes:**
+- **Agent Time**: Time for agent to produce implementation plan
+- **Judge Time**: Time for 4 parallel domain judges to evaluate (single LLM call)
+- **Total Time**: End-to-end test duration including setup/teardown
 
 **Note:** Integration tests are run manually due to cost and time. We decide when to run them based on the significance of changes.
 

@@ -508,8 +508,6 @@ end
 - credentials-management - Managing encrypted secrets
 - initializers-best-practices - Application initialization
 - solid-stack-setup - SolidQueue, SolidCache, SolidCable configuration
-- deployment-railway - Deploying to Railway
-- deployment-heroku - Deploying to Heroku
 </related-skills>
 
 <resources>

@@ -424,7 +424,6 @@ end
 - security-sql-injection - Prevent SQL injection
 - security-xss - Prevent XSS attacks
 - security-csrf - CSRF protection
-- authorization - Role-based access control
 </related-skills>
 
 <resources>

@@ -617,7 +617,7 @@ end
 <related-skills>
 - tdd-minitest - Test-driven development workflow
 - minitest-mocking - Stubbing and mocking in tests
-- test-setup-helpers - Shared test setup patterns
+- test-helpers - Shared test setup patterns
 </related-skills>
 
 <resources>

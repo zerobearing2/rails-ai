@@ -503,7 +503,7 @@ end
 <related-skills>
 - environment-configuration - Environment-specific settings
 - credentials-management - Secrets and credentials
-- kamal-deployment - Production deployment with Kamal
+- docker-rails-setup - Docker and deployment setup
 </related-skills>
 
 <resources>

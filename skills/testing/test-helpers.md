@@ -502,7 +502,6 @@ end
 <related-skills>
 - tdd-minitest - Core testing patterns
 - fixtures-test-data - Using fixtures for test data
-- system-testing - Full-stack feature testing
 </related-skills>
 
 <resources>

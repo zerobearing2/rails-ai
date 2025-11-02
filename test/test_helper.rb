@@ -11,6 +11,7 @@ require "json"
 ROOT_PATH = File.expand_path("..", __dir__)
 SKILLS_PATH = File.join(ROOT_PATH, "skills")
 AGENTS_PATH = File.join(ROOT_PATH, "agents")
+TEST_SUPPORT_PATH = File.join(__dir__, "support")
 
 # Helper methods for skill testing
 module SkillTestHelpers

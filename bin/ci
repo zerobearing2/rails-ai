@@ -109,36 +109,26 @@ fi
 print_section "🧪 Running Tests"
 
 # Unit tests (fast)
-print_info "Running skill unit tests (fast)..."
+print_info "Running all unit tests (fast)..."
 START_TIME=$(date +%s)
-if bundle exec rake test:skills:unit; then
+if bundle exec rake test:unit; then
   END_TIME=$(date +%s)
   DURATION=$((END_TIME - START_TIME))
-  print_success "Skill unit tests passed in ${DURATION}s"
+  print_success "Unit tests passed in ${DURATION}s"
 else
-  print_error "Skill unit tests failed"
-fi
-
-print_info "Running agent unit tests (fast)..."
-START_TIME=$(date +%s)
-if bundle exec rake test:agents:unit; then
-  END_TIME=$(date +%s)
-  DURATION=$((END_TIME - START_TIME))
-  print_success "Agent unit tests passed in ${DURATION}s"
-else
-  print_error "Agent unit tests failed"
+  print_error "Unit tests failed"
 fi
 
 # Integration tests (slow, only if INTEGRATION=1)
 if [ "$INTEGRATION" = "1" ]; then
-  print_info "Running integration tests (slow, requires LLM APIs)..."
+  print_info "Running integration tests (slow, requires LLM APIs/Claude CLI)..."
   START_TIME=$(date +%s)
 
   if [ -z "$OPENAI_API_KEY" ] && [ -z "$ANTHROPIC_API_KEY" ]; then
     print_warning "No LLM API keys found. Skipping integration tests."
     print_info "Set OPENAI_API_KEY or ANTHROPIC_API_KEY to run integration tests"
   else
-    if INTEGRATION=1 bundle exec rake test:skills:integration; then
+    if INTEGRATION=1 bundle exec rake test:integration; then
       END_TIME=$(date +%s)
       DURATION=$((END_TIME - START_TIME))
       print_success "Integration tests passed in ${DURATION}s"
@@ -155,8 +145,7 @@ fi
 # ==============================================================================
 
 print_section "📊 Test Coverage Report"
-bundle exec rake test:skills:report
-bundle exec rake test:agents:report
+bundle exec rake test:report
 
 # ==============================================================================
 # SUMMARY
@@ -183,10 +172,11 @@ else
   # Helpful commands
   echo ""
   print_info "Helpful commands:"
-  echo "  rake lint:fix              # Auto-fix Ruby issues"
-  echo "  ruby -Itest TEST_FILE      # Run specific test"
-  echo "  rake test:skills:unit      # Run skill unit tests"
-  echo "  rake test:agents:unit      # Run agent unit tests"
+  echo "  rake lint:fix                 # Auto-fix Ruby issues"
+  echo "  rake test:file[path/to/test]  # Run specific test"
+  echo "  rake test:unit                # Run all unit tests"
+  echo "  rake test:unit:skills         # Run skill unit tests only"
+  echo "  rake test:unit:agents         # Run agent unit tests only"
   echo ""
 
   exit 1

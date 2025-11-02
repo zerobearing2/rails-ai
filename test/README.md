@@ -1,412 +1,344 @@
-# Skill Testing with Minitest
+# Rails-AI Testing Framework
 
-Comprehensive testing framework for validating that skills produce expected outcomes when used by agents.
+Comprehensive testing framework for validating skills and agents using minitest.
 
-## Test Structure
+## Test Organization
+
+Tests are organized by **type** (unit vs integration) rather than by category (skills vs agents), following Rails conventions:
 
 ```
 test/
-├── test_helper.rb                    # Setup and helpers
-├── skills/
+├── test_helper.rb                   # Global test setup and helpers
+├── support/                          # Shared test infrastructure
 │   ├── skill_test_case.rb           # Base class for skill tests
-│   ├── unit/                         # Fast validation tests
+│   └── agent_integration_test_case.rb  # Base class for agent integration tests
+├── unit/                             # Fast tests (no external dependencies)
+│   ├── skills/                       # Skill validation tests
 │   │   ├── turbo_page_refresh_test.rb
 │   │   ├── form_objects_test.rb
 │   │   └── ...
-│   └── integration/                  # LLM judge tests (slow)
-│       ├── turbo_page_refresh_integration_test.rb
+│   └── agents/                       # Agent structure/validation tests
+│       ├── agent_structure_test.rb
+│       ├── agent_content_test.rb
 │       └── ...
+└── integration/                      # Slow tests (use LLMs/Claude CLI)
+    ├── skills/                       # LLM judge tests for skills
+    │   └── turbo_page_refresh_integration_test.rb
+    ├── agents/                       # Agent planning/execution tests
+    │   ├── simple_model_plan_test.rb
+    │   └── support/
+    │       └── judge_prompts/
+    └── INTEGRATION_TESTING_GUIDE.md
 ```
 
 ## Running Tests
 
-### All Unit Tests (Fast - No LLM Calls)
+### Quick Start
 
 ```bash
-# Run all unit tests
-ruby -Itest test/skills/unit/*_test.rb
+# Run all unit tests (fast)
+rake test:unit
 
-# Or use rake
-rake test:skills:unit
+# Run all integration tests (slow, requires LLMs)
+INTEGRATION=1 rake test:integration
+
+# Run everything
+rake test:all
 ```
 
-### Single Skill Unit Test
+### Unit Tests (Fast)
+
+Unit tests validate structure, syntax, and metadata without external dependencies:
 
 ```bash
-ruby -Itest test/skills/unit/turbo_page_refresh_test.rb
+# All unit tests
+rake test:unit
+
+# Skills only
+rake test:unit:skills
+
+# Agents only
+rake test:unit:agents
+
+# Specific file
+rake test:file[test/unit/skills/turbo_page_refresh_test.rb]
 ```
 
-### All Integration Tests (Slow - Uses LLMs)
+**What unit tests check:**
+- File structure and YAML front matter
+- Required metadata fields
+- Code syntax and examples
+- Links and references
+- Consistency across files
+
+### Integration Tests (Slow)
+
+Integration tests use LLMs to judge quality and agents to produce plans:
 
 ```bash
-# Requires INTEGRATION=1 flag
-INTEGRATION=1 ruby -Itest test/skills/integration/*_test.rb
+# All integration tests (requires API keys)
+INTEGRATION=1 rake test:integration
 
-# Or use rake
-rake test:skills:integration
+# Skills only
+INTEGRATION=1 rake test:integration:skills
+
+# Agents only
+rake test:integration:agents
+
+# Specific agent scenario
+rake test:integration:scenario[simple_model_plan]
 ```
 
-### Cross-Validation Tests (Multiple LLMs)
+**What integration tests check:**
+- Agent planning capabilities
+- Code quality when using skills
+- Adherence to best practices
+- Security considerations
+- Test coverage
+
+**Note:** Agent integration tests use Claude CLI and don't require API keys to be set separately.
+
+### Test Coverage Report
 
 ```bash
-# Requires both INTEGRATION=1 and CROSS_VALIDATE=1
-INTEGRATION=1 CROSS_VALIDATE=1 ruby -Itest test/skills/integration/turbo_page_refresh_integration_test.rb
+rake test:report
 ```
 
-### All Tests
+Example output:
+```
+=== Test Coverage Report ===
+
+Skills:
+  Total: 45
+  Unit Tests: 43 (95.6% coverage)
+  Integration Tests: 1
+
+Agents:
+  Total: 7
+  Unit Tests: 5
+  Integration Tests: 1
+
+Overall:
+  Unit Tests: 48
+  Integration Tests: 2
+  Total Tests: 50
+
+Run tests:
+  rake test:unit                    # Fast unit tests
+  rake test:integration             # Slow integration tests
+  rake test:unit:skills             # Skills unit tests only
+  rake test:unit:agents             # Agents unit tests only
+  rake test:integration:scenario[X] # Specific agent scenario
+```
+
+## Creating New Tests
+
+### New Skill Test
 
 ```bash
-rake test:skills
+rake test:new_skill[my-new-skill,frontend]
 ```
 
-## Test Types
+This generates a test template at `test/unit/skills/my-new-skill_test.rb`.
 
-### Unit Tests
+### New Agent Integration Test
 
-**Purpose:** Fast validation of skill structure and critical patterns
-**Speed:** < 1 second per skill
-**When:** Every skill change
-
-**What they test:**
-- ✅ Skill file exists
-- ✅ Has valid YAML front matter
-- ✅ Has required metadata (name, domain, version)
-- ✅ Has required sections (when-to-use, benefits, standards, etc.)
-- ✅ Has documented patterns
-- ✅ Has code examples
-- ✅ Has good (✅) and bad (❌) examples
-- ✅ Documents key patterns (e.g., `data-turbo-refresh-method`)
-- ✅ Shows antipatterns
-- ✅ Links related skills
-- ✅ Includes testing examples
-
-**Example:**
+Create a file `test/integration/agents/my_scenario_test.rb`:
 
 ```ruby
-class TurboPageRefreshTest < SkillTestCase
-  self.skill_domain = "frontend"
-  self.skill_name = "turbo-page-refresh"
+require_relative "../../support/agent_integration_test_case"
 
-  def test_documents_morph_method
-    assert_pattern_present(
-      skill_content,
-      /data-turbo-refresh-method="morph"/,
-      "Should document data-turbo-refresh-method attribute"
-    )
+class MyScenarioTest < AgentIntegrationTestCase
+  def scenario_name
+    "my_scenario"
+  end
+
+  def system_prompt
+    "System context for the test..."
+  end
+
+  def agent_prompt
+    "@agent-rails-ai:architect\n\n[Your scenario here]"
+  end
+
+  def expected_pass
+    true  # or false
   end
 end
 ```
-
-### Integration Tests
-
-**Purpose:** Validate that agents apply skills correctly using LLM-as-judge
-**Speed:** ~2-5 seconds per test case (LLM API calls)
-**When:** Before commits, weekly, or on major changes
-
-**What they test:**
-- ✅ Generated code has expected patterns
-- ✅ Generated code avoids forbidden patterns
-- ✅ LLM judge rates code quality >= 4.0/5.0
-- ✅ Multiple LLMs agree on pass/fail (cross-validation)
-- ✅ Agent avoids documented antipatterns
-
-**Example:**
-
-```ruby
-class TurboPageRefreshIntegrationTest < SkillTestCase
-  def test_agent_can_enable_page_refresh
-    skip_unless_integration
-
-    scenario = "Add Turbo page refresh with morphing"
-    generated_code = call_agent_with_skill(scenario)
-
-    # Fast pattern checks
-    assert_pattern_present generated_code, /data-turbo-refresh-method="morph"/
-
-    # Comprehensive LLM evaluation
-    result = judge_with_llm(
-      provider: :openai,
-      prompt: create_judge_prompt("turbo-page-refresh", scenario, generated_code)
-    )
-
-    assert result["pass"], "LLM judge should pass the generated code"
-    assert result["overall_score"] >= 4.0
-  end
-end
-```
-
-## LLM Judge Evaluation
-
-### How It Works
-
-1. **Scenario** - Give agent a task (e.g., "Add page refresh with morphing")
-2. **Generate** - Agent produces code using the skill
-3. **Judge** - LLM evaluates the code on multiple criteria:
-   - Correct pattern usage (1-5)
-   - Rails 8.1+ conventions (1-5)
-   - Avoids antipatterns (1-5)
-   - Code quality (1-5)
-4. **Result** - Pass/Fail + scores + specific issues/suggestions
-
-### Judge Response Format
-
-```json
-{
-  "overall_score": 4.5,
-  "pass": true,
-  "scores": {
-    "correct_pattern": 5,
-    "rails_conventions": 4,
-    "avoids_antipatterns": 5,
-    "code_quality": 4
-  },
-  "issues": ["Minor formatting inconsistency"],
-  "suggestions": ["Consider adding comment explaining morph behavior"]
-}
-```
-
-### Cross-Validation
-
-Use multiple LLMs to reduce bias:
-
-```ruby
-results = cross_validate(scenario, generated_code, "turbo-page-refresh")
-# => {
-#   openai: { overall_score: 4.5, pass: true, ... },
-#   anthropic: { overall_score: 4.3, pass: true, ... },
-#   average_score: 4.4,
-#   agreement: true
-# }
-```
-
-## Configuration
-
-### Environment Variables
-
-```bash
-# Enable integration tests (LLM calls)
-export INTEGRATION=1
-
-# Enable cross-validation (multiple LLMs)
-export CROSS_VALIDATE=1
-
-# LLM API keys (when not using mock)
-export OPENAI_API_KEY="sk-..."
-export ANTHROPIC_API_KEY="sk-ant-..."
-```
-
-### Test Configuration
-
-Edit `test/test_helper.rb` to configure:
-
-- Default LLM provider
-- Mock vs real LLM calls
-- Judge prompt templates
-- Pass/fail thresholds
-
-## Writing New Tests
-
-### 1. Create Unit Test
-
-```ruby
-# test/skills/unit/my_skill_test.rb
-require_relative "../skill_test_case"
-
-class MySkillTest < SkillTestCase
-  self.skill_domain = "backend"  # or frontend, testing, security, config
-  self.skill_name = "my-skill"
-
-  def test_skill_file_exists
-    assert skill_file_exists?("backend", "my-skill")
-  end
-
-  def test_has_required_metadata
-    assert_skill_has_required_metadata
-  end
-
-  def test_documents_key_pattern
-    assert_pattern_present(
-      skill_content,
-      /MyKeyPattern/,
-      "Should document the key pattern"
-    )
-  end
-
-  # Add more tests...
-end
-```
-
-### 2. Create Integration Test (Optional)
-
-```ruby
-# test/skills/integration/my_skill_integration_test.rb
-require_relative "../skill_test_case"
-
-class MySkillIntegrationTest < SkillTestCase
-  self.skill_domain = "backend"
-  self.skill_name = "my-skill"
-
-  def test_agent_applies_pattern_correctly
-    skip_unless_integration
-
-    scenario = "Apply my skill pattern"
-    generated_code = call_agent_with_skill(scenario)
-
-    assert_pattern_present generated_code, /expected_pattern/
-    assert_pattern_absent generated_code, /forbidden_pattern/
-
-    result = judge_with_llm(
-      provider: :openai,
-      prompt: create_judge_prompt("my-skill", scenario, generated_code)
-    )
-
-    assert result["pass"]
-  end
-end
-```
-
-### 3. Run Tests
-
-```bash
-# Unit test only
-ruby -Itest test/skills/unit/my_skill_test.rb
-
-# Integration test
-INTEGRATION=1 ruby -Itest test/skills/integration/my_skill_integration_test.rb
-```
-
-## Helpers Available
-
-### SkillTestHelpers
-
-- `load_skill(domain, skill_name)` - Load skill file content
-- `parse_skill_yaml(content)` - Extract YAML front matter
-- `extract_patterns(content, name)` - Get specific pattern
-- `extract_code_examples(content)` - Get all code blocks
-- `skill_file_exists?(domain, name)` - Check file exists
-
-### Assertions
-
-- `assert_skill_has_yaml_front_matter`
-- `assert_skill_has_required_metadata`
-- `assert_skill_has_section(name)`
-- `assert_skill_has_pattern(name)`
-- `assert_code_examples_are_valid`
-- `assert_has_good_and_bad_examples`
-- `assert_pattern_present(code, pattern, message)`
-- `assert_pattern_absent(code, pattern, message)`
-
-### LLMJudgeHelpers
-
-- `create_judge_prompt(skill, scenario, code)` - Build judge prompt
-- `judge_with_llm(provider:, prompt:)` - Get LLM evaluation
-- `cross_validate(scenario, code, skill)` - Multi-LLM validation
 
 ## CI/CD Integration
 
-### GitHub Actions Example
+### Local CI
 
-```yaml
-name: Skill Tests
+```bash
+# Run full CI pipeline (lint + unit tests)
+bin/ci
 
-on: [push, pull_request]
-
-jobs:
-  unit-tests:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: 3.3
-      - name: Run unit tests
-        run: rake test:skills:unit
-
-  integration-tests:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: 3.3
-      - name: Run integration tests
-        env:
-          INTEGRATION: 1
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        run: rake test:skills:integration
+# Run with integration tests
+INTEGRATION=1 bin/ci
 ```
+
+### GitHub Actions
+
+The CI workflow runs automatically on pull requests:
+
+- **Fast checks** (always run): Linting + unit tests
+- **Integration tests** (manual only): Requires `workflow_dispatch` trigger
+
+See `.github/workflows/ci.yml` for details.
+
+## Test Types Explained
+
+### Unit Tests
+
+**Purpose:** Validate structure, syntax, and metadata
+**Speed:** Fast (seconds)
+**Dependencies:** None
+**When to use:** Always
+
+**Skills unit tests check:**
+- YAML front matter validity
+- Required metadata (name, domain, description)
+- Required sections (when-to-use, benefits, standards)
+- Code examples are syntactically valid
+- Links work and references exist
+
+**Agents unit tests check:**
+- YAML front matter validity
+- Required metadata (role, skills_preset)
+- Reference SKILLS_REGISTRY.yml
+- Consistent naming conventions
+- No deprecated references
+
+### Integration Tests
+
+**Purpose:** Validate quality using LLMs or actual agent execution
+**Speed:** Slow (minutes)
+**Dependencies:** LLM APIs or Claude CLI
+**When to use:** Before major releases, after significant changes
+
+**Skills integration tests:**
+- Generate code using the skill
+- Have LLM judge code quality
+- Check adherence to patterns
+- Verify antipattern avoidance
+
+**Agent integration tests:**
+- Invoke real agent via Claude CLI
+- Agent produces implementation plan
+- 3 domain judges evaluate in parallel (backend, tests, security)
+- Score against 150-point rubric (70% to pass)
+- Log results for tracking improvement
+
+## Writing Good Tests
+
+### Skills
+
+1. **Test the structure** - Ensure YAML and sections exist
+2. **Test the examples** - Validate code syntax
+3. **Test integration** - Have LLM judge generated code (optional)
+
+### Agents
+
+1. **Test the structure** - Ensure YAML and references are valid
+2. **Test planning** - Have agent produce plans and judge quality
+3. **Test execution** - Have agent actually implement (future)
 
 ## Troubleshooting
 
-### Tests fail with "cannot load such file"
+### "Cannot load file -- test_helper"
 
-Ensure you run with `-Itest` flag:
-
+Make sure you run tests with `-Itest` flag:
 ```bash
-ruby -Itest test/skills/unit/turbo_page_refresh_test.rb
+ruby -Itest test/unit/skills/my_test.rb
 ```
 
-### Integration tests are skipped
+Or use rake tasks which handle this automatically.
 
-Set `INTEGRATION=1`:
+### "No LLM API keys found"
 
-```bash
-INTEGRATION=1 ruby -Itest test/skills/integration/turbo_page_refresh_integration_test.rb
+Integration tests for skills require `OPENAI_API_KEY` or `ANTHROPIC_API_KEY`.
+Agent integration tests use Claude CLI and don't require environment variables.
+
+### "Test file not found"
+
+After restructuring, test paths have changed:
+- Old: `test/skills/unit/foo_test.rb`
+- New: `test/unit/skills/foo_test.rb`
+
+Update your commands accordingly.
+
+## Migration Notes
+
+### October 2024 Restructure
+
+Tests were reorganized from category-based to type-based structure:
+
+**Before:**
+```
+test/
+├── skills/
+│   ├── unit/
+│   └── integration/
+└── agents/
+    ├── unit/
+    └── integration/
 ```
 
-### LLM API errors
-
-Check API keys are set and valid:
-
-```bash
-echo $OPENAI_API_KEY
-echo $ANTHROPIC_API_KEY
+**After:**
+```
+test/
+├── unit/
+│   ├── skills/
+│   └── agents/
+└── integration/
+    ├── skills/
+    └── agents/
 ```
 
-Use mock provider for testing without API calls:
+**Benefits:**
+- Clearer separation of fast vs slow tests
+- Easier to run all unit or all integration tests
+- Follows Rails conventions
+- Better CI/CD integration
 
-```ruby
-result = judge_with_llm(provider: :mock, prompt: prompt)
-```
+**Breaking changes:**
+- Test file paths changed
+- Rake task names changed (old tasks still work for backward compatibility)
+- Require paths in test files updated
 
-## Best Practices
+See commit history for detailed migration steps.
 
-1. **Write unit tests first** - Fast feedback on skill structure
-2. **Add integration tests for critical skills** - Security, config, core patterns
-3. **Use cross-validation sparingly** - Costs 2x API calls
-4. **Mock in development** - Use real LLMs in CI/CD only
-5. **Update tests with skills** - Keep tests in sync with skill changes
-6. **Document expected patterns** - Make tests readable
+## Philosophy
 
-## Metrics
+### Unit Tests: Fast Feedback
 
-Track over time:
+Unit tests should run in seconds and catch obvious issues:
+- Missing files
+- Invalid YAML
+- Broken syntax
+- Missing required fields
 
-- **Test coverage** - % of skills with tests
-- **Pass rate** - % of tests passing
-- **Average judge score** - Quality of generated code
-- **Agreement rate** - How often multiple LLMs agree
+### Integration Tests: Quality Assurance
 
-Example:
+Integration tests should validate quality but run infrequently:
+- Does the skill produce good code?
+- Does the agent plan correctly?
+- Are best practices followed?
+- Is the output production-ready?
 
-```bash
-# Run all tests and generate report
-rake test:skills:report
+### Balance
 
-# => Skill Test Report
-#    Coverage: 40/40 skills (100%)
-#    Unit Tests: 165/165 passing (100%)
-#    Integration Tests: 24/40 passing (60%)
-#    Average Judge Score: 4.3/5.0
-#    Cross-Validation Agreement: 95%
-```
+- **During development:** Run unit tests constantly
+- **Before commits:** Run full CI (lint + unit)
+- **Before releases:** Run integration tests
+- **Track trends:** Review integration test logs over time
 
----
+## See Also
 
-## Next Steps
-
-1. **Add more unit tests** - Cover all 40 skills
-2. **Implement real LLM clients** - Replace mock with actual APIs
-3. **Add integration tests** - Start with high-priority skills
-4. **Automate in CI/CD** - Run on every commit
-5. **Track metrics** - Monitor quality over time
+- [Integration Testing Guide](integration/INTEGRATION_TESTING_GUIDE.md) - Detailed guide for agent integration tests
+- [Skills Documentation](../skills/) - Skills being tested
+- [Agents Documentation](../agents/) - Agents being tested
+- [Rakefile](../Rakefile) - Task definitions
+- [CI Script](../bin/ci) - Local CI pipeline

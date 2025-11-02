@@ -3,32 +3,81 @@
 require "rake/testtask"
 
 # Default task
-task default: %w[lint test:skills:unit test:agents:unit]
+task default: %w[lint test:unit]
 
 namespace :test do
-  namespace :agents do
-    desc "Run all agent unit tests (fast, structural validation)"
-    Rake::TestTask.new(:unit) do |t|
+  # Unit tests (fast) - organized by category
+  desc "Run all unit tests (fast, no external deps)"
+  Rake::TestTask.new(:unit) do |t|
+    t.libs << "test"
+    t.test_files = FileList["test/unit/**/*_test.rb"]
+    t.verbose = true
+    t.warning = false
+  end
+
+  # Integration tests (slow) - organized by category
+  desc "Run all integration tests (slow, uses LLMs/Claude CLI)"
+  task :integration do
+    ENV["INTEGRATION"] = "1"
+    Rake::TestTask.new(:integration_runner) do |t|
       t.libs << "test"
-      t.test_files = FileList["test/agents/unit/**/*_test.rb"]
+      t.test_files = FileList["test/integration/**/*_test.rb"]
+      t.verbose = true
+      t.warning = false
+    end
+    Rake::Task[:integration_runner].invoke
+  end
+
+  # Run all tests
+  desc "Run all tests (unit + integration)"
+  task all: %i[unit integration]
+
+  # Category-specific tasks for backward compatibility and granular control
+  namespace :unit do
+    desc "Run skill unit tests only"
+    Rake::TestTask.new(:skills) do |t|
+      t.libs << "test"
+      t.test_files = FileList["test/unit/skills/**/*_test.rb"]
       t.verbose = true
       t.warning = false
     end
 
-    desc "Run all agent integration tests (slow, uses Claude CLI)"
-    Rake::TestTask.new(:integration) do |t|
+    desc "Run agent unit tests only"
+    Rake::TestTask.new(:agents) do |t|
       t.libs << "test"
-      t.test_files = FileList["test/agents/integration/*_test.rb"]
+      t.test_files = FileList["test/unit/agents/**/*_test.rb"]
+      t.verbose = true
+      t.warning = false
+    end
+  end
+
+  namespace :integration do
+    desc "Run skill integration tests only"
+    task :skills do
+      ENV["INTEGRATION"] = "1"
+      Rake::TestTask.new(:skills_runner) do |t|
+        t.libs << "test"
+        t.test_files = FileList["test/integration/skills/**/*_test.rb"]
+        t.verbose = true
+        t.warning = false
+      end
+      Rake::Task[:skills_runner].invoke
+    end
+
+    desc "Run agent integration tests only"
+    Rake::TestTask.new(:agents) do |t|
+      t.libs << "test"
+      t.test_files = FileList["test/integration/agents/**/*_test.rb"]
       t.verbose = true
       t.warning = false
     end
 
-    desc "Run a specific agent integration test"
+    desc "Run a specific agent integration scenario"
     task :scenario, [:scenario_name] do |_t, args|
       scenario_name = args[:scenario_name]
-      raise "Usage: rake test:agents:scenario[scenario_name]" unless scenario_name
+      raise "Usage: rake test:integration:scenario[scenario_name]" unless scenario_name
 
-      test_file = "test/agents/integration/#{scenario_name}_test.rb"
+      test_file = "test/integration/agents/#{scenario_name}_test.rb"
 
       if File.exist?(test_file)
         puts "Running integration test: #{test_file}"
@@ -37,176 +86,129 @@ namespace :test do
         puts "Error: Integration test not found: #{test_file}"
         puts ""
         puts "Available scenarios:"
-        Dir.glob("test/agents/integration/*_test.rb").each do |file|
+        Dir.glob("test/integration/agents/*_test.rb").each do |file|
           name = File.basename(file, "_test.rb")
           puts "  - #{name}"
         end
         exit 1
       end
     end
+  end
 
-    desc "Run all agent tests (unit + integration)"
-    task all: %i[unit integration]
+  # Test coverage reports
+  desc "Show test coverage report"
+  task :report do
+    puts "\n=== Test Coverage Report ==="
+    puts ""
 
-    desc "Agent test coverage report"
-    task :report do
-      puts "\n=== Agent Test Coverage Report ==="
-      puts ""
+    # Skills
+    total_skills = Dir.glob("skills/**/*.md").reject { |f| f.include?("README") }.count
+    skill_unit_tests = Dir.glob("test/unit/skills/**/*_test.rb").count
+    skill_integration_tests = Dir.glob("test/integration/skills/**/*_test.rb").count
+    skill_coverage = ((skill_unit_tests.to_f / total_skills) * 100).round(1)
 
-      # Count agents
-      total_agents = Dir.glob("agents/*.md").count
-      puts "Total Agents: #{total_agents}"
+    puts "Skills:"
+    puts "  Total: #{total_skills}"
+    puts "  Unit Tests: #{skill_unit_tests} (#{skill_coverage}% coverage)"
+    puts "  Integration Tests: #{skill_integration_tests}"
+    puts ""
 
-      # Count unit tests
-      unit_tests = Dir.glob("test/agents/unit/**/*_test.rb").count
-      puts "Unit Tests: #{unit_tests}"
+    # Agents
+    total_agents = Dir.glob("agents/*.md").count
+    agent_unit_tests = Dir.glob("test/unit/agents/**/*_test.rb").count
+    agent_integration_tests = Dir.glob("test/integration/agents/**/*_test.rb").count
 
-      # Count test assertions (approximate)
-      test_count = 0
-      Dir.glob("test/agents/unit/**/*_test.rb").each do |file|
-        test_count += File.read(file).scan("def test_").count
-      end
-      puts "Test Methods: #{test_count}"
+    puts "Agents:"
+    puts "  Total: #{total_agents}"
+    puts "  Unit Tests: #{agent_unit_tests}"
+    puts "  Integration Tests: #{agent_integration_tests}"
+    puts ""
 
-      puts ""
-      puts "Run tests:"
-      puts "  rake test:agents:unit          # Fast structural tests"
-      puts "  rake test:agents:all           # All tests"
-      puts ""
+    # Overall
+    total_unit = skill_unit_tests + agent_unit_tests
+    total_integration = skill_integration_tests + agent_integration_tests
+
+    puts "Overall:"
+    puts "  Unit Tests: #{total_unit}"
+    puts "  Integration Tests: #{total_integration}"
+    puts "  Total Tests: #{total_unit + total_integration}"
+    puts ""
+    puts "Run tests:"
+    puts "  rake test:unit                    # Fast unit tests"
+    puts "  rake test:integration             # Slow integration tests"
+    puts "  rake test:unit:skills             # Skills unit tests only"
+    puts "  rake test:unit:agents             # Agents unit tests only"
+    puts "  rake test:integration:scenario[X] # Specific agent scenario"
+    puts ""
+  end
+
+  # Helper task for running a specific test file
+  desc "Run a specific test file"
+  task :file, [:file_path] do |_t, args|
+    file_path = args[:file_path]
+    raise "Usage: rake test:file[path/to/test.rb]" unless file_path
+
+    if File.exist?(file_path)
+      puts "Running test: #{file_path}"
+      system("ruby -Itest #{file_path}")
+    else
+      puts "Error: Test file not found: #{file_path}"
+      exit 1
     end
   end
 
-  namespace :skills do
-    desc "Run all skill unit tests (fast, no LLM calls)"
-    Rake::TestTask.new(:unit) do |t|
-      t.libs << "test"
-      t.test_files = FileList["test/skills/unit/**/*_test.rb"]
-      t.verbose = true
-      t.warning = false
-    end
+  # Template generator for new skill tests
+  desc "Create a new skill test template"
+  task :new_skill, [:skill_name, :domain] do |_t, args|
+    skill_name = args[:skill_name]
+    domain = args[:domain] || "frontend"
 
-    desc "Run all skill integration tests (slow, uses LLMs)"
-    task :integration do
-      ENV["INTEGRATION"] = "1"
-      Rake::TestTask.new(:integration_runner) do |t|
-        t.libs << "test"
-        t.test_files = FileList["test/skills/integration/**/*_test.rb"]
-        t.verbose = true
-        t.warning = false
-      end
-      Rake::Task[:integration_runner].invoke
-    end
+    raise "Usage: rake test:new_skill[skill-name,domain]" unless skill_name
 
-    desc "Run all skill tests (unit + integration)"
-    task all: %i[unit integration]
+    test_class = "#{skill_name.split('-').map(&:capitalize).join}Test"
+    unit_test_file = "test/unit/skills/#{skill_name}_test.rb"
 
-    desc "Run skill tests with coverage report"
-    task :report do
-      puts "\n=== Skill Test Coverage Report ==="
-      puts ""
+    # Create unit test template
+    File.write(unit_test_file, <<~RUBY)
+      # frozen_string_literal: true
 
-      # Count skills
-      total_skills = Dir.glob("skills/**/*.md").reject { |f| f.include?("README") }.count
-      puts "Total Skills: #{total_skills}"
+      require_relative "../../support/skill_test_case"
 
-      # Count unit tests
-      unit_tests = Dir.glob("test/skills/unit/**/*_test.rb").count
-      puts "Unit Tests: #{unit_tests}"
+      class #{test_class} < SkillTestCase
+        self.skill_domain = "#{domain}"
+        self.skill_name = "#{skill_name}"
 
-      # Count integration tests
-      integration_tests = Dir.glob("test/skills/integration/**/*_test.rb").count
-      puts "Integration Tests: #{integration_tests}"
-
-      # Coverage
-      coverage = ((unit_tests.to_f / total_skills) * 100).round(1)
-      puts "Coverage: #{coverage}%"
-
-      puts ""
-      puts "Run tests:"
-      puts "  rake test:skills:unit          # Fast unit tests"
-      puts "  rake test:skills:integration   # Slow integration tests"
-      puts "  rake test:skills:all           # All tests"
-      puts ""
-    end
-
-    desc "Run tests for a specific skill"
-    task :skill, [:skill_name] do |_t, args|
-      skill_name = args[:skill_name]
-      raise "Usage: rake test:skills:skill[skill-name]" unless skill_name
-
-      # Convert skill-name to SkillName for test file
-      skill_name.split("-").map(&:capitalize).join
-
-      unit_test = "test/skills/unit/#{skill_name}_test.rb"
-      integration_test = "test/skills/integration/#{skill_name}_integration_test.rb"
-
-      if File.exist?(unit_test)
-        puts "Running unit test: #{unit_test}"
-        system("ruby -Itest #{unit_test}")
-      else
-        puts "Warning: Unit test not found: #{unit_test}"
-      end
-
-      if File.exist?(integration_test) && ENV["INTEGRATION"]
-        puts "Running integration test: #{integration_test}"
-        system("INTEGRATION=1 ruby -Itest #{integration_test}")
-      elsif File.exist?(integration_test)
-        puts "Skipping integration test (set INTEGRATION=1 to run)"
-      end
-    end
-
-    desc "Create a new skill test template"
-    task :new, [:skill_name, :domain] do |_t, args|
-      skill_name = args[:skill_name]
-      domain = args[:domain] || "frontend"
-
-      raise "Usage: rake test:skills:new[skill-name,domain]" unless skill_name
-
-      test_class = "#{skill_name.split('-').map(&:capitalize).join}Test"
-      unit_test_file = "test/skills/unit/#{skill_name}_test.rb"
-
-      # Create unit test template
-      File.write(unit_test_file, <<~RUBY)
-        # frozen_string_literal: true
-
-        require_relative "../skill_test_case"
-
-        class #{test_class} < SkillTestCase
-          self.skill_domain = "#{domain}"
-          self.skill_name = "#{skill_name}"
-
-          def test_skill_file_exists
-            assert skill_file_exists?("#{domain}", "#{skill_name}"),
-                   "#{skill_name}.md should exist in skills/#{domain}/"
-          end
-
-          def test_has_yaml_front_matter
-            assert_skill_has_yaml_front_matter
-          end
-
-          def test_has_required_metadata
-            assert_skill_has_required_metadata
-            assert_equal "#{skill_name}", skill_metadata["name"]
-            assert_equal "#{domain}", skill_metadata["domain"]
-          end
-
-          def test_has_required_sections
-            assert_skill_has_section("when-to-use")
-            assert_skill_has_section("benefits")
-            assert_skill_has_section("standards")
-          end
-
-          def test_has_code_examples
-            assert_code_examples_are_valid
-          end
-
-          # Add more specific tests for this skill...
+        def test_skill_file_exists
+          assert skill_file_exists?("#{domain}", "#{skill_name}"),
+                 "#{skill_name}.md should exist in skills/#{domain}/"
         end
-      RUBY
 
-      puts "Created unit test: #{unit_test_file}"
-      puts "Run with: ruby -Itest #{unit_test_file}"
-    end
+        def test_has_yaml_front_matter
+          assert_skill_has_yaml_front_matter
+        end
+
+        def test_has_required_metadata
+          assert_skill_has_required_metadata
+          assert_equal "#{skill_name}", skill_metadata["name"]
+          assert_equal "#{domain}", skill_metadata["domain"]
+        end
+
+        def test_has_required_sections
+          assert_skill_has_section("when-to-use")
+          assert_skill_has_section("benefits")
+          assert_skill_has_section("standards")
+        end
+
+        def test_has_code_examples
+          assert_code_examples_are_valid
+        end
+
+        # Add more specific tests for this skill...
+      end
+    RUBY
+
+    puts "Created unit test: #{unit_test_file}"
+    puts "Run with: rake test:file[#{unit_test_file}]"
   end
 end
 

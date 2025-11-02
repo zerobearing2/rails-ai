@@ -392,9 +392,9 @@ end
 
 <related-skills>
 - solid-stack-setup - Using SolidQueue for email delivery
-- activerecord-callbacks - Triggering emails from model callbacks
+
 - form-objects - Sending emails from form objects
-- testing-minitest - Testing strategies for mailers
+- tdd-minitest - Testing strategies for mailers
 - security-xss - Preventing XSS in email templates
 </related-skills>
 

@@ -132,13 +132,13 @@ end
 
 ```bash
 # Run all unit tests (< 1 second)
-rake test:skills:unit
+rake test:unit:skills
 
 # Run specific skill test
 ruby -Itest test/skills/unit/turbo_page_refresh_test.rb
 
 # Generate new unit test template
-rake test:skills:new[my-skill,backend]
+rake test:new_skill[my-skill,backend]
 ```
 
 ### Benefits of Unit Tests
@@ -253,14 +253,14 @@ The judge evaluates code on multiple criteria:
 
 ```bash
 # Run all integration tests (requires LLM APIs)
-INTEGRATION=1 rake test:skills:integration
+INTEGRATION=1 rake test:integration:scenario[NAME]
 
 # Set API keys
 export OPENAI_API_KEY="sk-..."
 export ANTHROPIC_API_KEY="sk-ant-..."
 
 # Run with cross-validation (2x API calls)
-INTEGRATION=1 CROSS_VALIDATE=1 rake test:skills:integration
+INTEGRATION=1 CROSS_VALIDATE=1 rake test:integration:scenario[NAME]
 
 # Run specific integration test
 INTEGRATION=1 ruby -Itest test/skills/integration/turbo_page_refresh_integration_test.rb
@@ -376,16 +376,16 @@ end
 
 ```bash
 # Unit tests (fast)
-rake test:skills:unit                    # Run all unit tests
-rake test:skills:skill[skill-name]       # Run specific skill test
-rake test:skills:new[skill-name,domain]  # Generate test template
+rake test:unit:skills                    # Run all unit tests
+rake test:file[skill-name]       # Run specific skill test
+rake test:new_skill[skill-name,domain]  # Generate test template
 
 # Integration tests (slow)
-rake test:skills:integration             # Run all integration tests
-rake test:skills:all                     # Run unit + integration
+rake test:integration:scenario[NAME]             # Run all integration tests
+rake test:unit                     # Run unit + integration
 
 # Coverage report
-rake test:skills:report
+rake test:report
 # => Total Skills: 40
 #    Unit Tests: 19
 #    Integration Tests: 5
@@ -413,7 +413,7 @@ jobs:
           ruby-version: 3.3
           bundler-cache: true
       - name: Run unit tests
-        run: bundle exec rake test:skills:unit
+        run: bundle exec rake test:unit:skills
 
   integration-tests:
     runs-on: ubuntu-latest
@@ -428,7 +428,7 @@ jobs:
         env:
           INTEGRATION: 1
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        run: bundle exec rake test:skills:integration
+        run: bundle exec rake test:integration:scenario[NAME]
 ```
 
 ---
@@ -440,7 +440,7 @@ jobs:
 Use the template generator:
 
 ```bash
-rake test:skills:new[my-skill,backend]
+rake test:new_skill[my-skill,backend]
 ```
 
 Or manually create:
@@ -517,7 +517,7 @@ INTEGRATION=1 ruby -Itest test/skills/integration/my_skill_integration_test.rb
 As of 2025-10-30:
 
 ```bash
-$ rake test:skills:report
+$ rake test:report
 
 === Skill Test Coverage Report ===
 
@@ -527,9 +527,9 @@ Integration Tests: 1
 Coverage: 2.5%
 
 Run tests:
-  rake test:skills:unit          # Fast unit tests
-  rake test:skills:integration   # Slow integration tests
-  rake test:skills:all           # All tests
+  rake test:unit:skills          # Fast unit tests
+  rake test:integration:scenario[NAME]   # Slow integration tests
+  rake test:unit           # All tests
 ```
 
 **Proven working:**

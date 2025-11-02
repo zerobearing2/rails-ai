@@ -494,7 +494,7 @@ end
 - security-sql-injection - SQL injection prevention
 - authentication-session - Session-based authentication
 - authentication-token - Token-based API authentication
-- strong-parameters - Parameter filtering
+- security-strong-parameters - Parameter filtering
 </related-skills>
 
 <resources>

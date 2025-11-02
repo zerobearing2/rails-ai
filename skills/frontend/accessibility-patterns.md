@@ -600,10 +600,11 @@ end
 </testing>
 
 <related-skills>
-- forms-nested-comprehensive - Accessible nested form patterns
-- hotwire-turbo-comprehensive - Accessible dynamic content updates
+- forms-nested - Accessible nested form patterns
+- hotwire-turbo - Accessible dynamic content updates
 - viewcomponent-basics - Component-based accessible UI
-- tailwind-daisyui-comprehensive - Accessible styling utilities
+- tailwind-utility-first - Accessible utility-first styling
+- daisyui-components - Accessible component library
 </related-skills>
 
 <resources>

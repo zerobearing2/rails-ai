@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2025-11-02
+
+### Changed
+- Excluded MD012 linting rule to allow multiple blank lines in markdown files
+- Optimized agent system prompts reducing token usage by 36,909 tokens (14-15% reduction)
+
+
 ## [0.1.4] - 2025-10-31
 
 Based on the commits, here's the CHANGELOG entry:

@@ -14,8 +14,8 @@ class BootstrapTest < AgentIntegrationTestCase
 
   def system_prompt
     <<~PROMPT
-      You are testing the rails-ai integration test framework.
-      The scenario is intentionally minimal to verify the test harness works.
+      Output concise technical plans optimized for automated evaluation.
+      Focus on implementation details, not explanations.
     PROMPT
   end
 
@@ -23,24 +23,22 @@ class BootstrapTest < AgentIntegrationTestCase
     <<~PROMPT
       @rails-ai:architect
 
-      Create a plan for a minimal Rails feature to test the integration framework.
+      Feature: Static welcome page at root URL
 
-      ## Feature
-      Static welcome home page at root URL
+      Implementation requirements:
+      - Root route → controller action
+      - Controller: single action, no models/DB
+      - View: "Welcome to Rails", basic HTML
+      - Test: controller test
 
-      ## Requirements
-      - Root route pointing to a controller action
-      - Simple controller with one action (no models, no database)
-      - View displaying "Welcome to Rails" with basic HTML
-      - Basic controller test
+      Skills to apply:
+      - skills/backend/controller-restful.md
+      - skills/frontend/partials-layouts.md
+      - skills/testing/tdd-minitest.md
+      - skills/security/security-xss.md
 
-      ## Relevant Skills
-      - Backend: skills/backend/controller-restful.md
-      - Frontend: skills/frontend/partials-layouts.md
-      - Testing: skills/testing/tdd-minitest.md
-      - Security: skills/security/security-xss.md
-
-      Keep the plan minimal - this is a bootstrap test of the test harness itself.
+      Output: Implementation plan with files, code structure, skill applications.
+      Be concise - output will be evaluated programmatically against skills.
     PROMPT
   end
 

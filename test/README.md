@@ -231,7 +231,7 @@ See `.github/workflows/ci.yml` for details.
 **Agent integration tests:**
 - Invoke real agent via Claude CLI
 - Agent produces implementation plan
-- 3 domain judges evaluate in parallel (backend, tests, security)
+- 4 domain judges evaluate in parallel (backend, frontend, tests, security)
 - Score against 150-point rubric (70% to pass)
 - Log results for tracking improvement
 

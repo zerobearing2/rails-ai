@@ -290,7 +290,7 @@ Judge prompts remain **unchanged** - just moved to `support/judge_prompts/`:
 
 Scoring remains **identical**:
 
-- 3 domains × 50 points = 150 total
+- 4 domains × 50 points = 200 total
 - 70% threshold = 105 points to pass
 - 5 criteria per domain (10 points each)
 

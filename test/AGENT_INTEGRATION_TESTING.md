@@ -51,10 +51,11 @@ test/agents/
 
 ### Scoring System
 
-- **Total Score**: 150 points (3 domains × 50 points each)
-- **Pass Threshold**: 105 points (70%)
+- **Total Score**: 200 points (4 domains × 50 points each)
+- **Pass Threshold**: 140 points (70%)
 - **Domains**:
   - **Backend** (50 pts): Model design, migrations, validations, business logic, Rails conventions
+  - **Frontend** (50 pts): Views, Hotwire, Tailwind/DaisyUI, forms, accessibility
   - **Tests** (50 pts): Coverage, quality, organization, edge cases, maintainability
   - **Security** (50 pts): Authorization, mass assignment, validation, sensitive data, best practices
 
@@ -66,7 +67,7 @@ Each domain has 5 criteria scored 0-10 points each.
 1. Test loads scenario (system prompt + agent prompt)
 2. Invokes Claude CLI with prompts
 3. Agent produces implementation plan
-4. Spawns 3 parallel judge threads
+4. Spawns 4 parallel judge threads
 5. Each judge loads relevant skills/rules and evaluates
 6. Scores are aggregated
 7. Pass/fail determined (≥70% = pass)
@@ -160,7 +161,7 @@ Run options: --seed 12345
 SimpleModelPlanTest#test_scenario
   [Invoking Claude CLI with agent prompt...]
   [Agent producing plan...]
-  [Running 3 parallel domain judges...]
+  [Running 4 parallel domain judges...]
   [Backend: 45/50, Tests: 42/50, Security: 38/50]
   [Total: 125/150 (83%) - PASS]
 
@@ -231,7 +232,7 @@ The `AgentIntegrationTestCase` class provides:
 - Captures agent output
 
 ### Parallel Domain Judges
-- Spawns 3 threads (one per domain)
+- Spawns 4 threads (one per domain)
 - Each judge loads relevant skills/rules
 - Judges evaluate concurrently for speed
 

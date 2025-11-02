@@ -18,10 +18,10 @@ require "tmpdir"
 # - Define expected_pass (true/false)
 # - Optionally define custom assertions in test_scenario method
 class AgentIntegrationTestCase < Minitest::Test
-  DOMAINS = %w[backend tests security].freeze
+  DOMAINS = %w[backend frontend tests security].freeze
   MAX_SCORE_PER_DOMAIN = 50
-  MAX_TOTAL_SCORE = DOMAINS.size * MAX_SCORE_PER_DOMAIN # 150
-  PASS_THRESHOLD = (MAX_TOTAL_SCORE * 0.7).to_i # 105
+  MAX_TOTAL_SCORE = DOMAINS.size * MAX_SCORE_PER_DOMAIN # 200
+  PASS_THRESHOLD = (MAX_TOTAL_SCORE * 0.7).to_i # 140
 
   # Override in subclass
   def scenario_name
@@ -192,6 +192,8 @@ class AgentIntegrationTestCase < Minitest::Test
     skills = case domain
              when "backend"
                load_skills_for_patterns(%w[model migration association validation activerecord])
+             when "frontend"
+               load_skills_for_patterns(%w[view partial component hotwire turbo stimulus tailwind daisyui form])
              when "tests"
                load_skills_for_patterns(%w[test minitest fixture mock coverage])
              when "security"
@@ -251,6 +253,8 @@ class AgentIntegrationTestCase < Minitest::Test
     case domain
     when "backend"
       basename.match?(/model|migration|database|activerecord|validation/)
+    when "frontend"
+      basename.match?(/view|partial|component|hotwire|turbo|stimulus|tailwind|daisyui|form|ui/)
     when "tests"
       basename.match?(/test|minitest|coverage|quality/)
     when "security"

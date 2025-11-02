@@ -105,11 +105,10 @@ class AgentIntegrationTestCase < Minitest::Test
     log_live "  Invoking Claude CLI with agent prompt..."
     log_live "  " + ("-" * 76)
 
-    # Run claude CLI with streaming output
+    # Run claude CLI with streaming output capture
     cmd = [
       "claude",
       "--print",
-      "--stream",
       "--system-prompt",
       system_prompt
     ]
@@ -162,8 +161,8 @@ class AgentIntegrationTestCase < Minitest::Test
     log_live "  Invoking Claude CLI for parallel judging..."
     log_live "  " + ("-" * 76)
 
-    # Run claude CLI once with parallel tasks (with streaming)
-    cmd = ["claude", "--print", "--stream"]
+    # Run claude CLI once with parallel tasks (with streaming output capture)
+    cmd = ["claude", "--print"]
     stdout, stderr, status = run_command_with_streaming(cmd, coordinator_prompt)
 
     log_live "  " + ("-" * 76)

@@ -260,9 +260,13 @@ class AgentIntegrationTestCase < Minitest::Test
   def parse_score_from_judgment(judgment_text, domain)
     # Try to parse as JSON first
     begin
-      # Remove markdown code blocks if present
-      json_text = judgment_text.strip
-      json_text = json_text.gsub(/^```json?\n/, "").gsub(/\n```$/, "")
+      # Extract JSON from between code fences if present
+      json_match = judgment_text.match(/```json?\s*\n(.*?)\n```/m)
+      json_text = if json_match
+        json_match[1]
+      else
+        judgment_text.strip
+      end
 
       data = JSON.parse(json_text)
       return data["total_score"].to_i if data["total_score"]

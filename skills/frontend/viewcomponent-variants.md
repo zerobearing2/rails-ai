@@ -808,11 +808,11 @@ end
 </testing>
 
 <related-skills>
-- viewcomponent-basics - Foundation for building ViewComponents
-- viewcomponent-slots - Multi-content area components
-- tailwind-utility-first - Tailwind CSS utility-first approach
-- daisyui-components - DaisyUI component system integration
-- hotwire-turbo - Dynamic updates with Turbo Frames
+- viewcomponent-basics: Foundation for building ViewComponents
+- viewcomponent-slots: Multi content area components
+- tailwind-utility-first: Tailwind CSS utility first approach
+- daisyui-components: DaisyUI component system integration
+- hotwire-turbo: Dynamic updates with Turbo Frames
 </related-skills>
 
 <resources>

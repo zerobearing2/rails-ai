@@ -684,11 +684,11 @@ end
 </testing>
 
 <related-skills>
-- controller-restful - Base RESTful controller patterns
-- hotwire-stimulus - JavaScript framework for dynamic behavior
-- hotwire-turbo - Turbo Frames for inline nested resource editing
-- viewcomponent-basics - Component-based form field rendering
-- activerecord-patterns - Association and validation patterns
+- controller-restful: Base RESTful controller patterns
+- hotwire-stimulus: JavaScript framework for dynamic behavior
+- hotwire-turbo: Turbo Frames for inline nested resource editing
+- viewcomponent-basics: Component based form field rendering
+- activerecord-patterns: Association and validation patterns
 </related-skills>
 
 <resources>

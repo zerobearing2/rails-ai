@@ -287,8 +287,8 @@ end
 </testing>
 
 <related-skills>
-- credentials-management - Secure credential storage
-- environment-configuration - Environment-specific settings
-- security-csrf - CSRF protection configuration
-- security-xss - XSS prevention and CSP
+- credentials-management: Secure credential storage
+- environment-configuration: Environment specific settings
+- security-csrf: CSRF protection configuration
+- security-xss: XSS prevention and CSP
 </related-skills>

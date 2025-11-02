@@ -701,10 +701,10 @@ bin/rails test:system
 </testing>
 
 <related-skills>
-- viewcomponent-basics - Component creation and structure
-- tdd-minitest - Test-driven development with Minitest
-- fixtures-test-data - Using fixtures for test data
-- minitest-mocking - Mocking and stubbing in tests
+- viewcomponent-basics: Component creation and structure
+- tdd-minitest: Test driven development with Minitest
+- fixtures-test-data: Using fixtures for test data
+- minitest-mocking: Mocking and stubbing in tests
 </related-skills>
 
 <resources>

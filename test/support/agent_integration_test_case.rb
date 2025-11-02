@@ -38,8 +38,16 @@ class AgentIntegrationTestCase < Minitest::Test
     raise NotImplementedError, "Subclass must define scenario_name"
   end
 
+  # Default system prompt for integration tests - can be overridden in subclasses
   def system_prompt
-    raise NotImplementedError, "Subclass must define system_prompt"
+    <<~PROMPT
+      You are planning features for a Rails 8.1 application (NOT the rails-ai project itself).
+
+      This is a test scenario - provide implementation plans even if the current directory
+      doesn't have Rails app structure. Assume you're planning for a standard Rails app.
+
+      Output concise technical plans with code. Do not ask for clarification.
+    PROMPT
   end
 
   def agent_prompt

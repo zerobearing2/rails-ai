@@ -484,7 +484,7 @@ end
 - viewcomponent-basics - Foundation for creating components
 - viewcomponent-slots - Components with multiple content areas
 - viewcomponent-variants - Style variants and polymorphic rendering
-- testing-viewcomponents - Comprehensive component testing
+- viewcomponent-testing - Comprehensive component testing
 - hotwire-turbo - Dynamic updates with Turbo
 </related-skills>
 

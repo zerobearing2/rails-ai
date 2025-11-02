@@ -536,7 +536,7 @@ one:
 - controller-restful - Base RESTful controller patterns
 - activerecord-patterns - Association and validation patterns
 - hotwire-turbo - Turbo frame/stream responses for nested resources
-- strong-parameters - Secure parameter filtering
+- security-strong-parameters - Secure parameter filtering
 </related-skills>
 
 <resources>

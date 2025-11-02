@@ -548,10 +548,10 @@ end
 </testing>
 
 <related-skills>
-- viewcomponent-basics - Modern component-based alternative to helpers
-- security-xss - Preventing XSS vulnerabilities in helpers
-- hotwire-turbo - Turbo integration with helpers (data attributes)
-- tailwind-utility-first - Styling helper-generated HTML
+- viewcomponent-basics: Modern component based alternative to helpers
+- security-xss: Preventing XSS vulnerabilities in helpers
+- hotwire-turbo: Turbo integration with helpers (data attributes)
+- tailwind-utility-first: Styling helper generated HTML
 </related-skills>
 
 <resources>

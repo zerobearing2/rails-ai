@@ -441,11 +441,11 @@ end
 </testing>
 
 <related-skills>
-- viewcomponent-basics - Component architecture for reusable Tailwind components
-- viewcomponent-slots - Multi-slot components with Tailwind styling
-- hotwire-turbo - Dynamic updates without losing Tailwind styles
-- hotwire-stimulus - JavaScript behavior with Tailwind classes
-- daisyui-components - Pre-built components (separate from pure Tailwind)
+- viewcomponent-basics: Component architecture for reusable Tailwind components
+- viewcomponent-slots: Multi slot components with Tailwind styling
+- hotwire-turbo: Dynamic updates without losing Tailwind styles
+- hotwire-stimulus: JavaScript behavior with Tailwind classes
+- daisyui-components: Prebuilt components (separate from pure Tailwind)
 </related-skills>
 
 <resources>

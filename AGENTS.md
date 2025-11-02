@@ -123,7 +123,7 @@ viewcomponent-basics:
    - antipatterns (with reasons and solutions)
    - testing (with example)
    - related_skills (array)
-6. **Write unit test** - Use `rake test:skills:new[skill-name,domain]` to generate test
+6. **Write unit test** - Use `rake test:new_skill[skill-name,domain]` to generate test
 7. **Update metadata** - Increment skill count and domain count in registry header
 8. **Commit with description** - Clear commit message explaining the skill
 
@@ -134,7 +134,7 @@ viewcomponent-basics:
 3. **Maintain format** - Keep YAML structure consistent
 4. **Test examples** - Ensure all code examples are current for Rails 8+
 5. **Update dependencies** - If skill relationships change
-6. **Run tests** - Ensure `rake test:skills:unit` passes
+6. **Run tests** - Ensure `rake test:unit:skills` passes
 7. **Commit clearly** - Describe what changed and why
 
 ### Removing a Skill
@@ -206,11 +206,13 @@ Each agent has a **specialized role** and loads a **preset** of skills automatic
 
 **Access:** `@agent-rails-ai:backend`
 
-**Preset Skills:** (10 backend + 6 security + 3 config + 1 testing = 20 total)
+**Preset Skills:** (13 total: 10 backend + 3 config)
 - **Backend (10):** controller-restful, activerecord-patterns, form-objects, query-objects, concerns-models, concerns-controllers, custom-validators, action-mailer, nested-resources, antipattern-fat-controllers
-- **Security (6):** security-xss, security-sql-injection, security-csrf, security-strong-parameters, security-file-uploads, security-command-injection
 - **Config (3):** solid-stack-setup, credentials-management, docker-rails-setup
-- **Testing (1):** tdd-minitest
+
+**Coordination:**
+- **Security:** Pairs with @security for security-critical features (user input, auth, file uploads, database queries)
+- **Testing:** Pairs with @tests for complex testing scenarios (mocking, edge cases, test strategy)
 
 **When to use:**
 - Building REST APIs and controllers
@@ -228,9 +230,12 @@ Each agent has a **specialized role** and loads a **preset** of skills automatic
 
 **Access:** `@agent-rails-ai:frontend`
 
-**Preset Skills:** (13 frontend + 1 testing)
+**Preset Skills:** (13 total: frontend only)
 - **Frontend (13):** viewcomponent-basics, viewcomponent-slots, viewcomponent-previews, viewcomponent-variants, hotwire-turbo, hotwire-stimulus, turbo-page-refresh, tailwind-utility-first, daisyui-components, view-helpers, forms-nested, accessibility-patterns, partials-layouts
-- **Testing (1):** viewcomponent-testing
+
+**Coordination:**
+- **Security:** Pairs with @security for security-critical frontend features (forms with user input, file uploads)
+- **Testing:** Pairs with @tests for ViewComponent testing and complex test scenarios
 
 **When to use:**
 - Building ViewComponent UI components
@@ -334,13 +339,13 @@ We use a **two-tier Minitest strategy** for testing skills:
 
 ```bash
 # Run all unit tests
-rake test:skills:unit
+rake test:unit:skills
 
 # Run specific skill test
 ruby -Itest test/skills/unit/turbo_page_refresh_test.rb
 
 # Generate test for new skill
-rake test:skills:new[skill-name,domain]
+rake test:new_skill[skill-name,domain]
 ```
 
 **What unit tests validate:**
@@ -352,28 +357,31 @@ rake test:skills:new[skill-name,domain]
 - ✅ Good (✅) and bad (❌) examples marked
 - ✅ Key patterns documented (attributes, methods, callbacks)
 
-#### Tier 2: Integration Tests (Slow - Optional)
-**Purpose:** Validate agents apply skills correctly using LLM-as-judge
-**Speed:** ~2-5 seconds per test case
-**When:** Before commits, weekly, or on major changes
+#### Tier 2: Integration Tests (Slow - Manual Only)
+**Purpose:** Validate agent planning capabilities using 4-domain judging
+**Speed:** ~90 seconds per scenario (agent + 4 judges)
+**When:** Manually before releases or after significant agent/skill changes
 
 ```bash
-# Run all integration tests (requires LLM APIs)
-INTEGRATION=1 rake test:skills:integration
+# Run bootstrap test (fast verification, ~40s)
+rake test:integration:bootstrap
 
-# Set API keys
-export OPENAI_API_KEY="sk-..."
-export ANTHROPIC_API_KEY="sk-ant-..."
+# Run specific scenario
+rake test:integration:scenario[simple_model_plan]
 
-# Run with cross-validation
-INTEGRATION=1 CROSS_VALIDATE=1 rake test:skills:integration
+# List available scenarios
+rake test:integration:list
+
+# NOTE: Integration tests must be run individually (no bulk run due to cost/time)
 ```
 
 **What integration tests validate:**
-- ✅ Generated code contains expected patterns
-- ✅ Generated code avoids antipatterns
-- ✅ LLM judge scores >= 4.0/5.0
-- ✅ Multiple LLMs agree (cross-validation)
+- ✅ Agent produces implementation plans (not questions for clarification)
+- ✅ Backend planning (models, migrations, validations, Rails conventions)
+- ✅ Frontend planning (views, Hotwire, Tailwind, forms, accessibility)
+- ✅ Test planning (coverage, Minitest, fixtures)
+- ✅ Security planning (authorization, validation, sensitive data)
+- ✅ Score threshold: 140/200 points (70%)
 
 #### Linting & Quality
 
@@ -392,14 +400,14 @@ rake lint:fix       # Auto-fix Ruby issues
 #### Before Committing
 
 **Required:**
-1. ✅ Unit tests pass (`rake test:skills:unit`)
+1. ✅ Unit tests pass (`rake test:unit:skills`)
 2. ✅ Linters pass (`rake lint`)
 3. ✅ YAML front matter valid
 4. ✅ Code examples syntactically correct
 5. ✅ XML tags properly closed
 
 **Recommended:**
-6. Integration tests pass (`INTEGRATION=1 rake test:skills:integration`)
+6. Integration tests pass (`rake test:integration:scenario[NAME]`)
 7. Manual test: Ask an agent to use the skill on a real task
 8. Verify output matches expectations
 
@@ -416,7 +424,7 @@ We use **fast unit tests** to validate agent structure and consistency:
 
 ```bash
 # Run all agent tests
-rake test:agents:unit
+rake test:unit:agents
 
 # Run specific test file
 ruby -Itest test/agents/unit/agent_structure_test.rb
@@ -437,7 +445,7 @@ bin/ci
 - ✅ Cross-references valid (coordinates_with only references existing agents)
 - ✅ Skill references valid (only references skills in SKILLS_REGISTRY.yml)
 - ✅ No references to deleted agents
-- ✅ Documentation matches reality (AGENTS.md, DECISION_MATRICES.yml)
+- ✅ Documentation matches reality (AGENTS.md, ARCHITECT_DECISIONS.yml)
 
 #### Agent Integration Tests (Deferred for Post-MVP)
 **Purpose:** Validate agent behavior and coordination using LLM calls
@@ -447,7 +455,7 @@ bin/ci
 #### Before Committing Agent Changes
 
 **Required:**
-1. ✅ Agent unit tests pass (`rake test:agents:unit`)
+1. ✅ Agent unit tests pass (`rake test:unit:agents`)
 2. ✅ Linters pass (`rake lint`)
 3. ✅ YAML front matter valid
 4. ✅ All cross-references exist
@@ -595,8 +603,8 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for full contribution guidelines.
 - **Adding skills** - Edit `skills/SKILLS_REGISTRY.yml` and add new skill entry
 - **Updating agents** - Edit agent markdown files in `agents/` directory
 - **Running tests** - `bin/ci` runs all checks (linting + unit tests)
-- **Testing skills** - `rake test:skills:unit` for fast skill validation
-- **Testing agents** - `rake test:agents:unit` for agent structure tests
+- **Testing skills** - `rake test:unit:skills` for fast skill validation
+- **Testing agents** - `rake test:unit:agents` for agent structure tests
 - **Linting** - `rake lint` or `rake lint:fix` to auto-fix issues
 
 ### Key Files

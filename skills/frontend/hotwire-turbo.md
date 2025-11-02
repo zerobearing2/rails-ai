@@ -331,7 +331,7 @@ end
 <related-skills>
 - hotwire-stimulus - Add JavaScript behavior to Turbo interactions
 - viewcomponent-basics - Use components with Turbo Frames
-- actioncable-basics - Understand WebSocket connection for broadcasts
+
 </related-skills>
 
 <resources>

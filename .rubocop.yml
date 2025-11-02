@@ -33,6 +33,7 @@ Layout/LineLength:
 Metrics/BlockLength:
   Exclude:
     - 'test/**/*_test.rb'
+    - 'test/support/**/*'  # Test support files (e.g., LLM adapter with streaming)
     - 'Rakefile'
 
 Metrics/MethodLength:
@@ -49,9 +50,35 @@ Metrics/AbcSize:
   Exclude:
     - 'test/**/*'
 
+Metrics/CyclomaticComplexity:
+  Exclude:
+    - 'test/support/**/*'  # Complex streaming/IO logic acceptable in test infrastructure
+
+Metrics/PerceivedComplexity:
+  Exclude:
+    - 'test/support/**/*'  # Complex streaming/IO logic acceptable in test infrastructure
+
+Metrics/BlockNesting:
+  Exclude:
+    - 'test/support/**/*'  # Deep nesting acceptable in streaming IO handlers
+
 # Minitest specific
 Minitest/MultipleAssertions:
   Enabled: false # Allow multiple assertions in tests
 
 Minitest/AssertInDelta:
   Enabled: true
+
+Minitest/AssertWithExpectedArgument:
+  Enabled: false # Custom failure messages are valid pattern
+
+# Naming preferences for tests
+Naming/PredicateMethod:
+  Exclude:
+    - 'test/**/*'  # expected_pass is a test fixture method, not a predicate
+
+# Lint - suppress expected exceptions
+Lint/SuppressedException:
+  AllowComments: true
+  Exclude:
+    - 'test/support/**/*'  # Intentional for non-blocking IO in streaming

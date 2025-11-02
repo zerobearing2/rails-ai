@@ -334,7 +334,6 @@ end
 <related-skills>
 - hotwire-turbo - Stimulus works seamlessly with Turbo
 - viewcomponent-basics - Add Stimulus to ViewComponents
-- javascript-best-practices - JavaScript conventions
 </related-skills>
 
 <resources>

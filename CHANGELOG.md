@@ -15,7 +15,6 @@ Based on the commits, here's the CHANGELOG entry:
 - Optimized agent skills reducing token usage by 38.5% (85,986 tokens saved)
 - Enhanced release script with automated linting enforcement
 
-
 ## [0.1.3] - 2025-10-31
 
 ### Added

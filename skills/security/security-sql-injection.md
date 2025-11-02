@@ -281,8 +281,8 @@ end
 </testing>
 
 <related-skills>
-- strong-parameters - Filter allowed parameters
-- activerecord-queries - Safe query patterns
+- security-strong-parameters - Filter allowed parameters
+- activerecord-patterns - Efficient ActiveRecord patterns
 - security-xss - Output escaping
 </related-skills>
 

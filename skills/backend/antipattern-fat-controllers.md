@@ -574,8 +574,8 @@ end
 - form-objects - Extracting complex form logic
 - query-objects - Extracting complex query logic
 - activerecord-patterns - Proper use of callbacks and validations
-- service-objects - Extracting business logic to services
-- background-jobs - Moving slow operations to background
+
+- solid-stack-setup - Moving slow operations to background
 </related-skills>
 
 <resources>

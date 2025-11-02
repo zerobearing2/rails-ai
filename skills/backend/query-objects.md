@@ -684,9 +684,7 @@ end
 
 <related-skills>
 - controller-restful - Using query objects in controllers
-- activerecord-queries - Efficient ActiveRecord querying
-- n-plus-one-prevention - Preventing N+1 queries
-- service-objects - Service objects for business logic
+- activerecord-patterns - Efficient ActiveRecord patterns
 </related-skills>
 
 <resources>

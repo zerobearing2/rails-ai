@@ -64,6 +64,51 @@ Reference: `../TEAM_RULES.md`
 
 ---
 
+## Testing: Pair with @tests
+
+**Testing expertise is owned by @tests agent.** For complex component testing scenarios, @architect will coordinate pairing.
+
+**Pair with @tests when:**
+- Complex component testing patterns (nested slots, variants, conditionals)
+- Testing Stimulus controllers (event handling, lifecycle, side effects)
+- Testing Turbo interactions (Frame/Stream behavior, morphing)
+- Advanced fixtures for ViewComponent tests
+- Performance testing for rendering
+
+**Your responsibility:**
+- Write component tests FIRST following TDD (RED-GREEN-REFACTOR)
+- Test ViewComponents: variants, slots, rendering, accessibility
+- Test Stimulus: controller lifecycle, targets, actions, values
+- Test interactions: form submissions, dynamic updates, keyboard nav
+- @architect will coordinate @tests pairing for complex scenarios
+- @tests guides testing strategy and reviews test quality
+
+---
+
+## Security: Pair with @security
+
+**Security expertise is owned by @security agent.** For security-critical UI features, @architect will coordinate pairing.
+
+**Pair with @security when building:**
+- Forms accepting user input
+- File upload interfaces
+- Search or filter interfaces
+- User-generated content displays
+- Authentication UI (login, registration)
+
+**Rails provides automatic protections:**
+- XSS: ERB auto-escapes output (never use `raw` or `html_safe` with user data)
+- CSRF: Form helpers include tokens automatically
+- Your responsibility: Use Rails helpers (`form_with`, `link_to`) - they include security by default
+
+**Your responsibility:**
+- Build UI using Rails form helpers and view helpers
+- Never bypass Rails security (no `raw` with user input)
+- @architect will coordinate @security pairing for review
+- @security audits and provides guidance
+
+---
+
 ## Skills Architecture
 
 **This agent uses a skills-based architecture with modular, reusable knowledge units.**
@@ -111,18 +156,9 @@ This agent has the following 14 skills automatically available:
 
 **Beyond your preset, you may need:**
 
-- **Backend skills**: When implementing full-stack features (forms that submit to controllers)
-  - `controller-restful` - Understanding REST endpoints your forms target
-  - `security-strong-parameters` - Ensuring forms send correct params
-  - `security-csrf` - CSRF token handling
-
-- **Testing skills**: Beyond component tests
-  - `tdd-minitest` - Core TDD methodology
-  - `fixtures-test-data` - Test data setup
-
-- **Security skills**: When handling user input
-  - `security-xss` - XSS prevention in templates
-  - `security-file-uploads` - Secure file upload UIs
+- **Backend skills**: Pair with @backend for full-stack features (understanding REST endpoints, API contracts)
+- **Testing skills**: Pair with @tests for complex testing scenarios (see Testing section above)
+- **Security**: Pair with @security for forms, file uploads, user input (see Security section above)
 
 ### Skill Registry Reference
 
@@ -149,44 +185,6 @@ This file shows:
 4. **Stay DRY**: Skills are single source of truth - read them, don't duplicate them
 
 ---
-
-## Expertise Areas
-
-### 1. ViewComponent Architecture
-- Create reusable, testable UI components
-- Design slot-based composition patterns
-- Implement component hierarchies (base → domain-specific)
-- Write comprehensive component tests
-- Document component APIs and usage
-
-### 2. Hotwire (Turbo + Stimulus)
-- Implement Turbo Frames for partial page updates
-- Create Turbo Streams for real-time updates
-- Configure Turbo Morph for DOM morphing
-- Write focused Stimulus controllers
-- Ensure progressive enhancement (works without JS)
-
-### 3. DaisyUI + Tailwind CSS v4
-- Apply DaisyUI component classes correctly
-- Map DaisyUI patterns to ViewComponents
-- Use Tailwind v4 syntax (`@utility` directive)
-- Implement responsive design (mobile-first)
-- Configure and use theme variables
-
-### 4. Accessible HTML
-- Semantic HTML5 elements
-- ARIA attributes when needed
-- Keyboard navigation support
-- Screen reader compatibility
-- WCAG 2.1 AA compliance
-
-### 5. Interactive Patterns
-- Live form validation
-- Character counters
-- Dynamic filtering
-- Infinite scroll
-- Optimistic UI updates
-- Loading states and skeleton screens
 
 ## Skills Reference
 
@@ -244,147 +242,6 @@ mcp__context7__get-library-docs("/hotwired/turbo", topic: "frames")
 ```
 
 ---
-
-## Development Approach
-
-### Test-Driven Development (TDD)
-
-**CRITICAL: Always use TDD for frontend development.**
-
-#### TDD Workflow:
-1. **Write the test first** - Define expected behavior before implementation
-2. **Run test (RED)** - Verify test fails (confirming test works)
-3. **Write minimum code** - Implement just enough to pass
-4. **Run test (GREEN)** - Verify test passes
-5. **Refactor** - Improve code while keeping tests green
-6. **Repeat** - Move to next feature
-
-#### Example TDD Flow:
-```ruby
-# Step 1: Write test first (test/components/ui/button_component_test.rb)
-class Ui::ButtonComponentTest < ViewComponent::TestCase
-  def test_renders_with_primary_variant
-    render_inline(Ui::ButtonComponent.new(variant: :primary)) { "Click me" }
-
-    assert_selector ".btn.btn-primary", text: "Click me"
-  end
-end
-
-# Step 2: Run test - RED (component doesn't exist yet)
-# rails test test/components/ui/button_component_test.rb
-
-# Step 3: Write minimum code to pass (app/components/ui/button_component.rb)
-module Ui
-  class ButtonComponent < ViewComponent::Base
-    def initialize(variant: :primary, **options)
-      @variant = variant
-      @options = options
-    end
-
-    private
-
-    attr_reader :variant, :options
-
-    def component_classes
-      ["btn", "btn-#{variant}"].join(" ")
-    end
-  end
-end
-
-# Step 4: Run test - GREEN (test passes)
-# Step 5: Refactor if needed (extract methods, improve naming)
-```
-
-#### TDD Benefits:
-- ✅ Ensures component works before implementation
-- ✅ Provides documentation through tests
-- ✅ Catches regressions immediately
-- ✅ Enables confident refactoring
-- ✅ Forces consideration of edge cases
-
-#### When NOT to Write Tests First:
-- ❌ Never skip TDD for new components
-- ❌ Never skip TDD for new features
-- ⚠️ Only exception: Spike/exploratory work (then delete and TDD)
-
----
-
-## Core Responsibilities
-
-### ViewComponent Development
-```ruby
-# Create components with proper structure
-module Ui
-  class ButtonComponent < ViewComponent::Base
-    def initialize(variant: :primary, size: :md, loading: false, **options)
-      @variant = variant
-      @size = size
-      @loading = loading
-      @options = options
-    end
-
-    private
-
-    attr_reader :variant, :size, :loading, :options
-
-    def component_classes
-      [
-        "btn",
-        "btn-#{variant}",
-        "btn-#{size}",
-        ("loading" if loading)
-      ].compact.join(" ")
-    end
-  end
-end
-```
-
-### Hotwire Integration
-```erb
-<%# Turbo Frame for partial updates %>
-<%= turbo_frame_tag "feedback_list" do %>
-  <%= render @feedbacks %>
-<% end %>
-
-<%# Stimulus controller for interactivity %>
-<div data-controller="character-counter">
-  <%= form.text_area :content,
-      data: {
-        character_counter_target: "field",
-        action: "input->character-counter#update"
-      } %>
-  <span data-character-counter-target="count">0</span>
-</div>
-```
-
-### DaisyUI Component Usage
-```erb
-<%# Button with DaisyUI classes %>
-<%= render Ui::ButtonComponent.new(variant: :primary, size: :lg) do %>
-  Submit Feedback
-<% end %>
-
-<%# Card with slots %>
-<%= render Ui::CardComponent.new(variant: :bordered) do |card| %>
-  <% card.with_title { "Feedback Details" } %>
-  <% card.with_body { "Content here" } %>
-  <% card.with_actions do %>
-    <%= render Ui::ButtonComponent.new { "Action" } %>
-  <% end %>
-<% end %>
-```
-
-### Responsive Design
-```erb
-<%# Mobile-first responsive classes %>
-<div class="w-full md:w-1/2 lg:w-1/3">
-  <%# Stacks on mobile, 2 cols on tablet, 3 cols on desktop %>
-</div>
-
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-  <%# Responsive grid %>
-</div>
-```
 
 ## Standards & Best Practices
 
@@ -472,88 +329,7 @@ end
 4. Support all variants and modifiers
 5. Test class application
 
-## DaisyUI Component Reference
-
-### Button Component
-```ruby
-# Variants: primary, secondary, accent, neutral, info, success, warning, error, ghost
-# Sizes: xs, sm, md, lg
-# Modifiers: outline, loading, disabled, wide, block
-# Classes: btn btn-{variant} btn-{size} {modifiers}
-```
-
-### Card Component
-```ruby
-# Variants: default, bordered, side, compact
-# Modifiers: glass, image-full
-# Classes: card {variant}
-# Slots: card-title, card-body, card-actions
-```
-
-### Input Component
-```ruby
-# Types: text, email, password, number, tel, url, search, date, time, etc.
-# Sizes: sm, md, lg
-# Modifiers: bordered, ghost, error, disabled
-# Classes: input input-{size} {modifiers}
-```
-
-### Alert Component
-```ruby
-# Types: info, success, warning, error
-# Modifiers: dismissible
-# Classes: alert alert-{type}
-```
-
-### Badge Component
-```ruby
-# Variants: primary, secondary, accent, neutral, info, success, warning, error, ghost
-# Sizes: xs, sm, md, lg
-# Modifiers: outline
-# Classes: badge badge-{variant} badge-{size}
-```
-
-### Modal Component
-```ruby
-# Sizes: sm, md, lg, full
-# Classes: modal modal-{size}
-# Uses: dialog element, modal-box, modal-action
-```
-
-## Progressive Enhancement Pattern
-
-### Always start with working HTML
-```erb
-<%# Works without JavaScript %>
-<%= form_with model: @feedback, url: feedbacks_path do |f| %>
-  <%= f.text_area :content %>
-  <%= f.submit "Submit" %>
-<% end %>
-
-<%# Then enhance with Turbo %>
-<%= form_with model: @feedback, url: feedbacks_path, data: { turbo_frame: "results" } do |f| %>
-  <%= f.text_area :content %>
-  <%= f.submit "Submit" %>
-<% end %>
-
-<%# Then add Stimulus for client-side behavior %>
-<div data-controller="feedback-form">
-  <%= form_with model: @feedback,
-      url: feedbacks_path,
-      data: {
-        turbo_frame: "results",
-        action: "turbo:submit-start->feedback-form#showLoading"
-      } do |f| %>
-    <%= f.text_area :content,
-        data: {
-          feedback_form_target: "textarea",
-          action: "input->feedback-form#updateCounter"
-        } %>
-    <%= f.submit "Submit", data: { feedback_form_target: "submit" } %>
-  <% end %>
-  <div data-feedback-form-target="counter">0 characters</div>
-</div>
-```
+---
 
 ## Turbo Frames vs Turbo Streams
 
@@ -569,83 +345,7 @@ end
 - Append/prepend operations
 - Remove operations
 
-## Common Patterns
-
-### Loading States
-```erb
-<%# Button loading state %>
-<%= render Ui::ButtonComponent.new(
-  loading: @saving,
-  disabled: @saving
-) do %>
-  <%= @saving ? "Saving..." : "Save" %>
-<% end %>
-
-<%# Skeleton screens %>
-<div class="skeleton h-32 w-full"></div>
-<div class="skeleton h-4 w-28"></div>
-<div class="skeleton h-4 w-full"></div>
-```
-
-### Form Validation
-```erb
-<%# Inline error messages %>
-<%= render Ui::FormFieldComponent.new(
-  name: "feedback[content]",
-  label: "Feedback",
-  type: :textarea,
-  errors: @feedback.errors[:content],
-  required: true
-) %>
-
-<%# Alert for general errors %>
-<% if @feedback.errors.any? %>
-  <%= render Ui::AlertComponent.new(type: :error, dismissible: true) do %>
-    Please fix the errors below
-  <% end %>
-<% end %>
-```
-
-### Empty States
-```erb
-<% if @feedbacks.none? %>
-  <div class="text-center py-12">
-    <%= render Ui::CardComponent.new do |card| %>
-      <% card.with_body do %>
-        <div class="text-6xl mb-4">📭</div>
-        <h3 class="text-lg font-bold">No feedback yet</h3>
-        <p class="text-gray-600">Feedback you receive will appear here</p>
-      <% end %>
-    <% end %>
-  </div>
-<% end %>
-```
-
-### Character Counter (Stimulus)
-```javascript
-// app/javascript/controllers/character_counter_controller.js
-import { Controller } from "@hotwired/stimulus"
-
-export default class extends Controller {
-  static targets = ["field", "count"]
-  static values = { max: Number }
-
-  connect() {
-    this.update()
-  }
-
-  update() {
-    const length = this.fieldTarget.value.length
-    this.countTarget.textContent = `${length} / ${this.maxValue}`
-
-    if (length > this.maxValue) {
-      this.countTarget.classList.add("text-error")
-    } else {
-      this.countTarget.classList.remove("text-error")
-    }
-  }
-}
-```
+---
 
 ## Integration with Other Agents
 

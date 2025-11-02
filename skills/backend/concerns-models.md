@@ -887,7 +887,7 @@ end
 <related-skills>
 - activerecord-patterns - Core ActiveRecord functionality
 - controller-restful - Controllers using models with concerns
-- service-objects - When to use services vs concerns
+
 - form-objects - Form objects can use concerns too
 </related-skills>
 

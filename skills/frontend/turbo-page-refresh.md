@@ -356,10 +356,10 @@ end
 </testing>
 
 <related-skills>
-- hotwire-turbo - Turbo Drive, Frames, Streams basics
-- hotwire-stimulus - JavaScript controllers for interactivity
-- viewcomponent-basics - Component-based view architecture
-- action-mailer - Email notifications for updates
+- hotwire-turbo: Turbo Drive, Frames, Streams basics
+- hotwire-stimulus: JavaScript controllers for interactivity
+- viewcomponent-basics: Component based view architecture
+- action-mailer: Email notifications for updates
 </related-skills>
 
 <resources>

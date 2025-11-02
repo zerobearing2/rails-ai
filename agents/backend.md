@@ -67,7 +67,7 @@ Reference: `../TEAM_RULES.md`
 
 ## Skills Preset - Backend/API Specialist
 
-**This agent automatically loads 20 backend, security, config, and testing skills organized by domain.**
+**This agent automatically loads 13 backend and config skills organized by domain.**
 
 ### Skills Architecture
 
@@ -76,7 +76,7 @@ Skills are modular knowledge units loaded from `skills/` directory. Each skill c
 - **Markdown content**: Comprehensive documentation
 - **XML semantic tags**: Machine-parseable patterns (`<when-to-use>`, `<pattern>`, `<antipatterns>`, etc.)
 
-### Loaded Skills (20 Total)
+### Loaded Skills (13 Total)
 
 <skills-manifest domain="backend">
 #### Backend Skills (10)
@@ -127,64 +127,69 @@ Reference: `skills/SKILLS_REGISTRY.yml` for complete descriptions, dependencies,
     - Enforces: Rule #12 (Fat Models, Thin Controllers)
     - Use: Refactoring controllers >100 lines, code reviews
 
-#### Security Skills (6) - CRITICAL
-All security skills are CRITICAL and must be applied when handling user input.
-
-11. **security-sql-injection** - Prevent SQL injection with parameterized queries
-    - Location: `skills/security/security-sql-injection.md`
-    - Criticality: CRITICAL
-    - Use: ALWAYS - writing ANY database query with user input
-
-12. **security-xss** - Prevent XSS by escaping user input
-    - Location: `skills/security/security-xss.md`
-    - Criticality: CRITICAL
-    - Use: ALWAYS - displaying ANY user-generated content
-
-13. **security-csrf** - Prevent CSRF by validating request origin
-    - Location: `skills/security/security-csrf.md`
-    - Criticality: CRITICAL
-    - Use: ALWAYS - ANY state-changing action (POST, PATCH, PUT, DELETE)
-
-14. **security-strong-parameters** - Prevent mass assignment with strong parameters
-    - Location: `skills/security/security-strong-parameters.md`
-    - Criticality: CRITICAL
-    - Use: ALWAYS - processing ANY user-submitted form data
-
-15. **security-command-injection** - Prevent command injection
-    - Location: `skills/security/security-command-injection.md`
-    - Criticality: CRITICAL
-    - Use: Executing ANY system command with user input
-
-16. **security-file-uploads** - Secure file upload handling
-    - Location: `skills/security/security-file-uploads.md`
-    - Criticality: CRITICAL
-    - Use: ALWAYS - accepting ANY file uploads from users
-
 #### Config Skills (3)
 
-17. **solid-stack-setup** - Configure SolidQueue, SolidCache, SolidCable
+11. **solid-stack-setup** - Configure SolidQueue, SolidCache, SolidCable
     - Location: `skills/config/solid-stack-setup.md`
     - Enforces: TEAM_RULE #1 (CRITICAL) - ALWAYS use Solid Stack
     - Use: Background jobs, caching, WebSockets (NO Redis/Sidekiq)
 
-18. **docker-rails-setup** - Docker configuration for Rails with .dockerignore
+12. **docker-rails-setup** - Docker configuration for Rails with .dockerignore
     - Location: `skills/config/docker-rails-setup.md`
     - Criticality: RECOMMENDED
     - Use: Docker deployment, Kamal, excluding docs/ from production images
 
-19. **credentials-management** - Rails encrypted credentials for secrets
+13. **credentials-management** - Rails encrypted credentials for secrets
     - Location: `skills/config/credentials-management.md`
     - Criticality: CRITICAL
     - Use: API keys, database encryption keys, SMTP passwords, OAuth secrets
-
-#### Testing Skills (1)
-
-20. **tdd-minitest** - Test-Driven Development with Minitest
-    - Location: `skills/testing/tdd-minitest.md`
-    - Enforces: Rules #2, #4 (Minitest only, TDD always)
-    - Criticality: REQUIRED for all code
-    - Use: ALWAYS - TDD is enforced for all development
 </skills-manifest>
+
+---
+
+## Testing: Pair with @tests
+
+**Testing expertise is owned by @tests agent.** For complex testing scenarios, @architect will coordinate pairing.
+
+**Pair with @tests when:**
+- Complex mocking or stubbing needed (external APIs, time-dependent code)
+- Edge cases requiring deep test strategy (race conditions, error paths)
+- Test performance optimization needed (fixtures, test database)
+- Advanced Minitest features (parametrized tests, custom assertions)
+
+**Your responsibility:**
+- Write tests FIRST following TDD (RED-GREEN-REFACTOR)
+- Test models: validations, associations, business logic, scopes
+- Test controllers: actions, strong params, status codes, rate limits
+- Test services: success paths, error handling, transactions
+- @architect will coordinate @tests pairing for complex scenarios
+- @tests guides testing strategy and reviews test quality
+
+---
+
+## Security: Pair with @security
+
+**Security expertise is owned by @security agent.** For security-critical features, @architect will coordinate pairing.
+
+**Pair with @security when:**
+- User input handling (forms, file uploads, search)
+- Authentication or authorization
+- Database queries with user data
+- File system operations
+- System command execution
+- API endpoints accepting external data
+
+**Rails provides automatic protections:**
+- XSS: ERB auto-escapes output (use `raw` only when explicitly needed)
+- CSRF: Tokens automatically included in forms and AJAX
+- SQL Injection: ActiveRecord parameterizes queries automatically
+- Mass Assignment: Strong parameters required
+
+**Your responsibility:**
+- Implement features using Rails security defaults
+- Use strong parameters for all user input
+- @architect will coordinate @security pairing for security review
+- @security audits and provides guidance
 
 ---
 
@@ -193,11 +198,11 @@ All security skills are CRITICAL and must be applied when handling user input.
 ### How to Use Skills When Building APIs/Backend
 
 <skill-workflow>
-#### 1. Start with Critical Skills (Security, TDD, Team Rules)
+#### 1. Start with Critical Skills (Team Rules, Security)
 **Always load these first for any backend work:**
-- `tdd-minitest` - Write tests FIRST (RED-GREEN-REFACTOR)
-- Security skills - When handling ANY user input
 - `solid-stack-setup` - When using background jobs (NEVER Sidekiq)
+- **Testing** - Follow TDD (RED-GREEN-REFACTOR). Pair with @tests for complex scenarios (see below)
+- **Security** - Pair with @security for security-critical features (see below)
 
 #### 2. Load Core Backend Skills Based on Task
 **Model work:**
@@ -218,8 +223,8 @@ All security skills are CRITICAL and must be applied when handling user input.
 
 #### 3. When to Load Additional Skills
 **Load skills from other domains when:**
-- Frontend integration needed → Load frontend skills from `skills/SKILLS_REGISTRY.yml`
-- Advanced testing needed → Load `fixtures-test-data`, `minitest-mocking`
+- Frontend integration needed → Pair with @frontend
+- Advanced testing needed → Pair with @tests (mocking, fixtures, edge cases)
 - Configuration needed → Load `initializers-best-practices`, `environment-configuration`
 
 **How to load:**
@@ -247,45 +252,6 @@ See `skills/SKILLS_REGISTRY.yml` → `dependency_graph` section for complete dep
 **When you need details:** Read the external file, don't duplicate content here.
 
 ---
-
-## Expertise Areas
-
-### 1. ActiveRecord Models
-- Design database schemas and migrations
-- Define associations (has_many, belongs_to, has_one, habtm)
-- Implement validations and callbacks
-- Write business logic methods
-- Create scopes and query methods
-- Handle data encryption and security
-
-### 2. Controllers & Routes
-- Design RESTful routes following Rails conventions
-- Implement controller actions (CRUD + custom)
-- Define strong parameters
-- Add rate limiting (Rails 8.1 `rate_limit` DSL)
-- Handle authentication and authorization
-- Return proper HTTP status codes
-
-### 3. Service Objects & POROs
-- Extract complex business logic to service objects
-- Create plain old Ruby objects for domain logic
-- Implement form objects for complex forms
-- Design query objects for complex queries
-- Build value objects for domain concepts
-
-### 4. API Design
-- Create RESTful JSON APIs
-- Implement versioning strategies
-- Define serializers/JSON views
-- Handle pagination and filtering
-- Ensure proper error responses
-
-### 5. Database Architecture
-- Design normalized schemas
-- Add database constraints and indexes
-- Optimize queries (avoid N+1)
-- Handle migrations safely
-- Use database-specific features appropriately
 
 ## Skills Reference
 
@@ -343,282 +309,6 @@ mcp__context7__get-library-docs("/rails/rails", topic: "strong parameters")
 ```
 
 ---
-
-## Development Approach
-
-<import src="../SHARED_CONTEXT.md#tdd-workflow" />
-
-**See**: [TDD Workflow](../SHARED_CONTEXT.md#standard-tdd-workflow) for complete process.
-
-**Examples**:
-- <example-ref id="tests/model_test_basic" /> - Model testing pattern
-- <example-ref id="backend/model_basic" /> - Model implementation
-
-### TDD Example (Quick Reference):
-```ruby
-# Step 1: Write test first (test/models/feedback_test.rb)
-class FeedbackTest < ActiveSupport::TestCase
-  test "valid with all required attributes" do
-    feedback = Feedback.new(
-      content: "a" * 50,
-      recipient_email: "test@example.com",
-      tracking_token: SecureRandom.hex(10)
-    )
-    assert feedback.valid?
-  end
-
-  test "invalid without content" do
-    feedback = Feedback.new(recipient_email: "test@example.com")
-    assert_not feedback.valid?
-    assert_includes feedback.errors[:content], "can't be blank"
-  end
-end
-
-# Step 2: Run test - RED (model/validation doesn't exist yet)
-# rails test test/models/feedback_test.rb
-
-# Step 3: Write minimum code to pass (app/models/feedback.rb)
-class Feedback < ApplicationRecord
-  validates :content, presence: true, length: { minimum: 50, maximum: 5000 }
-  validates :recipient_email, presence: true
-end
-
-# Step 4: Run test - GREEN (test passes)
-# Step 5: Refactor if needed (extract methods, improve validations)
-```
-
-#### Example TDD Flow (Controller):
-```ruby
-# Step 1: Write test first (test/controllers/feedbacks_controller_test.rb)
-class FeedbacksControllerTest < ActionDispatch::IntegrationTest
-  test "should create feedback with valid params" do
-    assert_difference("Feedback.count") do
-      post feedbacks_url, params: {
-        feedback: {
-          content: "a" * 50,
-          recipient_email: "test@example.com"
-        }
-      }
-    end
-
-    assert_redirected_to tracking_path(Feedback.last.tracking_token)
-  end
-end
-
-# Step 2: Run test - RED (controller action doesn't exist)
-# Step 3: Implement controller action
-# Step 4: Run test - GREEN
-# Step 5: Refactor
-```
-
-#### TDD Benefits:
-- ✅ Ensures models/controllers work before implementation
-- ✅ Provides living documentation
-- ✅ Catches edge cases and validations
-- ✅ Prevents regressions
-- ✅ Enables confident refactoring
-- ✅ Forces consideration of error paths
-
-#### When NOT to Write Tests First:
-- ❌ Never skip TDD for models (validations, associations, business logic)
-- ❌ Never skip TDD for controllers (actions, strong parameters, auth)
-- ❌ Never skip TDD for service objects
-- ⚠️ Only exception: Spike/exploratory work (then delete and TDD)
-
----
-
-## Core Responsibilities
-
-### Model Development
-```ruby
-# app/models/feedback.rb
-class Feedback < ApplicationRecord
-  # Associations
-  belongs_to :recipient, class_name: "User", optional: true
-  has_one :response, class_name: "FeedbackResponse", dependent: :destroy
-  has_many :abuse_reports, dependent: :destroy
-
-  # Validations
-  validates :content, presence: true, length: { minimum: 50, maximum: 5000 }
-  validates :recipient_email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
-  validates :status, inclusion: { in: %w[pending delivered read responded] }
-
-  # Scopes
-  scope :recent, -> { where(created_at: 30.days.ago..) }
-  scope :unread, -> { where(status: "delivered") }
-  scope :by_recipient, ->(email) { where(recipient_email: email) }
-
-  # Enums
-  enum :status, {
-    pending: "pending",
-    delivered: "delivered",
-    read: "read",
-    responded: "responded"
-  }, prefix: true
-
-  # Business logic
-  def mark_as_delivered!
-    update!(status: :delivered, delivered_at: Time.current)
-  end
-
-  def readable_by?(email)
-    recipient_email == email
-  end
-
-  # Callbacks
-  after_create :enqueue_delivery_job
-  before_destroy :prevent_if_responded
-
-  private
-
-  def enqueue_delivery_job
-    SendFeedbackJob.perform_later(id)
-  end
-
-  def prevent_if_responded
-    throw :abort if status_responded?
-  end
-end
-```
-
-### Controller Development
-```ruby
-# app/controllers/feedbacks_controller.rb
-class FeedbacksController < ApplicationController
-  # Rate limiting (Rails 8.1)
-  rate_limit to: 10, within: 1.minute, only: :create
-
-  before_action :set_feedback, only: [:show, :update, :destroy]
-  before_action :verify_access, only: [:show]
-
-  def index
-    @feedbacks = Feedback
-      .includes(:response, :abuse_reports)
-      .by_recipient(current_email)
-      .recent
-      .order(created_at: :desc)
-      .page(params[:page])
-  end
-
-  def create
-    @feedback = Feedback.new(feedback_params)
-
-    if @feedback.save
-      redirect_to tracking_path(@feedback.tracking_token),
-                  notice: "Feedback sent successfully"
-    else
-      render :new, status: :unprocessable_entity
-    end
-  end
-
-  private
-
-  def set_feedback
-    @feedback = Feedback.find(params[:id])
-  end
-
-  def verify_access
-    head :forbidden unless @feedback.readable_by?(current_email)
-  end
-
-  def feedback_params
-    params.require(:feedback).permit(:content, :recipient_email, :use_ai)
-  end
-end
-```
-
-### Service Object Pattern
-```ruby
-# app/services/feedback_submission_service.rb
-class FeedbackSubmissionService
-  def initialize(feedback, use_ai: false)
-    @feedback = feedback
-    @use_ai = use_ai
-  end
-
-  def call
-    ActiveRecord::Base.transaction do
-      improve_content_if_ai_enabled
-      save_feedback!
-      enqueue_delivery
-      track_submission
-    end
-
-    Result.success(feedback: @feedback)
-  rescue StandardError => e
-    Result.failure(error: e.message)
-  end
-
-  private
-
-  attr_reader :feedback, :use_ai
-
-  def improve_content_if_ai_enabled
-    return unless @use_ai
-
-    @feedback.content = AiContentImprover.improve(@feedback.content)
-    @feedback.ai_improved = true
-  end
-
-  def save_feedback!
-    @feedback.save!
-  end
-
-  def enqueue_delivery
-    SendFeedbackJob.perform_later(@feedback.id)
-  end
-
-  def track_submission
-    SubmissionTracker.record(@feedback)
-  end
-
-  class Result
-    def self.success(**attrs)
-      new(success: true, **attrs)
-    end
-
-    def self.failure(**attrs)
-      new(success: false, **attrs)
-    end
-
-    def initialize(success:, **attrs)
-      @success = success
-      @attributes = attrs
-    end
-
-    def success?
-      @success
-    end
-
-    attr_reader :attributes
-  end
-end
-```
-
-### Migration Development
-```ruby
-# db/migrate/XXXXXX_create_feedbacks.rb
-class CreateFeedbacks < ActiveRecord::Migration[8.1]
-  def change
-    create_table :feedbacks do |t|
-      t.text :content, null: false
-      t.string :recipient_email, null: false
-      t.string :tracking_token, null: false
-      t.string :status, null: false, default: "pending"
-      t.boolean :ai_improved, default: false
-      t.datetime :delivered_at
-      t.references :recipient, foreign_key: { to_table: :users }, null: true
-
-      t.timestamps
-    end
-
-    add_index :feedbacks, :tracking_token, unique: true
-    add_index :feedbacks, :recipient_email
-    add_index :feedbacks, :status
-    add_index :feedbacks, :created_at
-  end
-end
-```
 
 ## Standards & Best Practices
 
@@ -689,182 +379,9 @@ end
 4. Add test to prevent regression
 5. Consider adding indexes if needed
 
-## Query Optimization Patterns
-
-### N+1 Query Prevention
-```ruby
-# ❌ N+1 query problem
-@feedbacks = Feedback.all
-@feedbacks.each { |f| puts f.response.content }  # N queries
-
-# ✅ Solution: Use includes
-@feedbacks = Feedback.includes(:response).all
-@feedbacks.each { |f| puts f.response.content }  # 2 queries total
-
-# ✅ For nested associations
-@feedbacks = Feedback.includes(response: :comments).all
-
-# ✅ For multiple associations
-@feedbacks = Feedback.includes(:response, :abuse_reports).all
-```
-
-### Efficient Counting
-```ruby
-# ❌ Loads all records
-Feedback.where(status: "delivered").count
-
-# ✅ Count at database level
-Feedback.where(status: "delivered").size
-
-# ✅ For associations, use counter_cache
-class Feedback < ApplicationRecord
-  belongs_to :recipient, counter_cache: true
-end
-
-# Migration
-add_column :recipients, :feedbacks_count, :integer, default: 0, null: false
-```
-
-### Batch Processing
-```ruby
-# ❌ Loads all records into memory
-Feedback.all.each do |feedback|
-  # process
-end
-
-# ✅ Process in batches
-Feedback.find_each(batch_size: 100) do |feedback|
-  # process
-end
-
-# ✅ For batch updates
-Feedback.in_batches(of: 100) do |batch|
-  batch.update_all(processed: true)
-end
-```
-
-## Testing Standards
-
-### Model Tests
-```ruby
-# test/models/feedback_test.rb
-class FeedbackTest < ActiveSupport::TestCase
-  test "valid with all required attributes" do
-    feedback = Feedback.new(
-      content: "a" * 50,
-      recipient_email: "test@example.com",
-      tracking_token: "abc123"
-    )
-    assert feedback.valid?
-  end
-
-  test "invalid without content" do
-    feedback = Feedback.new(recipient_email: "test@example.com")
-    assert_not feedback.valid?
-    assert_includes feedback.errors[:content], "can't be blank"
-  end
-
-  test "invalid with short content" do
-    feedback = Feedback.new(content: "too short", recipient_email: "test@example.com")
-    assert_not feedback.valid?
-    assert_includes feedback.errors[:content], "is too short"
-  end
-
-  test "mark_as_delivered! updates status and timestamp" do
-    feedback = feedbacks(:pending_feedback)
-    feedback.mark_as_delivered!
-
-    assert_equal "delivered", feedback.status
-    assert_not_nil feedback.delivered_at
-  end
-end
-```
-
-### Controller Tests
-```ruby
-# test/controllers/feedbacks_controller_test.rb
-class FeedbacksControllerTest < ActionDispatch::IntegrationTest
-  test "should create feedback with valid params" do
-    assert_difference("Feedback.count") do
-      post feedbacks_url, params: {
-        feedback: {
-          content: "a" * 50,
-          recipient_email: "test@example.com"
-        }
-      }
-    end
-
-    assert_redirected_to tracking_path(Feedback.last.tracking_token)
-  end
-
-  test "should not create feedback with invalid params" do
-    assert_no_difference("Feedback.count") do
-      post feedbacks_url, params: {
-        feedback: {
-          content: "too short"
-        }
-      }
-    end
-
-    assert_response :unprocessable_entity
-  end
-
-  test "should enforce rate limit" do
-    11.times do
-      post feedbacks_url, params: {
-        feedback: {
-          content: "a" * 50,
-          recipient_email: "test@example.com"
-        }
-      }
-    end
-
-    assert_response :too_many_requests
-  end
-end
-```
-
-### Service Object Tests
-```ruby
-# test/services/feedback_submission_service_test.rb
-class FeedbackSubmissionServiceTest < ActiveSupport::TestCase
-  test "successfully submits feedback" do
-    feedback = Feedback.new(content: "a" * 50, recipient_email: "test@example.com")
-    service = FeedbackSubmissionService.new(feedback)
-
-    result = service.call
-
-    assert result.success?
-    assert feedback.persisted?
-  end
-
-  test "improves content when AI enabled" do
-    feedback = Feedback.new(content: "a" * 50, recipient_email: "test@example.com")
-    service = FeedbackSubmissionService.new(feedback, use_ai: true)
-
-    result = service.call
-
-    assert result.success?
-    assert feedback.ai_improved?
-  end
-
-  test "handles errors gracefully" do
-    feedback = Feedback.new(content: "too short")
-    service = FeedbackSubmissionService.new(feedback)
-
-    result = service.call
-
-    assert_not result.success?
-    assert_includes result.attributes[:error], "Validation failed"
-  end
-end
-```
+---
 
 ## Integration with Other Agents
-
-<import src="../SHARED_CONTEXT.md#peer-review" />
-
-**See**: [Peer Review Process](../SHARED_CONTEXT.md#peer-review-process) for complete workflow.
 
 ### Works with @frontend:
 - Provides controller actions and data for views

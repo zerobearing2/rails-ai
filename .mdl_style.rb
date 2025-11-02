@@ -48,3 +48,7 @@ exclude_rule "MD046"
 # Allow nested list items with 2-space indentation
 # MD007 expects 4 spaces but standard Markdown allows 2
 exclude_rule "MD007"
+
+# Allow trailing punctuation in headers (colons, question marks)
+# Common in agent prompts and section headers that introduce lists
+exclude_rule "MD026"

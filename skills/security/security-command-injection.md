@@ -447,9 +447,8 @@ end
 <related-skills>
 - security-xss - Output escaping
 - security-sql-injection - SQL injection prevention
-- file-uploads - Safe file handling
-- activestorage - Image processing without shell
-- background-jobs - Isolating risky operations
+- security-file-uploads - Safe file handling
+- solid-stack-setup - Isolating risky operations
 </related-skills>
 
 <resources>

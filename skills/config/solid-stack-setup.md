@@ -501,9 +501,9 @@ end
 </testing>
 
 <related-skills>
-- environment-configuration - Environment-specific settings
-- credentials-management - Secrets and credentials
-- kamal-deployment - Production deployment with Kamal
+- environment-configuration: Environment specific settings
+- credentials-management: Secrets and credentials
+- docker-rails-setup: Docker and deployment setup
 </related-skills>
 
 <resources>

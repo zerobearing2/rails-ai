@@ -177,15 +177,19 @@ We use a **two-tier Minitest strategy**:
 
 **Tier 1: Unit Tests** (fast, < 1 second)
 ```bash
-rake test:skills:unit              # Run all unit tests
-ruby -Itest test/skills/unit/...   # Run specific test
+rake test:unit                     # Run all unit tests
+rake test:unit:skills              # Skills only
+rake test:unit:agents              # Agents only
 ```
 
-**Tier 2: Integration Tests** (slow, requires LLM APIs)
+**Tier 2: Integration Tests** (slow, requires Claude CLI - individual scenarios only)
 ```bash
-export OPENAI_API_KEY="sk-..."
-INTEGRATION=1 rake test:skills:integration
+rake test:integration:scenario[simple_model_plan]  # Run specific scenario
 ```
+
+**Note:** Bulk integration runs are disabled. Tests must be run individually.
+
+See [TESTING.md](TESTING.md) for comprehensive testing documentation.
 
 ### Quality Checks
 

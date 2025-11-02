@@ -52,19 +52,7 @@ namespace :test do
   end
 
   namespace :integration do
-    desc "Run skill integration tests only"
-    task :skills do
-      ENV["INTEGRATION"] = "1"
-      Rake::TestTask.new(:skills_runner) do |t|
-        t.libs << "test"
-        t.test_files = FileList["test/integration/skills/**/*_test.rb"]
-        t.verbose = true
-        t.warning = false
-      end
-      Rake::Task[:skills_runner].invoke
-    end
-
-    desc "Run agent integration tests only"
+    desc "Run agent integration tests (same as test:integration)"
     Rake::TestTask.new(:agents) do |t|
       t.libs << "test"
       t.test_files = FileList["test/integration/agents/**/*_test.rb"]
@@ -104,13 +92,11 @@ namespace :test do
     # Skills
     total_skills = Dir.glob("skills/**/*.md").reject { |f| f.include?("README") }.count
     skill_unit_tests = Dir.glob("test/unit/skills/**/*_test.rb").count
-    skill_integration_tests = Dir.glob("test/integration/skills/**/*_test.rb").count
     skill_coverage = ((skill_unit_tests.to_f / total_skills) * 100).round(1)
 
     puts "Skills:"
     puts "  Total: #{total_skills}"
     puts "  Unit Tests: #{skill_unit_tests} (#{skill_coverage}% coverage)"
-    puts "  Integration Tests: #{skill_integration_tests}"
     puts ""
 
     # Agents
@@ -126,7 +112,7 @@ namespace :test do
 
     # Overall
     total_unit = skill_unit_tests + agent_unit_tests
-    total_integration = skill_integration_tests + agent_integration_tests
+    total_integration = agent_integration_tests
 
     puts "Overall:"
     puts "  Unit Tests: #{total_unit}"
@@ -135,7 +121,7 @@ namespace :test do
     puts ""
     puts "Run tests:"
     puts "  rake test:unit                    # Fast unit tests"
-    puts "  rake test:integration             # Slow integration tests"
+    puts "  rake test:integration             # Slow integration tests (agent scenarios)"
     puts "  rake test:unit:skills             # Skills unit tests only"
     puts "  rake test:unit:agents             # Agents unit tests only"
     puts "  rake test:integration:scenario[X] # Specific agent scenario"

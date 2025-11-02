@@ -15,8 +15,9 @@ test/
 ├── support/                              # Shared test infrastructure
 │   ├── skill_test_case.rb                # Base class for skill tests
 │   ├── agent_integration_test_case.rb    # Base class for agent integration tests
-│   └── judge_prompts/                    # Judge evaluation criteria
+│   └── judge_prompts/                    # Judge evaluation criteria (4 domains)
 │       ├── backend_judge_prompt.md
+│       ├── frontend_judge_prompt.md
 │       ├── tests_judge_prompt.md
 │       └── security_judge_prompt.md
 ├── unit/                                 # Fast tests (no external dependencies)
@@ -28,9 +29,7 @@ test/
 │       ├── agent_structure_test.rb
 │       ├── agent_content_test.rb
 │       └── ...
-└── integration/                          # Slow tests (use LLMs/Claude CLI)
-    ├── skills/                           # LLM judge tests for skills
-    │   └── turbo_page_refresh_integration_test.rb
+└── integration/                          # Slow tests (use Claude CLI)
     └── agents/                           # Agent planning/execution tests
         └── simple_model_plan_test.rb
 ```
@@ -77,30 +76,24 @@ rake test:file[test/unit/skills/turbo_page_refresh_test.rb]
 
 ### Integration Tests (Slow)
 
-Integration tests use LLMs to judge quality and agents to produce plans:
+Integration tests invoke real agents via Claude CLI to validate planning capabilities:
 
 ```bash
-# All integration tests (requires API keys)
-INTEGRATION=1 rake test:integration
-
-# Skills only
-INTEGRATION=1 rake test:integration:skills
-
-# Agents only
+# All agent integration tests
 rake test:integration:agents
 
 # Specific agent scenario
 rake test:integration:scenario[simple_model_plan]
 ```
 
-**What integration tests check:**
-- Agent planning capabilities
-- Code quality when using skills
-- Adherence to best practices
+**What agent integration tests check:**
+- Agent planning capabilities across 4 domains (backend, frontend, tests, security)
+- Adherence to best practices and patterns
 - Security considerations
-- Test coverage
+- Test coverage planning
+- Configuration and setup steps
 
-**Note:** Agent integration tests use Claude CLI and don't require API keys to be set separately.
+**Note:** Integration tests use Claude CLI and don't require separate API keys.
 
 ### Test Coverage Report
 
@@ -115,7 +108,6 @@ Example output:
 Skills:
   Total: 45
   Unit Tests: 43 (95.6% coverage)
-  Integration Tests: 1
 
 Agents:
   Total: 7
@@ -124,12 +116,12 @@ Agents:
 
 Overall:
   Unit Tests: 48
-  Integration Tests: 2
-  Total Tests: 50
+  Integration Tests: 1
+  Total Tests: 49
 
 Run tests:
   rake test:unit                    # Fast unit tests
-  rake test:integration             # Slow integration tests
+  rake test:integration             # Slow integration tests (agent scenarios)
   rake test:unit:skills             # Skills unit tests only
   rake test:unit:agents             # Agents unit tests only
   rake test:integration:scenario[X] # Specific agent scenario
@@ -217,23 +209,17 @@ See `.github/workflows/ci.yml` for details.
 
 ### Integration Tests
 
-**Purpose:** Validate quality using LLMs or actual agent execution
+**Purpose:** Validate agent planning quality using Claude CLI
 **Speed:** Slow (minutes)
-**Dependencies:** LLM APIs or Claude CLI
+**Dependencies:** Claude CLI
 **When to use:** Before major releases, after significant changes
-
-**Skills integration tests:**
-- Generate code using the skill
-- Have LLM judge code quality
-- Check adherence to patterns
-- Verify antipattern avoidance
 
 **Agent integration tests:**
 - Invoke real agent via Claude CLI
 - Agent produces implementation plan
 - 4 domain judges evaluate in parallel (backend, frontend, tests, security)
-- Score against 150-point rubric (70% to pass)
-- Log results for tracking improvement
+- Score against 200-point rubric (70% to pass = 140 points)
+- Log results for tracking improvement over time
 
 ## Writing Good Tests
 
@@ -241,12 +227,12 @@ See `.github/workflows/ci.yml` for details.
 
 1. **Test the structure** - Ensure YAML and sections exist
 2. **Test the examples** - Validate code syntax
-3. **Test integration** - Have LLM judge generated code (optional)
+3. **Validation through usage** - Skills are validated indirectly through agent integration tests
 
 ### Agents
 
 1. **Test the structure** - Ensure YAML and references are valid
-2. **Test planning** - Have agent produce plans and judge quality
+2. **Test planning** - Have agent produce plans and judge quality across 4 domains
 3. **Test execution** - Have agent actually implement (future)
 
 ## Troubleshooting
@@ -260,10 +246,10 @@ ruby -Itest test/unit/skills/my_test.rb
 
 Or use rake tasks which handle this automatically.
 
-### "No LLM API keys found"
+### "No Claude CLI found"
 
-Integration tests for skills require `OPENAI_API_KEY` or `ANTHROPIC_API_KEY`.
-Agent integration tests use Claude CLI and don't require environment variables.
+Integration tests require Claude CLI to be installed and available in your PATH.
+See https://docs.anthropic.com/claude-code for installation instructions.
 
 ### "Test file not found"
 
@@ -297,7 +283,6 @@ test/
 │   ├── skills/
 │   └── agents/
 └── integration/
-    ├── skills/
     └── agents/
 ```
 

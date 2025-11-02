@@ -7,24 +7,25 @@ Evaluate Rails backend implementation plan.
 Score the plan against these backend skills:
 
 **Model Design (0-10)**
-- If feature needs models: skills/backend/activerecord-patterns.md, concerns-models.md, custom-validators.md
-- If no models needed: 10/10 (not applicable)
+- If models: skills/backend/activerecord-patterns.md, concerns-models.md, custom-validators.md
+- If no models: 10/10 (not applicable)
 
-**Migrations (0-10)**
-- If database changes needed: Migration quality, schema design, indexes, constraints, Rails 8.1 syntax
-- If no database changes: 10/10 (not applicable)
+**Database & Migrations (0-10)**
+- If database changes: Migration quality, schema design, indexes, constraints, Rails 8.1 syntax
+- If no database: 10/10 (not applicable)
 
-**Business Logic (0-10)**
-- If complex logic needed: skills/backend/form-objects.md, query-objects.md
-- Controller placement (skills/backend/antipattern-fat-controllers.md)
-- If simple feature: 10/10 if logic placement is appropriate
+**Business Logic & Controllers (0-10)**
+- Logic placement: skills/backend/form-objects.md, query-objects.md, antipattern-fat-controllers.md
+- Controllers: skills/backend/controller-restful.md, concerns-controllers.md
+- Routes: skills/backend/nested-resources.md
+- If simple static: 10/10 if appropriate
 
-**Controllers & Routes (0-10)**
-- skills/backend/controller-restful.md
-- skills/backend/concerns-controllers.md
-- skills/backend/nested-resources.md (if applicable)
+**Email & Background Jobs (0-10)**
+- If email/mailers: skills/backend/action-mailer.md
+- If no email: 10/10 (not applicable)
 
-**Rails Conventions (0-10)**
-- Naming, idioms, patterns
-- Convention over configuration
-- RESTful design
+**Configuration & Conventions (0-10)**
+- Config: skills/config/credentials-management.md, environment-configuration.md, initializers-best-practices.md
+- Infrastructure: skills/config/docker-rails-setup.md, solid-stack-setup.md
+- Rails conventions, naming, RESTful design
+- Award points based on configuration needs

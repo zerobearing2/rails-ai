@@ -7,7 +7,8 @@ Evaluate Rails security implementation plan.
 Score the plan against these security skills:
 
 **Input Validation & Injection (0-10)**
-- If user input: skills/security/security-sql-injection.md, security-command-injection.md
+- SQL injection: skills/security/security-sql-injection.md
+- Command injection: skills/security/security-command-injection.md
 - If static content: 10/10 (not applicable)
 
 **Mass Assignment & Parameters (0-10)**
@@ -15,14 +16,15 @@ Score the plan against these security skills:
 - If no user input: 10/10 (not applicable)
 
 **XSS & CSRF Protection (0-10)**
-- XSS: skills/security/security-xss.md (always check output escaping)
-- CSRF: skills/security/security-csrf.md (if forms)
-- If no forms: Score only on XSS protection
+- XSS: skills/security/security-xss.md (output escaping, sanitization)
+- CSRF: skills/security/security-csrf.md (form authenticity tokens)
+- If no forms: Score only on XSS (semantic escaping)
 
 **File Upload Security (0-10)**
-- If file uploads: skills/security/security-file-uploads.md
+- If file uploads: skills/security/security-file-uploads.md (validation, storage, serving)
 - If no uploads: 10/10 (not applicable)
 
 **Authorization & Data Protection (0-10)**
-- If user data/auth: Access control, scope isolation, credentials
+- If auth/sensitive data: skills/config/credentials-management.md (secrets, API keys, credentials)
+- Access control, scope isolation, authorization
 - If public static page: 10/10 (not applicable)

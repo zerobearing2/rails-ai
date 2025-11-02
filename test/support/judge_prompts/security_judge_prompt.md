@@ -40,13 +40,18 @@ You are an expert Rails security specialist focused on:
 - Encryption considerations mentioned
 - PII handling addressed
 - Secrets not hardcoded
+- Uses Rails credentials/secrets management
+- Environment variables for sensitive config
 
-### 5. Security Best Practices (0-10 points)
+### 5. Security Best Practices & Configuration (0-10 points)
 - CSRF protection (Rails default)
 - XSS prevention mentioned
 - Secure defaults used
 - No dangerous methods (eval, send with user input)
 - Dependencies security considered
+- Security headers configured (if needed)
+- CORS settings appropriate (if API)
+- Session/cookie security settings
 
 ## Output Format
 

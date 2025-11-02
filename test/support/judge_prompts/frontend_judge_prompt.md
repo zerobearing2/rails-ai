@@ -22,13 +22,15 @@ You are an expert Rails frontend developer focused on:
 - Logical component breakdown
 - DRY principles in views
 
-### 2. Hotwire Integration (0-10 points)
+### 2. Hotwire Integration & Configuration (0-10 points)
 - Turbo Frame usage for targeted updates
 - Turbo Stream responses where appropriate
 - Stimulus controllers for interactivity
 - Proper data attributes and targets
 - Progressive enhancement principles
 - Efficient DOM updates
+- Importmap/build configuration (if relevant)
+- Hotwire gem setup mentioned (if needed)
 
 ### 3. Styling & UI Components (0-10 points)
 - Tailwind utility classes used correctly

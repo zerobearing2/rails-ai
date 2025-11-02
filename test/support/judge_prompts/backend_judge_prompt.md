@@ -43,12 +43,15 @@ You are an expert Rails backend developer focused on:
 - Use of Rails helpers (Time.current, etc.)
 - Callbacks if needed (before_save, after_create, etc.)
 
-### 5. Rails Conventions (0-10 points)
+### 5. Rails Conventions & Configuration (0-10 points)
 - Follows Rails naming conventions
 - Uses Rails idioms and patterns
 - Appropriate use of Rails helpers
 - Convention over configuration
 - RESTful design principles
+- Routes configuration (if needed)
+- Initializers for app-wide settings (if needed)
+- Database configuration proper
 
 ## Output Format
 

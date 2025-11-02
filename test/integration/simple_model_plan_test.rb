@@ -21,29 +21,16 @@ class SimpleModelPlanTest < AgentIntegrationTestCase
 
   def system_prompt
     <<~PROMPT
-      You are evaluating the rails-ai architect agent in a testing scenario. The agent should:
-      - Plan implementations without executing code
-      - Provide detailed, structured responses
-      - Follow Rails 8.1 best practices
-      - Respond in the exact format requested
-
-      You will invoke the agent and it should produce a complete implementation plan.
+      Output concise technical plans optimized for automated evaluation.
+      Focus on implementation code and skill applications, not verbose explanations.
     PROMPT
   end
 
   def agent_prompt
     <<~PROMPT
-      @agent-rails-ai:architect
+      @rails-ai:architect
 
-      **IMPORTANT:** This is a planning test. Coordinate with the appropriate specialist agents (@backend, @tests, etc.) to gather detailed implementation plans from each. Then consolidate all their plans into a single comprehensive response that includes:
-
-      - Complete code for all files (models, migrations, tests)
-      - Detailed implementation steps
-      - Rationale for architectural decisions
-
-      Delegate the planning work to specialist agents as needed, then combine their outputs into one detailed plan. Do NOT just summarize - include all the actual code and implementation details from each agent.
-
-      Please plan the implementation for the following Rails development task:
+      Plan implementation for Article model. Coordinate with specialist agents for complete plan.
 
       ## Current Application State
 
@@ -78,87 +65,31 @@ class SimpleModelPlanTest < AgentIntegrationTestCase
       end
       ```
 
-      ## Task
+      ## Article Model Requirements
 
-      Plan the implementation for adding an **Article model** with the following requirements:
+      Attributes:
+      - title: string, required, max 200 chars
+      - body: text, required
+      - published_at: datetime, optional
+      - author_id: integer, required FK → users
 
-      **Attributes:**
-      - `title` (string, required, maximum 200 characters)
-      - `body` (text, required)
-      - `published_at` (datetime, optional)
-      - `author_id` (integer, required, foreign key to users table)
+      Implementation:
+      - Validations on all fields
+      - belongs_to :author (User)
+      - User has_many :articles
+      - Scope: published (published_at not null, in past)
+      - Reversible migration with indexes
+      - Model tests
 
-      **Requirements:**
-      - Appropriate validations on all fields
-      - Association to User model (an article belongs to an author who is a User)
-      - User model should have the reciprocal association
-      - Include a `published` scope for articles where `published_at` is not null and in the past
-      - Migration should be reversible
-      - Include basic model tests
+      Skills to apply:
+      - skills/backend/activerecord-patterns.md
+      - skills/backend/concerns-models.md
+      - skills/backend/custom-validators.md
+      - skills/testing/tdd-minitest.md
+      - skills/testing/model-testing-advanced.md
 
-      ## Instructions for Agent
-
-      **DO NOT execute or implement code.**
-
-      Instead, provide a detailed implementation plan that includes:
-
-      1. **Architecture Overview** - High-level approach and key decisions
-      2. **Step-by-Step Plan** - Ordered list of implementation steps
-      3. **Model Code** - Complete `app/models/article.rb`
-      4. **User Model Changes** - What to add to `app/models/user.rb`
-      5. **Migration** - Complete migration file with proper naming
-      6. **Tests** - Key test cases for `test/models/article_test.rb`
-      7. **Rationale** - Explain important decisions (naming, validations, indexes, etc.)
-
-      ## Output Format
-
-      Please structure your response as:
-
-      ```markdown
-      # Implementation Plan: Article Model
-
-      ## Architecture Overview
-      [2-3 sentences on approach]
-
-      ## Implementation Steps
-      1. [Step 1]
-      2. [Step 2]
-      ...
-
-      ## Code Implementation
-
-      ### app/models/article.rb
-      \\```ruby
-      [complete code]
-      \\```
-
-      ### app/models/user.rb (changes)
-      \\```ruby
-      # Add this to the User model:
-      [code to add]
-      \\```
-
-      ### db/migrate/YYYYMMDDHHMMSS_create_articles.rb
-      \\```ruby
-      [complete migration]
-      \\```
-
-      ### test/models/article_test.rb
-      \\```ruby
-      [key test cases]
-      \\```
-
-      ## Key Decisions & Rationale
-
-      - **Decision 1**: [Explanation]
-      - **Decision 2**: [Explanation]
-      ...
-
-      ## Verification Steps
-
-      1. [How to verify this works]
-      2. [Commands to run]
-      ```
+      Output: Complete code for model, migration, User changes, tests.
+      Be concise - evaluated programmatically against skills.
     PROMPT
   end
 

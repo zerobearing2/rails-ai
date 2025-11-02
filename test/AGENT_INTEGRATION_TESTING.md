@@ -258,7 +258,7 @@ Automatically loads relevant content for each domain:
 
 ## Judge Prompts
 
-Located in `support/judge_prompts/`, each domain has a markdown file defining:
+Located in `../support/judge_prompts/`, each domain has a markdown file defining:
 
 - 5 evaluation criteria (10 points each)
 - Specific patterns to look for
@@ -309,7 +309,7 @@ grep -A 2 "Backend:" tmp/test/integration/JUDGE_LOG.md | grep -B 1 "[12][0-9]/50
 
 ### Adjust Pass Threshold
 
-Edit `test/agents/agent_integration_test_case.rb`:
+Edit `test/support/agent_integration_test_case.rb`:
 
 ```ruby
 PASS_THRESHOLD = (MAX_TOTAL_SCORE * 0.7).to_i  # Currently 105/150 (70%)
@@ -321,7 +321,7 @@ Override `load_domain_context` in base class to change which skills/rules are lo
 
 ### Modify Judge Criteria
 
-Edit markdown files in `support/judge_prompts/` to adjust evaluation criteria.
+Edit markdown files in `../support/judge_prompts/` to adjust evaluation criteria.
 
 ## Troubleshooting
 
@@ -337,7 +337,7 @@ claude --version
 ### "Judge prompt not found"
 ```bash
 # Ensure judge prompts exist
-ls test/agents/integration/support/judge_prompts/
+ls test/agents/integration/../support/judge_prompts/
 # Should show: backend_judge_prompt.md, tests_judge_prompt.md, security_judge_prompt.md
 ```
 

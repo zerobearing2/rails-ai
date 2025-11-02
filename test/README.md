@@ -8,27 +8,31 @@ Tests are organized by **type** (unit vs integration) rather than by category (s
 
 ```
 test/
-├── test_helper.rb                   # Global test setup and helpers
-├── support/                          # Shared test infrastructure
-│   ├── skill_test_case.rb           # Base class for skill tests
-│   └── agent_integration_test_case.rb  # Base class for agent integration tests
-├── unit/                             # Fast tests (no external dependencies)
-│   ├── skills/                       # Skill validation tests
+├── test_helper.rb                        # Global test setup and helpers
+├── README.md                             # This file
+├── INTEGRATION_TESTING_GUIDE.md          # Detailed integration test guide
+├── AGENT_INTEGRATION_TESTING.md          # Agent-specific integration guide
+├── support/                              # Shared test infrastructure
+│   ├── skill_test_case.rb                # Base class for skill tests
+│   ├── agent_integration_test_case.rb    # Base class for agent integration tests
+│   └── judge_prompts/                    # Judge evaluation criteria
+│       ├── backend_judge_prompt.md
+│       ├── tests_judge_prompt.md
+│       └── security_judge_prompt.md
+├── unit/                                 # Fast tests (no external dependencies)
+│   ├── skills/                           # Skill validation tests
 │   │   ├── turbo_page_refresh_test.rb
 │   │   ├── form_objects_test.rb
 │   │   └── ...
-│   └── agents/                       # Agent structure/validation tests
+│   └── agents/                           # Agent structure/validation tests
 │       ├── agent_structure_test.rb
 │       ├── agent_content_test.rb
 │       └── ...
-└── integration/                      # Slow tests (use LLMs/Claude CLI)
-    ├── skills/                       # LLM judge tests for skills
+└── integration/                          # Slow tests (use LLMs/Claude CLI)
+    ├── skills/                           # LLM judge tests for skills
     │   └── turbo_page_refresh_integration_test.rb
-    ├── agents/                       # Agent planning/execution tests
-    │   ├── simple_model_plan_test.rb
-    │   └── support/
-    │       └── judge_prompts/
-    └── INTEGRATION_TESTING_GUIDE.md
+    └── agents/                           # Agent planning/execution tests
+        └── simple_model_plan_test.rb
 ```
 
 ## Running Tests
@@ -337,7 +341,8 @@ Integration tests should validate quality but run infrequently:
 
 ## See Also
 
-- [Integration Testing Guide](integration/INTEGRATION_TESTING_GUIDE.md) - Detailed guide for agent integration tests
+- [Integration Testing Guide](INTEGRATION_TESTING_GUIDE.md) - Detailed guide for agent integration tests
+- [Agent Integration Testing](AGENT_INTEGRATION_TESTING.md) - Agent-specific integration test details
 - [Skills Documentation](../skills/) - Skills being tested
 - [Agents Documentation](../agents/) - Agents being tested
 - [Rakefile](../Rakefile) - Task definitions

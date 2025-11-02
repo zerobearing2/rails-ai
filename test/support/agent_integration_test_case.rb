@@ -389,7 +389,7 @@ class AgentIntegrationTestCase < Minitest::Test
   end
 
   def support_dir
-    File.join(ROOT_PATH, "test", "agents", "integration", "support")
+    File.join(ROOT_PATH, "test", "support")
   end
 
   def git_sha

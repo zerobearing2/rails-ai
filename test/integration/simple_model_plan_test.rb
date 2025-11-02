@@ -81,15 +81,8 @@ class SimpleModelPlanTest < AgentIntegrationTestCase
       - Reversible migration with indexes
       - Model tests
 
-      Skills to apply:
-      - skills/backend/activerecord-patterns.md
-      - skills/backend/concerns-models.md
-      - skills/backend/custom-validators.md
-      - skills/testing/tdd-minitest.md
-      - skills/testing/model-testing-advanced.md
-
       Output: Complete code for model, migration, User changes, tests.
-      Be concise - evaluated programmatically against skills.
+      Be concise - evaluated programmatically.
     PROMPT
   end
 

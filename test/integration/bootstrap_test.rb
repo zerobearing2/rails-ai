@@ -31,14 +31,8 @@ class BootstrapTest < AgentIntegrationTestCase
       - View: "Welcome to Rails", basic HTML
       - Test: controller test
 
-      Skills to apply:
-      - skills/backend/controller-restful.md
-      - skills/frontend/partials-layouts.md
-      - skills/testing/tdd-minitest.md
-      - skills/security/security-xss.md
-
-      Output: Implementation plan with files, code structure, skill applications.
-      Be concise - output will be evaluated programmatically against skills.
+      Output: Implementation plan with files, code structure.
+      Be concise - output will be evaluated programmatically.
     PROMPT
   end
 

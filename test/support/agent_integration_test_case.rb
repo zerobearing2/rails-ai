@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "../test_helper"
-require "open3"
+require_relative "llm_adapter"
 require "tmpdir"
 require "fileutils"
 
@@ -24,6 +24,15 @@ class AgentIntegrationTestCase < Minitest::Test
   MAX_TOTAL_SCORE = DOMAINS.size * MAX_SCORE_PER_DOMAIN # 200
   PASS_THRESHOLD = (MAX_TOTAL_SCORE * 0.7).to_i # 140
 
+  # Tell Minitest not to run this base class as a test
+  def self.runnable_methods
+    if self == AgentIntegrationTestCase
+      []
+    else
+      super
+    end
+  end
+
   # Override in subclass
   def scenario_name
     raise NotImplementedError, "Subclass must define scenario_name"
@@ -39,6 +48,11 @@ class AgentIntegrationTestCase < Minitest::Test
 
   def expected_pass
     raise NotImplementedError, "Subclass must define expected_pass (true/false)"
+  end
+
+  # LLM adapter - can be overridden to use different LLM
+  def llm_adapter
+    @llm_adapter ||= ClaudeAdapter.new
   end
 
   # Main test method - subclasses can override to add custom assertions
@@ -102,30 +116,26 @@ class AgentIntegrationTestCase < Minitest::Test
   private
 
   def run_agent
-    log_live "  Invoking Claude CLI with agent prompt..."
+    log_live "  Invoking #{llm_adapter.name} with agent prompt..."
     log_live "  " + ("-" * 76)
 
-    # Run claude CLI with streaming output capture
-    cmd = [
-      "claude",
-      "--print",
-      "--system-prompt",
-      system_prompt
-    ]
+    # Use LLM adapter with streaming support
+    agent_output = llm_adapter.execute(
+      prompt: agent_prompt,
+      system_prompt: system_prompt,
+      streaming: true,
+      on_chunk: ->(text) { log_live(text, newline: false) }
+    )
 
-    stdout, stderr, status = run_command_with_streaming(cmd, agent_prompt)
-
+    log_live ""  # Final newline after streaming completes
     log_live "  " + ("-" * 76)
 
-    unless status.success?
-      log_live "  ✗ ERROR: Claude CLI failed!"
-      log_live ""
-      log_live "Exit status: #{status.exitstatus}"
-      log_live "STDERR: #{stderr}" unless stderr.empty?
-      raise "Claude CLI failed with status #{status.exitstatus}"
-    end
-
-    stdout
+    agent_output
+  rescue StandardError => e
+    log_live "  ✗ ERROR: #{llm_adapter.name} failed!"
+    log_live ""
+    log_live "Error: #{e.message}"
+    raise
   end
 
   def judge_output(agent_output)
@@ -155,36 +165,34 @@ class AgentIntegrationTestCase < Minitest::Test
   def run_parallel_judges(agent_output)
     log_live "  Building coordinator prompt with 4 domain tasks..."
 
-    # Build a single prompt that asks Claude to evaluate all domains in parallel
+    # Build a single prompt that asks LLM to evaluate all domains in parallel
     coordinator_prompt = build_coordinator_judge_prompt(agent_output)
 
-    log_live "  Invoking Claude CLI for parallel judging..."
+    log_live "  Invoking #{llm_adapter.name} for parallel judging..."
     log_live "  " + ("-" * 76)
 
-    # Run claude CLI once with parallel tasks (with streaming output capture)
-    cmd = ["claude", "--print"]
-    stdout, stderr, status = run_command_with_streaming(cmd, coordinator_prompt)
+    # Use LLM adapter with streaming support
+    judge_output = llm_adapter.execute(
+      prompt: coordinator_prompt,
+      streaming: true,
+      on_chunk: ->(text) { log_live(text, newline: false) }
+    )
 
+    log_live ""  # Final newline after streaming completes
     log_live "  " + ("-" * 76)
-
-    unless status.success?
-      log_live "  ✗ ERROR: Coordinator judge failed!"
-      log_live ""
-      log_live "Exit status: #{status.exitstatus}"
-      log_live "STDERR: #{stderr}" unless stderr.empty?
-      log_live ""
-
-      raise "Coordinator judge failed with status #{status.exitstatus}. See live log for details."
-    end
-
     log_live "  Parsing domain judgments from coordinator response..."
 
     # Parse the coordinated response to extract each domain's judgment
-    results = parse_coordinator_response(stdout)
+    results = parse_coordinator_response(judge_output)
 
     log_live "  ✓ Successfully parsed #{results.size} domain judgments"
 
     results
+  rescue StandardError => e
+    log_live "  ✗ ERROR: Coordinator judge failed!"
+    log_live ""
+    log_live "Error: #{e.message}"
+    raise
   end
 
   def build_coordinator_judge_prompt(agent_output)
@@ -549,54 +557,23 @@ class AgentIntegrationTestCase < Minitest::Test
     puts "  Tail with: tail -f #{@live_log_file}\n\n"
   end
 
-  def log_live(message)
+  def log_live(message, newline: true)
     # Write to log file
     File.open(@live_log_file, "a") do |f|
-      f.puts message
+      if newline
+        f.puts message
+      else
+        f.print message
+      end
       f.flush
     end
 
     # Also print to stdout for immediate feedback
-    puts message
-  end
-
-  def run_command_with_streaming(cmd, stdin_data)
-    # Run command and stream output to live log in real-time
-    stdout_data = []
-    stderr_data = []
-
-    Open3.popen3(*cmd) do |stdin, stdout, stderr, wait_thr|
-      # Write input
-      stdin.write(stdin_data)
-      stdin.close
-
-      # Read stdout and stderr in real-time
-      # Use select to read from both streams without blocking
-      streams = [stdout, stderr]
-      until streams.all?(&:eof?)
-        ready = IO.select(streams, nil, nil, 0.1)
-        next unless ready
-
-        ready[0].each do |stream|
-          begin
-            data = stream.read_nonblock(4096)
-            if stream == stdout
-              stdout_data << data
-              # Stream stdout to live log (this is the LLM output!)
-              log_live(data.chomp) unless data.strip.empty?
-            else
-              stderr_data << data
-            end
-          rescue IO::WaitReadable
-            # Not ready yet, will try again
-          rescue EOFError
-            # Stream ended
-          end
-        end
-      end
-
-      status = wait_thr.value
-      [stdout_data.join, stderr_data.join, status]
+    if newline
+      puts message
+    else
+      print message
+      $stdout.flush
     end
   end
 end

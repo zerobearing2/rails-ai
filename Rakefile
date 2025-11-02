@@ -64,6 +64,39 @@ namespace :test do
   end
 
   namespace :integration do
+    desc "List available integration test scenarios"
+    task :list do
+      puts "\n=== Available Integration Test Scenarios ==="
+      puts ""
+
+      scenarios = Dir.glob("test/integration/*_test.rb").map do |file|
+        File.basename(file, "_test.rb")
+      end
+
+      if scenarios.empty?
+        puts "No integration test scenarios found."
+      else
+        scenarios.sort.each do |name|
+          if name == "bootstrap"
+            puts "  • #{name} (fast infrastructure test)"
+          else
+            puts "  • #{name}"
+          end
+        end
+        puts ""
+        puts "Run with:"
+        puts "  rake test:integration:bootstrap               # Fast infrastructure test"
+        puts "  rake test:integration:scenario[scenario_name] # Specific scenario"
+      end
+      puts ""
+    end
+
+    desc "Run bootstrap test (fast test to verify integration test harness)"
+    task :bootstrap do
+      puts "Running bootstrap integration test (fast, cheap test)..."
+      system("ruby -Itest test/integration/bootstrap_test.rb")
+    end
+
     desc "Run a specific integration scenario"
     task :scenario, [:scenario_name] do |_t, args|
       scenario_name = args[:scenario_name]

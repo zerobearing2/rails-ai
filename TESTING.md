@@ -19,6 +19,12 @@ Comprehensive testing framework for rails-ai using minitest.
 # Run all unit tests (fast, < 1 second)
 rake test:unit
 
+# List available integration test scenarios
+rake test:integration:list
+
+# Test integration test harness (fast bootstrap test, ~10 seconds)
+rake test:integration:bootstrap
+
 # Run specific integration scenario (individual scenarios only)
 rake test:integration:scenario[simple_model_plan]
 
@@ -27,6 +33,8 @@ rake test:report
 ```
 
 **Important:** Bulk integration test runs (`rake test:integration`) are **disabled** due to cost and time. Integration tests must be run individually.
+
+**Tip:** Run `rake test:integration:bootstrap` first to verify the integration test harness is working before running expensive agent scenarios.
 
 ## Test Organization
 
@@ -38,6 +46,7 @@ test/
 ├── support/                    # Shared test infrastructure
 │   ├── skill_test_case.rb      # Base class for skill tests
 │   ├── agent_integration_test_case.rb  # Base for integration tests
+│   ├── llm_adapter.rb          # LLM adapter interface + Claude CLI impl
 │   └── judge_prompts/          # 4 domain judge evaluation criteria
 │       ├── backend_judge_prompt.md
 │       ├── frontend_judge_prompt.md
@@ -46,7 +55,8 @@ test/
 ├── unit/                       # Fast tests (no external dependencies)
 │   ├── skills/                 # Skill structure/syntax validation
 │   └── agents/                 # Agent structure/metadata validation
-└── integration/                # Slow tests (use Claude CLI)
+└── integration/                # Slow tests (use LLM via adapter)
+    ├── bootstrap_test.rb       # Fast infrastructure test
     └── *_test.rb               # Agent planning scenario tests
 ```
 
@@ -108,7 +118,7 @@ This creates `test/unit/skills/my-skill_test.rb` with standard test structure.
 
 ### How Integration Tests Work
 
-1. **Invoke real agent** via Claude CLI with a planning scenario
+1. **Invoke real agent** via LLM adapter with a planning scenario
 2. **Agent produces implementation plan** using rails-ai agents
 3. **Single LLM call coordinates 4 parallel domain judges** to evaluate the plan:
    - Backend (models, migrations, validations, Rails conventions)
@@ -120,14 +130,41 @@ This creates `test/unit/skills/my-skill_test.rb` with standard test structure.
 6. **Track timing data**: Agent duration, judge duration, total duration
 7. **Log results** to timestamped directories and update results table
 
-**Architecture Note:** Instead of spawning 4 separate LLM calls with Ruby threads, we use a single Claude CLI call that coordinates parallel evaluation tasks internally. This is more efficient and takes advantage of the LLM's native parallel task execution capabilities.
+**Architecture:**
+- **LLM Adapter Pattern**: Tests use an adapter interface (`LLMAdapter`) for flexibility. Current implementation uses `ClaudeAdapter` with Claude CLI, but this pattern allows easy addition of other LLMs (e.g., Codex) in the future.
+- **True Streaming**: Uses `--output-format stream-json --include-partial-messages` for real-time token-by-token streaming output visibility in live logs.
+- **Parallel Judging**: Single coordinated LLM call evaluates all 4 domains in parallel, leveraging the LLM's native parallel task execution instead of Ruby threads.
 
 ### Running Integration Tests
 
 **Important:** Integration tests are run **individually only** due to cost and time.
 
+#### Bootstrap Test (Recommended First Step)
+
+Before running expensive agent scenarios, verify the integration test harness is working:
+
 ```bash
-# Run specific scenario (ONLY way to run integration tests)
+# Fast, cheap test (~10 seconds, minimal tokens)
+rake test:integration:bootstrap
+```
+
+The bootstrap test uses a trivial prompt ("count to 10") to verify:
+- LLM adapter connectivity
+- Real-time token-by-token streaming
+- Live logging (console + file)
+
+**Note:** Bootstrap test skips expensive judging since it's only for infrastructure verification.
+
+**Always run bootstrap first when:**
+- Testing changes to the integration test framework
+- Debugging test infrastructure issues
+- Verifying Claude CLI is properly configured
+- After updating the LLM adapter
+
+#### Running Agent Scenarios
+
+```bash
+# Run specific scenario (ONLY way to run agent integration tests)
 rake test:integration:scenario[simple_model_plan]
 
 # Or run directly with ruby
@@ -137,15 +174,23 @@ ruby -Itest test/integration/simple_model_plan_test.rb
 rake test:integration  # ❌ Disabled - shows error message
 ```
 
-**Live Logging:**
-Integration tests log progress in real-time to `tmp/test/integration/live.log`. The test will print the tail command when it starts:
+**Live Output:**
+Integration tests stream output to **both console and log file** with **true real-time streaming**:
 
-```
-→ Live log: tmp/test/integration/live.log
-  Tail with: tail -f tmp/test/integration/live.log
+1. **Console (stdout)**: You see LLM responses streaming token-by-token in real-time directly in your terminal
+2. **Log file**: Saved to `tmp/test/integration/live.log` for later review
+
+The test will show:
+- Progress markers (Step 1/2, Step 2/2) immediately
+- **LLM responses streaming token-by-token** as they're generated
+- Timing information and status updates throughout execution
+
+**Optional**: If you want to watch the log file in a separate terminal:
+```bash
+tail -f tmp/test/integration/live.log
 ```
 
-In another terminal, run the tail command to watch progress live. This is especially useful for long-running tests.
+But this is not necessary - you'll see everything in your main terminal where you ran the test.
 
 **When to Run Integration Tests:**
 - Before releasing a new version
@@ -302,6 +347,16 @@ Run tests:
 
 ## Troubleshooting
 
+### Integration Test Issues
+
+**Problem:** Not sure if integration test harness is working correctly
+
+**Solution:** Run the bootstrap test first:
+```bash
+rake test:integration:bootstrap
+```
+This fast test verifies LLM connectivity, streaming, and logging without expensive judging.
+
 ### "Cannot load file -- test_helper"
 
 Make sure you run tests with `-Itest` flag:
@@ -314,7 +369,11 @@ Or use rake tasks which handle this automatically.
 ### "No Claude CLI found"
 
 Integration tests require Claude CLI to be installed and available in your PATH.
-See https://docs.anthropic.com/claude-code for installation instructions.
+See https://docs.claude.com/claude-code for installation instructions.
+
+### "Prompt is too long"
+
+This error occurs when the coordinator judge prompt exceeds token limits. This typically happens with the bootstrap test if you accidentally run the full judging flow. The bootstrap test intentionally skips judging to avoid this issue.
 
 ### "Judge prompts not found"
 
@@ -361,6 +420,47 @@ Integration tests validate agent planning quality but are slow and expensive:
 - **Before commits:** Run full CI (lint + unit)
 - **Before releases:** Run integration tests manually
 - **Track trends:** Review integration test logs and results table over time
+
+## Extending with New LLM Providers
+
+The integration tests use an adapter pattern to support different LLM providers. To add a new provider (e.g., Codex):
+
+1. **Create a new adapter** in `test/support/llm_adapter.rb`:
+
+```ruby
+class CodexAdapter < LLMAdapter
+  def name
+    "Codex"
+  end
+
+  def available?
+    # Check if Codex is available
+    system("which codex > /dev/null 2>&1")
+  end
+
+  def execute(prompt:, system_prompt: nil, streaming: false, on_chunk: nil)
+    # Implement Codex-specific execution logic
+    # Handle streaming with on_chunk callback if streaming: true
+  end
+end
+```
+
+2. **Override the adapter** in your test file:
+
+```ruby
+class MyIntegrationTest < AgentIntegrationTestCase
+  def llm_adapter
+    @llm_adapter ||= CodexAdapter.new
+  end
+
+  # Rest of test definition...
+end
+```
+
+The adapter interface requires:
+- `name` - Provider name for logging
+- `available?` - Check if provider is available
+- `execute(prompt:, system_prompt:, streaming:, on_chunk:)` - Execute prompt with optional streaming
 
 ## See Also
 

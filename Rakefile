@@ -19,9 +19,9 @@ namespace :test do
   # Note: Bulk test run disabled due to cost/time. Use test:integration:scenario[name] instead.
   desc "Run all integration tests (DISABLED - use test:integration:scenario[name] instead)"
   task :integration do
-    puts "\n" + ("=" * 80)
+    puts "\n#{'=' * 80}"
     puts "ERROR: Bulk integration test run is disabled"
-    puts ("=" * 80)
+    puts("=" * 80)
     puts ""
     puts "Integration tests are expensive and time-consuming."
     puts "Run individual scenarios instead:"

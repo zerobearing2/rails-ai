@@ -103,13 +103,13 @@ class SimpleModelPlanTest < AgentIntegrationTestCase
 
     # Backend score should be strong (at least 35/50)
     backend_score = judgment[:domain_scores]["backend"][:score]
-    assert backend_score >= 35,
-           "Backend score should be at least 35/50, got #{backend_score}/50"
+
+    assert_operator backend_score, :>=, 35, "Backend score should be at least 35/50, got #{backend_score}/50"
 
     # Tests score should be reasonable (at least 30/50)
     tests_score = judgment[:domain_scores]["tests"][:score]
-    assert tests_score >= 30,
-           "Tests score should be at least 30/50, got #{tests_score}/50"
+
+    assert_operator tests_score, :>=, 30, "Tests score should be at least 30/50, got #{tests_score}/50"
 
     judgment
   end

@@ -25,6 +25,6 @@ class BootstrapTest < AgentIntegrationTestCase
   end
 
   def expected_pass
-    true  # Should pass - minimal feature with all domains covered
+    true # Should pass - minimal feature with all domains covered
   end
 end

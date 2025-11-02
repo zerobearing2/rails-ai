@@ -81,47 +81,44 @@ class ClaudeAdapter < LLMAdapter
         next unless ready
 
         ready[0].each do |stream|
-          begin
-            chunk = stream.read_nonblock(4096)
+          chunk = stream.read_nonblock(4096)
 
-            if stream == stdout
-              # Parse streaming JSON events
-              chunk.each_line do |line|
-                next if line.strip.empty?
+          if stream == stdout
+            # Parse streaming JSON events
+            chunk.each_line do |line|
+              next if line.strip.empty?
 
-                begin
-                  json = JSON.parse(line)
+              begin
+                json = JSON.parse(line)
 
-                  # Handle stream_event wrapper (with --include-partial-messages)
-                  if json["type"] == "stream_event" && json["event"]
-                    event = json["event"]
+                # Handle stream_event wrapper (with --include-partial-messages)
+                if json["type"] == "stream_event" && json["event"]
+                  event = json["event"]
 
-                    # Extract text deltas
-                    if event["type"] == "content_block_delta" && event.dig("delta", "text")
-                      text = event.dig("delta", "text")
-                      full_text << text
-                      on_chunk.call(text) if on_chunk
-                    end
-                  elsif json["type"] == "assistant"
-                    # Final consolidated message (fallback if streaming didn't capture everything)
-                    final_text = json.dig("message", "content", 0, "text")
-                    if final_text && full_text.join != final_text
-                      # Streaming missed some content, use final message
-                      full_text = [final_text]
-                    end
+                  # Extract text deltas
+                  if event["type"] == "content_block_delta" && event.dig("delta", "text")
+                    text = event.dig("delta", "text")
+                    full_text << text
+                    on_chunk&.call(text)
                   end
-                rescue JSON::ParserError
-                  # Ignore non-JSON lines
+                elsif json["type"] == "assistant"
+                  # Final consolidated message (fallback if streaming didn't capture everything)
+                  final_text = json.dig("message", "content", 0, "text")
+                  if final_text && full_text.join != final_text
+                    # Streaming missed some content, use final message
+                    full_text = [final_text]
+                  end
                 end
+              rescue JSON::ParserError
+                # Ignore non-JSON lines
               end
-            else
-              # stderr
-              stderr_output << chunk
             end
-
-          rescue IO::WaitReadable
-          rescue EOFError
+          else
+            # stderr
+            stderr_output << chunk
           end
+        rescue IO::WaitReadable
+        rescue EOFError
         end
       end
 

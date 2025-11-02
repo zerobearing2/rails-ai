@@ -68,9 +68,9 @@ class AgentIntegrationTestCase < Minitest::Test
     start_time = Time.now
     setup_live_logging
 
-    log_live "\n" + ("=" * 80)
+    log_live "\n#{'=' * 80}"
     log_live "Integration Test: #{scenario_name}"
-    log_live ("=" * 80)
+    log_live("=" * 80)
     log_live ""
 
     # Run the agent
@@ -183,31 +183,29 @@ class AgentIntegrationTestCase < Minitest::Test
     # Run each domain judge sequentially to avoid prompt length issues
     results = {}
     DOMAINS.each_with_index do |domain, index|
-      begin
-        log_live "  [#{index + 1}/4] Evaluating #{domain}..."
+      log_live "  [#{index + 1}/4] Evaluating #{domain}..."
 
-        judge_prompt = build_single_domain_judge_prompt(domain, agent_output_file)
+      judge_prompt = build_single_domain_judge_prompt(domain, agent_output_file)
 
-        judge_output = llm_adapter.execute(
-          prompt: judge_prompt,
-          streaming: true,
-          on_chunk: ->(text) { log_live(text, newline: false, console: false) }
-        )
+      judge_output = llm_adapter.execute(
+        prompt: judge_prompt,
+        streaming: true,
+        on_chunk: ->(text) { log_live(text, newline: false, console: false) }
+      )
 
-        score = parse_score_from_judgment(judge_output, domain)
-        results[domain] = {
-          domain: domain,
-          score: score,
-          judgment_text: judge_output
-        }
+      score = parse_score_from_judgment(judge_output, domain)
+      results[domain] = {
+        domain: domain,
+        score: score,
+        judgment_text: judge_output
+      }
 
-        log_live "  ✓ #{domain.capitalize}: #{score}/#{MAX_SCORE_PER_DOMAIN}"
-      rescue StandardError => e
-        log_live "  ✗ ERROR: Judge failed for #{domain}!"
-        log_live ""
-        log_live "Error: #{e.message}"
-        raise
-      end
+      log_live "  ✓ #{domain.capitalize}: #{score}/#{MAX_SCORE_PER_DOMAIN}"
+    rescue StandardError => e
+      log_live "  ✗ ERROR: Judge failed for #{domain}!"
+      log_live ""
+      log_live "Error: #{e.message}"
+      raise
     end
 
     log_live "  ✓ All judges complete"
@@ -256,17 +254,16 @@ class AgentIntegrationTestCase < Minitest::Test
     PROMPT
   end
 
-
   def parse_score_from_judgment(judgment_text, domain)
     # Try to parse as JSON first
     begin
       # Extract JSON from between code fences if present
       json_match = judgment_text.match(/```json?\s*\n(.*?)\n```/m)
       json_text = if json_match
-        json_match[1]
-      else
-        judgment_text.strip
-      end
+                    json_match[1]
+                  else
+                    judgment_text.strip
+                  end
 
       data = JSON.parse(json_text)
       return data["total_score"].to_i if data["total_score"]
@@ -275,13 +272,13 @@ class AgentIntegrationTestCase < Minitest::Test
     end
 
     # Fallback: Look for score in format: "## Backend Total: 45/50" or "Backend Total: 45/50"
-    match = judgment_text.match(/##?\s*#{domain.capitalize}\s+Total:\s*(\d+)\/\d+/i)
+    match = judgment_text.match(%r{##?\s*#{domain.capitalize}\s+Total:\s*(\d+)/\d+}i)
 
     if match
       match[1].to_i
     else
       # Try to extract any score pattern
-      match = judgment_text.match(/Total:\s*(\d+)\/\d+/)
+      match = judgment_text.match(%r{Total:\s*(\d+)/\d+})
       match ? match[1].to_i : 0
     end
   end
@@ -333,10 +330,10 @@ class AgentIntegrationTestCase < Minitest::Test
     judge_time = format_duration(judgment[:timing][:judge_duration])
     total_time = format_duration(judgment[:timing][:total_duration])
     total_score = "#{judgment[:total_score]}/200"
-    backend_score = "#{judgment[:domain_scores]["backend"][:score]}/50"
-    frontend_score = "#{judgment[:domain_scores]["frontend"][:score]}/50"
-    tests_score = "#{judgment[:domain_scores]["tests"][:score]}/50"
-    security_score = "#{judgment[:domain_scores]["security"][:score]}/50"
+    backend_score = "#{judgment[:domain_scores]['backend'][:score]}/50"
+    frontend_score = "#{judgment[:domain_scores]['frontend'][:score]}/50"
+    tests_score = "#{judgment[:domain_scores]['tests'][:score]}/50"
+    security_score = "#{judgment[:domain_scores]['security'][:score]}/50"
 
     # Build the new row
     new_row = "| #{scenario_name} | #{last_run} | #{agent_time} | #{judge_time} | #{total_time} | #{total_score} | #{backend_score} | #{frontend_score} | #{tests_score} | #{security_score} | #{result_emoji} |"

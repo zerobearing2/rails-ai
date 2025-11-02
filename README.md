@@ -184,9 +184,11 @@ rake test:unit:agents              # Agents only
 
 **Tier 2: Integration Tests** (slow, requires Claude CLI)
 ```bash
-rake test:integration:agents       # Run agent planning tests
+rake test:integration              # Run all integration scenarios
 rake test:integration:scenario[X]  # Run specific scenario
 ```
+
+See [TESTING.md](TESTING.md) for comprehensive testing documentation.
 
 ### Quality Checks
 

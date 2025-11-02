@@ -15,13 +15,13 @@ namespace :test do
     t.warning = false
   end
 
-  # Integration tests (slow) - organized by category
-  desc "Run all integration tests (slow, uses LLMs/Claude CLI)"
+  # Integration tests (slow) - agent planning scenarios
+  desc "Run all integration tests (slow, uses Claude CLI)"
   task :integration do
     ENV["INTEGRATION"] = "1"
     Rake::TestTask.new(:integration_runner) do |t|
       t.libs << "test"
-      t.test_files = FileList["test/integration/**/*_test.rb"]
+      t.test_files = FileList["test/integration/*_test.rb"]
       t.verbose = true
       t.warning = false
     end
@@ -52,20 +52,12 @@ namespace :test do
   end
 
   namespace :integration do
-    desc "Run agent integration tests (same as test:integration)"
-    Rake::TestTask.new(:agents) do |t|
-      t.libs << "test"
-      t.test_files = FileList["test/integration/agents/**/*_test.rb"]
-      t.verbose = true
-      t.warning = false
-    end
-
-    desc "Run a specific agent integration scenario"
+    desc "Run a specific integration scenario"
     task :scenario, [:scenario_name] do |_t, args|
       scenario_name = args[:scenario_name]
       raise "Usage: rake test:integration:scenario[scenario_name]" unless scenario_name
 
-      test_file = "test/integration/agents/#{scenario_name}_test.rb"
+      test_file = "test/integration/#{scenario_name}_test.rb"
 
       if File.exist?(test_file)
         puts "Running integration test: #{test_file}"
@@ -74,7 +66,7 @@ namespace :test do
         puts "Error: Integration test not found: #{test_file}"
         puts ""
         puts "Available scenarios:"
-        Dir.glob("test/integration/agents/*_test.rb").each do |file|
+        Dir.glob("test/integration/*_test.rb").each do |file|
           name = File.basename(file, "_test.rb")
           puts "  - #{name}"
         end
@@ -102,12 +94,12 @@ namespace :test do
     # Agents
     total_agents = Dir.glob("agents/*.md").count
     agent_unit_tests = Dir.glob("test/unit/agents/**/*_test.rb").count
-    agent_integration_tests = Dir.glob("test/integration/agents/**/*_test.rb").count
+    agent_integration_tests = Dir.glob("test/integration/*_test.rb").count
 
     puts "Agents:"
     puts "  Total: #{total_agents}"
     puts "  Unit Tests: #{agent_unit_tests}"
-    puts "  Integration Tests: #{agent_integration_tests}"
+    puts "  Integration Scenarios: #{agent_integration_tests}"
     puts ""
 
     # Overall
@@ -116,15 +108,15 @@ namespace :test do
 
     puts "Overall:"
     puts "  Unit Tests: #{total_unit}"
-    puts "  Integration Tests: #{total_integration}"
+    puts "  Integration Scenarios: #{total_integration}"
     puts "  Total Tests: #{total_unit + total_integration}"
     puts ""
     puts "Run tests:"
     puts "  rake test:unit                    # Fast unit tests"
-    puts "  rake test:integration             # Slow integration tests (agent scenarios)"
+    puts "  rake test:integration             # Slow integration scenarios"
     puts "  rake test:unit:skills             # Skills unit tests only"
     puts "  rake test:unit:agents             # Agents unit tests only"
-    puts "  rake test:integration:scenario[X] # Specific agent scenario"
+    puts "  rake test:integration:scenario[X] # Specific scenario"
     puts ""
   end
 

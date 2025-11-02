@@ -291,52 +291,7 @@ class AgentIntegrationTestCase < Minitest::Test
     log_dir = File.join(ROOT_PATH, "tmp", "test", "integration")
     FileUtils.mkdir_p(log_dir)
 
-    log_file = File.join(log_dir, "JUDGE_LOG.md")
-
-    # Create log file if it doesn't exist
-    unless File.exist?(log_file)
-      File.write(log_file, <<~HEADER)
-        # Agent Integration Test Judge Log
-
-        This file contains a chronological log of all judge evaluations for tracking accuracy and improvement over time.
-
-        Format: Each entry includes timestamp, scenario, git version, scores, and pass/fail result.
-
-        ---
-
-      HEADER
-    end
-
-    # Append judgment entry
-    File.open(log_file, "a") do |f|
-      f.puts "\n## Evaluation: #{judgment[:timestamp].strftime('%Y-%m-%d %H:%M:%S')}"
-      f.puts ""
-      f.puts "**Scenario**: #{judgment[:scenario]}"
-      f.puts "**Git SHA**: #{judgment[:git_sha]}"
-      f.puts "**Git Branch**: #{judgment[:git_branch]}"
-      f.puts ""
-      f.puts "### Timing"
-      f.puts ""
-      f.puts "- **Agent Duration**: #{format_duration(judgment[:timing][:agent_duration])}"
-      f.puts "- **Judge Duration**: #{format_duration(judgment[:timing][:judge_duration])}"
-      f.puts "- **Total Duration**: #{format_duration(judgment[:timing][:total_duration])}"
-      f.puts ""
-      f.puts "### Domain Scores"
-      f.puts ""
-      judgment[:domain_scores].each do |domain, result|
-        f.puts "- **#{domain.capitalize}**: #{result[:score]}/#{MAX_SCORE_PER_DOMAIN}"
-      end
-      f.puts "- **Total**: #{judgment[:total_score]}/#{judgment[:max_score]} (#{judgment[:percentage]}%)"
-      f.puts ""
-      f.puts "### Result"
-      f.puts ""
-      f.puts "**#{judgment[:pass] ? 'PASS' : 'FAIL'}** (Threshold: #{judgment[:threshold]}/#{judgment[:max_score]})"
-      f.puts ""
-      f.puts "---"
-      f.puts ""
-    end
-
-    # Also save detailed output to timestamped file
+    # Save detailed output to timestamped file
     run_dir = File.join(
       log_dir,
       "runs",

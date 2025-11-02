@@ -210,7 +210,6 @@ Results are saved to:
 
 ```
 tmp/test/integration/
-├── JUDGE_LOG.md                      # Chronological log of all runs
 └── runs/
     └── YYYYMMDD_HHMMSS_scenario_name/
         ├── agent_output.md           # Agent's implementation plan
@@ -281,7 +280,7 @@ This table is updated each time an integration test runs. It provides a quick re
 
 | Scenario | Last Run | Agent Time | Judge Time | Total Time | Total Score | Backend | Frontend | Tests | Security | Result |
 |----------|----------|------------|------------|------------|-------------|---------|----------|-------|----------|--------|
-| bootstrap | 2025-11-02 | 10.1s | 27.3s | 37.4s | 185/200 | 50/50 | 41/50 | 44/50 | 50/50 | ✅ PASS |
+| bootstrap | 2025-11-02 | 13.4s | 30.3s | 43.8s | 186/200 | 47/50 | 45/50 | 44/50 | 50/50 | ✅ PASS |
 | simple_model_plan | 2025-11-02 | 55.2s | 34.3s | 1m 30s | 189/200 | 50/50 | 50/50 | 41/50 | 48/50 | ✅ PASS |
 
 **Legend:**

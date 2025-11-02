@@ -60,23 +60,27 @@ We use a two-tier Minitest strategy:
 
 ### Tier 1: Unit Tests (Fast)
 ```bash
-rake test:skills:unit              # Run all unit tests
-ruby -Itest test/skills/unit/...   # Run specific test
+rake test:unit                     # Run all unit tests
+rake test:unit:skills              # Skills only
+rake test:unit:agents              # Agents only
 ```
 
-### Tier 2: Integration Tests (Slow, requires API keys)
+### Tier 2: Integration Tests (Slow, requires Claude CLI - individual scenarios only)
 ```bash
-export OPENAI_API_KEY="sk-..."
-INTEGRATION=1 rake test:skills:integration
+rake test:integration:scenario[simple_model_plan]  # Specific scenario
 ```
+
+**Note:** Bulk integration runs are disabled due to cost/time. Run scenarios individually.
+
+See [TESTING.md](TESTING.md) for comprehensive testing documentation.
 
 ### Running CI
 ```bash
 # Quick check (linting + unit tests)
 bin/ci
 
-# Full check with integration tests
-INTEGRATION=1 bin/ci
+# Note: Integration tests must be run individually, not via CI
+# rake test:integration:scenario[simple_model_plan]
 ```
 
 ## Coding Conventions
@@ -130,9 +134,9 @@ rails-ai/
 ## Agent and Skills Architecture
 
 ### Adding New Skills
-1. Add skill to appropriate YAML file in `skills/`
-2. Write unit tests in `test/skills/unit/`
-3. Add integration tests if needed in `test/skills/integration/`
+1. Add skill to appropriate domain directory in `skills/`
+2. Write unit tests in `test/unit/skills/`
+3. Skills are validated through agent integration tests
 4. Update agent prompts if the skill changes their capabilities
 5. Document the skill with clear description and when to use it
 

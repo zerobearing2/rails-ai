@@ -4,7 +4,7 @@ require_relative "../support/agent_integration_test_case"
 
 # Bootstrap integration test
 # Simple test to verify the integration test harness is working correctly
-# Uses a trivial Rails plan to test LLM adapter, streaming, and judging
+# Uses a basic but complete Rails plan to test LLM adapter, streaming, and judging
 # Fast and cheap - tests full flow without expensive agent scenarios
 # Run this test to verify the test infrastructure before running expensive agent scenarios
 class BootstrapTest < AgentIntegrationTestCase
@@ -14,26 +14,35 @@ class BootstrapTest < AgentIntegrationTestCase
 
   def system_prompt
     <<~PROMPT
-      You are a Rails architect helping plan a simple feature.
-      Keep your response VERY short and simple - just outline the basics.
+      You are a Rails architect creating a simple but complete implementation plan.
+      Be thorough but concise.
     PROMPT
   end
 
   def agent_prompt
     <<~PROMPT
-      Plan a simple "Hello World" feature for a Rails app:
-      - A single page that displays "Hello World"
-      - Keep it extremely simple (1-2 sentences per section)
+      Create a simple implementation plan for a basic Rails feature:
 
-      Just give a brief plan covering:
-      - Controller action needed
-      - View file needed
-      - Route needed
+      Feature: Display a welcome page with user greeting
+
+      Requirements:
+      - Create a WelcomeController with an index action
+      - Create a view that displays "Hello, [User Name]!"
+      - Add a route for the welcome page
+      - Basic tests for the controller action
+
+      Provide a complete but concise plan covering:
+      - Backend (controller, any models if needed)
+      - Frontend (view with proper structure)
+      - Tests (what to test)
+      - Security (any basic considerations)
+
+      Keep it simple but cover all domains properly.
     PROMPT
   end
 
   def expected_pass
-    false  # Minimal "Hello World" plan won't score high enough to pass
+    true  # Should pass with a complete plan covering all domains
   end
 
   # Use the standard test flow to test full judging pipeline

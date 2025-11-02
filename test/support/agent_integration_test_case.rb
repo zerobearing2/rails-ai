@@ -3,6 +3,7 @@
 require_relative "../test_helper"
 require "open3"
 require "tmpdir"
+require "fileutils"
 
 # Base class for agent integration tests
 # Provides common functionality for:
@@ -43,16 +44,28 @@ class AgentIntegrationTestCase < Minitest::Test
   # Main test method - subclasses can override to add custom assertions
   def test_scenario
     start_time = Time.now
+    setup_live_logging
+
+    log_live "\n" + ("=" * 80)
+    log_live "Integration Test: #{scenario_name}"
+    log_live ("=" * 80)
+    log_live ""
 
     # Run the agent
+    log_live "Step 1/2: Running agent (invoking Claude CLI)..."
     agent_start = Time.now
     agent_output = run_agent
     agent_duration = Time.now - agent_start
+    log_live "✓ Agent completed in #{format_duration(agent_duration)}"
+    log_live ""
 
     # Judge the output
+    log_live "Step 2/2: Running judges (4 parallel domain evaluations)..."
     judge_start = Time.now
     judgment = judge_output(agent_output)
     judge_duration = Time.now - judge_start
+    log_live "✓ Judges completed in #{format_duration(judge_duration)}"
+    log_live ""
 
     total_duration = Time.now - start_time
 
@@ -64,6 +77,15 @@ class AgentIntegrationTestCase < Minitest::Test
     }
 
     # Log results
+    log_live "Results:"
+    log_live "  Total Score: #{judgment[:total_score]}/#{judgment[:max_score]} (#{judgment[:percentage]}%)"
+    judgment[:domain_scores].each do |domain, result|
+      log_live "  - #{domain.capitalize}: #{result[:score]}/#{MAX_SCORE_PER_DOMAIN}"
+    end
+    log_live "  Result: #{judgment[:pass] ? 'PASS ✓' : 'FAIL ✗'}"
+    log_live "  Total Duration: #{format_duration(total_duration)}"
+    log_live ""
+
     log_judgment(judgment)
 
     # Assert pass/fail matches expectation
@@ -139,8 +161,12 @@ class AgentIntegrationTestCase < Minitest::Test
   end
 
   def run_parallel_judges(agent_output)
+    log_live "  Building coordinator prompt with 4 domain tasks..."
+
     # Build a single prompt that asks Claude to evaluate all domains in parallel
     coordinator_prompt = build_coordinator_judge_prompt(agent_output)
+
+    log_live "  Invoking Claude CLI for parallel judging..."
 
     # Run claude CLI once with parallel tasks
     stdout, stderr, status = Open3.capture3(
@@ -150,11 +176,28 @@ class AgentIntegrationTestCase < Minitest::Test
     )
 
     unless status.success?
-      raise "Coordinator judge failed with status #{status.exitstatus}:\n#{stderr}"
+      log_live "  ✗ ERROR: Coordinator judge failed!"
+      log_live ""
+      log_live "Exit status: #{status.exitstatus}"
+      log_live ""
+      log_live "STDERR:"
+      log_live stderr
+      log_live ""
+      log_live "STDOUT:"
+      log_live stdout
+      log_live ""
+
+      raise "Coordinator judge failed with status #{status.exitstatus}. See live log for details."
     end
 
+    log_live "  Parsing domain judgments from coordinator response..."
+
     # Parse the coordinated response to extract each domain's judgment
-    parse_coordinator_response(stdout)
+    results = parse_coordinator_response(stdout)
+
+    log_live "  ✓ Successfully parsed #{results.size} domain judgments"
+
+    results
   end
 
   def build_coordinator_judge_prompt(agent_output)
@@ -502,5 +545,31 @@ class AgentIntegrationTestCase < Minitest::Test
 
   def git_branch
     `git branch --show-current 2>/dev/null`.strip.presence || "unknown"
+  end
+
+  def setup_live_logging
+    # Create live log file
+    log_dir = File.join(ROOT_PATH, "tmp", "test", "integration")
+    FileUtils.mkdir_p(log_dir)
+
+    @live_log_file = File.join(log_dir, "live.log")
+
+    # Clear previous log
+    File.write(@live_log_file, "")
+
+    # Print log location
+    puts "\n→ Live log: #{@live_log_file}"
+    puts "  Tail with: tail -f #{@live_log_file}\n\n"
+  end
+
+  def log_live(message)
+    # Write to log file
+    File.open(@live_log_file, "a") do |f|
+      f.puts message
+      f.flush
+    end
+
+    # Also print to stdout for immediate feedback
+    puts message
   end
 end

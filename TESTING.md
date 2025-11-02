@@ -137,6 +137,16 @@ ruby -Itest test/integration/simple_model_plan_test.rb
 rake test:integration  # ❌ Disabled - shows error message
 ```
 
+**Live Logging:**
+Integration tests log progress in real-time to `tmp/test/integration/live.log`. The test will print the tail command when it starts:
+
+```
+→ Live log: tmp/test/integration/live.log
+  Tail with: tail -f tmp/test/integration/live.log
+```
+
+In another terminal, run the tail command to watch progress live. This is especially useful for long-running tests.
+
 **When to Run Integration Tests:**
 - Before releasing a new version
 - After significant changes to agents or skills

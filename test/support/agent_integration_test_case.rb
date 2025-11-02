@@ -74,7 +74,7 @@ class AgentIntegrationTestCase < Minitest::Test
     log_live ""
 
     # Judge the output
-    log_live "Step 2/2: Running judges (4 parallel domain evaluations)..."
+    log_live "Step 2/2: Running judges (4 sequential domain evaluations)..."
     judge_start = Time.now
     judgment = judge_output(agent_output)
     judge_duration = Time.now - judge_start
@@ -165,38 +165,84 @@ class AgentIntegrationTestCase < Minitest::Test
     log_live "  Writing agent output to temp file..."
 
     # Write agent output to temp file to avoid embedding large text in prompt
-    agent_output_file = File.join(@test_dir, "agent_output.md")
+    tmp_dir = File.join(ROOT_PATH, "tmp", "test", "integration")
+    FileUtils.mkdir_p(tmp_dir)
+    agent_output_file = File.join(tmp_dir, "agent_output_#{scenario_name}.md")
     File.write(agent_output_file, agent_output)
 
-    log_live "  Building coordinator prompt with 4 domain tasks..."
+    log_live "  Running judges sequentially (4 domain evaluations)..."
 
-    # Build a single prompt that references the file instead of embedding the output
-    coordinator_prompt = build_coordinator_judge_prompt(agent_output_file)
+    # Run each domain judge sequentially to avoid prompt length issues
+    results = {}
+    DOMAINS.each_with_index do |domain, index|
+      log_live "  [#{index + 1}/4] Evaluating #{domain}..."
 
-    log_live "  Invoking #{llm_adapter.name} for parallel judging..."
-    log_live "  (This may take several minutes...)"
+      judge_prompt = build_single_domain_judge_prompt(domain, agent_output_file)
 
-    # Stream to log file but not console
-    judge_output = llm_adapter.execute(
-      prompt: coordinator_prompt,
-      streaming: true,
-      on_chunk: ->(text) { log_live(text, newline: false, console: false) }
-    )
+      judge_output = llm_adapter.execute(
+        prompt: judge_prompt,
+        streaming: true,
+        on_chunk: ->(text) { log_live(text, newline: false, console: false) }
+      )
 
-    log_live "  ✓ Judging complete"
-    log_live "  Parsing domain judgments from coordinator response..."
+      score = parse_score_from_judgment(judge_output, domain)
+      results[domain] = {
+        domain: domain,
+        score: score,
+        judgment_text: judge_output
+      }
 
-    # Parse the coordinated response to extract each domain's judgment
-    results = parse_coordinator_response(judge_output)
+      log_live "  ✓ #{domain.capitalize}: #{score}/#{MAX_SCORE_PER_DOMAIN}"
+    end
 
-    log_live "  ✓ Successfully parsed #{results.size} domain judgments"
+    log_live "  ✓ All judges complete"
 
     results
   rescue StandardError => e
-    log_live "  ✗ ERROR: Coordinator judge failed!"
+    log_live "  ✗ ERROR: Judge failed for #{domain}!"
     log_live ""
     log_live "Error: #{e.message}"
     raise
+  end
+
+  def build_single_domain_judge_prompt(domain, agent_output_file)
+    judge_prompt = load_judge_prompt(domain)
+
+    <<~PROMPT
+      You are evaluating a Rails implementation plan for the #{domain} domain.
+
+      ## Scenario Requirements
+
+      #{agent_prompt}
+
+      ## Agent Output to Evaluate
+
+      #{File.read(agent_output_file)}
+
+      ## Evaluation Criteria
+
+      #{judge_prompt}
+
+      ## IMPORTANT: Output Format
+
+      Provide your evaluation as JSON only (no markdown, no extra text):
+
+      {
+        "scores": {
+          "criterion_1": <score>,
+          "criterion_2": <score>,
+          ...
+        },
+        "total_score": <sum>,
+        "max_score": 50,
+        "suggestions": [
+          "Brief suggestion 1",
+          "Brief suggestion 2"
+        ]
+      }
+
+      Be concise. Include only 2-3 critical suggestions.
+    PROMPT
   end
 
   def build_coordinator_judge_prompt(agent_output_file)
@@ -385,13 +431,25 @@ class AgentIntegrationTestCase < Minitest::Test
   end
 
   def parse_score_from_judgment(judgment_text, domain)
-    # Look for score in format: "## Backend Total: 45/50" or "Backend Total: 45/50"
+    # Try to parse as JSON first
+    begin
+      # Remove markdown code blocks if present
+      json_text = judgment_text.strip
+      json_text = json_text.gsub(/^```json?\n/, "").gsub(/\n```$/, "")
+
+      data = JSON.parse(json_text)
+      return data["total_score"].to_i if data["total_score"]
+    rescue JSON::ParserError
+      # Fall back to text parsing
+    end
+
+    # Fallback: Look for score in format: "## Backend Total: 45/50" or "Backend Total: 45/50"
     match = judgment_text.match(/##?\s*#{domain.capitalize}\s+Total:\s*(\d+)\/\d+/i)
 
     if match
       match[1].to_i
     else
-      # Fallback: try to extract any score pattern
+      # Try to extract any score pattern
       match = judgment_text.match(/Total:\s*(\d+)\/\d+/)
       match ? match[1].to_i : 0
     end
@@ -541,11 +599,13 @@ class AgentIntegrationTestCase < Minitest::Test
   end
 
   def git_sha
-    `git rev-parse --short HEAD 2>/dev/null`.strip.presence || "unknown"
+    result = `git rev-parse --short HEAD 2>/dev/null`.strip
+    result.empty? ? "unknown" : result
   end
 
   def git_branch
-    `git branch --show-current 2>/dev/null`.strip.presence || "unknown"
+    result = `git branch --show-current 2>/dev/null`.strip
+    result.empty? ? "unknown" : result
   end
 
   def setup_live_logging

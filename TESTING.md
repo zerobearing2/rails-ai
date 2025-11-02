@@ -120,7 +120,7 @@ This creates `test/unit/skills/my-skill_test.rb` with standard test structure.
 
 1. **Invoke real agent** via LLM adapter with a planning scenario
 2. **Agent produces implementation plan** using rails-ai agents
-3. **Single LLM call coordinates 4 parallel domain judges** to evaluate the plan:
+3. **Run 4 sequential domain judges** to evaluate the plan (separate LLM calls):
    - Backend (models, migrations, validations, Rails conventions)
    - Frontend (views, Hotwire, Tailwind, forms, accessibility)
    - Tests (test planning, coverage, Minitest usage)
@@ -133,8 +133,8 @@ This creates `test/unit/skills/my-skill_test.rb` with standard test structure.
 **Architecture:**
 - **LLM Adapter Pattern**: Tests use an adapter interface (`LLMAdapter`) for flexibility. Current implementation uses `ClaudeAdapter` with Claude CLI, but this pattern allows easy addition of other LLMs (e.g., Codex) in the future.
 - **Streaming to Log File**: Uses `--output-format stream-json --include-partial-messages` to stream LLM responses token-by-token to `tmp/test/integration/live.log` for debugging. Console shows only periodic status updates for clean output.
-- **Parallel Judging**: Single coordinated LLM call evaluates all 4 domains in parallel, leveraging the LLM's native parallel task execution instead of Ruby threads.
-- **File-Based Evaluation**: Agent output is written to a temp file and referenced in the judge prompt (via the Read tool) to avoid exceeding token limits with large implementation plans.
+- **Sequential Judging**: Runs 4 separate LLM calls (one per domain) to avoid prompt length issues. Each judge returns concise JSON output with scores and brief suggestions.
+- **JSON Output**: Judges return structured JSON for fast, reliable parsing instead of verbose text evaluations.
 
 ### Running Integration Tests
 

@@ -134,6 +134,7 @@ This creates `test/unit/skills/my-skill_test.rb` with standard test structure.
 - **LLM Adapter Pattern**: Tests use an adapter interface (`LLMAdapter`) for flexibility. Current implementation uses `ClaudeAdapter` with Claude CLI, but this pattern allows easy addition of other LLMs (e.g., Codex) in the future.
 - **True Streaming**: Uses `--output-format stream-json --include-partial-messages` for real-time token-by-token streaming output visibility in live logs.
 - **Parallel Judging**: Single coordinated LLM call evaluates all 4 domains in parallel, leveraging the LLM's native parallel task execution instead of Ruby threads.
+- **File-Based Evaluation**: Agent output is written to a temp file and referenced in the judge prompt (via the Read tool) to avoid exceeding token limits with large implementation plans.
 
 ### Running Integration Tests
 

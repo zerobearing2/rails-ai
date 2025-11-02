@@ -163,10 +163,16 @@ class AgentIntegrationTestCase < Minitest::Test
   end
 
   def run_parallel_judges(agent_output)
+    log_live "  Writing agent output to temp file..."
+
+    # Write agent output to temp file to avoid embedding large text in prompt
+    agent_output_file = File.join(@test_dir, "agent_output.md")
+    File.write(agent_output_file, agent_output)
+
     log_live "  Building coordinator prompt with 4 domain tasks..."
 
-    # Build a single prompt that asks LLM to evaluate all domains in parallel
-    coordinator_prompt = build_coordinator_judge_prompt(agent_output)
+    # Build a single prompt that references the file instead of embedding the output
+    coordinator_prompt = build_coordinator_judge_prompt(agent_output_file)
 
     log_live "  Invoking #{llm_adapter.name} for parallel judging..."
     log_live "  " + ("-" * 76)
@@ -195,7 +201,7 @@ class AgentIntegrationTestCase < Minitest::Test
     raise
   end
 
-  def build_coordinator_judge_prompt(agent_output)
+  def build_coordinator_judge_prompt(agent_output_file)
     # Load all judge prompts and domain contexts
     domain_contexts = DOMAINS.map do |domain|
       {
@@ -216,7 +222,9 @@ class AgentIntegrationTestCase < Minitest::Test
 
       ## Agent Output to Evaluate
 
-      #{agent_output}
+      The agent's implementation plan is in the file: #{agent_output_file}
+
+      Please read this file using the Read tool to access the plan you need to evaluate.
 
       ## Your Task
 

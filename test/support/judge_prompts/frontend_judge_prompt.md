@@ -2,6 +2,8 @@ Evaluate Rails frontend implementation plan.
 
 ## Scoring (50 points total, 5 categories × 10 points each)
 
+**IMPORTANT**: If a category is not applicable to this feature, award full points (10/10) for that category. Only deduct points for missing or incorrect implementation of relevant aspects.
+
 Score the plan against these frontend skills:
 
 **View Structure (0-10)**
@@ -10,23 +12,18 @@ Score the plan against these frontend skills:
 - Component organization, DRY principles
 
 **Hotwire (0-10)**
-- skills/frontend/hotwire-turbo.md
-- skills/frontend/hotwire-stimulus.md
-- skills/frontend/turbo-page-refresh.md
-- Turbo Frames, Streams, progressive enhancement
+- If dynamic interactions needed: skills/frontend/hotwire-turbo.md, hotwire-stimulus.md, turbo-page-refresh.md
+- If static page: 10/10 (not applicable)
 
 **Styling & UI (0-10)**
-- skills/frontend/tailwind-utility-first.md
-- skills/frontend/daisyui-components.md
-- Responsive design, component composition
+- If UI styling needed: skills/frontend/tailwind-utility-first.md, daisyui-components.md
+- If basic HTML: 10/10 (not applicable)
 
 **ViewComponents (0-10)**
-- skills/frontend/viewcomponent-basics.md
-- skills/frontend/viewcomponent-slots.md
-- skills/frontend/viewcomponent-variants.md
-- skills/frontend/viewcomponent-previews.md
+- If reusable components needed: skills/frontend/viewcomponent-basics/slots/variants/previews.md
+- If simple views: 10/10 (not applicable)
 
 **Accessibility & Forms (0-10)**
-- skills/frontend/accessibility-patterns.md
-- skills/frontend/forms-nested.md
-- Semantic HTML, ARIA, keyboard navigation, form helpers
+- If forms: skills/frontend/forms-nested.md, form helpers
+- Accessibility: skills/frontend/accessibility-patterns.md, semantic HTML
+- If no forms: Score only on accessibility (semantic HTML, basic structure)

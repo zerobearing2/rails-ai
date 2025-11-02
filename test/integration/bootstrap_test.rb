@@ -3,10 +3,10 @@
 require_relative "../support/agent_integration_test_case"
 
 # Bootstrap integration test
-# Simple test to verify the integration test harness is working correctly
-# Uses a basic but complete Rails plan to test LLM adapter, streaming, and judging
-# Fast and cheap - tests full flow without expensive agent scenarios
-# Run this test to verify the test infrastructure before running expensive agent scenarios
+# Minimal test to verify integration test harness and judging pipeline
+# Simple static welcome page - no models, database, or complex logic
+# Fast and cheap - verifies LLM adapter, streaming, sequential judging, and scoring
+# Run this first to verify test infrastructure before running expensive scenarios
 class BootstrapTest < AgentIntegrationTestCase
   def scenario_name
     "bootstrap"
@@ -14,38 +14,37 @@ class BootstrapTest < AgentIntegrationTestCase
 
   def system_prompt
     <<~PROMPT
-      You are a Rails architect creating a simple but complete implementation plan.
-      Be thorough but concise.
+      You are testing the rails-ai integration test framework.
+      The scenario is intentionally minimal to verify the test harness works.
     PROMPT
   end
 
   def agent_prompt
     <<~PROMPT
-      Create an implementation plan for a basic Rails feature:
+      @rails-ai:architect
 
-      Feature: Display a welcome page with user greeting
+      Create a plan for a minimal Rails feature to test the integration framework.
 
-      Requirements:
-      - WelcomeController with index action
-      - View displaying "Hello, [User Name]!"
-      - Route for welcome page
-      - Controller tests
+      ## Feature
+      Static welcome home page at root URL
 
-      Apply relevant skills from:
-      - Backend: skills/backend/controller-restful.md, skills/backend/antipattern-fat-controllers.md
-      - Frontend: skills/frontend/partials-layouts.md, skills/frontend/view-helpers.md
+      ## Requirements
+      - Root route pointing to a controller action
+      - Simple controller with one action (no models, no database)
+      - View displaying "Welcome to Rails" with basic HTML
+      - Basic controller test
+
+      ## Relevant Skills
+      - Backend: skills/backend/controller-restful.md
+      - Frontend: skills/frontend/partials-layouts.md
       - Testing: skills/testing/tdd-minitest.md
-      - Security: skills/security/security-xss.md, skills/security/security-csrf.md
+      - Security: skills/security/security-xss.md
 
-      Provide complete plan covering all domains.
+      Keep the plan minimal - this is a bootstrap test of the test harness itself.
     PROMPT
   end
 
   def expected_pass
-    true  # Should pass with a complete plan covering all domains
+    true  # Should pass - minimal feature with all domains covered
   end
-
-  # Use the standard test flow to test full judging pipeline
-  # This tests: agent execution, file-based evaluation, parallel judging, scoring
-  # No custom implementation needed - inherits from AgentIntegrationTestCase
 end

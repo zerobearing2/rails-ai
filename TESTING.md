@@ -40,7 +40,7 @@ rake test:report
 
 Tests are organized by **type** (unit vs integration) following Rails conventions:
 
-```
+```text
 test/
 ├── test_helper.rb              # Global test setup
 ├── support/                    # Shared test infrastructure
@@ -208,7 +208,7 @@ Choose scenarios that test the areas affected by your changes. No need to run al
 
 Results are saved to:
 
-```
+```text
 tmp/test/integration/
 └── runs/
     └── YYYYMMDD_HHMMSS_scenario_name/

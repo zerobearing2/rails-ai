@@ -347,7 +347,9 @@ class AgentIntegrationTestCase < Minitest::Test
       content.gsub!(pattern, new_row)
     else
       # Add new row after the header separator
+      # rubocop:disable Layout/LineLength
       header_separator = "|----------|----------|------------|------------|------------|-------------|---------|----------|-------|----------|--------|"
+      # rubocop:enable Layout/LineLength
       content.sub!(header_separator, "#{header_separator}\n#{new_row}")
     end
 

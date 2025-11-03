@@ -155,8 +155,17 @@ namespace :test do
     puts "  Integration Scenarios: #{agent_integration_tests}"
     puts ""
 
+    # Rules
+    total_rules_files = Dir.glob("rules/*.{md,yml}").count
+    rules_unit_tests = Dir.glob("test/unit/rules/**/*_test.rb").count
+
+    puts "Rules:"
+    puts "  Total Files: #{total_rules_files}"
+    puts "  Unit Tests: #{rules_unit_tests}"
+    puts ""
+
     # Overall
-    total_unit = skill_unit_tests + agent_unit_tests
+    total_unit = skill_unit_tests + agent_unit_tests + rules_unit_tests
     total_integration = agent_integration_tests
 
     puts "Overall:"
@@ -169,6 +178,7 @@ namespace :test do
     puts "  rake test:integration             # Slow integration scenarios"
     puts "  rake test:unit:skills             # Skills unit tests only"
     puts "  rake test:unit:agents             # Agents unit tests only"
+    puts "  rake test:unit:rules              # Rules unit tests only"
     puts "  rake test:integration:scenario[X] # Specific scenario"
     puts ""
   end

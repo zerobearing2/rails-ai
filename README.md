@@ -180,6 +180,7 @@ We use a **two-tier Minitest strategy**:
 rake test:unit                     # Run all unit tests
 rake test:unit:skills              # Skills only
 rake test:unit:agents              # Agents only
+rake test:unit:rules               # Rules only
 ```
 
 **Tier 2: Integration Tests** (slow, requires Claude CLI - individual scenarios only)

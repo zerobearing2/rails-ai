@@ -61,6 +61,14 @@ namespace :test do
       t.verbose = true
       t.warning = false
     end
+
+    desc "Run rules unit tests only"
+    Rake::TestTask.new(:rules) do |t|
+      t.libs << "test"
+      t.test_files = FileList["test/unit/rules/**/*_test.rb"]
+      t.verbose = true
+      t.warning = false
+    end
   end
 
   namespace :integration do

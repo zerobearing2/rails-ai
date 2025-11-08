@@ -4,10 +4,10 @@
 # Last updated: 2025-10-30
 
 metadata:
-  total_rules: 19
-  rules_with_skills: 11  # Includes rule_17 (critical rule, but no implementation skills)
+  total_rules: 20
+  rules_with_skills: 12  # Includes rule_17 (critical rule, but no implementation skills)
   rules_without_skills: 8
-  coverage_percent: 58   # 11/19 = 58% (includes organizational placement in rules_with_skills)
+  coverage_percent: 60   # 12/20 = 60% (includes organizational placement in rules_with_skills)
 
 # === RULES BY DOMAIN (Quick Lookup) ===
 # Organized by agent specialization for faster rule discovery
@@ -70,6 +70,7 @@ rules_by_domain:
     description: "Style and consistency standards"
     rules:
       - rule_16_double_quotes
+      - rule_20_hash_dig
     agents: ["all"]
     enforced_by: "rubocop"
 
@@ -349,6 +350,27 @@ rules_with_skills:
 
     why: "Accessibility, reliability, broader device support. JavaScript enhances, doesn't enable."
 
+  rule_20_hash_dig:
+    id: 20
+    name: "Hash#dig for Nested Access"
+    severity: moderate
+    enforcement_action: SUGGEST
+    category: code_quality
+
+    violation_triggers:
+      keywords: [nested bracket access, chained fetch, "hash[:a][:b]"]
+      patterns: ['hash[:a][:b][:c]', 'hash.fetch(:a).fetch(:b)', 'unsafe nested access']
+
+    suggestion_response: "Use Hash#dig for safe nested access per Rule #20"
+
+    skills:
+      primary: rubocop-setup
+      location: "skills/config/rubocop-setup.md"
+      note: "RuboCop enforces Style/HashFetchChain and Style/DigChain"
+
+    enforced_by: "rubocop"
+    why: "Hash#dig returns nil safely instead of raising NoMethodError. More readable and maintainable than chained bracket access."
+
 # === RULES WITHOUT IMPLEMENTATION SKILLS ===
 # These are governance, workflow, philosophy, or style rules
 
@@ -443,7 +465,7 @@ enforcement_patterns:
     exceptions: "Allow with justification in rare cases"
 
   moderate_rules:
-    rules: [5, 8, 9, 10, 12, 13, 14, 16, 19]
+    rules: [5, 8, 9, 10, 12, 13, 14, 16, 19, 20]
     action: SUGGEST
     process: "Recommend best practice, guide toward better approach"
     skill_loading: optional
@@ -495,6 +517,9 @@ keyword_to_rule:
   "applicationsystemtestcase": rule_19_no_system_tests
   "system test": rule_19_no_system_tests
 
+  "nested bracket access": rule_20_hash_dig
+  "chained fetch": rule_20_hash_dig
+
 # === USAGE INSTRUCTIONS FOR AGENTS ===
 
 usage_instructions:
@@ -528,7 +553,7 @@ statistics:
   rules_by_severity:
     critical: 6
     high: 4
-    moderate: 8
+    moderate: 9
     low: 1
 
   rules_by_type:
@@ -536,7 +561,7 @@ statistics:
     pattern: 6
     workflow: 4
     philosophy: 4
-    style: 1
+    style: 2
 
   skill_enforcement_coverage:
     all_security_rules: "No skills (enforced by Rails defaults + team awareness)"

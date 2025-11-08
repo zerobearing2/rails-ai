@@ -23,10 +23,10 @@ class RulesConsistencyTest < Minitest::Test
 
     mapping_total = @mapping["metadata"]["total_rules"]
 
-    assert_equal 19, team_rules_count,
-                 "TEAM_RULES.md should have 19 rules in severity lists"
-    assert_equal 19, mapping_total,
-                 "RULES_TO_SKILLS_MAPPING.yml should have 19 rules total"
+    assert_equal 20, team_rules_count,
+                 "TEAM_RULES.md should have 20 rules in severity lists"
+    assert_equal 20, mapping_total,
+                 "RULES_TO_SKILLS_MAPPING.yml should have 20 rules total"
   end
 
   def test_critical_rules_consistency

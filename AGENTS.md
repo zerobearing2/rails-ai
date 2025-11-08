@@ -1,12 +1,16 @@
 # Rails AI Agents System
 
 **Version:** 2.0
-**Last Updated:** 2025-10-31
+**Last Updated:** 2025-11-08
 **Status:** Open Source & Production Ready
 
 This document is **internal documentation** for contributors who want to understand or modify the rails-ai agent architecture. This file is NOT used by the Claude Code plugin system - it's for humans only.
 
 When users install the rails-ai plugin, they get the individual agent files from `agents/` directory, not this document.
+
+> **⚠️ IMPORTANT FOR CONTRIBUTORS:**
+> Before adding new rules, skills, or agents, **ALWAYS consult the [Contributor Checklists](#contributor-checklists)** section below.
+> Failing to update all required files will cause test failures and system inconsistencies.
 
 ---
 
@@ -53,7 +57,7 @@ rails-ai/
 
 ### Skills Registry
 
-All 40 skills are defined in **`skills/SKILLS_REGISTRY.yml`** - a single centralized catalog that agents reference. This registry-based approach provides:
+All 41 skills are defined in **`skills/SKILLS_REGISTRY.yml`** - a single centralized catalog that agents reference. This registry-based approach provides:
 
 - **Single source of truth** - All skills in one file
 - **Fast agent loading** - Agents read one file instead of 33
@@ -110,44 +114,277 @@ viewcomponent-basics:
   enforces_rules: [15]  # Rule 15: Use ViewComponent for reusable UI
 ```
 
-### Adding a New Skill
+---
 
-1. **Identify the need** - Is this a recurring pattern that needs documentation?
-2. **Choose domain** - frontend, backend, testing, security, or config
-3. **Check for overlap** - Does this duplicate or complement existing skills?
-4. **Add to SKILLS_REGISTRY.yml** - Add skill entry in appropriate domain section
-5. **Include all required fields**:
-   - name, domain, dependencies, description
-   - when_to_use (array of conditions)
-   - patterns (with examples)
-   - antipatterns (with reasons and solutions)
-   - testing (with example)
-   - related_skills (array)
-6. **Write unit test** - Use `rake test:new_skill[skill-name,domain]` to generate test
-7. **Update metadata** - Increment skill count and domain count in registry header
-8. **Commit with description** - Clear commit message explaining the skill
+## Contributor Checklists
 
-### Updating an Existing Skill
+**CRITICAL:** When adding new rules, skills, or agents, use these comprehensive checklists to ensure ALL files are updated. Missing even one step can cause test failures and system inconsistencies.
 
-1. **Read the skill** - Understand current content in SKILLS_REGISTRY.yml
-2. **Identify changes** - What needs to be added, updated, or removed?
-3. **Maintain format** - Keep YAML structure consistent
-4. **Test examples** - Ensure all code examples are current for Rails 8+
-5. **Update dependencies** - If skill relationships change
-6. **Run tests** - Ensure `rake test:unit:skills` passes
-7. **Commit clearly** - Describe what changed and why
+### ✅ Adding a New Rule
 
-### Removing a Skill
+Use this checklist when creating a new team rule (e.g., Rule #21).
 
-**Caution:** Removing skills affects agents that depend on them.
+#### Core Rule Files
+- [ ] **`rules/TEAM_RULES.md`**
+  - [ ] Add to YAML front matter:
+    - [ ] Add to `categories` list if new category
+    - [ ] Add to `violation_keywords` (rule_N: [keywords])
+    - [ ] Add to `enforcement.severity` (critical/high/moderate)
+  - [ ] Add to Quick Rule Lookup (`<quick-lookup>` section):
+    - [ ] Add rule entry with name, severity, triggers, action, skills (if applicable)
+  - [ ] Add to Domain Index (e.g., "Code Quality & Style"):
+    - [ ] Add bullet point with rule number and name
+  - [ ] Add full rule definition section (### N. Rule Name):
+    - [ ] `<violation-triggers>` - Keywords and patterns
+    - [ ] `<enforcement>` - Action and severity
+    - [ ] Why section explaining rationale
+    - [ ] Examples (❌ Bad, ✅ Good)
+    - [ ] When to use guidance
+  - [ ] Update Rules Summary table:
+    - [ ] Add row with rule number, name, severity, category, has_skill
+    - [ ] Update total count
+    - [ ] Update coverage percentages
+  - [ ] Update Enforcement Strategy section:
+    - [ ] Add to appropriate severity list (Critical/High/Moderate)
+  - [ ] Update Quick Reference section:
+    - [ ] Add trigger patterns to lookup list
 
-1. **Check dependencies** - Search SKILLS_REGISTRY.yml for references
-2. **Update dependent skills** - Remove from `dependencies` and `related_skills` arrays
-3. **Update agent presets** - Check agent markdown files for references
-4. **Remove from registry** - Delete skill entry from SKILLS_REGISTRY.yml
-5. **Update metadata** - Decrement skill count and domain count in registry header
-6. **Update tests** - Remove or update any tests that reference the skill
-7. **Document removal** - Clear commit message explaining why skill was removed
+#### Mapping Files
+- [ ] **`rules/RULES_TO_SKILLS_MAPPING.yml`**
+  - [ ] Update `metadata`:
+    - [ ] Increment `total_rules` count
+    - [ ] Update `rules_with_skills` or `rules_without_skills` count
+    - [ ] Recalculate `coverage_percent`
+  - [ ] Add to `rules_by_domain`:
+    - [ ] Add `rule_N_name` to appropriate domain's rules array
+  - [ ] Add to either `rules_with_skills` or `rules_without_skills`:
+    - [ ] Create full entry with id, name, severity, category
+    - [ ] Add `violation_triggers` (keywords, patterns)
+    - [ ] Add `skills` section if rule has implementation skills
+    - [ ] Add `enforced_by` if automated (rubocop, etc.)
+    - [ ] Add `why` explanation
+  - [ ] Add to `enforcement_patterns`:
+    - [ ] Add rule number to appropriate severity array
+  - [ ] Add to `keyword_to_rule`:
+    - [ ] Map each violation keyword to `rule_N_name`
+  - [ ] Update `statistics`:
+    - [ ] Update `rules_by_severity` counts
+    - [ ] Update `rules_by_type` counts
+
+#### Agent Files (if applicable)
+- [ ] **`AGENTS.md`**
+  - [ ] Update rule count references throughout document
+  - [ ] Add to relevant agent descriptions if rule is agent-specific
+
+- [ ] **`agents/*.md`** (if rule affects specific agents)
+  - [ ] Update agent's rules list if they enforce this rule
+  - [ ] Add to agent's examples if relevant
+
+#### Configuration Files (if rule is enforced by tooling)
+- [ ] **`.rubocop.yml`** (for RuboCop-enforced rules)
+  - [ ] Enable relevant cops
+  - [ ] Add comment linking to rule
+
+- [ ] **Other config files** as needed (brakeman.yml, etc.)
+
+#### Tests
+- [ ] **`test/unit/rules/rules_to_skills_mapping_test.rb`**
+  - [ ] Update all hardcoded rule counts (19 → 20, etc.)
+  - [ ] Update `test_metadata_counts_are_correct` (total_rules)
+  - [ ] Update `test_all_N_rules_are_accounted_for` (range 1..N)
+  - [ ] Update coverage calculation divisor
+
+- [ ] **`test/unit/rules/team_rules_test.rb`**
+  - [ ] Update `test_rules_are_sequential` (1..N range)
+  - [ ] Update any other tests with hardcoded counts
+
+- [ ] **`test/unit/rules/rules_consistency_test.rb`**
+  - [ ] Update `test_rule_count_consistency` (counts)
+  - [ ] Verify keyword lookup tests pass
+
+#### Final Verification
+- [ ] Run `bin/ci` - All tests must pass
+- [ ] Run `rake lint:fix` - Fix any style issues
+- [ ] Verify YAML is valid: `ruby -ryaml -e "YAML.safe_load_file('rules/TEAM_RULES.md')"`
+- [ ] Commit with clear message: "Add Rule #N: [Rule Name]"
+
+---
+
+### ✅ Adding a New Skill
+
+Use this checklist when creating a new skill (e.g., `my-new-skill`).
+
+#### Core Skill Files
+- [ ] **Create skill file: `skills/[domain]/[skill-name].md`**
+  - [ ] Add YAML front matter:
+    - [ ] `name`, `domain`, `dependencies`, `version`, `rails_version`
+    - [ ] `criticality` (REQUIRED/CRITICAL/RECOMMENDED)
+    - [ ] `applies_to` (file patterns)
+  - [ ] Add required sections:
+    - [ ] `<when-to-use>` - When to apply this skill
+    - [ ] `<benefits>` - Why use this skill
+    - [ ] `<standards>` - Core standards/requirements
+    - [ ] `<pattern>` blocks with code examples
+    - [ ] `<antipatterns>` - What to avoid
+    - [ ] `<best-practices>` - Recommended approaches
+    - [ ] `<troubleshooting>` - Common issues
+  - [ ] Include code examples with proper syntax highlighting
+  - [ ] Reference TEAM_RULES.md if skill enforces rules
+  - [ ] Add related skills section
+
+#### Registry and Mapping Files
+- [ ] **`skills/SKILLS_REGISTRY.yml`**
+  - [ ] Update `metadata`:
+    - [ ] Increment `total_skills` count
+    - [ ] Increment domain count (e.g., `frontend: 13 → 14`)
+  - [ ] Add to `domains.[domain].skills`:
+    - [ ] Add skill name to domain's array (alphabetically)
+  - [ ] Add to `skills` section:
+    - [ ] Create full entry with name, domain, dependencies
+    - [ ] Add `description`, `when_to_use`, `location`
+    - [ ] Add `enforces_rules` array if applicable
+    - [ ] Add `criticality` level
+  - [ ] Add to `dependency_graph`:
+    - [ ] Add to `no_dependencies` OR
+    - [ ] Add to `depends_on_others` with dependency array
+  - [ ] Add to `keyword_index`:
+    - [ ] Add relevant keywords that should trigger this skill
+
+- [ ] **`rules/RULES_TO_SKILLS_MAPPING.yml`** (if skill enforces a rule)
+  - [ ] Add skill to appropriate rule's `skills` section
+  - [ ] Update `primary` skill or add to `related` skills
+
+#### Agent Files
+- [ ] **`AGENTS.md`**
+  - [ ] Update all skill count references (40 → 41, etc.)
+  - [ ] Update coverage statistics
+
+- [ ] **`agents/*.md`** (for agents that should have this skill)
+  - [ ] Add to agent's `<skills-manifest>` section:
+    - [ ] Add numbered entry with name, location, description
+    - [ ] Add to appropriate category (frontend/backend/config/etc.)
+    - [ ] Update category count (e.g., "Frontend Skills (13)" → "(14)")
+  - [ ] Update total preset skills count in header
+  - [ ] Add to agent's skill loading examples if relevant
+
+#### Tests
+- [ ] **Create unit test: `test/unit/skills/[skill_name]_test.rb`**
+  - [ ] Inherit from `SkillTestCase`
+  - [ ] Set `self.skill_domain` and `self.skill_name`
+  - [ ] Test file exists
+  - [ ] Test YAML front matter
+  - [ ] Test required metadata
+  - [ ] Test required sections
+  - [ ] Test code examples validity
+
+- [ ] **Update test counts** (if hardcoded anywhere)
+  - [ ] Verify coverage report shows new skill
+
+#### Final Verification
+- [ ] Run `rake test:unit:skills` - Skill tests pass
+- [ ] Run `bin/ci` - All tests pass
+- [ ] Run `rake lint:fix` - Fix any style issues
+- [ ] Verify skill loads in SKILLS_REGISTRY.yml
+- [ ] Test skill manually by having an agent load it
+- [ ] Commit with clear message: "Add [domain] skill: [skill-name]"
+
+---
+
+### ✅ Adding a New Agent
+
+Use this checklist when creating a new agent (e.g., `performance.md`).
+
+#### Core Agent Files
+- [ ] **Create agent file: `agents/[agent-name].md`**
+  - [ ] Add agent role and description
+  - [ ] Add `@agent-rails-ai:[name]` access instruction
+  - [ ] Add `<skills-manifest>` section:
+    - [ ] List preset skills by category
+    - [ ] Include skill count per category
+  - [ ] Add "When to use" section
+  - [ ] Add coordination guidance (which agents to pair with)
+  - [ ] Add skill loading workflow instructions
+  - [ ] Include examples of common tasks
+  - [ ] Add references to TEAM_RULES.md and SKILLS_REGISTRY.yml
+
+#### Documentation Files
+- [ ] **`AGENTS.md`**
+  - [ ] Update agent count (7 → 8, etc.)
+  - [ ] Add new agent section:
+    - [ ] Role description
+    - [ ] Access instructions
+    - [ ] Preset skills list
+    - [ ] Coordination guidance
+    - [ ] When to use
+  - [ ] Update System Overview architecture diagram
+  - [ ] Add to agent comparison table (if exists)
+
+- [ ] **`README.md`**
+  - [ ] Update agent count
+  - [ ] Add agent to features list
+  - [ ] Update installation/usage if needed
+
+#### Test Files
+- [ ] **Create test file: `test/unit/agents/[agent_name]_test.rb`** (optional)
+  - [ ] Test agent file structure
+  - [ ] Test required sections exist
+  - [ ] Test skill references are valid
+
+- [ ] **Update existing agent tests** (if they check agent counts)
+  - [ ] Update hardcoded agent counts
+
+#### Integration
+- [ ] **Test agent manually**
+  - [ ] Install locally and test with `@agent-rails-ai:[name]`
+  - [ ] Verify skill loading works
+  - [ ] Verify coordination with other agents works
+  - [ ] Test common use cases
+
+#### Final Verification
+- [ ] Run `bin/ci` - All tests pass
+- [ ] Run `rake lint:fix` - Fix any style issues
+- [ ] Test agent in real scenario
+- [ ] Document any special setup requirements
+- [ ] Commit with clear message: "Add [agent-name] agent for [purpose]"
+
+---
+
+### 🔧 Updating Existing Resources
+
+#### Updating an Existing Skill
+- [ ] Update skill file content
+- [ ] Update SKILLS_REGISTRY.yml if metadata changes
+- [ ] Update dependent agents if preset skills change
+- [ ] Update tests if structure changes
+- [ ] Run `bin/ci` to verify
+
+#### Updating an Existing Rule
+- [ ] Update TEAM_RULES.md
+- [ ] Update RULES_TO_SKILLS_MAPPING.yml if mappings change
+- [ ] Update affected agent files
+- [ ] Update tests if structure changes
+- [ ] Run `bin/ci` to verify
+
+#### Removing a Resource (Caution!)
+- [ ] Check all dependencies first
+- [ ] Update all referencing files
+- [ ] Update all tests
+- [ ] Decrement all counts
+- [ ] Document removal reason in commit message
+
+---
+
+### 💡 Tips for Contributors
+
+1. **Always use the checklists** - Don't skip steps, even if they seem minor
+2. **Run tests frequently** - Catch issues early with `bin/ci`
+3. **Update counts everywhere** - Many files have hardcoded counts that need updating
+4. **Test YAML validity** - Use `ruby -ryaml -e "YAML.safe_load_file('file.yml')"` to verify
+5. **Check for special characters** - Brackets `[]`, parentheses `()`, colons `:` in YAML can cause parsing issues
+6. **Commit atomically** - One rule/skill/agent per commit for clean history
+7. **Ask for review** - Complex changes benefit from a second pair of eyes
+
+---
 
 ---
 
@@ -166,7 +403,7 @@ Each agent has a **specialized role** and loads a **preset** of skills automatic
 - Architecture oversight and code review
 - Parallel execution of multiple agents
 - Enforces team rules and best practices
-- Has access to all 40 skills via SKILLS_REGISTRY.yml
+- Has access to all 41 skills via SKILLS_REGISTRY.yml
 
 **When to use:**
 - Complex multi-step features requiring multiple agents
@@ -206,9 +443,9 @@ Each agent has a **specialized role** and loads a **preset** of skills automatic
 
 **Access:** `@agent-rails-ai:backend`
 
-**Preset Skills:** (13 total: 10 backend + 3 config)
+**Preset Skills:** (14 total: 10 backend + 4 config)
 - **Backend (10):** controller-restful, activerecord-patterns, form-objects, query-objects, concerns-models, concerns-controllers, custom-validators, action-mailer, nested-resources, antipattern-fat-controllers
-- **Config (3):** solid-stack-setup, credentials-management, docker-rails-setup
+- **Config (4):** solid-stack-setup, rubocop-setup, credentials-management, docker-rails-setup
 
 **Coordination:**
 - **Security:** Pairs with @security for security-critical features (user input, auth, file uploads, database queries)
@@ -612,7 +849,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for full contribution guidelines.
 
 | File | Purpose |
 |------|---------|
-| `skills/SKILLS_REGISTRY.yml` | Central catalog of all 40 skills |
+| `skills/SKILLS_REGISTRY.yml` | Central catalog of all 41 skills |
 | `agents/*.md` | 7 agent definitions (loaded by Claude Code plugin) |
 | `rules/` | Team conventions and decision matrices |
 | `test/unit/skills/` | Unit tests for skill structure validation |

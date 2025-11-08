@@ -1,4 +1,14 @@
-# Rubocop configuration for rails-ai skill testing
+# Rubocop configuration for rails-ai project
+#
+# NOTE: We do NOT use rubocop-rails-omakase because:
+# - This is NOT a Rails application (it's a documentation/tooling project)
+# - rubocop-rails-omakase is for Rails apps with models/controllers/views
+# - This project has custom needs (heavy test infrastructure, markdown files)
+# - Our rubocop-setup skill recommends omakase for Rails apps, not this project
+
+# Load custom cops (TEAM_RULES.md Rule #20)
+require:
+  - ./lib/rails_ai/cops/style/nested_bracket_access.rb
 
 plugins:
   - rubocop-minitest
@@ -21,6 +31,18 @@ Style/StringLiterals:
 
 Style/FrozenStringLiteralComment:
   Enabled: true
+
+# Hash access patterns (TEAM_RULES.md Rule #20)
+Style/HashFetchChain:
+  Enabled: true
+
+Style/DigChain:
+  Enabled: true
+
+# Custom cop: Nested bracket access detection (Rule #20 enhancement)
+Style/NestedBracketAccess:
+  Enabled: true
+  Severity: warning  # Warn only, don't fail CI yet
 
 # Layout preferences
 Layout/LineLength:

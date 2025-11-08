@@ -255,8 +255,8 @@ class TeamRulesTest < Minitest::Test
     rule_headers = @content.scan(/^###\s+(\d+)\.\s+/)
     rule_numbers = rule_headers.flatten.map(&:to_i)
 
-    assert_equal (1..19).to_a, rule_numbers.sort,
-                 "Rules should be numbered 1-19 sequentially"
+    assert_equal (1..20).to_a, rule_numbers.sort,
+                 "Rules should be numbered 1-20 sequentially"
   end
 
   private

@@ -23,8 +23,8 @@ class RulesToSkillsMappingTest < Minitest::Test
   def test_metadata_counts_are_correct
     metadata = @mapping["metadata"]
 
-    assert_equal 19, metadata["total_rules"],
-                 "Should have 19 total rules"
+    assert_equal 20, metadata["total_rules"],
+                 "Should have 20 total rules"
 
     rules_with_skills = @mapping["rules_with_skills"]&.keys&.length || 0
 
@@ -32,7 +32,7 @@ class RulesToSkillsMappingTest < Minitest::Test
                  "rules_with_skills count should match actual count"
 
     # Coverage calculation
-    expected_coverage = (rules_with_skills.to_f / 19 * 100).round
+    expected_coverage = (rules_with_skills.to_f / 20 * 100).round
 
     assert_equal expected_coverage, metadata["coverage_percent"],
                  "coverage_percent should be correctly calculated"
@@ -287,7 +287,7 @@ class RulesToSkillsMappingTest < Minitest::Test
   end
 
   # Test completeness
-  def test_all_19_rules_are_accounted_for
+  def test_all_20_rules_are_accounted_for
     rules_with_skills = @mapping["rules_with_skills"].keys
     rules_without_skills = @mapping["rules_without_skills"].keys
 
@@ -295,8 +295,8 @@ class RulesToSkillsMappingTest < Minitest::Test
       rule_key.match(/rule_(\d+)_/)[1].to_i
     end.sort
 
-    assert_equal (1..19).to_a, all_rules,
-                 "All 19 rules should be present in either rules_with_skills or rules_without_skills"
+    assert_equal (1..20).to_a, all_rules,
+                 "All 20 rules should be present in either rules_with_skills or rules_without_skills"
   end
 
   def test_no_rules_are_duplicated

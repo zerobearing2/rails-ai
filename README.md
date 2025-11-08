@@ -211,9 +211,8 @@ GitHub Actions automatically runs on:
 - ✅ Every push to `master` (linting + unit tests)
 - ✅ Every pull request (linting + unit tests)
 - ❌ Draft PRs are skipped (to save CI time)
-- ❌ Integration tests disabled for now (manual only)
 
-**Note:** Integration tests are currently disabled for automated runs. They can be run manually via the Actions tab when needed.
+**Note:** Integration tests are not part of the CI workflow due to LLM API costs. Run them manually locally via `rake test:integration:scenario[name]` when needed.
 
 See [docs/github-actions-setup.md](docs/github-actions-setup.md) for setup instructions.
 

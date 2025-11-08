@@ -292,8 +292,8 @@ This table is updated each time an integration test runs. It provides a quick re
 
 | Scenario | Last Run | Agent Time | Judge Time | Total Time | Total Score | Backend | Frontend | Tests | Security | Result |
 |----------|----------|------------|------------|------------|-------------|---------|----------|-------|----------|--------|
-| bootstrap | 2025-11-02 | 13.4s | 30.3s | 43.8s | 186/200 | 47/50 | 45/50 | 44/50 | 50/50 | ✅ PASS |
-| simple_model_plan | 2025-11-02 | 55.2s | 34.3s | 1m 30s | 189/200 | 50/50 | 50/50 | 41/50 | 48/50 | ✅ PASS |
+| bootstrap | 2025-11-08 | 11.3s | 29.8s | 41.1s | 190/200 | 50/50 | 45/50 | 45/50 | 50/50 | ✅ PASS |
+| simple_model_plan | 2025-11-08 | 1m 3s | 40.4s | 1m 44s | 179/200 | 50/50 | 50/50 | 41/50 | 38/50 | ✅ PASS |
 
 **Legend:**
 - ✅ PASS: Score ≥ 140/200 (70%)

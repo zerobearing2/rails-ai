@@ -164,7 +164,7 @@ class RulesToSkillsMappingTest < Minitest::Test
   end
 
   def test_rule_severities_are_valid
-    valid_severities = %w[critical high moderate]
+    valid_severities = %w[critical high moderate low]
 
     @mapping["rules_with_skills"].each do |rule_key, rule_data|
       assert_includes valid_severities, rule_data["severity"],

@@ -37,7 +37,8 @@ enforcement:
   severity:
     critical: [rule_1, rule_2, rule_3, rule_4, rule_17, rule_18]
     high: [rule_6, rule_7, rule_11, rule_15]
-    moderate: [rule_5, rule_8, rule_9, rule_10, rule_12, rule_13, rule_14, rule_16, rule_19, rule_20]
+    moderate: [rule_5, rule_8, rule_9, rule_10, rule_12, rule_13, rule_14, rule_19, rule_20]
+    low: [rule_16]
 ---
 
 # TEAM_RULES.md - Engineering Standards & Governance
@@ -100,6 +101,7 @@ rule_index:
     severity: moderate
     triggers: [nested bracket access, chained fetch]
     action: SUGGEST
+    skills: [rubocop-setup]
     enforcement: rubocop
 ```
 
@@ -111,7 +113,7 @@ rule_index:
 
 ## Rules by Domain
 
-**Quick navigation by technical concern - all 19 rules organized by domain.**
+**Quick navigation by technical concern - all 20 rules organized by domain.**
 
 ### Stack Architecture & Technology
 Rules governing technology choices and infrastructure.
@@ -872,16 +874,16 @@ name = user[:name]
 | 13 | Progressive Enhancement | Moderate | Pattern | ✅ Yes |
 | 14 | No Premature Optimization | Moderate | Philosophy | ❌ No |
 | 15 | ViewComponent for UI | High | Technology | ✅ Yes |
-| 16 | Double Quotes | Low | Style | ❌ No |
+| 16 | Double Quotes | Low | Style | ✅ Yes |
 | 17 | bin/ci Must Pass | Critical | Workflow | ❌ No |
 | 18 | WebMock in Tests | Critical | Testing | ✅ Yes |
 | 19 | No System Tests | Moderate | Deprecation | ❌ No |
-| 20 | Hash#dig for Nested Access | Moderate | Style | ❌ No |
+| 20 | Hash#dig for Nested Access | Moderate | Style | ✅ Yes |
 
 **Coverage:**
 - **Total Rules:** 20
-- **Rules with Skills:** 10 (50%)
-- **Rules without Skills:** 10 (50% - workflow/philosophy/style)
+- **Rules with Skills:** 12 (60%)
+- **Rules without Skills:** 8 (40% - workflow/philosophy)
 
 **See:** `rules/RULES_TO_SKILLS_MAPPING.yml` for complete rule→skill mapping
 

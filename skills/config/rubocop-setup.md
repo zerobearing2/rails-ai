@@ -657,50 +657,31 @@ Use custom cops when:
 
 While `Style/HashFetchChain` and `Style/DigChain` handle chained `.fetch()` and `.dig()` calls, they **don't detect** the most dangerous pattern: nested bracket access like `hash[:a][:b][:c]`.
 
-**Create a custom cop:**
+**Custom cop implementation:**
+
+This project includes a custom RuboCop cop to detect unsafe nested hash bracket access:
+
+- **Location:** `lib/rails_ai/cops/style/nested_bracket_access.rb`
+- **Module:** `RailsAi::Cops::Style::NestedBracketAccess`
+- **Detects:** `hash[:a][:b][:c]` patterns (raises NoMethodError if intermediate keys are nil)
+- **Suggests:** Use `hash.dig(:a, :b, :c)` (safe) or chained `fetch` (raises explicit errors)
+
+**Example violations:**
 
 ```ruby
-# lib/rails_ai/cops/style/nested_bracket_access.rb
-# frozen_string_literal: true
+# ❌ VIOLATION: Unsafe nested bracket access
+user[:profile][:theme][:color]        # NoMethodError if :profile is nil
+data[:metadata][:created_at][:date]   # NoMethodError if :metadata is nil
 
-module RailsAi
-  module Cops
-    module Style
-      # Detects nested hash bracket access and suggests using Hash#dig or Hash#fetch
-      class NestedBracketAccess < RuboCop::Cop::Base
-      MSG = "Avoid nested bracket access `%<code>s`. " \
-            "Use `dig` (safe) or chained `fetch` (raises) for explicit error handling."
+# ✅ CORRECT: Safe nested access with dig
+user.dig(:profile, :theme, :color)    # Returns nil safely
+data.dig(:metadata, :created_at, :date)
 
-      # Detects when a [] call is made on the result of another [] call
-      def_node_matcher :nested_bracket_access?, <<~PATTERN
-        (send (send $_ :[] $_) :[] $...)
-      PATTERN
-
-      def on_send(node)
-        nested_bracket_access?(node) do
-          next unless looks_like_hash_access?(node)
-          add_offense(node, message: format(MSG, code: node.source))
-        end
-      end
-
-      private
-
-      def looks_like_hash_access?(node)
-        inner_node = node.receiver
-        return false unless inner_node&.send_type?
-        has_hash_like_key?(node) || has_hash_like_key?(inner_node)
-      end
-
-      def has_hash_like_key?(node)
-        first_arg = node.first_argument
-        return false unless first_arg
-        first_arg.sym_type? || first_arg.str_type?
-      end
-    end
-  end
-end
-end
+# ✅ ALTERNATIVE: Explicit error handling with fetch
+user.fetch(:profile).fetch(:theme).fetch(:color)  # Raises KeyError with clear message
 ```
+
+See the full implementation at `lib/rails_ai/cops/style/nested_bracket_access.rb` for details.
 
 **Enable in .rubocop.yml:**
 

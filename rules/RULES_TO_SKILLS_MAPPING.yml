@@ -5,9 +5,9 @@
 
 metadata:
   total_rules: 20
-  rules_with_skills: 12  # Includes rule_17 (critical rule, but no implementation skills)
-  rules_without_skills: 8
-  coverage_percent: 60   # 12/20 = 60% (includes organizational placement in rules_with_skills)
+  rules_with_skills: 13  # Includes rule_17 (critical rule, but no implementation skills)
+  rules_without_skills: 7
+  coverage_percent: 65   # 13/20 = 65% (includes organizational placement in rules_with_skills)
 
 # === RULES BY DOMAIN (Quick Lookup) ===
 # Organized by agent specialization for faster rule discovery
@@ -350,6 +350,27 @@ rules_with_skills:
 
     why: "Accessibility, reliability, broader device support. JavaScript enhances, doesn't enable."
 
+  rule_16_double_quotes:
+    id: 16
+    name: "Double Quotes Always"
+    severity: low
+    enforcement_action: SUGGEST
+    category: code_quality
+
+    violation_triggers:
+      keywords: [single quotes, 'string literal']
+      patterns: ["'string'", 'single-quoted string']
+
+    suggestion_response: "Use double quotes for string literals per Rule #16"
+
+    skills:
+      primary: rubocop-setup
+      location: "skills/config/rubocop-setup.md"
+      note: "RuboCop enforces Style/StringLiterals with double quotes preference"
+
+    enforced_by: "rubocop"
+    why: "Consistency. Double quotes allow interpolation without changing quote style. Reduces cognitive load."
+
   rule_20_hash_dig:
     id: 20
     name: "Hash#dig for Nested Access"
@@ -429,16 +450,6 @@ rules_without_skills:
     has_skill: false
     reason: "Philosophy/principle - optimize what you measure"
 
-  rule_16_double_quotes:
-    id: 16
-    name: "Double Quotes Always"
-    severity: low
-    type: style
-    category: code_quality
-    has_skill: false
-    enforced_by: rubocop
-    reason: "Style preference - Enforced by rubocop, not manual skill"
-
   rule_19_no_system_tests:
     id: 19
     name: "No System Tests (Deprecated)"
@@ -465,10 +476,17 @@ enforcement_patterns:
     exceptions: "Allow with justification in rare cases"
 
   moderate_rules:
-    rules: [5, 8, 9, 10, 12, 13, 14, 16, 19, 20]
+    rules: [5, 8, 9, 10, 12, 13, 14, 19, 20]
     action: SUGGEST
     process: "Recommend best practice, guide toward better approach"
     skill_loading: optional
+
+  low_rules:
+    rules: [16]
+    action: SUGGEST
+    process: "Style preference enforced by linter"
+    skill_loading: optional
+    enforced_by: rubocop
 
 # === QUICK KEYWORD LOOKUP ===
 

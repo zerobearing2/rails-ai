@@ -35,7 +35,7 @@ rails-ai/
 │   ├── tests.md                # Test writing (TDD with Minitest)
 │   ├── security.md             # Security auditing
 │   └── debug.md                # Debugging and error resolution
-├── skills/                     # 40 modular skills (referenced by agents)
+├── skills/                     # 41 modular skills (referenced by agents)
 │   └── SKILLS_REGISTRY.yml     # Central catalog of all skills
 ├── rules/                      # Team conventions (referenced by agents)
 ├── test/                       # Testing framework
@@ -810,7 +810,7 @@ Remove skill preset from agent-name: skill-name
 ### Completed ✅
 - ✅ Skills-based architecture with SKILLS_REGISTRY.yml
 - ✅ 7 specialized agents (architect, plan, backend, frontend, tests, security, debug)
-- ✅ 40 modular skills across 5 domains
+- ✅ 41 modular skills across 5 domains
 - ✅ Claude Code plugin support
 - ✅ Specification Pyramid framework integration
 - ✅ Testing framework (unit tests for agents and skills)

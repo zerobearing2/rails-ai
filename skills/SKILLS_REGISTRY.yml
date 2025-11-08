@@ -3,14 +3,14 @@
 # Last updated: 2025-11-01
 
 metadata:
-  total_skills: 40
+  total_skills: 41
   version: 1.0
   domains:
     frontend: 13
     backend: 10
     testing: 6
     security: 6
-    config: 5
+    config: 6
 
 # Domain breakdown
 domains:
@@ -66,10 +66,11 @@ domains:
       - security-command-injection
 
   config:
-    count: 5
+    count: 6
     skills:
       - solid-stack-setup
       - docker-rails-setup
+      - rubocop-setup
       - initializers-best-practices
       - credentials-management
       - environment-configuration
@@ -509,6 +510,20 @@ skills:
     location: "skills/config/docker-rails-setup.md"
     criticality: RECOMMENDED
 
+  rubocop-setup:
+    name: "RuboCop Setup"
+    domain: config
+    dependencies: []
+    description: "Configure RuboCop to enforce TEAM_RULES.md standards with required plugins and cops"
+    when_to_use:
+      - "Setting up new Rails projects"
+      - "Auditing existing projects for compliance"
+      - "Configuring CI/CD for code quality (Rule #17)"
+      - "Enforcing style rules (Rules #16, #20)"
+    location: "skills/config/rubocop-setup.md"
+    enforces_rules: [16, 17, 20]
+    criticality: REQUIRED
+
   initializers-best-practices:
     name: "Initializers Best Practices"
     domain: config
@@ -571,6 +586,7 @@ dependency_graph:
     - security-file-uploads
     - security-command-injection
     - solid-stack-setup
+    - rubocop-setup
     - initializers-best-practices
     - credentials-management
     - environment-configuration
@@ -602,3 +618,6 @@ keyword_index:
   security: [security-xss, security-sql-injection, security-csrf, security-strong-parameters, security-file-uploads, security-command-injection]
   api: [controller-restful, nested-resources, security-strong-parameters]
   refactoring: [antipattern-fat-controllers, form-objects, query-objects, concerns-models, concerns-controllers]
+  code_quality: [rubocop-setup, tdd-minitest]
+  linting: [rubocop-setup]
+  ci_cd: [rubocop-setup]

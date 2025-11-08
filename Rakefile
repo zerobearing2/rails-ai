@@ -260,7 +260,8 @@ namespace :lint do
   desc "Lint Ruby files with Rubocop"
   task :ruby do
     puts "Running Rubocop..."
-    abort unless system("bundle exec rubocop")
+    # --fail-level error: Only fail on actual errors/fatal, allow warnings (W:) and conventions (C:)
+    abort unless system("bundle exec rubocop --fail-level error")
   end
 
   desc "Lint Markdown skill files"

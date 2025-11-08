@@ -16,10 +16,10 @@ Automatically runs quality checks and tests on every PR and push to main.
 - ✅ Manually via workflow_dispatch
 - ❌ Skipped on draft PRs (to save CI time)
 
-**Integration Tests** (slow, ~2-5 minutes, requires API keys):
-- ❌ **Disabled for automated runs** (for now)
-- ✅ Only available via manual workflow_dispatch
-- 💡 Will be enabled later once LLM integration strategy is finalized
+**Integration Tests:**
+- ❌ **Not part of GitHub Actions workflow** (due to LLM API costs)
+- ✅ Run locally via `rake test:integration:scenario[name]`
+- 💡 May be added to CI later if cost-effective solution is found
 
 #### What it Checks
 
@@ -27,12 +27,9 @@ Automatically runs quality checks and tests on every PR and push to main.
 1. Ruby code style (Rubocop)
 2. Markdown formatting (mdl - informational)
 3. YAML validation
-4. Unit tests (< 1 second, 40 skills)
+4. Unit tests (< 1 second, ~50 test files)
 
-**Integration Tests Job:**
-1. All of the above
-2. Integration tests with LLM-as-judge
-3. Requires LLM API keys (OpenAI or Anthropic)
+**Note:** Integration tests with LLM-as-judge are run manually locally, not in CI.
 
 #### Concurrency
 
@@ -59,35 +56,7 @@ Protect your `master` branch to require CI checks before merging:
    - Select required check: **All Checks Passed**
 3. Save changes
 
-### 3. Add API Keys for Integration Tests (Future)
-
-**Note:** Integration tests are currently disabled for automated runs. When enabled in the future, they will require API keys.
-
-Integration tests use LLM-as-judge pattern and require API keys.
-
-#### Add Secrets (when ready)
-
-1. Go to repository **Settings** → **Secrets and variables** → **Actions**
-2. Click **New repository secret**
-3. Add secrets:
-
-   **OpenAI API Key**:
-   - Name: `OPENAI_API_KEY`
-   - Value: `sk-...` (your OpenAI API key)
-
-   **Anthropic API Key** (optional, for cross-validation):
-   - Name: `ANTHROPIC_API_KEY`
-   - Value: `sk-ant-...` (your Anthropic API key)
-
-#### Cost Considerations
-
-Integration tests cost ~$0.01 per test run:
-- Currently: Only manual runs (when you trigger them)
-- Future: May run automatically on `master` branch
-- ~30 LLM API calls per full test suite
-- Use mock provider in development to avoid costs
-
-### 4. Draft PR Workflow
+### 3. Draft PR Workflow
 
 To save CI resources:
 - Mark PRs as **Draft** while working (CI won't run)
@@ -104,12 +73,10 @@ You can manually trigger workflows from the GitHub UI:
 4. Choose branch
 5. Click **Run workflow**
 
-**Note:** This is currently the **only way to run integration tests**. They do not run automatically.
-
 Useful for:
 - Re-running failed tests
-- Running integration tests manually (requires API keys)
 - Testing workflow changes
+- Verifying CI configuration
 
 ## Viewing Results
 
@@ -133,7 +100,6 @@ See all workflow runs:
 
 Test results are uploaded as artifacts:
 - `test-results`: Unit test results
-- `integration-test-results`: Integration test results
 
 Download from the workflow run page.
 
@@ -164,19 +130,6 @@ bin/ci                     # Verify passes
 git commit -m "Fix failing tests"
 ```
 
-### Integration Tests Failing
-
-**Problem:** Integration tests failing on master branch
-
-**Solution:**
-1. Check API keys are set in GitHub Secrets
-2. Check API key has credits/quota
-3. Run locally with your API key:
-   ```bash
-   export OPENAI_API_KEY="sk-..."
-   INTEGRATION=1 bin/ci
-   ```
-
 ### Workflow Not Running
 
 **Problem:** PR created but CI not running
@@ -197,7 +150,7 @@ git commit -m "Fix failing tests"
 - Bundle caching is already enabled (saves ~30 seconds)
 - Draft PRs skip CI (saves resources while working)
 - Concurrency cancels old runs (avoids duplicate work)
-- Integration tests only run on main (saves time on PRs)
+- Only unit tests run (fast, < 10 seconds)
 
 ## Local Development
 
@@ -219,12 +172,6 @@ This catches issues before pushing and saves CI time.
 ### Editing the Workflow
 
 Edit `.github/workflows/ci.yml` to customize:
-
-**Run integration tests on PRs:**
-```yaml
-integration-tests:
-  if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
-```
 
 **Change Ruby version:**
 ```yaml
@@ -272,17 +219,13 @@ GitHub provides 2,000 CI minutes/month for free (public repos have unlimited).
 - 50 master pushes × 1 min = 50 minutes
 - **Total: ~150 minutes/month** (well under free tier)
 
-### LLM API Costs
+### Integration Tests
 
-**Per integration test run:**
-- ~30 LLM API calls
-- ~$0.01 per run (using GPT-4o mini)
+Integration tests are run manually locally and are not part of the GitHub Actions workflow:
 
-**Monthly estimate (manual runs only):**
-- Manual runs (occasional) × $0.01 = Variable
-- **Total: $0-0.10/month** (depends on how often you run them)
-
-**Note:** Integration tests are currently disabled for automated runs, so API costs are minimal and only occur when you manually trigger them.
+- **Cost:** ~$0.01 per test run (using GPT-4o mini)
+- **When:** Run manually via `rake test:integration:scenario[name]`
+- **API Keys:** Use your own OpenAI/Anthropic API keys locally
 
 ## Best Practices
 
@@ -305,10 +248,10 @@ bin/ci  # Before pushing
 - Never merge without CI passing
 - Use branch protection to enforce
 
-### 5. Monitor API Costs
-- Integration tests only on main
-- Use mocks in development
-- Track usage in OpenAI dashboard
+### 5. Run Integration Tests Locally
+- Use `rake test:integration:scenario[name]` before major releases
+- Track API usage in your OpenAI/Anthropic dashboard
+- Integration tests ensure end-to-end functionality
 
 ## Resources
 

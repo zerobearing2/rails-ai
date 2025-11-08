@@ -127,19 +127,25 @@ Reference: `skills/SKILLS_REGISTRY.yml` for complete descriptions, dependencies,
     - Enforces: Rule #12 (Fat Models, Thin Controllers)
     - Use: Refactoring controllers >100 lines, code reviews
 
-#### Config Skills (3)
+#### Config Skills (4)
 
 11. **solid-stack-setup** - Configure SolidQueue, SolidCache, SolidCable
     - Location: `skills/config/solid-stack-setup.md`
     - Enforces: TEAM_RULE #1 (CRITICAL) - ALWAYS use Solid Stack
     - Use: Background jobs, caching, WebSockets (NO Redis/Sidekiq)
 
-12. **docker-rails-setup** - Docker configuration for Rails with .dockerignore
+12. **rubocop-setup** - Configure RuboCop for code quality enforcement
+    - Location: `skills/config/rubocop-setup.md`
+    - Enforces: TEAM_RULE #16 (Double Quotes), #17 (bin/ci Must Pass), #20 (Hash#dig)
+    - Criticality: REQUIRED
+    - Use: Setting up new projects, auditing existing projects, CI/CD configuration
+
+13. **docker-rails-setup** - Docker configuration for Rails with .dockerignore
     - Location: `skills/config/docker-rails-setup.md`
     - Criticality: RECOMMENDED
     - Use: Docker deployment, Kamal, excluding docs/ from production images
 
-13. **credentials-management** - Rails encrypted credentials for secrets
+14. **credentials-management** - Rails encrypted credentials for secrets
     - Location: `skills/config/credentials-management.md`
     - Criticality: CRITICAL
     - Use: API keys, database encryption keys, SMTP passwords, OAuth secrets

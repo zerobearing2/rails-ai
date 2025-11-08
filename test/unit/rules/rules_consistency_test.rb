@@ -19,19 +19,19 @@ class RulesConsistencyTest < Minitest::Test
 
   # Test consistency between TEAM_RULES.md and RULES_TO_SKILLS_MAPPING.yml
   def test_rule_count_consistency
-    team_rules_count = @team_rules_yaml["enforcement"]["severity"].values.flatten.length
+    team_rules_count = @team_rules_yaml.dig("enforcement", "severity").values.flatten.length
 
-    mapping_total = @mapping["metadata"]["total_rules"]
+    mapping_total = @mapping.dig("metadata", "total_rules")
 
-    assert_equal 19, team_rules_count,
-                 "TEAM_RULES.md should have 19 rules in severity lists"
-    assert_equal 19, mapping_total,
-                 "RULES_TO_SKILLS_MAPPING.yml should have 19 rules total"
+    assert_equal 20, team_rules_count,
+                 "TEAM_RULES.md should have 20 rules in severity lists"
+    assert_equal 20, mapping_total,
+                 "RULES_TO_SKILLS_MAPPING.yml should have 20 rules total"
   end
 
   def test_critical_rules_consistency
     # Get critical rules from TEAM_RULES.md
-    team_rules_critical = @team_rules_yaml["enforcement"]["severity"]["critical"]
+    team_rules_critical = @team_rules_yaml.dig("enforcement", "severity", "critical")
     team_critical_numbers = team_rules_critical.map { |r| r.match(/\d+/)[0].to_i }.sort
 
     # Get critical rules from RULES_TO_SKILLS_MAPPING.yml
@@ -65,7 +65,7 @@ class RulesConsistencyTest < Minitest::Test
 
       next unless mapping_rule_data["violation_triggers"]
 
-      mapping_keywords = mapping_rule_data["violation_triggers"]["keywords"] || []
+      mapping_keywords = mapping_rule_data.dig("violation_triggers", "keywords") || []
 
       # Check that TEAM_RULES keywords are subset of mapping keywords
       keywords.each do |keyword|
@@ -168,20 +168,20 @@ class RulesConsistencyTest < Minitest::Test
       next unless rule_data["skills"]
 
       # Check primary skill
-      if rule_data["skills"]["primary"]
-        skill_name = rule_data["skills"]["primary"]
+      if rule_data.dig("skills", "primary")
+        skill_name = rule_data.dig("skills", "primary")
 
-        assert @skills_registry["skills"][skill_name],
+        assert @skills_registry.dig("skills", skill_name),
                "#{rule_key} primary skill '#{skill_name}' should exist in SKILLS_REGISTRY.yml"
       end
 
       # Check related skills
-      next unless rule_data["skills"]["related"]
+      next unless rule_data.dig("skills", "related")
 
-      rule_data["skills"]["related"].each do |related|
+      rule_data.dig("skills", "related").each do |related|
         skill_name = related["skill"]
 
-        assert @skills_registry["skills"][skill_name],
+        assert @skills_registry.dig("skills", skill_name),
                "#{rule_key} related skill '#{skill_name}' should exist in SKILLS_REGISTRY.yml"
       end
     end
@@ -194,10 +194,10 @@ class RulesConsistencyTest < Minitest::Test
       rule_data["category"]
 
       # Check primary skill domain
-      next unless rule_data["skills"]["primary"]
+      next unless rule_data.dig("skills", "primary")
 
-      skill_name = rule_data["skills"]["primary"]
-      skill_data = @skills_registry["skills"][skill_name]
+      skill_name = rule_data.dig("skills", "primary")
+      skill_data = @skills_registry.dig("skills", skill_name)
 
       next unless skill_data
 
@@ -228,7 +228,7 @@ class RulesConsistencyTest < Minitest::Test
   def test_architect_critical_rules_match_team_rules
     skip unless @architect["team_rules_enforcement"]
 
-    architect_critical = @architect["team_rules_enforcement"]["critical_rules"]
+    architect_critical = @architect.dig("team_rules_enforcement", "critical_rules")
     skip unless architect_critical
 
     # Should mention critical rules
@@ -273,17 +273,17 @@ class RulesConsistencyTest < Minitest::Test
       next unless rule_data["skills"]
 
       # Check primary skill file
-      if rule_data["skills"]["location"]
-        location = rule_data["skills"]["location"]
+      if rule_data.dig("skills", "location")
+        location = rule_data.dig("skills", "location")
 
         assert_path_exists location,
                            "#{rule_key} primary skill file should exist: #{location}"
       end
 
       # Check related skill files
-      next unless rule_data["skills"]["related"]
+      next unless rule_data.dig("skills", "related")
 
-      rule_data["skills"]["related"].each do |related|
+      rule_data.dig("skills", "related").each do |related|
         next unless related["location"]
 
         location = related["location"]
@@ -310,8 +310,8 @@ class RulesConsistencyTest < Minitest::Test
     @mapping["rules_with_skills"].any? do |_, rule_data|
       next unless rule_data["skills"]
 
-      primary_match = rule_data["skills"]["primary"] == skill_name
-      related_match = rule_data["skills"]["related"]&.any? { |related| related["skill"] == skill_name }
+      primary_match = rule_data.dig("skills", "primary") == skill_name
+      related_match = rule_data.dig("skills", "related")&.any? { |related| related["skill"] == skill_name }
 
       primary_match || related_match
     end

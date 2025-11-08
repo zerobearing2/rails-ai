@@ -49,41 +49,6 @@ jobs:
           path: test/reports/
           if-no-files-found: ignore
 
-  # Integration tests - manual only (disabled for now)
-  # These are slow and require API keys
-  # Run manually via: Actions tab → CI → Run workflow
-  integration-tests:
-    name: Integration Tests (LLM Judge)
-    runs-on: ubuntu-latest
-    # Only run when manually triggered (disabled for automated runs)
-    if: github.event_name == 'workflow_dispatch'
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: 3.3
-          bundler-cache: true
-
-      - name: Run integration tests
-        run: INTEGRATION=1 bin/ci
-        env:
-          CI: true
-          INTEGRATION: 1
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-
-      - name: Upload integration test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: integration-test-results
-          path: test/reports/
-          if-no-files-found: ignore
-
   # Check that passes when all required checks pass
   # This allows us to have a single required check in branch protection
   all-checks:

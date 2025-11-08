@@ -133,20 +133,33 @@ rails-ai/
 
 ## Agent and Skills Architecture
 
-### Adding New Skills
-1. Add skill to appropriate domain directory in `skills/`
-2. Write unit tests in `test/unit/skills/` (required for CI)
-3. Skills are validated through unit tests (structure, syntax, metadata)
-4. Update agent prompts if the skill changes their capabilities
-5. Document the skill with clear description and when to use it
-6. Integration tests validate agents use skills correctly (manual, before releases)
+### Adding New Rules, Skills, or Agents
 
-### Modifying Agents
-1. Agent files are in `agents/` directory
-2. Test changes across multiple Rails projects
-3. Ensure agent stays focused on its specialty
-4. Update AGENTS.md if you change agent responsibilities
-5. Follow the coordinator pattern (architect delegates to specialists)
+**⚠️ CRITICAL:** Before adding new resources, **always consult the comprehensive checklists** in [AGENTS.md - Contributor Checklists](AGENTS.md#contributor-checklists). These checklists ensure you update ALL required files and tests.
+
+Quick reference:
+- **[Adding a New Rule Checklist](AGENTS.md#-adding-a-new-rule)** - Covers TEAM_RULES.md, RULES_TO_SKILLS_MAPPING.yml, tests, and more
+- **[Adding a New Skill Checklist](AGENTS.md#-adding-a-new-skill)** - Covers skill files, SKILLS_REGISTRY.yml, agent updates, tests
+- **[Adding a New Agent Checklist](AGENTS.md#-adding-a-new-agent)** - Covers agent files, documentation, integration testing
+
+**Common mistakes to avoid:**
+- ❌ Forgetting to update counts in metadata sections
+- ❌ Missing test file updates (hardcoded counts)
+- ❌ Not updating AGENTS.md with new counts
+- ❌ Forgetting to update relevant agent files
+- ❌ YAML syntax errors (special characters like `[]`, `()`, `:`)
+
+**Verification steps:**
+1. ✅ Use the appropriate checklist from AGENTS.md
+2. ✅ Run `bin/ci` - All tests must pass
+3. ✅ Run `rake lint:fix` - Fix any style issues
+4. ✅ Commit with clear, descriptive message
+
+### Modifying Existing Resources
+- **Rules:** Use checklist in [AGENTS.md - Updating Existing Resources](AGENTS.md#-updating-existing-resources)
+- **Skills:** Update skill file, SKILLS_REGISTRY.yml, and affected agents
+- **Agents:** Update agent file, AGENTS.md, and verify integration
+- **Always run `bin/ci`** to verify changes
 
 ## Getting Help
 

@@ -17,6 +17,7 @@ categories:
   - code_quality
   - workflow
   - performance
+  - style
 
 # Violation detection triggers (for instant rule checking)
 violation_keywords:
@@ -27,6 +28,7 @@ violation_keywords:
   rule_9: [service object, validator service, complex abstraction]
   rule_14: [premature optimization, just in case]
   rule_18: [live http, external request in test, disable webmock]
+  rule_20: [nested bracket access, chained fetch]
 
 # Quick enforcement lookup
 enforcement:
@@ -35,7 +37,8 @@ enforcement:
   severity:
     critical: [rule_1, rule_2, rule_3, rule_4, rule_17, rule_18]
     high: [rule_6, rule_7, rule_11, rule_15]
-    moderate: [rule_5, rule_8, rule_9, rule_10, rule_12, rule_13, rule_14, rule_16, rule_19]
+    moderate: [rule_5, rule_8, rule_9, rule_10, rule_12, rule_13, rule_14, rule_19, rule_20]
+    low: [rule_16]
 ---
 
 # TEAM_RULES.md - Engineering Standards & Governance
@@ -92,6 +95,14 @@ rule_index:
     triggers: [live http, external request, disable webmock]
     action: REJECT
     skills: [minitest-mocking]
+
+  20:
+    name: "Hash#dig for Nested Access"
+    severity: moderate
+    triggers: [nested bracket access, chained fetch]
+    action: SUGGEST
+    skills: [rubocop-setup]
+    enforcement: rubocop
 ```
 
 </quick-lookup>
@@ -102,7 +113,7 @@ rule_index:
 
 ## Rules by Domain
 
-**Quick navigation by technical concern - all 19 rules organized by domain.**
+**Quick navigation by technical concern - all 20 rules organized by domain.**
 
 ### Stack Architecture & Technology
 Rules governing technology choices and infrastructure.
@@ -155,6 +166,7 @@ Guiding principles for code quality and decision-making.
 Standards for consistency and maintainability.
 
 - **Rule #16:** [Double Quotes Always](#16-double-quotes-always) - Use double quotes for strings (enforced by Rubocop)
+- **Rule #20:** [Hash#dig for Nested Access](#20-hashdig-for-nested-access) - Use Hash#dig for safe nested access (enforced by Rubocop)
 
 </domain-index>
 
@@ -784,6 +796,65 @@ end
 
 ---
 
+<rule id="20" priority="moderate" category="code_quality">
+
+### 20. Hash#dig for Nested Access
+
+<violation-triggers>
+Keywords: nested bracket access, chained fetch
+Patterns: `hash[:a][:b][:c]`, `hash.fetch(:a).fetch(:b)`, unsafe nested access
+</violation-triggers>
+
+✅ **REQUIRE:** `Hash#dig` for nested hash access where any level might be nil
+✅ **ALLOW:** `Hash#fetch` for top-level keys with explicit error handling or defaults
+✅ **ALLOW:** Direct bracket access for single-level access
+
+❌ **AVOID:** Chained bracket access (`hash[:a][:b][:c]`) - raises NoMethodError if intermediate key is nil
+❌ **AVOID:** Chained `fetch` calls (`hash.fetch(:a, nil)&.fetch(:b, nil)`)
+
+<enforcement action="SUGGEST" severity="moderate">
+**Action:** Suggest Hash#dig or Hash#fetch
+**Response:** "Use Hash#dig for safe nested access per Rule #20"
+**Enforced by:** RuboCop Style/HashFetchChain, Style/DigChain
+</enforcement>
+
+**Why:**
+- `Hash#dig` returns `nil` safely instead of raising `NoMethodError`
+- More readable than chained bracket access
+- More maintainable - clear intent for optional nested access
+- Ruby community standard (enforced by RuboCop)
+
+**Examples:**
+
+```ruby
+# ❌ Bad: Raises NoMethodError if :profile or :settings is nil
+theme = user[:profile][:settings][:theme]
+
+# ❌ Bad: Verbose and unclear intent
+theme = user.fetch(:profile, nil)&.fetch(:settings, nil)&.fetch(:theme, nil)
+
+# ✅ Good: Returns nil safely
+theme = user.dig(:profile, :settings, :theme)
+
+# ✅ Good: Use fetch for required top-level keys
+user_id = user.fetch(:id)  # Raises KeyError if missing
+
+# ✅ Good: Use fetch with default for top-level keys
+timeout = config.fetch(:timeout, 30)
+
+# ✅ Good: Single-level access is fine
+name = user[:name]
+```
+
+**When to use each:**
+- **`dig`**: Nested access where intermediate keys might not exist
+- **`fetch`**: Required keys (raises error if missing) or keys with defaults
+- **`[]`**: Simple single-level access, or when nil is acceptable
+
+</rule>
+
+---
+
 ## Rules Summary
 
 | ID | Rule | Severity | Type | Has Skills |
@@ -803,15 +874,16 @@ end
 | 13 | Progressive Enhancement | Moderate | Pattern | ✅ Yes |
 | 14 | No Premature Optimization | Moderate | Philosophy | ❌ No |
 | 15 | ViewComponent for UI | High | Technology | ✅ Yes |
-| 16 | Double Quotes | Low | Style | ❌ No |
+| 16 | Double Quotes | Low | Style | ✅ Yes |
 | 17 | bin/ci Must Pass | Critical | Workflow | ❌ No |
 | 18 | WebMock in Tests | Critical | Testing | ✅ Yes |
 | 19 | No System Tests | Moderate | Deprecation | ❌ No |
+| 20 | Hash#dig for Nested Access | Moderate | Style | ✅ Yes |
 
 **Coverage:**
-- **Total Rules:** 19
-- **Rules with Skills:** 10 (53%)
-- **Rules without Skills:** 9 (47% - workflow/philosophy/style)
+- **Total Rules:** 20
+- **Rules with Skills:** 12 (60%)
+- **Rules without Skills:** 8 (40% - workflow/philosophy)
 
 **See:** `rules/RULES_TO_SKILLS_MAPPING.yml` for complete rule→skill mapping
 
@@ -830,7 +902,7 @@ end
 - Allow with justification in rare cases
 
 ### Moderate Rules (SUGGEST)
-- Rules #5, #8, #9, #10, #12, #13, #14, #16, #19
+- Rules #5, #8, #9, #10, #12, #13, #14, #16, #19, #20
 - Recommend best practice
 - Guide toward better approach
 
@@ -850,6 +922,7 @@ end
 - Partial used as component → Rule #15
 - Live HTTP in test → Rule #18
 - `ApplicationSystemTestCase` → Rule #19
+- Nested bracket access (`hash[:a][:b]`), chained fetch → Rule #20
 
 **For implementation details, load the corresponding skill from `skills/` directory.**
 

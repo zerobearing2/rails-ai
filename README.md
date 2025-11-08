@@ -4,6 +4,8 @@
 
 Build Rails apps so autonomously they leave today's Next.js and React generators in the dust. We're not playing catch-up—we're setting the pace and showing what LLM-driven development really looks like when Rails is in the driver's seat. This project exists to prove that Rails has always been the right tool for this moment, and we're here to back that up.
 
+That ambition only matters if we're honest about where Rails stands with LLMs today.
+
 ## The Problem
 
 Right now, LLMs excel at Next.js and Node code. Ask them to build a Rails app and you get... okay results. Ask for a Next.js app and you get production-ready code.
@@ -20,42 +22,34 @@ Right now, LLMs excel at Next.js and Node code. Ask them to build a Rails app an
 
 Rails was built to make developers productive by removing decisions. That same philosophy makes it perfect for LLMs — fewer choices, more consistency, clearer patterns.
 
-## The Path Forward
+## Roadmap
 
-We're not just building another code assistant. We're systematically solving LLM accuracy for Rails through a phased approach:
+We're turning that gap into a roadmap instead of a wish list.
 
-**Phase 1: Specialized Agents** ✅
-Seven agents built on current LLMs, each mastering a domain (backend, frontend, tests, security). Working together, they're already better than general-purpose LLMs at Rails.
+**Phase 1 — Specialized Agents** ✅ Completed  
+Seven domain experts (architect, backend, frontend, tests, security, debug, plan) already outperform generic LLM sessions by coordinating like a real team.
 
-**Phase 2: Structured Intelligence** ✅ (In Progress)
-Skills teaching LLMs specific Rails patterns. Team rules enforcing conventions. Custom RuboCop cops catching mistakes. We're encoding Rails wisdom into reusable, testable modules.
+**Phase 2 — Structured Intelligence** 🛠️ In progress  
+Forty-one modular skills, shared team rules, and custom cops bake Rails judgment into reusable modules. Every agent pulls from the same tested playbook.
 
-**Phase 3: Memory & Context**
-Index thousands of high-quality Rails codebases. When generating code, retrieve relevant examples in real-time. Learn from production Rails apps at scale using RAG and vector search.
+**Phase 3 — Memory & Context** 🔬 In design  
+Index thousands of production Rails patterns, wire them into a local memory + knowledge graph, and retrieve the right snippet at the right time with RAG + SQLite vector search so every response is grounded in real context.
 
-**Phase 4: The Goal**
-100% autonomous generation. Full-stack features with auth, payments, admin, APIs, background jobs. Production-ready code with tests and security. First-try pass rates of 85%+.
+**Phase 4 — Fully Autonomous Rails** 🚀 Goal  
+Ship end-to-end features—auth, payments, background jobs, admin, APIs—complete with tests and security, and hit an 85%+ first-pass success rate.
 
-We're building the tooling to make Rails the best framework for AI-assisted development.
+**What already works**
+- @agent-rails-ai:architect orchestrates real features end to end
+- Specialists cover backend, frontend, tests, security, and debugging
+- Context7 keeps every agent current with live Rails documentation
+- Specification Pyramid planning keeps scope and delivery aligned
+- A 41-skill registry gives repeatable, testable Rails knowledge
 
-## Where We Are Now
-
-**Phase 1 Complete:** Seven specialized agents working in concert. The architect coordinates, specialist agents handle their domains. Already better than using Claude or GPT-4 alone for Rails work.
-
-**Phase 2 In Progress:** 40+ modular skills teaching specific Rails patterns. Team rules enforcing conventions. Everything tested and validated. We're expanding skills coverage and building custom RuboCop cops.
-
-**What works today:**
-- @agent-rails-ai:architect orchestrates feature development
-- Specialized agents for backend, frontend, tests, security, debugging
-- Context7 integration for up-to-date Rails documentation
-- Specification Pyramid planning framework
-- Skills-based knowledge that's testable and reusable
-
-**What's coming:**
-- RAG with SQLite vector search (Phase 3)
-- Index of thousands of production Rails patterns
-- 30-50% accuracy improvement from contextual examples
-- Eventually: 85%+ first-try pass rate, 100% autonomous features
+**What we're building next**
+- Phase 3 RAG pipeline with SQLite vector search
+- A library of thousands of indexed production Rails patterns
+- 30–50% accuracy gains from better retrieval signals
+- A straight path to 85%+ first-try pass rates and autonomous delivery
 
 ## Join Us
 
@@ -70,12 +64,15 @@ This is bigger than a plugin. We're proving Rails can lead in the AI era.
 The goal isn't just good — it's to make Rails the obvious choice for AI-assisted development. Help us get there.
 
 → [Get started](#installation)
-→ [Contribute](TESTING.md)
+→ [Contribute](CONTRIBUTING.md)
+→ [Testing guide](TESTING.md)
 → [Report issues](https://github.com/zerobearing2/rails-ai/issues)
 
 ---
 
 ## Installation
+
+Get the agents running in a few minutes—no yak shaving required.
 
 ### Quick Install (Recommended)
 
@@ -134,24 +131,6 @@ Install rails-ai as a Claude Code plugin:
 
 That's it! The agents are now available globally in all your Rails projects with access to up-to-date Rails documentation via Context7.
 
-### Local Development Install
-
-For testing changes to rails-ai itself:
-
-```bash
-# Clone the repo
-cd ~/Projects
-git clone https://github.com/zerobearing2/rails-ai.git
-cd rails-ai
-
-# Install locally for development
-# In Claude Code:
-/plugin marketplace add /home/zerobearing2/Projects/rails-ai
-/plugin install rails-ai
-```
-
-Changes to agent files will be available after restarting Claude Code (hot-reload testing in progress).
-
 ## Usage
 
 In any Rails project with Claude Code:
@@ -176,7 +155,7 @@ rails-ai/
 
 ## Philosophy
 
-This is an **opinionated** Rails agent system that follows:
+Every agent ships with the same north star, so the code they write feels like the Rails we ship by hand. This is an **opinionated** system that follows:
 - 37signals philosophy (simple, pragmatic, delete code)
 - Rails conventions (REST-only, no custom actions)
 - Solid Stack (Rails 8: SolidQueue, SolidCache, SolidCable)
@@ -186,43 +165,12 @@ This is an **opinionated** Rails agent system that follows:
 
 ## Known Issues
 
-### Claude Code v2.0.30 - Agent Launch Failures with MCP Servers
+### Claude Code v2.0.30 MCP regression
 
-**Issue**: Task agents and subagents fail to launch when MCP servers are configured, returning:
-```
-API Error: 400 tools: Tool names must be unique
-```
-
-**Affected Versions**: Claude Code v2.0.30 (possibly v2.0.29)
-
-**Impact**:
-- All agents in rails-ai plugin cannot be invoked
-- Built-in agents (Explore, Plan) also affected
-- Occurs with any MCP server configuration (single or multiple)
-
-**Root Cause**: A regression in v2.0.30 that duplicates tool names during subprocess initialization when making MCP tools available to sub-agents.
-
-**Workarounds**:
-
-1. **Downgrade to v2.0.28 or v2.0.29 and disable auto-update** (recommended):
-   ```bash
-   # Downgrade to working version
-   npm install -g @anthropic-ai/claude-code@2.0.29
-
-   # Prevent auto-update to v2.0.30
-   echo 'export DISABLE_AUTOUPDATER=1' >> ~/.bashrc
-   export DISABLE_AUTOUPDATER=1
-   ```
-
-   This keeps Claude Code on the working version and prevents it from auto-updating back to v2.0.30.
-
-2. **Temporarily disable MCP servers**: Comment out MCP configurations in `.claude.json` before using agents
-
-3. **Use minimal MCP configuration**: Reduce to essential MCP servers only
-
-**Status**: High priority issue tracked at [anthropics/claude-code#10668](https://github.com/anthropics/claude-code/issues/10668)
-
-**Note**: This is a Claude Code platform issue, not specific to rails-ai. Once fixed upstream, rails-ai agents will work normally with MCP servers.
+- **Symptom:** Task agents (rails-ai or built-in) fail to launch when any MCP server is configured, showing `API Error: 400 tools: Tool names must be unique`.
+- **Why it happens:** v2.0.30 duplicates tool names while passing MCP tools to sub-agents.
+- **Workaround:** Downgrade to `@anthropic-ai/claude-code@2.0.28` or `2.0.29` and disable auto-updates, or temporarily comment out MCP entries in `.claude.json` until Anthropic ships a fix.
+- **Tracker:** [anthropics/claude-code#10668](https://github.com/anthropics/claude-code/issues/10668).
 
 ---
 
@@ -241,9 +189,9 @@ Please also review:
 
 MIT License - see [LICENSE](LICENSE) for details.
 
-## The Meta Moment
+## Built by Sr. LLM
 
-Yes, this entire system—the coordinator, the specialized agents, the 40 modular skills, the test framework, even this README—was architected and refined by Claude. An AI building AI tools to help AI build better Rails apps.
+Consider this the resume entry for our self-promoted "Senior LLM." Yes, this entire system—the coordinator, the specialized agents, the 41 modular skills, the test framework, even this README—was architected and refined by Claude. An AI building AI tools to help AI build better Rails apps, and insisting on the fancy title while doing it.
 
 ```text
 ┌─────────────────────────────────────────┐
@@ -277,3 +225,5 @@ Inspired by 37signals' philosophy of simple, conventional Rails development.
 - Report bugs or request features via [GitHub Issues](https://github.com/zerobearing2/rails-ai/issues)
 - Check the [documentation](docs/) for guides and help
 - See [TESTING.md](TESTING.md) for development and testing questions
+
+We're on the hook to prove Rails can lead the AI era. If that sounds fun, bring your scars, your pull requests, and your favorite lint rules—we'll build Phase 4 together.

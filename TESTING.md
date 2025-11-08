@@ -33,10 +33,15 @@ rake -T
 
 ### Local Development Install
 
-For testing changes to rails-ai itself:
+For testing changes to rails-ai inside Claude Code:
 
 ```bash
-# Install locally for development in Claude Code:
+# Clone the repo (if you haven't already)
+cd ~/Projects
+git clone https://github.com/zerobearing2/rails-ai.git
+cd rails-ai
+
+# Install locally for development (run inside Claude Code):
 /plugin marketplace add /home/zerobearing2/Projects/rails-ai
 /plugin install rails-ai
 ```
@@ -340,7 +345,7 @@ This table is updated each time an integration test runs. It provides a quick re
 
 **Timing Notes:**
 - **Agent Time**: Time for agent to produce implementation plan
-- **Judge Time**: Time for 4 parallel domain judges to evaluate (single LLM call)
+- **Judge Time**: Time for 4 sequential domain judges to evaluate (one LLM call per domain)
 - **Total Time**: End-to-end test duration including setup/teardown
 
 **Note:** Integration tests are run manually due to cost and time. We decide when to run them based on the significance of changes.

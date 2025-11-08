@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2025-11-08
+
+### Added
+- Rule #20: Prefer `Hash#dig` over nested bracket access for safer hash traversal
+- Custom RuboCop cop (`Style/NestedBracketAccess`) to enforce `Hash#dig` usage
+- Comprehensive unit tests for rules system
+
+
 ## [0.2.0] - 2025-11-02
 
 ### Changed

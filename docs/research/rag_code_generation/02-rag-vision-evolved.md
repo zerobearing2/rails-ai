@@ -2832,6 +2832,12 @@ The pieces are all here. Let's build it.
 ---
 
 **Document Status:** Vision - Ready for Implementation Planning
+
+**Related Documents:**
+- [Executive Summary](./01-rag-vision-executive-summary.md) - Quick overview of 10 innovations
+- [Vision Overview](./00-vision-rag.md) - Consolidated vision document
+- [Research Report](./llm-rails-accuracy-research-report.md) - Comprehensive research analysis
+
 **Author:** Claude (Sr. LLM with delusions of grandeur)
 **Review Required:** Human validation and prioritization
 **Next Action:** Break into actionable tasks and begin Phase 1

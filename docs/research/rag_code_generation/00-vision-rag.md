@@ -1286,9 +1286,10 @@ The outcome is transformative: **Developers saying "This feels like I wrote it" 
 ---
 
 **Document Status:** Vision Document
+
 **Related Documents:**
-- Research Report: `llm-rails-accuracy-research-report.md`
-- Full Vision (detailed): `02-rag-vision-evolved.md`
-- Executive Summary: `01-rag-vision-executive-summary.md`
+- [Research Report](./llm-rails-accuracy-research-report.md) - Comprehensive analysis of 4 approaches
+- [Full Vision (detailed)](./02-rag-vision-evolved.md) - Deep technical exploration (40k+ words)
+- [Executive Summary](./01-rag-vision-executive-summary.md) - 10 game-changing innovations
 
 **Next Action:** Review and prioritize for Phase 1 implementation

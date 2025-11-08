@@ -454,5 +454,10 @@ Transform RAG from "retrieve similar code" into **"contextual intelligence syste
 ---
 
 **Document Status:** Executive Summary
-**Full Vision:** See `02-rag-vision-evolved.md`
+
+**Related Documents:**
+- [Full Vision (detailed)](./02-rag-vision-evolved.md) - Deep technical exploration with implementation details
+- [Vision Overview](./00-vision-rag.md) - Consolidated vision document
+- [Research Report](./llm-rails-accuracy-research-report.md) - Comprehensive research analysis
+
 **Next Step:** Review, prioritize, begin implementation

@@ -51,22 +51,22 @@ class TeamRulesTest < Minitest::Test
     # Critical rules should have violation keywords
     critical_rules_with_keywords = %w[rule_1 rule_2 rule_3 rule_4 rule_18]
     critical_rules_with_keywords.each do |rule|
-      assert @yaml["violation_keywords"][rule],
+      assert @yaml.dig("violation_keywords", rule),
              "Critical #{rule} should have violation keywords"
-      assert_kind_of Array, @yaml["violation_keywords"][rule],
+      assert_kind_of Array, @yaml.dig("violation_keywords", rule),
                      "#{rule} violation keywords should be an array"
     end
   end
 
   def test_has_enforcement_metadata
     assert @yaml["enforcement"], "Should have enforcement metadata"
-    assert @yaml["enforcement"]["automatic"], "Should have automatic enforcement list"
-    assert @yaml["enforcement"]["manual"], "Should have manual enforcement list"
-    assert @yaml["enforcement"]["severity"], "Should have severity levels"
+    assert @yaml.dig("enforcement", "automatic"), "Should have automatic enforcement list"
+    assert @yaml.dig("enforcement", "manual"), "Should have manual enforcement list"
+    assert @yaml.dig("enforcement", "severity"), "Should have severity levels"
   end
 
   def test_severity_levels_are_defined
-    severity = @yaml["enforcement"]["severity"]
+    severity = @yaml.dig("enforcement", "severity")
 
     assert severity["critical"], "Should have critical severity rules"
     assert severity["high"], "Should have high severity rules"

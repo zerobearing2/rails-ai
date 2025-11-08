@@ -11,7 +11,7 @@ class SkillsRegistrySyncTest < Minitest::Test
 
   def test_total_skill_count_matches_registry_metadata
     actual_skill_files = Dir.glob("skills/*/*.md").count
-    registry_total = @registry["metadata"]["total_skills"]
+    registry_total = @registry.dig("metadata", "total_skills")
 
     assert_equal registry_total, actual_skill_files,
                  "SKILLS_REGISTRY.yml metadata lists #{registry_total} skills, but found #{actual_skill_files} .md files. " \
@@ -19,7 +19,7 @@ class SkillsRegistrySyncTest < Minitest::Test
   end
 
   def test_domain_counts_match_actual_files
-    domains = @registry["metadata"]["domains"]
+    domains = @registry.dig("metadata", "domains")
 
     domains.each do |domain, expected_count|
       actual_count = Dir.glob("skills/#{domain}/*.md").count
@@ -33,7 +33,7 @@ class SkillsRegistrySyncTest < Minitest::Test
 
   def test_domain_breakdown_matches_metadata
     domains_section = @registry["domains"]
-    metadata_domains = @registry["metadata"]["domains"]
+    metadata_domains = @registry.dig("metadata", "domains")
 
     metadata_domains.each_key do |domain|
       assert domains_section.key?(domain),
@@ -99,7 +99,7 @@ class SkillsRegistrySyncTest < Minitest::Test
   def test_documentation_references_match_registry
     # Test AGENTS.md
     agents_doc = File.read("AGENTS.md")
-    registry_total = @registry["metadata"]["total_skills"]
+    registry_total = @registry.dig("metadata", "total_skills")
 
     skill_count_pattern = /(\d+)\s+skills?/i
     matches = agents_doc.scan(skill_count_pattern).flatten.map(&:to_i)

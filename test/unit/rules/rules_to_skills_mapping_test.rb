@@ -14,10 +14,10 @@ class RulesToSkillsMappingTest < Minitest::Test
   # Test file structure
   def test_has_metadata_section
     assert @mapping["metadata"], "Should have metadata section"
-    assert @mapping["metadata"]["total_rules"], "Should have total_rules count"
-    assert @mapping["metadata"]["rules_with_skills"], "Should have rules_with_skills count"
-    assert @mapping["metadata"]["rules_without_skills"], "Should have rules_without_skills count"
-    assert @mapping["metadata"]["coverage_percent"], "Should have coverage_percent"
+    assert @mapping.dig("metadata", "total_rules"), "Should have total_rules count"
+    assert @mapping.dig("metadata", "rules_with_skills"), "Should have rules_with_skills count"
+    assert @mapping.dig("metadata", "rules_without_skills"), "Should have rules_without_skills count"
+    assert @mapping.dig("metadata", "coverage_percent"), "Should have coverage_percent"
   end
 
   def test_metadata_counts_are_correct
@@ -59,8 +59,8 @@ class RulesToSkillsMappingTest < Minitest::Test
 
     expected_domains.each do |domain|
       assert domains[domain], "Should have '#{domain}' domain"
-      assert domains[domain]["description"], "#{domain} should have description"
-      assert domains[domain]["rules"], "#{domain} should have rules list"
+      assert domains.dig(domain, "description"), "#{domain} should have description"
+      assert domains.dig(domain, "rules"), "#{domain} should have rules list"
     end
   end
 
@@ -195,7 +195,7 @@ class RulesToSkillsMappingTest < Minitest::Test
     @mapping["rules_with_skills"].each do |rule_key, rule_data|
       next unless rule_data["skills"]
 
-      primary_skill = rule_data["skills"]["primary"]
+      primary_skill = rule_data.dig("skills", "primary")
       next unless primary_skill
 
       assert_includes @all_skills, primary_skill,
@@ -205,9 +205,9 @@ class RulesToSkillsMappingTest < Minitest::Test
 
   def test_related_skills_exist_in_registry
     @mapping["rules_with_skills"].each do |rule_key, rule_data|
-      next unless rule_data["skills"] && rule_data["skills"]["related"]
+      next unless rule_data["skills"] && rule_data.dig("skills", "related")
 
-      rule_data["skills"]["related"].each do |related|
+      rule_data.dig("skills", "related").each do |related|
         skill_name = related["skill"]
 
         assert_includes @all_skills, skill_name,
@@ -221,17 +221,17 @@ class RulesToSkillsMappingTest < Minitest::Test
       next unless rule_data["skills"]
 
       # Check primary skill location
-      if rule_data["skills"]["location"]
-        location = rule_data["skills"]["location"]
+      if rule_data.dig("skills", "location")
+        location = rule_data.dig("skills", "location")
 
         assert_match(%r{^skills/\w+/[\w-]+\.md$}, location,
                      "#{rule_key} primary skill location should match pattern 'skills/domain/skill-name.md'")
       end
 
       # Check related skill locations
-      next unless rule_data["skills"]["related"]
+      next unless rule_data.dig("skills", "related")
 
-      rule_data["skills"]["related"].each do |related|
+      rule_data.dig("skills", "related").each do |related|
         next unless related["location"]
 
         location = related["location"]
@@ -247,17 +247,17 @@ class RulesToSkillsMappingTest < Minitest::Test
       next unless rule_data["skills"]
 
       # Check primary skill file
-      if rule_data["skills"]["location"]
-        location = rule_data["skills"]["location"]
+      if rule_data.dig("skills", "location")
+        location = rule_data.dig("skills", "location")
 
         assert_path_exists location,
                            "#{rule_key} primary skill file should exist at #{location}"
       end
 
       # Check related skill files
-      next unless rule_data["skills"]["related"]
+      next unless rule_data.dig("skills", "related")
 
-      rule_data["skills"]["related"].each do |related|
+      rule_data.dig("skills", "related").each do |related|
         next unless related["location"]
 
         location = related["location"]

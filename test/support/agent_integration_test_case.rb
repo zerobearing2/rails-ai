@@ -326,14 +326,14 @@ class AgentIntegrationTestCase < Minitest::Test
 
     # Format the row data
     last_run = judgment[:timestamp].strftime("%Y-%m-%d")
-    agent_time = format_duration(judgment[:timing][:agent_duration])
-    judge_time = format_duration(judgment[:timing][:judge_duration])
-    total_time = format_duration(judgment[:timing][:total_duration])
+    agent_time = format_duration(judgment.dig(:timing, :agent_duration))
+    judge_time = format_duration(judgment.dig(:timing, :judge_duration))
+    total_time = format_duration(judgment.dig(:timing, :total_duration))
     total_score = "#{judgment[:total_score]}/200"
-    backend_score = "#{judgment[:domain_scores]['backend'][:score]}/50"
-    frontend_score = "#{judgment[:domain_scores]['frontend'][:score]}/50"
-    tests_score = "#{judgment[:domain_scores]['tests'][:score]}/50"
-    security_score = "#{judgment[:domain_scores]['security'][:score]}/50"
+    backend_score = "#{judgment.dig(:domain_scores, 'backend', :score)}/50"
+    frontend_score = "#{judgment.dig(:domain_scores, 'frontend', :score)}/50"
+    tests_score = "#{judgment.dig(:domain_scores, 'tests', :score)}/50"
+    security_score = "#{judgment.dig(:domain_scores, 'security', :score)}/50"
 
     # Build the new row
     new_row = "| #{scenario_name} | #{last_run} | #{agent_time} | #{judge_time} | #{total_time} | #{total_score} | #{backend_score} | #{frontend_score} | #{tests_score} | #{security_score} | #{result_emoji} |"
@@ -374,9 +374,9 @@ class AgentIntegrationTestCase < Minitest::Test
 
       ## Timing
 
-      - **Agent Duration**: #{format_duration(judgment[:timing][:agent_duration])}
-      - **Judge Duration**: #{format_duration(judgment[:timing][:judge_duration])}
-      - **Total Duration**: #{format_duration(judgment[:timing][:total_duration])}
+      - **Agent Duration**: #{format_duration(judgment.dig(:timing, :agent_duration))}
+      - **Judge Duration**: #{format_duration(judgment.dig(:timing, :judge_duration))}
+      - **Total Duration**: #{format_duration(judgment.dig(:timing, :total_duration))}
 
       ## Domain Scores
 

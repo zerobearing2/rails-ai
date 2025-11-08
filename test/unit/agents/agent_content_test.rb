@@ -124,11 +124,11 @@ class AgentContentTest < Minitest::Test
 
       # Triggers should have keywords and file_patterns
       if yaml["triggers"]
-        assert yaml["triggers"]["keywords"], "#{file}: triggers missing 'keywords'"
-        assert_kind_of Array, yaml["triggers"]["keywords"],
+        assert yaml.dig("triggers", "keywords"), "#{file}: triggers missing 'keywords'"
+        assert_kind_of Array, yaml.dig("triggers", "keywords"),
                        "#{file}: triggers.keywords should be an array"
-        assert yaml["triggers"]["file_patterns"], "#{file}: triggers missing 'file_patterns'"
-        assert_kind_of Array, yaml["triggers"]["file_patterns"],
+        assert yaml.dig("triggers", "file_patterns"), "#{file}: triggers missing 'file_patterns'"
+        assert_kind_of Array, yaml.dig("triggers", "file_patterns"),
                        "#{file}: triggers.file_patterns should be an array"
       end
 

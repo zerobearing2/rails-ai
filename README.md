@@ -293,6 +293,14 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ## Credits
 
+### Specification Pyramid Concept
+
+The planning agent's systematic documentation approach (Vision → Architecture → Features → Tasks) is inspired by the **Specification Pyramid** concept from [Robert Evans](https://www.linkedin.com/in/rrevans/), a highly accomplished Rubyist, friend, colleague, and expert in the field.
+
+Read more about the Specification Pyramid in his article: [Why Your PRD Isn't Working for AI](https://signalthinking.com/p/why-your-prd-isnt-working-for-ai-083)
+
+### Philosophy
+
 Inspired by 37signals' philosophy of simple, conventional Rails development.
 
 ## Support

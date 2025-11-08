@@ -9,7 +9,7 @@
 ## Executive Summary
 
 ### What the Research Found
-The comprehensive research in `tmp/llm-rails-accuracy-research-report.md` identified RAG + SQLite as the most promising approach:
+The comprehensive research in `llm-rails-accuracy-research-report.md` identified RAG + SQLite as the most promising approach:
 - **Cost:** $7k-15k first year
 - **Timeline:** 3-4 weeks to MVP
 - **Expected Accuracy:** 70-85% Pass@1
@@ -1287,8 +1287,8 @@ The outcome is transformative: **Developers saying "This feels like I wrote it" 
 
 **Document Status:** Vision Document
 **Related Documents:**
-- Research Report: `tmp/llm-rails-accuracy-research-report.md`
-- Full Vision (detailed): `docs/rag-vision-evolved.md`
-- Executive Summary: `docs/rag-vision-executive-summary.md`
+- Research Report: `llm-rails-accuracy-research-report.md`
+- Full Vision (detailed): `02-rag-vision-evolved.md`
+- Executive Summary: `01-rag-vision-executive-summary.md`
 
 **Next Action:** Review and prioritize for Phase 1 implementation

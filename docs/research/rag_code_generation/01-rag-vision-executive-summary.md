@@ -454,5 +454,5 @@ Transform RAG from "retrieve similar code" into **"contextual intelligence syste
 ---
 
 **Document Status:** Executive Summary
-**Full Vision:** See `rag-vision-evolved.md`
+**Full Vision:** See `02-rag-vision-evolved.md`
 **Next Step:** Review, prioritize, begin implementation

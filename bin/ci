@@ -173,6 +173,7 @@ else
   echo "  rake test:unit                # Run all unit tests"
   echo "  rake test:unit:skills         # Run skill unit tests only"
   echo "  rake test:unit:agents         # Run agent unit tests only"
+  echo "  rake test:unit:rules          # Run rules unit tests only"
   echo ""
 
   exit 1

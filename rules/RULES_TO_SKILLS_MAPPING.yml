@@ -5,9 +5,9 @@
 
 metadata:
   total_rules: 19
-  rules_with_skills: 10
-  rules_without_skills: 9
-  coverage_percent: 53
+  rules_with_skills: 11  # Includes rule_17 (critical rule, but no implementation skills)
+  rules_without_skills: 8
+  coverage_percent: 58   # 11/19 = 58% (includes organizational placement in rules_with_skills)
 
 # === RULES BY DOMAIN (Quick Lookup) ===
 # Organized by agent specialization for faster rule discovery
@@ -131,7 +131,7 @@ rules_with_skills:
 
   rule_3_rest_routes:
     id: 3
-    name: "RESTful Routes Only"
+    name: "REST Routes Only"
     severity: critical
     enforcement_action: REJECT
     category: routing
@@ -160,7 +160,7 @@ rules_with_skills:
     category: testing
 
     violation_triggers:
-      keywords: [skip tests, tests later, no tests needed, write tests after]
+      keywords: [skip tests, tests later, no tests, no tests needed, write tests after]
       patterns: ['# TODO: add tests', 'skip "not implemented"', 'code without tests']
 
     rejection_response: "TDD is mandatory per TEAM_RULES.md Rule #4"
@@ -202,6 +202,22 @@ rules_with_skills:
       note: "Contains WebMock patterns and examples"
 
     why: "Tests must be fast, reliable, and not dependent on external services. Live HTTP = flaky tests."
+
+  rule_17_ci_must_pass:
+    id: 17
+    name: "bin/ci Must Pass"
+    severity: critical
+    enforcement_action: REJECT
+    category: workflow
+
+    violation_triggers:
+      keywords: [skip ci, fix later, ignore warnings, bypass ci]
+      patterns: ['skip CI checks', 'merge without CI', 'ignore test failures']
+
+    rejection_response: "All changes must pass bin/ci before merging per Rule #17"
+    redirect_message: "Run bin/ci locally to fix issues. CI enforces all quality checks."
+
+    why: "Consistent quality standards. bin/ci runs all linters and tests - everything must pass."
 
   # HIGH SEVERITY (strong SUGGEST)
 
@@ -272,6 +288,8 @@ rules_with_skills:
       primary: concerns-models
       location: "skills/backend/concerns-models.md"
       related:
+        - skill: activerecord-patterns
+          location: "skills/backend/activerecord-patterns.md"
         - skill: concerns-controllers
           location: "skills/backend/concerns-controllers.md"
         - skill: nested-resources
@@ -293,10 +311,10 @@ rules_with_skills:
     suggestion_response: "Extract to form/query object per Rule #12"
 
     skills:
-      identifier: antipattern-fat-controllers
+      primary: antipattern-fat-controllers
       location: "skills/backend/antipattern-fat-controllers.md"
       note: "Identifies violations and refactoring patterns"
-      extract_to:
+      related:
         - skill: form-objects
           location: "skills/backend/form-objects.md"
           use_case: "Extract complex form logic"
@@ -309,7 +327,7 @@ rules_with_skills:
 
     why: "Controllers should coordinate, not contain business logic. Logic in models is easier to test and reuse."
 
-  rule_13_progressive:
+  rule_13_progressive_enhancement:
     id: 13
     name: "Progressive Enhancement"
     severity: moderate
@@ -342,7 +360,7 @@ rules_without_skills:
     type: workflow
     category: workflow
     has_skill: false
-    reason: "Process rule - coordinator workflow, not technical implementation"
+    reason: "Process/workflow rule - coordinator workflow, not technical implementation"
 
   rule_8_be_concise:
     id: 8
@@ -351,7 +369,7 @@ rules_without_skills:
     type: philosophy
     category: code_quality
     has_skill: false
-    reason: "Coding philosophy - applies across all code, not specific pattern"
+    reason: "Philosophy/principle - applies across all code, not specific pattern"
 
   rule_9_dont_overengineer:
     id: 9
@@ -360,7 +378,7 @@ rules_without_skills:
     type: philosophy
     category: code_quality
     has_skill: false
-    reason: "Development principle - YAGNI applies everywhere"
+    reason: "Philosophy/principle - YAGNI applies everywhere"
 
   rule_10_reduce_complexity:
     id: 10
@@ -369,7 +387,7 @@ rules_without_skills:
     type: philosophy
     category: code_quality
     has_skill: false
-    reason: "Guiding principle - simplicity over cleverness"
+    reason: "Philosophy/principle - simplicity over cleverness"
 
   rule_11_draft_prs:
     id: 11
@@ -378,7 +396,7 @@ rules_without_skills:
     type: workflow
     category: workflow
     has_skill: false
-    reason: "Git workflow - not code pattern"
+    reason: "Process/workflow rule - Git workflow, not code pattern"
 
   rule_14_no_premature_optimization:
     id: 14
@@ -387,7 +405,7 @@ rules_without_skills:
     type: philosophy
     category: performance
     has_skill: false
-    reason: "Development principle - optimize what you measure"
+    reason: "Philosophy/principle - optimize what you measure"
 
   rule_16_double_quotes:
     id: 16
@@ -397,16 +415,7 @@ rules_without_skills:
     category: code_quality
     has_skill: false
     enforced_by: rubocop
-    reason: "Style preference - enforced by Rubocop, not manual skill"
-
-  rule_17_ci_must_pass:
-    id: 17
-    name: "bin/ci Must Pass"
-    severity: critical
-    type: workflow
-    category: workflow
-    has_skill: false
-    reason: "CI/CD requirement - process rule, not implementation"
+    reason: "Style preference - Enforced by rubocop, not manual skill"
 
   rule_19_no_system_tests:
     id: 19
@@ -415,7 +424,7 @@ rules_without_skills:
     type: deprecation
     category: testing
     has_skill: false
-    reason: "Migration guidance - use integration tests instead"
+    reason: "Deprecation guidance - use integration tests instead"
 
 # === ENFORCEMENT PATTERNS ===
 
@@ -445,10 +454,14 @@ keyword_to_rule:
   sidekiq: rule_1_solid_stack
   redis: rule_1_solid_stack
   memcached: rule_1_solid_stack
+  resque: rule_1_solid_stack
+  delayed_job: rule_1_solid_stack
 
   rspec: rule_2_minitest
   describe: rule_2_minitest
   context: rule_2_minitest
+  let: rule_2_minitest
+  subject: rule_2_minitest
 
   member: rule_3_rest_routes
   collection: rule_3_rest_routes
@@ -462,10 +475,15 @@ keyword_to_rule:
   "turbo frame": rule_7_turbo_morph
 
   "service object": rule_9_dont_overengineer
+  "validator service": rule_9_dont_overengineer
+  "complex abstraction": rule_9_dont_overengineer
   presenter: rule_9_dont_overengineer
 
   "controller > 100 lines": rule_12_fat_models
   "business logic in controller": rule_12_fat_models
+
+  "premature optimization": rule_14_no_premature_optimization
+  "just in case": rule_14_no_premature_optimization
 
   "partial as component": rule_15_viewcomponent
   "complex helper": rule_15_viewcomponent
@@ -474,7 +492,7 @@ keyword_to_rule:
   "external request in test": rule_18_webmock
   "disable webmock": rule_18_webmock
 
-  "ApplicationSystemTestCase": rule_19_no_system_tests
+  "applicationsystemtestcase": rule_19_no_system_tests
   "system test": rule_19_no_system_tests
 
 # === USAGE INSTRUCTIONS FOR AGENTS ===

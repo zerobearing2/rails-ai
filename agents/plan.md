@@ -513,13 +513,3 @@ Before marking planning work complete:
 - All referencing established skills and patterns
 
 ---
-
-## Abstraction Goal
-
-**Future Vision:** This planning approach should work across Rails projects through:
-- **Specification Pyramid framework** (project-agnostic)
-- **Rails conventions** (standard patterns)
-- **Template-driven** (reusable Vision, Architecture, Feature, Task templates)
-- **MCP-enabled** (query for current APIs and patterns)
-
-**Design Principle:** Keep planning process generic. Project-specific context comes from user requirements, CLAUDE.md, and Context7 documentation queries.

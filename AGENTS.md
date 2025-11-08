@@ -400,7 +400,7 @@ rake lint:fix       # Auto-fix Ruby issues
 #### Before Committing
 
 **Required:**
-1. ✅ Unit tests pass (`rake test:unit:skills`)
+1. ✅ Unit tests pass (`rake test:unit` - includes skills, agents, rules)
 2. ✅ Linters pass (`rake lint`)
 3. ✅ YAML front matter valid
 4. ✅ Code examples syntactically correct
@@ -455,7 +455,7 @@ bin/ci
 #### Before Committing Agent Changes
 
 **Required:**
-1. ✅ Agent unit tests pass (`rake test:unit:agents`)
+1. ✅ All unit tests pass (`rake test:unit` - includes agents, skills, rules)
 2. ✅ Linters pass (`rake lint`)
 3. ✅ YAML front matter valid
 4. ✅ All cross-references exist
@@ -605,6 +605,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for full contribution guidelines.
 - **Running tests** - `bin/ci` runs all checks (linting + unit tests)
 - **Testing skills** - `rake test:unit:skills` for fast skill validation
 - **Testing agents** - `rake test:unit:agents` for agent structure tests
+- **Testing rules** - `rake test:unit:rules` for rules consistency tests
 - **Linting** - `rake lint` or `rake lint:fix` to auto-fix issues
 
 ### Key Files
@@ -614,8 +615,9 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for full contribution guidelines.
 | `skills/SKILLS_REGISTRY.yml` | Central catalog of all 40 skills |
 | `agents/*.md` | 7 agent definitions (loaded by Claude Code plugin) |
 | `rules/` | Team conventions and decision matrices |
-| `test/skills/unit/` | Unit tests for skill structure validation |
-| `test/agents/unit/` | Unit tests for agent structure validation |
+| `test/unit/skills/` | Unit tests for skill structure validation |
+| `test/unit/agents/` | Unit tests for agent structure validation |
+| `test/unit/rules/` | Unit tests for rules consistency validation |
 | `AGENTS.md` | This file - internal documentation for contributors |
 | `README.md` | Public documentation for users |
 | `CONTRIBUTING.md` | Contribution guidelines and workflow |

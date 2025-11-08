@@ -1189,13 +1189,3 @@ Final Review:
 - Ensure bin/ci passes
 - Confirm user flow works end-to-end
 ```
-
-## Abstraction Goal
-
-**Future Vision:** These agents should be portable across Rails projects through:
-- User-level configuration (`.claude/agents/`)
-- Shared library/gem (installable on any Rails project)
-- Project-agnostic prompts (follow Rails conventions, not project-specific patterns)
-- Version-aware via MCP (query for current APIs)
-
-**Design Principle:** Keep agent prompts generic and project-agnostic. Project-specific context comes from CLAUDE.md, docs/, and codebase exploration.

@@ -79,6 +79,9 @@ rake test:unit:skills
 # Agents only
 rake test:unit:agents
 
+# Rules only
+rake test:unit:rules
+
 # Specific file
 rake test:file[test/unit/skills/turbo_page_refresh_test.rb]
 ```
@@ -98,6 +101,15 @@ rake test:file[test/unit/skills/turbo_page_refresh_test.rb]
 - Reference SKILLS_REGISTRY.yml correctly
 - Consistent naming conventions
 - No deprecated references
+
+**Rules:**
+- YAML front matter validity
+- Rule structure and formatting
+- Cross-file consistency (TEAM_RULES.md ↔ RULES_TO_SKILLS_MAPPING.yml)
+- Violation keywords and enforcement actions
+- Skill references are valid
+- Critical rules properly marked
+- All 19 rules accounted for
 
 ### Creating New Unit Tests
 
@@ -333,18 +345,23 @@ Skills:
 Agents:
   Total: 7
   Unit Tests: 5
-  Integration Tests: 1
+  Integration Scenarios: 2
+
+Rules:
+  Total Files: 3
+  Unit Tests: 3
 
 Overall:
-  Unit Tests: 48
-  Integration Tests: 1
-  Total Tests: 49
+  Unit Tests: 51
+  Integration Scenarios: 2
+  Total Tests: 53
 
 Run tests:
   rake test:unit                    # Fast unit tests
-  rake test:integration             # Slow integration tests
+  rake test:integration             # Slow integration scenarios
   rake test:unit:skills             # Skills unit tests only
   rake test:unit:agents             # Agents unit tests only
+  rake test:unit:rules              # Rules unit tests only
   rake test:integration:scenario[X] # Specific scenario
 ```
 

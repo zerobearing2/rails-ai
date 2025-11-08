@@ -35,7 +35,7 @@ enforcement:
   severity:
     critical: [rule_1, rule_2, rule_3, rule_4, rule_17, rule_18]
     high: [rule_6, rule_7, rule_11, rule_15]
-    moderate: [rule_5, rule_8, rule_9, rule_10, rule_12, rule_13, rule_14, rule_16]
+    moderate: [rule_5, rule_8, rule_9, rule_10, rule_12, rule_13, rule_14, rule_16, rule_19]
 ---
 
 # TEAM_RULES.md - Engineering Standards & Governance

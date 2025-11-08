@@ -1,9 +1,10 @@
-# Testing Guide
+# Testing & Development Guide
 
-Comprehensive testing framework for rails-ai using minitest.
+Comprehensive guide for developing and testing rails-ai.
 
 ## Table of Contents
 
+- [Development Setup](#development-setup)
 - [Quick Start](#quick-start)
 - [Test Organization](#test-organization)
 - [Unit Tests](#unit-tests)
@@ -12,6 +13,43 @@ Comprehensive testing framework for rails-ai using minitest.
 - [Creating Tests](#creating-tests)
 - [CI/CD](#cicd)
 - [Troubleshooting](#troubleshooting)
+
+## Development Setup
+
+### Initial Setup
+
+```bash
+# Clone the repo (if not already)
+cd ~/Projects
+git clone https://github.com/zerobearing2/rails-ai.git
+cd rails-ai
+
+# One-time setup
+bin/setup
+
+# Verify installation
+rake -T
+```
+
+### Local Development Install
+
+For testing changes to rails-ai itself:
+
+```bash
+# Install locally for development in Claude Code:
+/plugin marketplace add /home/zerobearing2/Projects/rails-ai
+/plugin install rails-ai
+```
+
+Changes to agent files will be available after restarting Claude Code (hot-reload testing in progress).
+
+### Development Resources
+
+- [Skill Testing Methodology](docs/skill-testing-methodology.md) - Two-tier testing approach
+- [Development Setup](docs/development-setup.md) - Detailed setup instructions
+- [GitHub Actions Setup](docs/github-actions-setup.md) - CI/CD configuration
+- [Release Process](docs/releasing.md) - How to create releases
+- [Agents System](AGENTS.md) - Agent roles and skill management
 
 ## Quick Start
 

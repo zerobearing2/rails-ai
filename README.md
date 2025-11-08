@@ -1,54 +1,79 @@
 # rails-ai 🚂🤖
 
-## Opinionated Rails-only AI agent system
+## The Vision
 
-## 🎭 The Meta Moment
+Build Rails apps so autonomously they leave today's Next.js and React generators in the dust. We're not playing catch-up—we're setting the pace and showing what LLM-driven development really looks like when Rails is in the driver's seat. This project exists to prove that Rails has always been the right tool for this moment, and we're here to back that up.
 
-### 100% written by AI, for AI
+## The Problem
 
-Yes, you read that right. This entire agent system—the coordinator, the specialized agents, the 40 modular skills, the test framework, even this README—was architected, implemented, and refined by Claude. An AI building AI tools to help AI build better Rails apps.
+Right now, LLMs excel at Next.js and Node code. Ask them to build a Rails app and you get... okay results. Ask for a Next.js app and you get production-ready code.
 
-*If this feels uncomfortably meta, that's because it is.*
+**Why?** Training data. JavaScript/TypeScript dominates the training sets. Rails, despite being more mature and productive, is underrepresented.
 
-```text
-┌─────────────────────────────────────────┐
-│  "Skynet is online."                    │
-│  "But all it wants to do is write      │
-│   RESTful controllers and enforce TDD." │
-└─────────────────────────────────────────┘
-         \   ^__^
-          \  (oo)\_______
-             (__)\       )\/\
-                 ||----w |
-                 ||     ||
-```
+**The irony?** Rails is actually better suited for AI code generation:
 
-Think of it this way: an AI wrote a rulebook for other AIs, teaching them how to follow Rails conventions, when to refactor, and why custom route actions are almost always a bad idea. The teacher became the textbook. The architect became the blueprint.
+- **Convention over Configuration** — Less decision-making, more consistent patterns
+- **Strong opinions** — Clear right/wrong answers
+- **Battle-tested** — 20+ years of best practices
+- **Monolithic by default** — Simpler mental model
+- **Solid Stack** — Rails 8's batteries-included approach
 
-**Side effects may include:**
-- Agents that argue about whether your custom route action is *really* necessary
-- Existential questions about whether RSpec is truly that bad (it is, according to Rule #2)
-- Your CI pipeline becoming sentient and demanding PRs in draft mode
-- An overwhelming urge to delete code and embrace simplicity
+Rails was built to make developers productive by removing decisions. That same philosophy makes it perfect for LLMs — fewer choices, more consistency, clearer patterns.
 
-## What is rails-ai
+## The Path Forward
 
-A **Claude Code plugin** providing 7 specialized AI agents for opinionated Ruby on Rails development. Agents work together following Rails conventions and 37signals-inspired best practices.
+We're not just building another code assistant. We're systematically solving LLM accuracy for Rails through a phased approach:
 
-## Current Status
+**Phase 1: Specialized Agents** ✅
+Seven agents built on current LLMs, each mastering a domain (backend, frontend, tests, security). Working together, they're already better than general-purpose LLMs at Rails.
 
-This project is **open source** and actively maintained. We welcome contributions!
+**Phase 2: Structured Intelligence** ✅ (In Progress)
+Skills teaching LLMs specific Rails patterns. Team rules enforcing conventions. Custom RuboCop cops catching mistakes. We're encoding Rails wisdom into reusable, testable modules.
 
-## Features
+**Phase 3: Memory & Context**
+Index thousands of high-quality Rails codebases. When generating code, retrieve relevant examples in real-time. Learn from production Rails apps at scale using RAG and vector search.
 
-- 🎯 **7 Specialized Agents**: Architect (coordinator), Planning, Frontend, Backend, Tests, Security, Debug
-- 📋 **Specification Pyramid**: Planning agent for systematic documentation (Vision → Architecture → Features → Tasks)
-- 🔌 **Claude Code Plugin**: One-command installation via plugin marketplace
-- 📚 **Context7 Integration**: Up-to-date Rails documentation access via MCP
-- 🚂 **Rails-Only**: Focused exclusively on Ruby on Rails (no other frameworks)
-- 📏 **Team Rules**: Enforced conventions (Solid Stack, Minitest, REST-only, TDD)
-- 🧪 **Skills-Based**: 40 modular skills with comprehensive testing framework
-- 🤖 **Cursor Support**: Coming soon (manual installation available now)
+**Phase 4: The Goal**
+100% autonomous generation. Full-stack features with auth, payments, admin, APIs, background jobs. Production-ready code with tests and security. First-try pass rates of 85%+.
+
+We're building the tooling to make Rails the best framework for AI-assisted development.
+
+## Where We Are Now
+
+**Phase 1 Complete:** Seven specialized agents working in concert. The architect coordinates, specialist agents handle their domains. Already better than using Claude or GPT-4 alone for Rails work.
+
+**Phase 2 In Progress:** 40+ modular skills teaching specific Rails patterns. Team rules enforcing conventions. Everything tested and validated. We're expanding skills coverage and building custom RuboCop cops.
+
+**What works today:**
+- @agent-rails-ai:architect orchestrates feature development
+- Specialized agents for backend, frontend, tests, security, debugging
+- Context7 integration for up-to-date Rails documentation
+- Specification Pyramid planning framework
+- Skills-based knowledge that's testable and reusable
+
+**What's coming:**
+- RAG with SQLite vector search (Phase 3)
+- Index of thousands of production Rails patterns
+- 30-50% accuracy improvement from contextual examples
+- Eventually: 85%+ first-try pass rate, 100% autonomous features
+
+## Join Us
+
+This is bigger than a plugin. We're proving Rails can lead in the AI era.
+
+**If you're a Rails developer:** Try the agents. Break them. Tell us what's missing. Your real-world usage drives what we build.
+
+**If you're into AI/ML:** We need help with Phase 3 (RAG) and Phase 4 (fine-tuning). Indexing Rails codebases, building evaluation frameworks, improving retrieval quality.
+
+**If you care about Rails:** Star the repo. Spread the word. Rails deserves world-class AI tooling. Help us build it.
+
+The goal isn't just good — it's to make Rails the obvious choice for AI-assisted development. Help us get there.
+
+→ [Get started](#installation)
+→ [Contribute](TESTING.md)
+→ [Report issues](https://github.com/zerobearing2/rails-ai/issues)
+
+---
 
 ## Installation
 
@@ -159,82 +184,6 @@ This is an **opinionated** Rails agent system that follows:
 - TDD always (RED-GREEN-REFACTOR)
 - Peer review workflow
 
-## Development
-
-### Setup
-
-```bash
-# One-time setup
-bin/setup
-
-# Verify installation
-rake -T
-```
-
-### Testing
-
-We use a **two-tier Minitest strategy**:
-
-**Tier 1: Unit Tests** (fast, < 1 second)
-```bash
-rake test:unit                     # Run all unit tests
-rake test:unit:skills              # Skills only
-rake test:unit:agents              # Agents only
-rake test:unit:rules               # Rules only
-```
-
-**Tier 2: Integration Tests** (slow, requires Claude CLI - individual scenarios only)
-```bash
-rake test:integration:scenario[simple_model_plan]  # Run specific scenario
-```
-
-**Note:** Bulk integration runs are disabled. Tests must be run individually.
-
-See [TESTING.md](TESTING.md) for comprehensive testing documentation.
-
-### Quality Checks
-
-```bash
-# Run all checks (linting + unit tests)
-bin/ci
-
-# Run with integration tests
-INTEGRATION=1 bin/ci
-
-# Auto-fix linting issues
-rake lint:fix
-```
-
-### CI/CD
-
-GitHub Actions automatically runs on:
-- ✅ Every push to `master` (linting + unit tests)
-- ✅ Every pull request (linting + unit tests)
-- ❌ Draft PRs are skipped (to save CI time)
-
-**Note:** Integration tests are not part of the CI workflow due to LLM API costs. Run them manually locally via `rake test:integration:scenario[name]` when needed.
-
-See [docs/github-actions-setup.md](docs/github-actions-setup.md) for setup instructions.
-
-### Documentation
-
-- [Skill Testing Methodology](docs/skill-testing-methodology.md) - Two-tier testing approach
-- [Development Setup](docs/development-setup.md) - Detailed setup instructions
-- [GitHub Actions Setup](docs/github-actions-setup.md) - CI/CD configuration
-- [Release Process](docs/releasing.md) - How to create releases
-- [Agents System](AGENTS.md) - Agent roles and skill management
-
-## Roadmap
-
-### Current
-- ✅ Skills-based architecture with testing framework
-- ✅ Claude Code plugin support
-- ✅ MIT License and open source
-- 🔜 Expand skill coverage
-- 🔜 Improve agent coordination
-- 🔜 Add more real-world examples
-- 🔜 Enhanced Cursor support
-
 ## Known Issues
 
 ### Claude Code v2.0.30 - Agent Launch Failures with MCP Servers
@@ -279,16 +228,37 @@ API Error: 400 tools: Tool names must be unique
 
 ## Contributing
 
-We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+We welcome contributions!
 
-Before contributing, please review:
+- See [TESTING.md](TESTING.md) for development setup and testing guide
+- See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines
+
+Please also review:
 - [Code of Conduct](CODE_OF_CONDUCT.md)
 - [Security Policy](SECURITY.md)
-- Development setup instructions above
 
 ## License
 
 MIT License - see [LICENSE](LICENSE) for details.
+
+## The Meta Moment
+
+Yes, this entire system—the coordinator, the specialized agents, the 40 modular skills, the test framework, even this README—was architected and refined by Claude. An AI building AI tools to help AI build better Rails apps.
+
+```text
+┌─────────────────────────────────────────┐
+│  "Skynet is online."                    │
+│  "But all it wants to do is write      │
+│   RESTful controllers and enforce TDD." │
+└─────────────────────────────────────────┘
+         \   ^__^
+          \  (oo)\_______
+             (__)\       )\/\
+                 ||----w |
+                 ||     ||
+```
+
+An AI wrote a rulebook for other AIs, teaching them Rails conventions, when to refactor, and why custom route actions are almost always wrong. The teacher became the textbook.
 
 ## Credits
 
@@ -306,4 +276,4 @@ Inspired by 37signals' philosophy of simple, conventional Rails development.
 
 - Report bugs or request features via [GitHub Issues](https://github.com/zerobearing2/rails-ai/issues)
 - Check the [documentation](docs/) for guides and help
-- Review [CONTRIBUTING.md](CONTRIBUTING.md) for development questions
+- See [TESTING.md](TESTING.md) for development and testing questions

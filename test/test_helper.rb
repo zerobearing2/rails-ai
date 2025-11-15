@@ -8,12 +8,12 @@ require "json"
 
 # Base paths for new skill structure
 ROOT_PATH = File.expand_path("..", __dir__)
-SKILLS_NEW_PATH = File.join(ROOT_PATH, "skills-new")
+SKILLS_NEW_PATH = File.join(ROOT_PATH, "skills")
 TEST_SUPPORT_PATH = File.join(__dir__, "support")
 
 # Helper methods for new skill structure testing
 module SkillTestHelpers
-  # Load skill from new flat structure: skills-new/{skill-directory}/SKILL.md
+  # Load skill from new flat structure: skills/{skill-directory}/SKILL.md
   def load_skill(skill_directory)
     skill_path = File.join(SKILLS_NEW_PATH, skill_directory, "SKILL.md")
     File.read(skill_path)

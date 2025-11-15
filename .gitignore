@@ -32,3 +32,6 @@ coverage/
 
 # Integration test artifacts
 tmp/
+
+# local worktrees
+.worktrees

@@ -26,11 +26,11 @@ Rails was built to make developers productive by removing decisions. That same p
 
 We're turning that gap into a roadmap instead of a wish list.
 
-**Phase 1 — Specialized Agents** ✅ Completed  
-Seven domain experts (architect, backend, frontend, tests, security, debug, plan) already outperform generic LLM sessions by coordinating like a real team.
+**Phase 1 — Specialized Agents** ✅ Completed
+Five domain specialists (architect, developer, security, devops, uat) coordinate like a real team, leveraging Superpowers workflows for orchestration.
 
-**Phase 2 — Structured Intelligence** 🛠️ In progress  
-Forty-one modular skills, shared team rules, and custom cops bake Rails judgment into reusable modules. Every agent pulls from the same tested playbook.
+**Phase 2 — Structured Intelligence** ✅ Completed
+Thirty-three modular skills, shared team rules, and custom cops bake Rails judgment into reusable modules. Every agent pulls from the same tested playbook. Built on Superpowers for universal workflows.
 
 **Phase 3 — Memory & Context** 🔬 In design  
 Index thousands of production Rails patterns, wire them into a local memory + knowledge graph, and retrieve the right snippet at the right time with RAG + SQLite vector search so every response is grounded in real context.
@@ -40,10 +40,11 @@ Ship end-to-end features—auth, payments, background jobs, admin, APIs—comple
 
 **What already works**
 - @agent-rails-ai:architect orchestrates real features end to end
-- Specialists cover backend, frontend, tests, security, and debugging
+- Five domain specialists (developer, security, devops, uat, architect) work together
+- Built on Superpowers for universal workflows (brainstorming, planning, TDD, debugging, review)
 - Context7 keeps every agent current with live Rails documentation
-- Specification Pyramid planning keeps scope and delivery aligned
-- A 41-skill registry gives repeatable, testable Rails knowledge
+- A 33-skill library provides repeatable, testable Rails knowledge
+- Team rules and custom RuboCop cops enforce Rails conventions
 
 **What we're building next**
 - Phase 3 RAG pipeline with SQLite vector search
@@ -78,7 +79,21 @@ Get the agents running in a few minutes—no yak shaving required.
 
 Install rails-ai as a Claude Code plugin:
 
-1. **Get a Context7 API key:**
+1. **Install Superpowers (required dependency):**
+
+   Rails-AI builds on Superpowers for universal workflows (brainstorming, planning, TDD, debugging, review).
+
+   ```bash
+   claude
+   ```
+
+   Then in Claude Code:
+   ```
+   /plugin marketplace add zerobearing2/superpowers
+   /plugin install superpowers
+   ```
+
+2. **Get a Context7 API key:**
 
    The rails-ai agents use the Context7 MCP server to fetch up-to-date Rails documentation.
 
@@ -89,7 +104,7 @@ Install rails-ai as a Claude Code plugin:
      ```
    - Restart your terminal or run `source ~/.bashrc` (or `~/.zshrc`)
 
-2. **Install the plugin:**
+3. **Install rails-ai:**
 
    Open a Claude Code session in your terminal:
    ```bash
@@ -104,7 +119,7 @@ Install rails-ai as a Claude Code plugin:
 
    **Restart Claude Code** to activate the Context7 MCP server integration.
 
-3. **Verify the setup:**
+4. **Verify the setup:**
 
    After restarting Claude Code, verify Context7 is connected:
    ```
@@ -116,17 +131,15 @@ Install rails-ai as a Claude Code plugin:
    - You've restarted your terminal after setting the environment variable
    - Claude Code can access the environment variable
 
-4. **Start using agents:**
+5. **Start using agents:**
 
    In any Claude Code session, you can now invoke the agents:
    ```
-   @agent-rails-ai:architect - Main Rails coordinator
-   @agent-rails-ai:plan - Specification Pyramid planning specialist
-   @agent-rails-ai:backend - Backend specialist
-   @agent-rails-ai:frontend - Frontend specialist
-   @agent-rails-ai:tests - Testing specialist
+   @agent-rails-ai:architect - Main Rails coordinator (references superpowers workflows)
+   @agent-rails-ai:developer - Full-stack Rails developer
    @agent-rails-ai:security - Security specialist
-   @agent-rails-ai:debug - Debugger specialist
+   @agent-rails-ai:devops - Infrastructure and deployment specialist
+   @agent-rails-ai:uat - Testing and quality assurance specialist
    ```
 
 That's it! The agents are now available globally in all your Rails projects with access to up-to-date Rails documentation via Context7.
@@ -141,12 +154,35 @@ In any Rails project with Claude Code:
 
 The architect coordinator will analyze requirements, create a plan, delegate to specialist agents, and deliver a complete implementation with tests.
 
+## Architecture
+
+Rails-AI is a **layered system** built on Superpowers:
+
+```text
+┌─────────────────────────────────────────────┐
+│         Rails-AI (Domain Layer)             │
+│  • 5 Rails-specialized agents               │
+│  • 33 Rails domain skills                   │
+│  • Team rules & RuboCop cops                │
+│  • Context7 integration                     │
+└─────────────────────────────────────────────┘
+                    ↓ uses
+┌─────────────────────────────────────────────┐
+│    Superpowers (Workflow Foundation)        │
+│  • brainstorming                            │
+│  • writing-plans                            │
+│  • test-driven-development                  │
+│  • systematic-debugging                     │
+│  • requesting-code-review                   │
+└─────────────────────────────────────────────┘
+```
+
 ## Project Structure
 
 ```text
 rails-ai/
-├── agents/          # 7 specialized Rails agents (architect, plan, backend, frontend, tests, security, debug)
-├── skills/          # Modular skills registry (frontend, backend, testing, security, config)
+├── agents/          # 5 specialized Rails agents (architect, developer, security, devops, uat)
+├── skills/          # 33 modular Rails skills (backend, frontend, testing, security, config)
 ├── rules/           # Team rules and decision matrices
 ├── test/            # Minitest-based skill testing framework
 ├── bin/             # Development scripts (setup, ci)
@@ -160,8 +196,9 @@ Every agent ships with the same north star, so the code they write feels like th
 - Rails conventions (REST-only, no custom actions)
 - Solid Stack (Rails 8: SolidQueue, SolidCache, SolidCable)
 - Minitest (no RSpec)
-- TDD always (RED-GREEN-REFACTOR)
-- Peer review workflow
+- TDD always via superpowers:test-driven-development
+- Peer review via superpowers:requesting-code-review
+- Layered architecture (Rails-AI on Superpowers)
 
 ## Known Issues
 

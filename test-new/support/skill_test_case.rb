@@ -38,8 +38,8 @@ class SkillTestCase < Minitest::Test
   end
 
   def assert_has_skill_md_file
-    assert_path_exists skill_file_path,
-                       "SKILL.md should exist at: #{skill_file_path}"
+    assert File.exist?(skill_file_path),
+           "SKILL.md should exist at: #{skill_file_path}"
   end
 
   def assert_has_minimal_frontmatter
@@ -62,7 +62,6 @@ class SkillTestCase < Minitest::Test
 
   def assert_description_is_present
     description = skill_metadata["description"]
-
     assert description, "Description must be present"
     refute_empty description.to_s.strip, "Description must not be empty"
   end

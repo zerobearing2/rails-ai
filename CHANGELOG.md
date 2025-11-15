@@ -7,6 +7,116 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2025-11-15
+
+### Major Changes
+
+This release represents a **major architectural transformation** from a custom agent system to a layered architecture built on Superpowers workflows.
+
+#### Layered Architecture
+- **NEW:** Rails-AI now builds on Superpowers for universal workflow orchestration
+- **NEW:** Clear separation: Rails-AI (domain layer) + Superpowers (workflow foundation)
+- **BREAKING:** Superpowers is now a required dependency - must be installed first
+
+#### Agent Reorganization (7 → 5 agents)
+- **BREAKING:** Consolidated agents by domain:
+  - `architect` - Coordinator (refactored to reference Superpowers workflows)
+  - `developer` - Full-stack Rails developer (combines backend + frontend + debug)
+  - `security` - Security specialist (unchanged role, updated to reference Superpowers)
+  - `devops` - Infrastructure and deployment specialist (NEW)
+  - `uat` - Testing and quality assurance specialist (NEW)
+- **REMOVED:** `backend.md` agent (merged into developer)
+- **REMOVED:** `frontend.md` agent (merged into developer)
+- **REMOVED:** `debug.md` agent (merged into developer)
+- **REMOVED:** `plan.md` agent (planning now uses superpowers:writing-plans)
+
+#### Skills Reduction (41 → 33 skills)
+- **REMOVED:** 4 ViewComponent skills (not using yet - deferred to future):
+  - `viewcomponent-basics.md`
+  - `viewcomponent-slots.md`
+  - `viewcomponent-previews.md`
+  - `viewcomponent-variants.md`
+- **ADDED:** `debugging-rails` skill for Rails-specific debugging tools
+- **ADDED:** `using-rails-ai` skill explaining Rails-AI/Superpowers integration
+- **CHANGED:** All skills now namespaced as `rails-ai:skillname`
+
+### Superpowers Integration
+
+#### Workflow References
+Architect agent now references Superpowers workflows for orchestration:
+- Design phase: `superpowers:brainstorming`
+- Planning phase: `superpowers:writing-plans`
+- Execution phase: `superpowers:executing-plans` or `superpowers:subagent-driven-development`
+- Debugging phase: `superpowers:systematic-debugging`
+- Review phase: `superpowers:requesting-code-review`
+- Verification: `superpowers:verification-before-completion`
+- Parallel work: `superpowers:dispatching-parallel-agents`
+
+#### Skill Integration
+Skills with workflow dependencies include REQUIRED BACKGROUND sections:
+- `rails-ai:tdd-minitest` requires `superpowers:test-driven-development`
+- `rails-ai:debugging-rails` requires `superpowers:systematic-debugging`
+
+### Documentation
+
+#### New Documentation
+- **Added:** `docs/migration-v0.3.md` - Migration guide from v0.2 to v0.3
+- **Added:** `docs/superpowers-integration.md` - Detailed integration documentation
+
+#### Updated Documentation
+- **Updated:** `README.md` with:
+  - Superpowers dependency requirement
+  - Updated agent count (5 agents)
+  - Updated skill count (33 skills)
+  - Layered architecture diagram
+  - Updated installation instructions
+  - Updated agent list (removed plan, backend, frontend, debug)
+- **Updated:** `.claude-plugin/marketplace.json` with:
+  - Version 0.3.0
+  - Superpowers dependency declaration
+  - Updated description emphasizing layered architecture
+
+### What Stays the Same
+
+#### Team Rules
+- All 20 team rules from TEAM_RULES.md remain enforced
+- Custom RuboCop cops preserved (Style/NestedBracketAccess)
+
+#### Context7 Integration
+- Context7 MCP server integration unchanged
+- Up-to-date Rails documentation fetching preserved
+
+#### Core Skills
+- Backend skills (ActiveRecord, controllers, mailers, etc.)
+- Frontend skills (Hotwire, Tailwind, DaisyUI, views, etc.)
+- Testing skills (Minitest, TDD, fixtures, etc.)
+- Security skills (SQL injection, XSS, CSRF, etc.)
+- Config skills (Docker, credentials, Solid Stack, etc.)
+
+### Breaking Changes Summary
+
+1. **Superpowers Required:** Must install Superpowers before rails-ai v0.3.0
+2. **Agent Names Changed:**
+   - `@agent-rails-ai:backend` → `@agent-rails-ai:developer`
+   - `@agent-rails-ai:frontend` → `@agent-rails-ai:developer`
+   - `@agent-rails-ai:debug` → `@agent-rails-ai:developer`
+   - `@agent-rails-ai:tests` → `@agent-rails-ai:uat`
+   - `@agent-rails-ai:plan` → Use `@agent-rails-ai:architect` (references superpowers:writing-plans)
+3. **ViewComponent Skills Removed:** 4 skills removed (will return in future release)
+4. **Skill Namespacing:** All skills now `rails-ai:skillname`
+
+### Migration Guide
+
+See [docs/migration-v0.3.md](docs/migration-v0.3.md) for detailed migration instructions.
+
+### Benefits
+
+1. **Less Duplication:** Workflows in one place (Superpowers), Rails patterns in another (Rails-AI)
+2. **Better Maintenance:** Workflow improvements benefit all domain plugins
+3. **Clearer Responsibilities:** Rails-AI focuses on Rails domain knowledge
+4. **Automatic Improvements:** Superpowers workflow enhancements automatically benefit Rails-AI
+5. **Ecosystem Integration:** Foundation for other domain plugins (Django, Laravel, Phoenix, etc.)
+
 ## [0.2.1] - 2025-11-08
 
 ### Added

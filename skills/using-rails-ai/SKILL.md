@@ -11,7 +11,8 @@ Rails-AI provides **Rails-specific domain knowledge** that integrates with **Sup
 
 **Two-Layer Architecture:**
 
-```
+```text
+
 ┌─────────────────────────────────────────┐
 │ RAILS-AI (Domain Layer)                 │
 │ - Rails patterns (Hotwire, AR, etc.)    │
@@ -26,6 +27,7 @@ Rails-AI provides **Rails-specific domain knowledge** that integrates with **Sup
 │ - TDD, debugging, verification          │
 │ - Code review, parallelization          │
 └─────────────────────────────────────────┘
+
 ```
 
 ## When to Use Rails-AI
@@ -52,20 +54,20 @@ Rails-AI provides **Rails-specific domain knowledge** that integrates with **Sup
 
 1. **Design Phase:**
    - Use superpowers:brainstorming (Socratic questioning)
-   - Load rails-ai:solid-stack, rails-ai:activerecord-patterns for context
+   - Load rails-ai:configuration, rails-ai:models for context
    - Query Context7 for current Rails auth patterns
    - Document to docs/plans/YYYY-MM-DD-auth-design.md
 
 2. **Planning Phase:**
    - Use superpowers:writing-plans (bite-sized TDD tasks)
-   - Reference rails-ai:tdd-minitest, rails-ai:activerecord-patterns in tasks
+   - Reference rails-ai:testing, rails-ai:models in tasks
    - Include exact Rails paths (app/models/user.rb, test/models/user_test.rb)
    - Save to docs/plans/YYYY-MM-DD-auth-plan.md
 
 3. **Execution Phase:**
    - Use superpowers:subagent-driven-development (fast iteration + review)
-   - Delegate to @backend with rails-ai skills
-   - Each task: RED-GREEN-REFACTOR (superpowers:TDD process + rails-ai:tdd-minitest patterns)
+   - Delegate to @backend with rails-ai:models, rails-ai:controllers skills
+   - Each task: RED-GREEN-REFACTOR (superpowers:TDD + rails-ai:testing)
    - Review with superpowers:code-reviewer against TEAM_RULES.md
 
 4. **Verification:**
@@ -75,34 +77,17 @@ Rails-AI provides **Rails-specific domain knowledge** that integrates with **Sup
 
 ## Available Rails-AI Skills
 
-**Frontend (9 skills - ViewComponent removed):**
-- rails-ai:hotwire-turbo, rails-ai:turbo-morph, rails-ai:hotwire-stimulus
-- rails-ai:tailwind, rails-ai:daisyui
-- rails-ai:view-helpers, rails-ai:forms-nested
-- rails-ai:accessibility, rails-ai:partials
+**9 Domain-Based Skills (Consolidated):**
 
-**Backend (10 skills):**
-- rails-ai:controller-restful, rails-ai:activerecord-patterns
-- rails-ai:form-objects, rails-ai:query-objects
-- rails-ai:concerns-models, rails-ai:concerns-controllers
-- rails-ai:custom-validators, rails-ai:action-mailer
-- rails-ai:nested-resources, rails-ai:antipattern-fat-controllers
-
-**Testing (5 skills):**
-- rails-ai:tdd-minitest (+ superpowers:test-driven-development)
-- rails-ai:fixtures, rails-ai:minitest-mocking
-- rails-ai:test-helpers, rails-ai:model-testing
-
-**Security (6 skills):**
-- rails-ai:security-xss, rails-ai:security-sql-injection, rails-ai:security-csrf
-- rails-ai:security-strong-params, rails-ai:security-file-uploads, rails-ai:security-command-injection
-
-**Config (6 skills):**
-- rails-ai:solid-stack, rails-ai:docker, rails-ai:rubocop
-- rails-ai:initializers, rails-ai:credentials, rails-ai:environment-config
-
-**Debugging (1 skill):**
-- rails-ai:debugging-rails (+ superpowers:systematic-debugging)
+1. **rails-ai:views** - Frontend UI with Hotwire, ViewComponent, Tailwind, DaisyUI, forms, accessibility
+2. **rails-ai:controllers** - RESTful actions, nested resources, skinny controllers, concerns, strong parameters
+3. **rails-ai:models** - ActiveRecord patterns, validations, associations, callbacks, query objects, form objects
+4. **rails-ai:testing** - TDD with Minitest, fixtures, mocking, test helpers, ViewComponent testing
+5. **rails-ai:security** - XSS, SQL injection, CSRF, strong parameters, file uploads, command injection
+6. **rails-ai:configuration** - Environment config, credentials, initializers, Docker, RuboCop
+7. **rails-ai:jobs-mailers** - SolidQueue, SolidCache, SolidCable, ActionMailer (TEAM RULE #1: NO Redis/Sidekiq)
+8. **rails-ai:debugging** - Rails debugging tools (logs, console, byebug) + superpowers:systematic-debugging
+9. **rails-ai:using-rails-ai** - This guide - how rails-ai integrates with superpowers workflows
 
 ## TEAM_RULES.md Enforcement
 
@@ -127,17 +112,20 @@ See rules/TEAM_RULES.md for all 20 rules.
 - Queries Context7 for current Rails/gem docs
 
 **Example:**
-```
+
+```text
+
 User: "Add email validation to User model"
 
 @architect:
 1. Determines this is backend work
 2. References superpowers:test-driven-development for TDD process
-3. Loads rails-ai:tdd-minitest for Rails/Minitest patterns
-4. Loads rails-ai:activerecord-patterns for validation patterns
+3. Loads rails-ai:testing for Minitest patterns
+4. Loads rails-ai:models for validation patterns
 5. Delegates to @backend with context
 6. @backend follows TDD: write test → RED → implement → GREEN → refactor
 7. Reviews with superpowers:code-reviewer against TEAM_RULES.md
+
 ```
 
 ## Learn More

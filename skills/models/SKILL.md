@@ -49,6 +49,7 @@ Master Rails model design including ActiveRecord patterns, validations, callback
 <description>Standard ActiveRecord associations for model relationships</description>
 
 <implementation>
+
 ```ruby
 class Feedback < ApplicationRecord
   belongs_to :recipient, class_name: "User", optional: true
@@ -62,9 +63,11 @@ class Feedback < ApplicationRecord
   has_many :recent_reports, -> { where(created_at: 7.days.ago..) },
     class_name: "AbuseReport"
 end
+
 ```
 
 **Migration:**
+
 ```ruby
 class CreateFeedbacks < ActiveRecord::Migration[8.1]
   def change
@@ -78,6 +81,7 @@ class CreateFeedbacks < ActiveRecord::Migration[8.1]
     add_index :feedbacks, :status
   end
 end
+
 ```
 </implementation>
 
@@ -90,6 +94,7 @@ Associations express relationships between models with minimal code. Rails autom
 <description>Flexible associations where a model belongs to multiple types</description>
 
 <implementation>
+
 ```ruby
 class Comment < ApplicationRecord
   belongs_to :commentable, polymorphic: true
@@ -104,9 +109,11 @@ end
 class Article < ApplicationRecord
   has_many :comments, as: :commentable, dependent: :destroy
 end
+
 ```
 
 **Migration:**
+
 ```ruby
 class CreateComments < ActiveRecord::Migration[8.1]
   def change
@@ -119,6 +126,7 @@ class CreateComments < ActiveRecord::Migration[8.1]
     add_index :comments, [:commentable_type, :commentable_id]
   end
 end
+
 ```
 </implementation>
 
@@ -133,6 +141,7 @@ Polymorphic associations allow a model to belong to multiple parent types throug
 <description>Built-in Rails validations for data integrity</description>
 
 <implementation>
+
 ```ruby
 class Feedback < ApplicationRecord
   validates :content, presence: true, length: { minimum: 50, maximum: 5000 }
@@ -158,6 +167,7 @@ class Feedback < ApplicationRecord
     errors.add(:recipient_email, "has disabled feedback") if user&.feedback_disabled?
   end
 end
+
 ```
 </implementation>
 
@@ -172,6 +182,7 @@ Validations enforce data integrity before persisting to the database. Rails prov
 <description>Use callbacks sparingly - prefer service objects for complex logic</description>
 
 <implementation>
+
 ```ruby
 class Feedback < ApplicationRecord
   before_validation :normalize_email, :strip_whitespace
@@ -205,6 +216,7 @@ class Feedback < ApplicationRecord
     FeedbackMailer.notify_of_response(self).deliver_later
   end
 end
+
 ```
 </implementation>
 
@@ -219,6 +231,7 @@ Callbacks hook into the model lifecycle for simple data normalization and side e
 <description>Reusable query scopes for common filtering</description>
 
 <implementation>
+
 ```ruby
 class Feedback < ApplicationRecord
   scope :recent, -> { where(created_at: 30.days.ago..) }
@@ -235,12 +248,15 @@ class Feedback < ApplicationRecord
     where("content ILIKE ? OR response ILIKE ?", "%#{sanitize_sql_like(query)}%", "%#{sanitize_sql_like(query)}%")
   end
 end
+
 ```
 
 **Usage:**
+
 ```ruby
 Feedback.recent.by_recipient("user@example.com").responded
 Feedback.search("bug report").recent.limit(10)
+
 ```
 </implementation>
 
@@ -255,6 +271,7 @@ Scopes provide chainable query methods that keep controllers clean. Use scopes f
 <description>Enums for status and state fields with automatic predicates</description>
 
 <implementation>
+
 ```ruby
 class Feedback < ApplicationRecord
   enum :status, {
@@ -266,9 +283,11 @@ class Feedback < ApplicationRecord
 
   enum :priority, { low: 0, medium: 1, high: 2, urgent: 3 }, prefix: :priority
 end
+
 ```
 
 **Usage:**
+
 ```ruby
 feedback.status = "pending"
 feedback.status_pending!              # Updates and saves
@@ -276,9 +295,11 @@ feedback.status_pending?              # true/false
 Feedback.status_pending               # Scope
 Feedback.statuses.keys                # ["pending", "delivered", ...]
 feedback.status_before_last_save      # Track changes
+
 ```
 
 **Migration:**
+
 ```ruby
 class CreateFeedbacks < ActiveRecord::Migration[8.1]
   def change
@@ -290,6 +311,7 @@ class CreateFeedbacks < ActiveRecord::Migration[8.1]
     add_index :feedbacks, :status
   end
 end
+
 ```
 </implementation>
 
@@ -304,6 +326,7 @@ Enums map human-readable states to database values with automatic predicates, sc
 <description>Extract shared behavior into reusable concerns</description>
 
 <implementation>
+
 ```ruby
 # app/models/concerns/taggable.rb
 module Taggable
@@ -348,9 +371,11 @@ module Taggable
     end
   end
 end
+
 ```
 
 **Usage:**
+
 ```ruby
 class Feedback < ApplicationRecord
   include Taggable
@@ -364,6 +389,7 @@ feedback.tag_list = "bug, urgent, ui"
 feedback.add_tag("needs-review")
 Feedback.tagged_with("bug")
 Feedback.popular_tags(5)
+
 ```
 </implementation>
 
@@ -378,6 +404,7 @@ Concerns extract shared behavior into reusable modules. Use `included do` for as
 <description>Reusable validation logic using ActiveModel::EachValidator</description>
 
 <implementation>
+
 ```ruby
 # app/validators/email_validator.rb
 class EmailValidator < ActiveModel::EachValidator
@@ -390,15 +417,18 @@ class EmailValidator < ActiveModel::EachValidator
     end
   end
 end
+
 ```
 
 **Usage:**
+
 ```ruby
 class Feedback < ApplicationRecord
   validates :email, email: true
   validates :backup_email, email: { allow_blank: true }
   validates :email, email: { message: "must be a valid company email" }
 end
+
 ```
 </implementation>
 
@@ -411,6 +441,7 @@ Custom validators encapsulate reusable validation logic. Inherit from `ActiveMod
 <description>Validate content by word count instead of character count</description>
 
 <implementation>
+
 ```ruby
 # app/validators/content_length_validator.rb
 class ContentLengthValidator < ActiveModel::EachValidator
@@ -427,12 +458,15 @@ class ContentLengthValidator < ActiveModel::EachValidator
     end
   end
 end
+
 ```
 
 **Usage:**
+
 ```ruby
 validates :content, content_length: { minimum_words: 10, maximum_words: 500 }
 validates :body, content_length: { minimum_words: 100 }
+
 ```
 </implementation>
 
@@ -447,6 +481,7 @@ Word count validation is more meaningful than character count for content fields
 <description>Encapsulate complex queries in reusable, testable objects</description>
 
 <implementation>
+
 ```ruby
 # app/queries/feedback_query.rb
 class FeedbackQuery
@@ -483,9 +518,11 @@ class FeedbackQuery
     @relation
   end
 end
+
 ```
 
 **Usage:**
+
 ```ruby
 # Controller
 @feedbacks = FeedbackQuery.new
@@ -500,6 +537,7 @@ class User < ApplicationRecord
     FeedbackQuery.new.by_recipient(email).recent(limit).results
   end
 end
+
 ```
 </implementation>
 
@@ -512,6 +550,7 @@ Query objects encapsulate complex filtering, search, and aggregation logic. They
 <description>Query object for aggregations and statistical calculations</description>
 
 <implementation>
+
 ```ruby
 # app/queries/feedback_stats_query.rb
 class FeedbackStatsQuery
@@ -539,15 +578,18 @@ class FeedbackStatsQuery
     }
   end
 end
+
 ```
 
 **Usage:**
+
 ```ruby
 stats = FeedbackStatsQuery.new
   .by_recipient(current_user.email)
   .by_date_range(30.days.ago, Time.current)
   .stats
 # Returns: { total_count: 42, responded_count: 28, pending_count: 14, ... }
+
 ```
 </implementation>
 
@@ -562,6 +604,7 @@ Query objects for aggregations centralize statistical calculations and reporting
 <description>Form object for non-database forms using ActiveModel::API</description>
 
 <implementation>
+
 ```ruby
 # app/forms/contact_form.rb
 class ContactForm
@@ -591,9 +634,11 @@ class ContactForm
     true
   end
 end
+
 ```
 
 **Controller:**
+
 ```ruby
 class ContactsController < ApplicationController
   def create
@@ -612,6 +657,7 @@ class ContactsController < ApplicationController
     params.expect(contact_form: [:name, :email, :message, :subject])
   end
 end
+
 ```
 </implementation>
 
@@ -624,6 +670,7 @@ Form objects handle non-database forms (contact, search) and complex multi-model
 <description>Form object that creates multiple related models in a transaction</description>
 
 <implementation>
+
 ```ruby
 # app/forms/user_registration_form.rb
 class UserRegistrationForm
@@ -670,9 +717,11 @@ class UserRegistrationForm
     errors.add(:password_confirmation, "doesn't match password") unless password == password_confirmation
   end
 end
+
 ```
 
 **Controller:**
+
 ```ruby
 class RegistrationsController < ApplicationController
   def create
@@ -686,6 +735,7 @@ class RegistrationsController < ApplicationController
     end
   end
 end
+
 ```
 </implementation>
 
@@ -700,6 +750,7 @@ Form objects simplify multi-model operations by wrapping them in a transaction. 
 <description>Eager load associations to prevent N+1 queries</description>
 
 <implementation>
+
 ```ruby
 # ❌ BAD - N+1 queries (1 + 20 + 20 + 20 = 61 queries)
 @feedbacks = Feedback.limit(20)
@@ -712,14 +763,17 @@ end
 @feedbacks.each do |f|
   puts f.recipient.name, f.category.name, f.tags.pluck(:name)
 end
+
 ```
 
 **Eager Loading Methods:**
+
 ```ruby
 Feedback.includes(:recipient, :tags)           # Separate queries (default)
 Feedback.preload(:recipient, :tags)            # Forces separate queries
 Feedback.eager_load(:recipient, :tags)         # LEFT OUTER JOIN
 Feedback.includes(recipient: :profile)         # Nested associations
+
 ```
 </implementation>
 
@@ -732,14 +786,17 @@ N+1 queries occur when loading a collection triggers additional queries for each
 <antipattern>
 <description>Using callbacks for complex business logic</description>
 <bad-example>
+
 ```ruby
 # ❌ BAD - Complex side effects in callbacks
 class Feedback < ApplicationRecord
   after_create :send_email, :update_analytics, :notify_slack, :create_audit_log
 end
+
 ```
 </bad-example>
 <good-example>
+
 ```ruby
 # ✅ GOOD - Use service object
 class Feedback < ApplicationRecord
@@ -760,6 +817,7 @@ class CreateFeedbackService
     feedback
   end
 end
+
 ```
 </good-example>
 <why-bad>
@@ -770,15 +828,18 @@ Callbacks with complex side effects make models hard to test, introduce hidden d
 <antipattern>
 <description>Missing database indexes on foreign keys and query columns</description>
 <bad-example>
+
 ```ruby
 # ❌ BAD - No indexes, causes table scans
 create_table :feedbacks do |t|
   t.integer :recipient_id
   t.string :status
 end
+
 ```
 </bad-example>
 <good-example>
+
 ```ruby
 # ✅ GOOD - Indexes on foreign keys and query columns
 create_table :feedbacks do |t|
@@ -787,6 +848,7 @@ create_table :feedbacks do |t|
 end
 add_index :feedbacks, :status
 add_index :feedbacks, [:status, :created_at]
+
 ```
 </good-example>
 <why-bad>
@@ -797,14 +859,17 @@ Missing indexes cause slow queries at scale. Index all foreign keys, status colu
 <antipattern>
 <description>Using default_scope</description>
 <bad-example>
+
 ```ruby
 # ❌ BAD - Unexpected behavior, hard to override
 class Feedback < ApplicationRecord
   default_scope { where(deleted_at: nil).order(created_at: :desc) }
 end
+
 ```
 </bad-example>
 <good-example>
+
 ```ruby
 # ✅ GOOD - Explicit scopes
 class Feedback < ApplicationRecord
@@ -814,6 +879,7 @@ end
 
 # Usage
 Feedback.active.recent_first
+
 ```
 </good-example>
 <why-bad>
@@ -824,6 +890,7 @@ default_scope applies to all queries, causing unexpected results and making it h
 <antipattern>
 <description>Duplicating validation logic across models</description>
 <bad-example>
+
 ```ruby
 # ❌ BAD - Duplicated email validation
 class User < ApplicationRecord
@@ -833,9 +900,11 @@ end
 class Feedback < ApplicationRecord
   validates :recipient_email, format: { with: /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i }
 end
+
 ```
 </bad-example>
 <good-example>
+
 ```ruby
 # ✅ GOOD - Reusable email validator
 class EmailValidator < ActiveModel::EachValidator
@@ -853,6 +922,7 @@ end
 class Feedback < ApplicationRecord
   validates :recipient_email, email: true
 end
+
 ```
 </good-example>
 <why-bad>
@@ -863,6 +933,7 @@ Duplicated validations are hard to maintain and lead to inconsistencies. Custom 
 <antipattern>
 <description>Putting complex query logic in controllers</description>
 <bad-example>
+
 ```ruby
 # ❌ BAD - Fat controller
 class FeedbacksController < ApplicationController
@@ -874,9 +945,11 @@ class FeedbacksController < ApplicationController
     @feedbacks = @feedbacks.order(created_at: :desc).page(params[:page])
   end
 end
+
 ```
 </bad-example>
 <good-example>
+
 ```ruby
 # ✅ GOOD - Thin controller with query object
 class FeedbacksController < ApplicationController
@@ -889,6 +962,7 @@ class FeedbacksController < ApplicationController
       .results
   end
 end
+
 ```
 </good-example>
 <why-bad>
@@ -899,6 +973,7 @@ Complex queries in controllers violate Single Responsibility Principle and are h
 <antipattern>
 <description>Fat controllers with complex form logic</description>
 <bad-example>
+
 ```ruby
 # ❌ BAD - All logic in controller
 class RegistrationsController < ApplicationController
@@ -918,9 +993,11 @@ class RegistrationsController < ApplicationController
     end
   end
 end
+
 ```
 </bad-example>
 <good-example>
+
 ```ruby
 # ✅ GOOD - Use form object
 class RegistrationsController < ApplicationController
@@ -929,6 +1006,7 @@ class RegistrationsController < ApplicationController
     @registration.save ? redirect_to(dashboard_path(@registration.company)) : render(:new, status: :unprocessable_entity)
   end
 end
+
 ```
 </good-example>
 <why-bad>
@@ -1031,6 +1109,7 @@ class UserRegistrationFormTest < ActiveSupport::TestCase
     assert_no_difference ["User.count", "Company.count"] { assert_not form.save }
   end
 end
+
 ```
 </testing>
 

@@ -47,6 +47,7 @@ description: Use when testing Rails applications - TDD, Minitest, fixtures, mode
 <description>Core TDD cycle - write failing test, make it pass, refactor</description>
 
 **Step 1: RED - Write a failing test**
+
 ```ruby
 # test/models/feedback_test.rb
 require "test_helper"
@@ -58,16 +59,19 @@ class FeedbackTest < ActiveSupport::TestCase
     assert_includes feedback.errors[:content], "can't be blank"
   end
 end
+
 ```
 
 Result: **FAIL** (validation doesn't exist yet)
 
 **Step 2: GREEN - Make it pass with minimal code**
+
 ```ruby
 # app/models/feedback.rb
 class Feedback < ApplicationRecord
   validates :content, presence: true
 end
+
 ```
 
 Result: **PASS**
@@ -98,6 +102,7 @@ class FeedbackTest < ActiveSupport::TestCase
     skip "implement this feature first"
   end
 end
+
 ```
 </pattern>
 
@@ -115,6 +120,7 @@ class FeedbackTest < ActiveSupport::TestCase
     assert_equal @user, @feedback.user
   end
 end
+
 ```
 </pattern>
 
@@ -160,6 +166,7 @@ class AssertionsTest < ActiveSupport::TestCase
     assert_respond_to "string", :upcase
   end
 end
+
 ```
 </pattern>
 
@@ -194,6 +201,7 @@ class FeedbackTest < ActiveSupport::TestCase
     assert_includes feedback.errors[:recipient_email], "can't be blank"
   end
 end
+
 ```
 </pattern>
 
@@ -221,6 +229,7 @@ class FeedbackTest < ActiveSupport::TestCase
     end
   end
 end
+
 ```
 </pattern>
 
@@ -246,6 +255,7 @@ class FeedbackTest < ActiveSupport::TestCase
     assert_includes feedback.errors[:content], "is too long (maximum is 5000 characters)"
   end
 end
+
 ```
 </pattern>
 
@@ -278,6 +288,7 @@ class FeedbackTest < ActiveSupport::TestCase
     assert feedback.valid?
   end
 end
+
 ```
 </pattern>
 
@@ -307,6 +318,7 @@ class FeedbackTest < ActiveSupport::TestCase
     assert_equal user.id, feedback.recipient_id
   end
 end
+
 ```
 </pattern>
 
@@ -328,6 +340,7 @@ class FeedbackTest < ActiveSupport::TestCase
     end
   end
 end
+
 ```
 </pattern>
 
@@ -353,6 +366,7 @@ class FeedbackTest < ActiveSupport::TestCase
     assert_empty Feedback.recent
   end
 end
+
 ```
 </pattern>
 
@@ -372,6 +386,7 @@ class FeedbackTest < ActiveSupport::TestCase
     assert_not_includes unread, read
   end
 end
+
 ```
 </pattern>
 
@@ -394,6 +409,7 @@ class FeedbackTest < ActiveSupport::TestCase
     end
   end
 end
+
 ```
 </pattern>
 
@@ -418,6 +434,7 @@ class FeedbackTest < ActiveSupport::TestCase
     assert_includes feedback.content, "Valid"
   end
 end
+
 ```
 </pattern>
 
@@ -440,6 +457,7 @@ class FeedbackTest < ActiveSupport::TestCase
     assert_in_delta Time.current, feedback.delivered_at, 1.second
   end
 end
+
 ```
 </pattern>
 
@@ -479,6 +497,7 @@ class FeedbackTest < ActiveSupport::TestCase
     assert_not_includes results, delivered
   end
 end
+
 ```
 </pattern>
 
@@ -509,6 +528,7 @@ class FeedbackTest < ActiveSupport::TestCase
     assert_not_includes results, too_recent
   end
 end
+
 ```
 </pattern>
 
@@ -540,6 +560,7 @@ class FeedbackTest < ActiveSupport::TestCase
     assert_nil Feedback.average_response_time
   end
 end
+
 ```
 </pattern>
 
@@ -568,6 +589,7 @@ class FeedbackTest < ActiveSupport::TestCase
     assert_equal unicode, feedback.reload.content
   end
 end
+
 ```
 </pattern>
 
@@ -595,6 +617,7 @@ class FeedbackTest < ActiveSupport::TestCase
     end
   end
 end
+
 ```
 </pattern>
 
@@ -638,6 +661,7 @@ class FeedbacksControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to feedbacks_url
   end
 end
+
 ```
 </pattern>
 
@@ -671,6 +695,7 @@ class FeedbacksTest < ApplicationSystemTestCase
     assert_text "Feedback was successfully updated"
   end
 end
+
 ```
 </pattern>
 
@@ -682,6 +707,7 @@ end
 <description>Define simple fixture data in YAML format</description>
 
 **Fixture File:**
+
 ```yaml
 # test/fixtures/users.yml
 alice:
@@ -695,9 +721,11 @@ bob:
   email: bob@example.com
   active: true
   created_at: <%= 2.weeks.ago %>
+
 ```
 
 **Accessing Fixtures:**
+
 ```ruby
 class UserTest < ActiveSupport::TestCase
   test "accessing fixtures by name" do
@@ -711,6 +739,7 @@ class UserTest < ActiveSupport::TestCase
     assert_equal "Alice Johnson", alice.name
   end
 end
+
 ```
 </pattern>
 
@@ -718,6 +747,7 @@ end
 <description>Define associations between fixtures using names</description>
 
 **Fixture Files:**
+
 ```yaml
 # test/fixtures/users.yml
 alice:
@@ -727,6 +757,7 @@ alice:
 bob:
   name: Bob Smith
   email: bob@example.com
+
 ```
 
 ```yaml
@@ -744,9 +775,11 @@ two:
   sender: bob
   status: responded
   created_at: <%= 3.days.ago %>
+
 ```
 
 **Testing Associations:**
+
 ```ruby
 class AssociationFixturesTest < ActiveSupport::TestCase
   test "fixtures handle associations automatically" do
@@ -761,6 +794,7 @@ class AssociationFixturesTest < ActiveSupport::TestCase
     assert_includes alice.feedbacks, feedbacks(:one)
   end
 end
+
 ```
 </pattern>
 
@@ -768,6 +802,7 @@ end
 <description>Use ERB for dynamic values and calculations</description>
 
 **Fixture with ERB:**
+
 ```yaml
 # test/fixtures/products.yml
 tshirt:
@@ -784,9 +819,11 @@ shoes:
   on_sale: <%= true %>
   sale_price: <%= 89.99 * 0.8 %>  # 20% off
   created_at: <%= 3.months.ago %>
+
 ```
 
 **Testing Dynamic Values:**
+
 ```ruby
 class ERBFixturesTest < ActiveSupport::TestCase
   test "ERB is evaluated in fixtures" do
@@ -802,6 +839,7 @@ class ERBFixturesTest < ActiveSupport::TestCase
     assert_in_delta 71.99, shoes.sale_price, 0.01
   end
 end
+
 ```
 </pattern>
 
@@ -844,6 +882,7 @@ class SendFeedbackJobTest < ActiveJob::TestCase
     assert_equal "pending", feedback.reload.status
   end
 end
+
 ```
 </pattern>
 
@@ -880,6 +919,7 @@ class FeedbackMailerTest < ActionMailer::TestCase
     assert_match "feedback/notification", email.body.encoded
   end
 end
+
 ```
 </pattern>
 
@@ -891,6 +931,7 @@ end
 <description>Define fixtures with polymorphic associations</description>
 
 **Fixtures:**
+
 ```yaml
 # test/fixtures/comments.yml
 feedback_comment:
@@ -904,9 +945,11 @@ article_comment:
   commentable: first_article (Article)  # Different type
   user: bob
   created_at: <%= 2.days.ago %>
+
 ```
 
 **Testing:**
+
 ```ruby
 class PolymorphicFixturesTest < ActiveSupport::TestCase
   test "polymorphic associations in fixtures" do
@@ -918,6 +961,7 @@ class PolymorphicFixturesTest < ActiveSupport::TestCase
     assert_equal "Feedback", feedback_comment.commentable_type
   end
 end
+
 ```
 </pattern>
 
@@ -925,6 +969,7 @@ end
 <description>Share reusable logic across fixtures with helper methods</description>
 
 **Define Helpers:**
+
 ```ruby
 # test/test_helper.rb
 module FixtureFileHelpers
@@ -947,9 +992,11 @@ end
 
 # Make helpers available to fixtures
 ActiveRecord::FixtureSet.context_class.include FixtureFileHelpers
+
 ```
 
 **Use in Fixtures:**
+
 ```yaml
 # test/fixtures/users.yml
 david:
@@ -963,9 +1010,11 @@ admin:
   name: Admin User
   email: admin@example.com
   permissions: <%= admin_permissions %>
+
 ```
 
 **Testing:**
+
 ```ruby
 class FixtureHelpersTest < ActiveSupport::TestCase
   test "uses fixture helper methods" do
@@ -974,6 +1023,7 @@ class FixtureHelpersTest < ActiveSupport::TestCase
     assert BCrypt::Password.new(david.password_digest).is_password?("password123")
   end
 end
+
 ```
 </pattern>
 
@@ -981,15 +1031,18 @@ end
 <description>Load only specific fixtures for test classes</description>
 
 **Load All (Default):**
+
 ```ruby
 # test/test_helper.rb
 class ActiveSupport::TestCase
   fixtures :all  # Load all fixtures
   self.use_transactional_tests = true
 end
+
 ```
 
 **Load Specific:**
+
 ```ruby
 # test/models/feedback_test.rb
 class FeedbackTest < ActiveSupport::TestCase
@@ -1000,9 +1053,11 @@ class FeedbackTest < ActiveSupport::TestCase
     assert feedbacks(:one)
   end
 end
+
 ```
 
 **Disable Fixtures:**
+
 ```ruby
 # test/models/manual_test.rb
 class ManualTest < ActiveSupport::TestCase
@@ -1016,6 +1071,7 @@ class ManualTest < ActiveSupport::TestCase
     assert @user.persisted?
   end
 end
+
 ```
 </pattern>
 
@@ -1046,6 +1102,7 @@ class FeedbackTest < ActiveSupport::TestCase
     end
   end
 end
+
 ```
 
 **Key Points:**
@@ -1078,6 +1135,7 @@ class MinitestMockTest < ActiveSupport::TestCase
     end  # Automatically calls verify
   end
 end
+
 ```
 
 **Important:** Always call `mock.verify` or use `assert_mock` to ensure expectations were met.
@@ -1087,15 +1145,18 @@ end
 <description>Stub HTTP requests with WebMock (REQUIRED per TEAM_RULES.md Rule #18)</description>
 
 **Setup:**
+
 ```ruby
 # Gemfile
 gem "webmock", group: :test
 
 # test/test_helper.rb
 require "webmock/minitest"
+
 ```
 
 **Basic HTTP Stubs:**
+
 ```ruby
 class WebMockTest < ActiveSupport::TestCase
   test "stubs HTTP GET request" do
@@ -1128,6 +1189,7 @@ class WebMockTest < ActiveSupport::TestCase
     assert_requested :get, "https://api.example.com/check", times: 1
   end
 end
+
 ```
 </pattern>
 
@@ -1149,6 +1211,7 @@ class ExternalDependenciesTest < ActiveSupport::TestCase
     end
   end
 end
+
 ```
 </pattern>
 
@@ -1156,6 +1219,7 @@ end
 <description>Design for testability with dependency injection</description>
 
 **Bad - Hard to test:**
+
 ```ruby
 # ❌ BAD
 class FeedbackProcessorBad
@@ -1164,9 +1228,11 @@ class FeedbackProcessorBad
     feedback.update!(content: improved)
   end
 end
+
 ```
 
 **Good - Dependency injection:**
+
 ```ruby
 # ✅ GOOD
 class FeedbackProcessorGood
@@ -1179,9 +1245,11 @@ class FeedbackProcessorGood
     feedback.update!(content: improved)
   end
 end
+
 ```
 
 **Test:**
+
 ```ruby
 class DependencyInjectionTest < ActiveSupport::TestCase
   test "uses dependency injection instead of mocking" do
@@ -1196,6 +1264,7 @@ class DependencyInjectionTest < ActiveSupport::TestCase
     assert_match /^Improved:/, feedbacks(:one).content
   end
 end
+
 ```
 </pattern>
 
@@ -1207,6 +1276,7 @@ end
 <description>Configure test environment and include helper modules</description>
 
 **test/test_helper.rb:**
+
 ```ruby
 ENV["RAILS_ENV"] ||= "test"
 require_relative "../config/environment"
@@ -1225,6 +1295,7 @@ module ActiveSupport
 end
 
 Rails.logger.level = Logger::WARN
+
 ```
 </pattern>
 
@@ -1232,6 +1303,7 @@ Rails.logger.level = Logger::WARN
 <description>Simplify user authentication in controller and integration tests</description>
 
 **test/test_helpers/authentication.rb:**
+
 ```ruby
 module TestHelpers
   module Authentication
@@ -1254,9 +1326,11 @@ module TestHelpers
     end
   end
 end
+
 ```
 
 **Usage:**
+
 ```ruby
 class ProfileControllerTest < ActionDispatch::IntegrationTest
   test "shows profile when signed in" do
@@ -1265,6 +1339,7 @@ class ProfileControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 end
+
 ```
 </pattern>
 
@@ -1272,6 +1347,7 @@ end
 <description>Streamline API testing with JSON parsing and authenticated requests</description>
 
 **test/test_helpers/api_helpers.rb:**
+
 ```ruby
 module TestHelpers
   module ApiHelpers
@@ -1297,15 +1373,18 @@ module TestHelpers
     end
   end
 end
+
 ```
 
 **Usage:**
+
 ```ruby
 test "returns JSON feedback list" do
   api_get api_feedbacks_url, user: users(:alice)
   assert_response :success
   assert_json_response [:feedbacks, :total, :page]
 end
+
 ```
 </pattern>
 
@@ -1313,6 +1392,7 @@ end
 <description>Domain-specific assertions for clearer test intent</description>
 
 **test/test_helpers/assertion_helpers.rb:**
+
 ```ruby
 module TestHelpers
   module AssertionHelpers
@@ -1340,9 +1420,11 @@ module TestHelpers
     end
   end
 end
+
 ```
 
 **Usage:**
+
 ```ruby
 test "shows error for invalid feedback" do
   assert_validation_error Feedback.new(content: nil), :content, "can't be blank"
@@ -1352,6 +1434,7 @@ test "sends notification email" do
   FeedbackMailer.notification(feedbacks(:one)).deliver_now
   assert_email_sent_to "user@example.com", subject: "New Feedback"
 end
+
 ```
 </pattern>
 
@@ -1359,6 +1442,7 @@ end
 <description>Lightweight factory methods for creating test data</description>
 
 **test/test_helpers/factory_helpers.rb:**
+
 ```ruby
 module TestHelpers
   module FactoryHelpers
@@ -1375,15 +1459,18 @@ module TestHelpers
     end
   end
 end
+
 ```
 
 **Usage:**
+
 ```ruby
 test "admin can delete feedback" do
   sign_in_as create_admin_user
   delete feedback_url(create_feedback)
   assert_response :redirect
 end
+
 ```
 
 **Note:** Prefer fixtures for most tests. Use factories for unique attributes.
@@ -1425,9 +1512,11 @@ class FeedbackPerformanceTest < ActiveSupport::TestCase
     end
   end
 end
+
 ```
 
 **Note:** `assert_queries` is not built-in. Add to test_helper.rb:
+
 ```ruby
 def assert_queries(num = nil, &block)
   queries = []
@@ -1439,6 +1528,7 @@ def assert_queries(num = nil, &block)
 ensure
   ActiveSupport::Notifications.unsubscribe(subscriber)
 end
+
 ```
 </pattern>
 
@@ -1471,6 +1561,7 @@ class FixtureValidationTest < ActiveSupport::TestCase
     assert_equal users(:alice).id, feedback.sender_id
   end
 end
+
 ```
 </pattern>
 
@@ -1482,6 +1573,7 @@ end
 <description>Configure parallel test execution for faster test runs</description>
 
 **test/test_helper.rb:**
+
 ```ruby
 class ActiveSupport::TestCase
   parallelize(workers: :number_of_processors)
@@ -1494,9 +1586,11 @@ class ActiveSupport::TestCase
     FileUtils.rm_rf(Rails.root.join("tmp", "test_worker_#{worker}"))
   end
 end
+
 ```
 
 **Disable for specific tests:**
+
 ```ruby
 class FeedbackTest < ActiveSupport::TestCase
   parallelize(workers: 1)
@@ -1505,6 +1599,7 @@ class FeedbackTest < ActiveSupport::TestCase
     # ...
   end
 end
+
 ```
 </pattern>
 
@@ -1530,6 +1625,7 @@ class TimeStubbingTest < ActiveSupport::TestCase
     end
   end
 end
+
 ```
 
 **Recommendation:** Always prefer `travel_to` over stubbing time. It's more comprehensive and handles edge cases better.
@@ -1544,16 +1640,20 @@ end
 <description>Writing tests after writing code</description>
 <reason>Defeats the purpose of TDD - tests should drive design</reason>
 <bad-example>
+
 ```ruby
 # ❌ BAD - Code written first, then tests
+
 ```
 </bad-example>
 <good-example>
+
 ```ruby
 # ✅ GOOD - RED-GREEN-REFACTOR cycle
 # 1. Write failing test
 # 2. Write minimal code to pass
 # 3. Refactor
+
 ```
 </good-example>
 </antipattern>
@@ -1562,6 +1662,7 @@ end
 <description>Testing multiple concerns in one test</description>
 <reason>Makes tests harder to debug when they fail</reason>
 <bad-example>
+
 ```ruby
 # ❌ BAD - Multiple validations in one test
 test "feedback validations" do
@@ -1570,9 +1671,11 @@ test "feedback validations" do
   assert_includes feedback.errors[:content], "can't be blank"
   assert_includes feedback.errors[:email], "can't be blank"
 end
+
 ```
 </bad-example>
 <good-example>
+
 ```ruby
 # ✅ GOOD - One concern per test
 test "invalid without content" do
@@ -1580,6 +1683,7 @@ test "invalid without content" do
   assert_not feedback.valid?
   assert_includes feedback.errors[:content], "can't be blank"
 end
+
 ```
 </good-example>
 </antipattern>
@@ -1588,6 +1692,7 @@ end
 <description>Not using fixtures for test data</description>
 <reason>Makes tests slower and harder to maintain</reason>
 <bad-example>
+
 ```ruby
 # ❌ BAD - Creating records in every test
 test "feedback belongs to user" do
@@ -1595,9 +1700,11 @@ test "feedback belongs to user" do
   feedback = Feedback.create!(content: "Test feedback with fifty characters", user: user)
   assert_equal user, feedback.user
 end
+
 ```
 </bad-example>
 <good-example>
+
 ```ruby
 # ✅ GOOD - Use fixtures
 # test/fixtures/users.yml: alice: { email: alice@example.com }
@@ -1606,6 +1713,7 @@ end
 test "feedback belongs to user" do
   assert_equal users(:alice), feedbacks(:one).user
 end
+
 ```
 </good-example>
 </antipattern>
@@ -1614,6 +1722,7 @@ end
 <description>Forgetting to call mock.verify</description>
 <reason>Mock expectations are not validated, test may pass incorrectly</reason>
 <bad-example>
+
 ```ruby
 # ❌ BAD - Expectations not verified
 test "forgets to verify mock" do
@@ -1621,9 +1730,11 @@ test "forgets to verify mock" do
   mock.expect :call, "result"
   # NO mock.verify called
 end
+
 ```
 </bad-example>
 <good-example>
+
 ```ruby
 # ✅ GOOD - Always verify
 test "verifies mock expectations" do
@@ -1643,6 +1754,7 @@ test "uses assert_mock" do
     mock.call
   end
 end
+
 ```
 </good-example>
 </antipattern>
@@ -1651,15 +1763,18 @@ end
 <description>Not using WebMock for HTTP requests</description>
 <reason>Violates TEAM_RULES.md Rule #18, makes tests slow and brittle</reason>
 <bad-example>
+
 ```ruby
 # ❌ BAD - Real HTTP request in test
 test "makes real HTTP request" do
   response = Net::HTTP.get(URI("https://api.example.com/feedback"))
   assert_includes response, "success"
 end
+
 ```
 </bad-example>
 <good-example>
+
 ```ruby
 # ✅ GOOD - Use WebMock (REQUIRED)
 test "stubs HTTP request with WebMock" do
@@ -1669,6 +1784,7 @@ test "stubs HTTP request with WebMock" do
   response = Net::HTTP.get(URI("https://api.example.com/feedback"))
   assert_includes response, "success"
 end
+
 ```
 </good-example>
 </antipattern>
@@ -1677,6 +1793,7 @@ end
 <description>Hardcoding IDs in fixtures</description>
 <reason>Brittle, causes test failures, defeats auto-generation</reason>
 <bad-example>
+
 ```yaml
 # ❌ BAD - Hardcoded IDs
 alice:
@@ -1685,15 +1802,18 @@ alice:
 one:
   id: 100
   sender_id: 1  # ❌ Hardcoded FK
+
 ```
 </bad-example>
 <good-example>
+
 ```yaml
 # ✅ GOOD - Let Rails generate IDs
 alice:
   name: Alice Johnson
 one:
   sender: alice  # ✅ Reference by name
+
 ```
 </good-example>
 </antipattern>
@@ -1702,6 +1822,7 @@ one:
 <description>Testing implementation details in helpers</description>
 <reason>Couples tests to internal implementation</reason>
 <bad-example>
+
 ```ruby
 # ❌ BAD - Directly manipulates session
 def sign_in_as(user)
@@ -1709,14 +1830,17 @@ def sign_in_as(user)
   session[:authenticated_at] = Time.current
   cookies.signed[:remember_token] = user.remember_token
 end
+
 ```
 </bad-example>
 <good-example>
+
 ```ruby
 # ✅ GOOD - Uses public interface
 def sign_in_as(user)
   post sign_in_url, params: { email: user.email, password: "password" }
 end
+
 ```
 </good-example>
 </antipattern>
@@ -1727,6 +1851,7 @@ end
 ## Running Tests
 
 <testing>
+
 ```bash
 # Run all tests
 rails test
@@ -1748,6 +1873,7 @@ rails test test/models/
 
 # Run system tests
 rails test:system
+
 ```
 </testing>
 

@@ -1,0 +1,1275 @@
+---
+name: rails-ai:configuration
+description: Use when configuring Rails applications - environment config, credentials, initializers, Docker, RuboCop
+---
+
+# Configuration
+
+Configure Rails applications for development, testing, production deployment, and code quality standards.
+
+<when-to-use>
+- Setting up new Rails applications or deployment environments
+- Configuring environment-specific behavior (development, test, production, staging)
+- Managing encrypted credentials and secrets (API keys, passwords, tokens)
+- Configuring application initialization (gems, frameworks, security policies)
+- Setting up Docker containers and deployment with Kamal
+- Customizing RuboCop for team standards (TEAM_RULES.md Rules #16, #20)
+- Managing feature flags and environment variables
+</when-to-use>
+
+<benefits>
+- **Environment Isolation** - Separate configs prevent production bugs from dev settings
+- **Security** - Encrypted credentials (AES-256), never commit secrets
+- **Organized Configuration** - Predictable structure across all environments
+- **Production Safety** - SSL, eager loading, optimized caching, secure defaults
+- **Code Quality** - Automated enforcement of team standards via RuboCop
+- **Container-Ready** - Docker and Kamal support for modern deployment
+</benefits>
+
+<standards>
+- ALWAYS use `config/environments/` for environment-specific configuration
+- ALWAYS use encrypted credentials for API keys, passwords, and secrets
+- NEVER commit `config/master.key` or `config/credentials/*.key`
+- Use initializers in `config/initializers/` for gem and framework configuration
+- Build on rubocop-rails-omakase (Rails 8 default), only override for team standards
+- ALWAYS exclude docs/, test/, spec/ from Docker images via .dockerignore
+- Store deployment configs in ENV vars, not hardcoded values
+- Follow Team Rule #16 (Double Quotes) and #20 (Hash#dig) via RuboCop
+</standards>
+
+---
+
+## Environment-Specific Configuration
+
+Rails provides three standard environments (development, test, production) plus optional staging. Each has specific optimizations and security settings.
+
+### Standard Environment Detection
+
+<pattern name="environment-detection">
+<description>Detect and check the current Rails environment</description>
+
+**Environment Detection:**
+```ruby
+Rails.env                    # => "development", "test", "production"
+Rails.env.development?       # => true/false
+Rails.env.test?             # => true/false
+Rails.env.production?       # => true/false
+
+# Set via ENV var or command line
+ENV["RAILS_ENV"] = "production"
+# RAILS_ENV=production rails server
+```
+
+**Standard Environments:**
+- **development** - Local development (verbose errors, auto-reload, debugging)
+- **test** - Automated testing (fast, isolated, deterministic)
+- **production** - Live application (optimized, secure, cached)
+- **staging** - Optional pre-production (production-like with test data)
+
+**Load Order:** `config/application.rb` → `config/environments/#{Rails.env}.rb` → `config/initializers/*.rb`
+</pattern>
+
+### Development Configuration
+
+<pattern name="development-config">
+<description>Configure development environment for optimal developer experience</description>
+
+**config/environments/development.rb:**
+```ruby
+Rails.application.configure do
+  # Show full error reports with backtraces
+  config.consider_all_requests_local = true
+
+  # Enable server timing headers for performance insights
+  config.server_timing = true
+
+  # Enable/disable caching (toggle with: rails dev:cache)
+  if Rails.root.join("tmp/caching-dev.txt").exist?
+    config.action_controller.perform_caching = true
+    config.cache_store = :solid_cache_store
+  else
+    config.action_controller.perform_caching = false
+    config.cache_store = :null_store
+  end
+
+  # Mailer: Open emails in browser (requires letter_opener gem)
+  config.action_mailer.raise_delivery_errors = false
+  config.action_mailer.perform_caching = false
+  config.action_mailer.default_url_options = { host: "localhost", port: 3000 }
+  config.action_mailer.delivery_method = :letter_opener
+
+  # Deprecations and debugging
+  config.active_support.deprecation = :log
+  config.active_support.disallowed_deprecation = :raise
+  config.active_job.verbose_enqueue_logs = true
+  config.i18n.raise_on_missing_translations = true
+  config.action_view.annotate_rendered_view_with_filenames = true
+  config.active_record.verbose_query_logs = true
+
+  # Background jobs: SolidQueue with dedicated database
+  config.active_job.queue_adapter = :solid_queue
+  config.solid_queue.connects_to = { database: { writing: :queue } }
+
+  # Suppress asset pipeline logs for cleaner output
+  config.assets.quiet = true
+
+  # Allow all hosts in development
+  config.hosts.clear
+end
+```
+
+**Key Features:**
+- Full error reports with backtraces and variable inspection
+- Auto-reloading - code changes take effect without restart
+- Caching toggle - test caching behavior with `rails dev:cache`
+- Verbose logging - SQL queries, job enqueueing, deprecations
+- Email preview - open emails in browser with letter_opener
+</pattern>
+
+### Test Configuration
+
+<pattern name="test-config">
+<description>Configure test environment for fast, isolated, deterministic tests</description>
+
+**config/environments/test.rb:**
+```ruby
+Rails.application.configure do
+  # Eager load code in CI for accurate test coverage
+  config.eager_load = ENV["CI"].present?
+
+  # Configure public file server for tests with cache headers
+  config.public_file_server.headers = { "Cache-Control" => "public, max-age=#{1.hour.to_i}" }
+
+  # Show full error reports in test failures
+  config.consider_all_requests_local = true
+
+  # Disable request forgery protection in tests
+  config.action_controller.allow_forgery_protection = false
+
+  # Store uploaded files in temporary directory
+  config.active_storage.service = :test
+
+  # Mailer: Store emails in ActionMailer::Base.deliveries
+  config.action_mailer.perform_caching = false
+  config.action_mailer.delivery_method = :test
+
+  # Debugging and deprecations
+  config.active_support.deprecation = :stderr
+  config.active_support.disallowed_deprecation = :raise
+  config.i18n.raise_on_missing_translations = true
+  config.action_view.annotate_rendered_view_with_filenames = true
+
+  # No caching, inline jobs for determinism
+  config.cache_store = :null_store
+  config.active_job.queue_adapter = :test
+end
+```
+
+**Key Features:**
+- Deterministic - same results every run (no caching, inline jobs)
+- Fast - no network calls, no real emails, no background processing
+- Isolated - each test runs in a transaction, rolled back after
+- Eager loading in CI - catches autoload errors before production
+</pattern>
+
+### Production Configuration
+
+<pattern name="production-config">
+<description>Configure production environment for performance, security, and reliability</description>
+
+**config/environments/production.rb:**
+```ruby
+Rails.application.configure do
+  # Disable code reloading and enable eager loading
+  config.enable_reloading = false
+  config.eager_load = true
+
+  # Don't show full error reports to users
+  config.consider_all_requests_local = false
+
+  # Ensure requests are served from a single host
+  config.action_controller.default_url_options = { host: "example.com", protocol: "https" }
+
+  # Enable caching
+  config.action_controller.perform_caching = true
+  config.cache_store = :solid_cache_store
+
+  # Disable serving static files from public/ (nginx/Apache handles this)
+  config.public_file_server.enabled = ENV["RAILS_SERVE_STATIC_FILES"].present?
+
+  # Don't fallback to assets pipeline if precompiled asset is missed
+  config.assets.compile = false
+
+  # Active Storage: Use cloud storage (S3, GCS, Azure)
+  config.active_storage.service = :amazon
+
+  # Force all access to the app over SSL
+  config.force_ssl = true
+
+  # Log to STDOUT for container/cloud deployments
+  config.logger = ActiveSupport::Logger.new(STDOUT)
+    .tap  { |logger| logger.formatter = ::Logger::Formatter.new }
+    .then { |logger| ActiveSupport::TaggedLogging.new(logger) }
+
+  # Prepend all log lines with request ID for tracing
+  config.log_tags = [:request_id]
+
+  # Logging and deprecations
+  config.log_level = ENV.fetch("RAILS_LOG_LEVEL", "info")
+  config.active_support.report_deprecations = false
+
+  # Background jobs: SolidQueue with dedicated database
+  config.active_job.queue_adapter = :solid_queue
+  config.solid_queue.connects_to = { database: { writing: :queue } }
+
+  # Production optimizations
+  config.active_record.dump_schema_after_migration = false
+  config.i18n.fallbacks = true
+
+  # Action Mailer: SMTP with credentials
+  config.action_mailer.perform_caching = false
+  config.action_mailer.delivery_method = :smtp
+  config.action_mailer.smtp_settings = {
+    address: "smtp.sendgrid.net",
+    port: 587,
+    domain: Rails.application.credentials.dig(:smtp, :domain),
+    user_name: Rails.application.credentials.dig(:smtp, :username),
+    password: Rails.application.credentials.dig(:smtp, :password),
+    authentication: :plain,
+    enable_starttls_auto: true
+  }
+  config.action_mailer.default_url_options = { host: "example.com", protocol: "https" }
+  config.action_mailer.asset_host = "https://cdn.example.com"
+
+  # DNS rebinding protection
+  config.hosts = ["example.com", /.*\.example\.com/]
+end
+```
+
+**Key Features:**
+- Eager loading - all code loaded at startup for performance
+- SSL enforcement - force HTTPS for all requests
+- Optimized caching - SolidCache for fast, persistent caching
+- Cloud storage - S3/GCS for Active Storage uploads
+- Structured logging - JSON logs with request IDs for tracing
+- Security headers - DNS rebinding protection, host allowlist
+</pattern>
+
+### Staging Environment
+
+<pattern name="staging-config">
+<description>Create staging environment that mirrors production with test-friendly overrides</description>
+
+**config/environments/staging.rb:**
+```ruby
+# Start with production config, override for testing
+require_relative "production"
+
+Rails.application.configure do
+  config.x.stripe.publishable_key = Rails.application.credentials.dig(:stripe, :test_publishable_key)
+  config.action_mailer.delivery_method = :letter_opener_web
+  config.content_security_policy_report_only = true
+  config.log_level = :debug
+  config.hosts << "staging.example.com"
+end
+```
+
+**When to Use Staging:**
+- Pre-production testing with production-like environment
+- Customer demos with test data
+- QA testing before release
+- Integration testing with external services (test mode)
+</pattern>
+
+### Custom Configuration
+
+<pattern name="custom-config-namespace">
+<description>Store custom application settings in config.x namespace</description>
+
+```ruby
+# config/application.rb
+module MyApp
+  class Application < Rails::Application
+    config.x.payment_processing.schedule = :daily
+    config.x.payment_processing.retries = 3
+    config.x.super_debugger = true
+    config.x.features.ai_assistant = Rails.env.production? || ENV["ENABLE_AI"] == "true"
+  end
+end
+
+# Access anywhere
+Rails.configuration.x.payment_processing.schedule  # => :daily
+Rails.configuration.x.super_debugger                # => true
+```
+
+**Benefits:** Organized settings, type-safe access, environment-aware, avoids globals
+</pattern>
+
+### Feature Flags
+
+<pattern name="feature-flags">
+<description>Implement environment-based feature flags</description>
+
+```ruby
+# config/application.rb
+module MyApp
+  class Application < Rails::Application
+    config.x.features.new_editor = Rails.env.development? || ENV["ENABLE_NEW_EDITOR"] == "true"
+    config.x.features.ai_content = !Rails.env.test?
+    config.x.features.beta_ui = ENV["BETA_FEATURES"] == "true"
+  end
+end
+
+# In controllers
+class PostsController < ApplicationController
+  def edit
+    @post = Post.find(params[:id])
+    Rails.configuration.x.features.new_editor ? render(:edit_new) : render(:edit)
+  end
+end
+
+# In views
+<% if Rails.configuration.x.features.beta_ui %>
+  <%= render "posts/beta_form", post: @post %>
+<% else %>
+  <%= render "posts/form", post: @post %>
+<% end %>
+```
+
+**Benefits:** Gradual rollout, A/B testing, per-environment toggles, no code changes
+</pattern>
+
+<antipatterns>
+<antipattern>
+<description>Using production credentials in development/test</description>
+<reason>Security risk - can accidentally send real emails, charge real cards, modify production data</reason>
+<bad-example>
+```ruby
+# ❌ BAD - Same credentials for all environments
+stripe:
+  secret_key: sk_live_XXXXXXXXXXXX  # Production key in all environments!
+```
+</bad-example>
+<good-example>
+```ruby
+# ✅ GOOD - Separate credentials per environment
+# config/credentials/production.yml.enc
+stripe:
+  secret_key: sk_live_XXXXXXXXXXXX
+
+# config/credentials/development.yml.enc
+stripe:
+  secret_key: sk_test_XXXXXXXXXXXX  # Test mode
+```
+</good-example>
+</antipattern>
+
+<antipattern>
+<description>Disabling SSL in production</description>
+<reason>Exposes user data, session cookies, and passwords to network attacks</reason>
+<bad-example>
+```ruby
+# ❌ BAD - No SSL enforcement
+config.force_ssl = false  # SECURITY RISK!
+```
+</bad-example>
+<good-example>
+```ruby
+# ✅ GOOD - Force SSL in production
+config.force_ssl = true
+config.ssl_options = { hsts: { expires: 1.year, subdomains: true } }
+```
+</good-example>
+</antipattern>
+</antipatterns>
+
+---
+
+## Encrypted Credentials & Secrets
+
+Rails provides encrypted credentials (AES-256) for secure secret management. Never commit plain-text secrets to version control.
+
+### Editing Credentials
+
+<pattern name="editing-credentials">
+<description>Use Rails credentials editor to safely modify encrypted secrets</description>
+
+**Edit master credentials:**
+```bash
+bin/rails credentials:edit
+```
+
+**Edit environment-specific credentials:**
+```bash
+bin/rails credentials:edit --environment production
+bin/rails credentials:edit --environment development
+```
+
+**Process:** Rails decrypts using master.key, opens in $EDITOR, auto-encrypts on save.
+
+**Precedence:** Environment-specific > Master credentials
+</pattern>
+
+### Credentials File Structure
+
+<pattern name="credentials-structure">
+<description>Organize credentials in structured YAML format</description>
+
+**config/credentials.yml.enc (decrypted view):**
+```yaml
+secret_key_base: abc123def456...
+
+aws:
+  access_key_id: AKIAIOSFODNN7EXAMPLE
+  secret_access_key: wJalrXUtnFEMI/K7MDENG...
+  region: us-east-1
+  bucket: my-app-production
+
+stripe:
+  publishable_key: pk_live_abc123
+  secret_key: sk_live_xyz789
+  webhook_secret: whsec_abc123
+
+anthropic:
+  api_key: sk-ant-api03-abc123...
+
+smtp:
+  username: <%= ENV["SENDGRID_USERNAME"] %>  # Can reference ENV
+  password: SG.abc123xyz789
+
+active_record_encryption:
+  primary_key: EGY8WhulUOXixybod7ZWwMIL68R9o5kC
+  deterministic_key: aPA5XyALhf75NNnMzaspW7akTfZp0lPY
+  key_derivation_salt: xEY0dt6TZcAMg52K7O84wYzkjvbA62Hz
+```
+
+**Guidelines:** Use nested keys, group by service, add comments, support ERB fallbacks
+</pattern>
+
+### Accessing Credentials
+
+<pattern name="accessing-credentials">
+<description>Read credentials safely in application code</description>
+
+**Basic Access (use Hash#dig per TEAM_RULES.md Rule #20):**
+```ruby
+# ✅ GOOD - Safe nested access with dig
+Rails.application.credentials.dig(:aws, :access_key_id)
+Rails.application.credentials.secret_key_base
+```
+
+**In Configuration Files:**
+```yaml
+# config/storage.yml
+amazon:
+  service: S3
+  access_key_id: <%= Rails.application.credentials.dig(:aws, :access_key_id) %>
+  secret_access_key: <%= Rails.application.credentials.dig(:aws, :secret_access_key) %>
+  ...
+```
+
+**In Initializers:**
+```ruby
+# config/initializers/stripe.rb
+Stripe.api_key = Rails.application.credentials.dig(:stripe, :secret_key)
+```
+
+**In Models/Services:**
+```ruby
+class AiService
+  def initialize
+    @api_key = Rails.application.credentials.dig(:openai, :api_key)
+  end
+end
+```
+</pattern>
+
+### Master Key Management
+
+<pattern name="master-key-security">
+<description>Protect master.key with extreme security measures</description>
+
+**Key Locations:**
+```
+config/master.key                    # Master key
+config/credentials/production.key    # Production key
+config/credentials/development.key   # Development key
+```
+
+**Security Rules:**
+- ❌ NEVER commit to version control, share via email/chat, or hardcode
+- ✅ Store in password manager (1Password, LastPass)
+- ✅ Store in CI/CD secrets (GitHub Secrets)
+- ✅ Set as RAILS_MASTER_KEY environment variable
+
+**.gitignore:** Rails excludes `/config/master.key` and `/config/credentials/*.key` by default
+</pattern>
+
+### Production Deployment
+
+<pattern name="production-deployment">
+<description>Deploy encrypted credentials securely to production</description>
+
+**Environment Variable Method (Preferred):**
+```bash
+export RAILS_MASTER_KEY=abc123def456...
+```
+
+**Kamal:**
+```yaml
+# config/deploy.yml
+env:
+  secret:
+    - RAILS_MASTER_KEY
+```
+
+**Docker:**
+```bash
+docker run -e RAILS_MASTER_KEY=abc123... myapp
+```
+
+**Heroku:**
+```bash
+heroku config:set RAILS_MASTER_KEY=abc123def456...
+```
+</pattern>
+
+### Per-Environment Credentials
+
+<pattern name="environment-specific-credentials">
+<description>Use different credentials for each environment</description>
+
+**Generate Environment Credentials:**
+```bash
+bin/rails credentials:edit --environment production
+# Creates: config/credentials/production.key (DON'T COMMIT)
+#          config/credentials/production.yml.enc (SAFE TO COMMIT)
+
+bin/rails credentials:edit --environment development
+```
+
+**Production Credentials:**
+```yaml
+aws:
+  access_key_id: AKIAPROD...
+  bucket: myapp-production
+
+stripe:
+  secret_key: sk_live_...
+```
+
+**Development Credentials:**
+```yaml
+aws:
+  access_key_id: AKIADEV...
+  bucket: myapp-development
+
+stripe:
+  secret_key: sk_test_...
+```
+
+**Access:** Same code works everywhere - Rails auto-loads correct environment
+```ruby
+Rails.application.credentials.dig(:stripe, :secret_key)
+```
+</pattern>
+
+<antipatterns>
+<antipattern>
+<description>Committing master.key to version control</description>
+<reason>Exposes all encrypted credentials - CRITICAL security breach</reason>
+<bad-example>
+```bash
+# ❌ CRITICAL SECURITY VIOLATION
+git add config/master.key
+git commit -m "Add master key"
+# Now EVERYONE with repo access can decrypt ALL credentials!
+```
+</bad-example>
+<good-example>
+```bash
+# ✅ SECURE - Never commit keys (.gitignore excludes them)
+# Share via password manager, encrypted channels, or CI/CD secrets
+```
+</good-example>
+</antipattern>
+
+<antipattern>
+<description>Hardcoding secrets in code</description>
+<reason>Exposes secrets in version control forever</reason>
+<bad-example>
+```ruby
+# ❌ SECURITY VIOLATION
+class PaymentService
+  STRIPE_SECRET_KEY = "sk_live_abc123xyz789"
+end
+```
+</bad-example>
+<good-example>
+```ruby
+# ✅ SECURE - Use encrypted credentials
+class PaymentService
+  def initialize
+    @stripe_key = Rails.application.credentials.dig(:stripe, :secret_key)
+  end
+end
+```
+</good-example>
+</antipattern>
+</antipatterns>
+
+---
+
+## Initializers (Application Initialization)
+
+Configure gems, customize Rails behavior, and set up application-wide settings using initialization files that run once during boot.
+
+### Initialization Lifecycle
+
+<pattern name="initialization-order">
+<description>Understanding when initializers run during application boot</description>
+
+**Boot Sequence:**
+```ruby
+# 1. config/application.rb runs first
+# 2. config/environments/*.rb runs second (based on RAILS_ENV)
+# 3. config/initializers/*.rb run third (alphabetically)
+# 4. after_initialize callbacks run last
+```
+
+**Load Order Example:**
+```bash
+config/initializers/
+  00_first.rb           # Runs first (numbered prefix)
+  action_mailer.rb      # Runs in alphabetical order
+  cors.rb
+  session_store.rb
+  zzz_last.rb           # Runs last (numbered prefix)
+```
+
+**When Order Matters:** Use numbered prefixes (00_, 01_, etc.) to control load sequence
+</pattern>
+
+### Common Initializers
+
+<pattern name="action-mailer-configuration">
+<description>Configure email delivery with secure credentials</description>
+
+```ruby
+# config/initializers/action_mailer.rb
+Rails.application.configure do
+  if Rails.env.production?
+    config.action_mailer.delivery_method = :smtp
+    config.action_mailer.smtp_settings = {
+      address: "smtp.sendgrid.net",
+      port: 587,
+      domain: Rails.application.credentials.dig(:smtp, :domain),
+      user_name: Rails.application.credentials.dig(:smtp, :username),
+      password: Rails.application.credentials.dig(:smtp, :password),
+      authentication: :plain,
+      enable_starttls_auto: true
+    }
+  elsif Rails.env.development?
+    config.action_mailer.delivery_method = :letter_opener
+  else
+    config.action_mailer.delivery_method = :test
+  end
+
+  # Required for mailer links
+  config.action_mailer.default_url_options = {
+    host: Rails.env.production? ? "example.com" : "localhost:3000",
+    protocol: Rails.env.production? ? "https" : "http"
+  }
+end
+```
+</pattern>
+
+### Security Configuration
+
+<pattern name="content-security-policy">
+<description>Implement Content Security Policy to prevent XSS attacks</description>
+
+```ruby
+# config/initializers/content_security_policy.rb
+Rails.application.configure do
+  config.content_security_policy do |policy|
+    if Rails.env.development?
+      # Relaxed CSP for development (hot reloading)
+      policy.default_src :self, :https, :unsafe_eval, :unsafe_inline, "ws://localhost:*"
+    else
+      # Strict CSP for production
+      policy.default_src :self, :https
+    end
+
+    policy.font_src :self, :https, :data
+    policy.img_src :self, :https, :data
+    policy.object_src :none
+    policy.script_src :self, :https
+    policy.style_src :self, :https
+    policy.frame_ancestors :none
+  end
+
+  # Generate nonces for inline scripts
+  config.content_security_policy_nonce_generator = ->(request) {
+    SecureRandom.base64(16)
+  }
+  config.content_security_policy_nonce_directives = %w[script-src]
+end
+```
+</pattern>
+
+### Reloadable Code Patterns
+
+<pattern name="to-prepare-callback">
+<description>Use to_prepare for code that references app/ classes</description>
+
+```ruby
+# ❌ BAD - Initializers run before app/ code loads
+ApiGateway.endpoint = "https://api.example.com"  # NameError!
+
+# ✅ GOOD - Use to_prepare
+Rails.application.config.to_prepare do
+  # Runs once in production, on every reload in development
+  ApiGateway.endpoint = Rails.application.credentials.dig(:api_gateway, :endpoint)
+  User.admin_email = Rails.application.credentials.admin_email
+end
+```
+</pattern>
+
+<antipatterns>
+<antipattern>
+<description>Hardcoding secrets in initializers</description>
+<reason>Security violation - secrets exposed in version control</reason>
+<bad-example>
+```ruby
+# ❌ BAD
+Stripe.api_key = "sk_live_abc123def456ghi789"  # NEVER!
+```
+</bad-example>
+<good-example>
+```ruby
+# ✅ GOOD - Use encrypted credentials or ENV vars
+Stripe.api_key = Rails.application.credentials.dig(:stripe, :secret_key)
+Stripe.api_key = ENV.fetch("STRIPE_SECRET_KEY")
+```
+</good-example>
+</antipattern>
+</antipatterns>
+
+---
+
+## Docker Setup (Containerization & Deployment)
+
+Rails 8 includes Docker support by default with Kamal deployment. Essential configuration focuses on .dockerignore to exclude development files.
+
+### .dockerignore Configuration
+
+<pattern name="dockerignore-rails-8">
+<description>Essential .dockerignore for Rails 8 projects</description>
+
+```gitignore
+# Planning and Documentation
+docs/
+*.md
+README*
+
+# Development Files
+.git/
+.github/
+.gitignore
+.dockerignore
+
+# Environment Files
+.env*
+config/master.key
+config/credentials/*.key
+
+# Test Files
+spec/
+test/
+coverage/
+
+# Dependencies
+.bundle/
+vendor/cache/
+
+# Logs and Temp
+log/*
+tmp/*
+*.log
+
+# Development Databases
+*.sqlite3
+db/*.sqlite3*
+storage/*
+
+# Node
+node_modules/
+
+# IDE Files
+.vscode/
+.idea/
+*.swp
+.DS_Store
+```
+
+**Why exclude docs/:**
+- Created by planning agent (@plan) with vision, architecture, features, tasks, and ADRs
+- Not needed for runtime
+- Can be several MB of markdown
+- Significantly reduces image size and build time
+
+**CRITICAL:** Always exclude `docs/` from production Docker images
+</pattern>
+
+### Stock Rails 8 Dockerfile
+
+<pattern name="rails-8-stock-dockerfile">
+<description>Rails 8 generates Dockerfiles by default</description>
+
+Rails 8 creates a production-optimized Dockerfile automatically:
+
+```bash
+rails new myapp  # Creates Dockerfile automatically
+
+# Build and run
+docker build -t app .
+docker run -p 3000:3000 --env RAILS_MASTER_KEY=<key> app
+
+# Multi-platform build
+docker buildx build --push --platform=linux/amd64,linux/arm64 -t <user/image> .
+```
+
+**Key features:**
+- Multi-stage builds for smaller images
+- Health check at `/up` endpoint
+- Kamal-compatible (Rails 8 default deployment)
+</pattern>
+
+### Kamal Deployment
+
+<pattern name="kamal-rails-8">
+<description>Kamal is the default deployment tool for Rails 8</description>
+
+Rails 8 includes Kamal configuration in `config/deploy.yml`:
+
+```bash
+kamal deploy                              # Deploy to production
+kamal app logs                            # Check status
+kamal app exec 'bin/rails db:migrate'    # Remote commands
+```
+
+**Requirements:**
+- Dockerfile (included by default)
+- Health check at `/up` (included by default)
+- `RAILS_MASTER_KEY` configured
+
+**Benefits:** Zero-downtime deploys, SSL/TLS, multi-server support, no vendor lock-in
+</pattern>
+
+<antipatterns>
+<antipattern>
+<description>Skip .dockerignore</description>
+<reason>Bloated images, longer builds, wasted CI/CD bandwidth</reason>
+<bad-example>
+```dockerfile
+# BAD: No .dockerignore → copies docs/, test/, spec/
+COPY . .
+```
+</bad-example>
+<good-example>
+```bash
+# Create comprehensive .dockerignore
+docs/
+spec/
+test/
+.git/
+.env*
+```
+</good-example>
+</antipattern>
+</antipatterns>
+
+---
+
+## RuboCop & Code Quality
+
+RuboCop is a Ruby static code analyzer and formatter. Rails 8 comes with rubocop-rails-omakase pre-configured. This section covers customizing that base to enforce TEAM_RULES.md standards.
+
+### Rails 8 Default Configuration
+
+<pattern name="rails-8-rubocop-default">
+<description>Rails 8 comes with rubocop-rails-omakase by default</description>
+
+**Stock .rubocop.yml in new Rails 8 apps:**
+```yaml
+# Omakase Ruby styling for Rails
+inherit_gem: { rubocop-rails-omakase: rubocop.yml }
+
+# Overwrite or add rules to create your own house style
+#
+# # Use `[a, [b, c]]` not `[ a, [ b, c ] ]`
+# Layout/SpaceInsideArrayLiteralBrackets:
+#   Enabled: false
+```
+
+**What rubocop-rails-omakase provides:**
+- DHH's opinionated Ruby style guide for Rails
+- Reasonable defaults for Rails projects
+- Pre-configured with best practices
+- Automatically updates with gem updates
+
+**Philosophy:** Start with these defaults and only override when team standards differ
+</pattern>
+
+### Team-Specific Customizations
+
+<pattern name="team-overrides">
+<description>Add TEAM_RULES.md-specific overrides to .rubocop.yml</description>
+
+Customize the stock Rails configuration by adding overrides to `.rubocop.yml`:
+
+```yaml
+# .rubocop.yml
+
+# Omakase Ruby styling for Rails
+inherit_gem: { rubocop-rails-omakase: rubocop.yml }
+
+# Team-specific overrides (TEAM_RULES.md)
+
+# Rule #16: Double Quotes Always
+# Override omakase if it uses single quotes
+Style/StringLiterals:
+  EnforcedStyle: double_quotes
+
+# Rule #20: Hash#dig for Nested Access
+Style/HashFetchChain:
+  Enabled: true
+
+Style/DigChain:
+  Enabled: true
+
+# Additional team preferences (optional)
+# Add any other team-specific rules here
+```
+
+**Key Points:**
+- Inherit from rubocop-rails-omakase first
+- Add overrides below inheritance
+- Only override rules that conflict with team standards
+- Comment each override with TEAM_RULES.md reference
+</pattern>
+
+### TEAM_RULES.md Enforcement
+
+<pattern name="team-rules-cops">
+<description>RuboCop cops that directly enforce TEAM_RULES.md</description>
+
+| Rule | Cop | Enforcement | Auto-correctable |
+|------|-----|-------------|------------------|
+| Rule #16: Double Quotes | `Style/StringLiterals` | ✅ Always | Yes |
+| Rule #20: Hash#dig | `Style/HashFetchChain`, `Style/DigChain` | ✅ Always | Yes |
+| Rule #17: bin/ci Must Pass | RuboCop integrated in bin/ci | ✅ CI blocker | N/A |
+
+**How it works:**
+
+1. **Style/StringLiterals** - Enforces double quotes (Rule #16)
+   ```ruby
+   # Bad (detected and auto-corrected)
+   name = 'John'
+
+   # Good
+   name = "John"
+   ```
+
+2. **Style/HashFetchChain** - Detects chained fetch calls (Rule #20)
+   ```ruby
+   # Bad (detected)
+   hash.fetch(:a, nil)&.fetch(:b, nil)
+
+   # Good (suggested)
+   hash.dig(:a, :b)
+   ```
+
+3. **Style/DigChain** - Collapses chained dig calls (Rule #20)
+   ```ruby
+   # Bad (detected)
+   hash.dig(:a).dig(:b).dig(:c)
+
+   # Good (suggested)
+   hash.dig(:a, :b, :c)
+   ```
+</pattern>
+
+### Integration with bin/ci
+
+<pattern name="rubocop-bin-ci">
+<description>Integrating RuboCop with bin/ci (TEAM_RULES.md Rule #17)</description>
+
+Rails 8 comes with `bin/rubocop` by default. Integrate it into your CI pipeline:
+
+**In bin/ci:**
+```bash
+#!/usr/bin/env bash
+set -e
+
+echo "Running tests..."
+bin/rails test
+
+echo "Running RuboCop..."
+bin/rubocop
+
+echo "Running Brakeman (security)..."
+bin/brakeman -q
+
+echo "Running Bundler Audit..."
+bundle exec bundler-audit check --update
+
+echo "✅ All CI checks passed!"
+```
+
+**Usage:**
+```bash
+bin/ci                    # Run all checks (must pass before commit)
+bin/rubocop               # Run RuboCop only
+bin/rubocop -a            # Auto-fix violations
+bin/rubocop -A            # Auto-fix all (including unsafe)
+```
+
+**IMPORTANT:** bin/ci must pass before committing (TEAM_RULES.md Rule #17)
+</pattern>
+
+### Common Commands
+
+<pattern name="rubocop-commands">
+<description>Essential RuboCop commands for daily workflow</description>
+
+```bash
+# Check code for violations (Rails 8 default command)
+bin/rubocop
+
+# Auto-correct safe violations
+bin/rubocop -a
+
+# Auto-correct all violations (including unsafe)
+bin/rubocop -A
+
+# Check specific file or directory
+bin/rubocop app/models/user.rb
+bin/rubocop app/controllers/
+
+# Show cop names in output (useful for debugging)
+bin/rubocop --display-cop-names
+
+# Only run specific cops
+bin/rubocop --only Style/StringLiterals
+
+# Exclude specific cops (for testing)
+bin/rubocop --except Metrics/MethodLength
+```
+
+**Best Practices:**
+- Run `bin/rubocop -a` before committing (safe auto-corrections)
+- Fix violations immediately (don't accumulate technical debt)
+- Use `--display-cop-names` to understand which rule failed
+</pattern>
+
+### Custom Cops for Team-Specific Rules
+
+<pattern name="custom-cops">
+<description>Create custom RuboCop cops to enforce team-specific patterns</description>
+
+**When to Use Custom Cops:**
+- Team has coding standards not covered by existing RuboCop cops
+- Need to enforce project-specific patterns or anti-patterns
+- Want to catch common mistakes specific to your codebase
+
+**Example: Detecting Nested Hash Bracket Access (Rule #20 Enhancement)**
+
+While `Style/HashFetchChain` and `Style/DigChain` handle chained `.fetch()` and `.dig()` calls, they **don't detect** nested bracket access like `hash[:a][:b][:c]`.
+
+This project includes a custom RuboCop cop to detect unsafe nested hash bracket access:
+
+- **Location:** `lib/rails_ai/cops/style/nested_bracket_access.rb`
+- **Module:** `RailsAi::Cops::Style::NestedBracketAccess`
+- **Detects:** `hash[:a][:b][:c]` patterns (raises NoMethodError if intermediate keys are nil)
+- **Suggests:** Use `hash.dig(:a, :b, :c)` (safe) or chained `fetch` (raises explicit errors)
+
+**Example violations:**
+
+```ruby
+# ❌ VIOLATION: Unsafe nested bracket access
+user[:profile][:theme][:color]        # NoMethodError if :profile is nil
+data[:metadata][:created_at][:date]   # NoMethodError if :metadata is nil
+
+# ✅ CORRECT: Safe nested access with dig
+user.dig(:profile, :theme, :color)    # Returns nil safely
+data.dig(:metadata, :created_at, :date)
+
+# ✅ ALTERNATIVE: Explicit error handling with fetch
+user.fetch(:profile).fetch(:theme).fetch(:color)  # Raises KeyError with clear message
+```
+
+**Enable in .rubocop.yml:**
+
+```yaml
+# .rubocop.yml
+inherit_gem: { rubocop-rails-omakase: rubocop.yml }
+
+# Load custom cops
+require:
+  - ./lib/rails_ai/cops/style/nested_bracket_access.rb
+
+# Team overrides
+Style/StringLiterals:
+  EnforcedStyle: double_quotes
+
+Style/HashFetchChain:
+  Enabled: true
+
+Style/DigChain:
+  Enabled: true
+
+# Custom cop configuration
+Style/NestedBracketAccess:
+  Enabled: true
+  Severity: warning  # Warn only, don't fail CI yet
+  Description: 'Detects nested hash bracket access and suggests Hash#dig'
+```
+</pattern>
+
+<antipatterns>
+<antipattern>
+<description>Replace rubocop-rails-omakase entirely</description>
+<reason>Lose Rails defaults, have to maintain everything yourself</reason>
+<bad-example>
+```yaml
+# BAD: Throwing away Rails defaults
+# inherit_gem: { rubocop-rails-omakase: rubocop.yml }
+
+plugins:
+  - rubocop-minitest
+  - rubocop-rake
+
+AllCops:
+  NewCops: enable
+  # ... 200 lines of custom configuration
+```
+</bad-example>
+<good-example>
+```yaml
+# GOOD: Build on Rails defaults
+inherit_gem: { rubocop-rails-omakase: rubocop.yml }
+
+# Only override team-specific rules
+Style/StringLiterals:
+  EnforcedStyle: double_quotes
+```
+</good-example>
+</antipattern>
+
+<antipattern>
+<description>Skip RuboCop in CI</description>
+<reason>Violations slip into codebase, inconsistent style</reason>
+<bad-example>
+```bash
+# BAD: bin/ci without RuboCop
+#!/usr/bin/env bash
+bin/rails test  # Missing RuboCop check!
+```
+</bad-example>
+<good-example>
+```bash
+#!/usr/bin/env bash
+set -e
+bin/rails test
+bin/rubocop      # ✅ Included
+bin/brakeman -q
+```
+</good-example>
+</antipattern>
+</antipatterns>
+
+---
+
+## CI/CD Integration
+
+Integrate configuration checks into continuous integration pipelines.
+
+### GitHub Actions
+
+<pattern name="cicd-github-actions">
+<description>Configure CI/CD to access encrypted credentials</description>
+
+**GitHub Actions:**
+```yaml
+# .github/workflows/ci.yml
+jobs:
+  test:
+    env:
+      RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+      - run: bin/rails test
+```
+
+**GitHub Setup:** Settings > Secrets > Actions > Add `RAILS_MASTER_KEY`
+
+**GitLab CI:**
+```yaml
+test:
+  variables:
+    RAILS_MASTER_KEY: $RAILS_MASTER_KEY
+  script:
+    - bin/rails test
+```
+
+**GitLab Setup:** Settings > CI/CD > Variables > Add `RAILS_MASTER_KEY` (Protected + Masked)
+</pattern>
+
+---
+
+<testing>
+```ruby
+# test/config/environments_test.rb
+class EnvironmentsTest < ActiveSupport::TestCase
+  test "development shows full error reports" do
+    Rails.stub :env, "development".inquiry do
+      assert Rails.application.config.consider_all_requests_local
+    end
+  end
+
+  test "production enforces SSL" do
+    Rails.stub :env, "production".inquiry do
+      require Rails.root.join("config/environments/production.rb")
+      assert Rails.application.config.force_ssl
+    end
+  end
+end
+
+# test/models/credentials_test.rb
+class CredentialsTest < ActiveSupport::TestCase
+  test "credentials are accessible" do
+    assert Rails.application.credentials.secret_key_base.present?
+    assert Rails.application.credentials.dig(:stripe, :secret_key).present?
+  end
+end
+```
+</testing>
+
+<related-skills>
+- rails-ai:security - Security headers, CSP, CORS configuration
+- rails-ai:jobs-mailers - SolidQueue, SolidCache, SolidCable (Rails 8 Solid Stack)
+- rails-ai:testing - Testing configuration and environment setup
+</related-skills>
+
+<resources>
+- [Rails Configuration Guide](https://guides.rubyonrails.org/configuring.html)
+- [Encrypted Credentials](https://guides.rubyonrails.org/security.html#custom-credentials)
+- [Rails 8 Solid Stack](https://fly.io/ruby-dispatch/solid-cache-solid-queue-solid-cable/)
+- [Rails 8 Docker Guide](https://guides.rubyonrails.org/getting_started_with_docker.html)
+- [Kamal Documentation](https://kamal-deploy.org/)
+- [RuboCop Documentation](https://docs.rubocop.org/)
+- [rubocop-rails-omakase](https://github.com/rails/rubocop-rails-omakase)
+</resources>

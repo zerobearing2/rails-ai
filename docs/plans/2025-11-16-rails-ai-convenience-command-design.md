@@ -18,7 +18,7 @@ Create a `/rails-ai` slash command as the primary user interface for invoking th
 
 ### 1. Command Implementation
 
-**File location:** `.claude/commands/rails-ai.md` (inside rails-ai plugin)
+**File location:** `commands/rails-ai.md` (at plugin root, like superpowers)
 
 **Content:**
 
@@ -139,9 +139,8 @@ User: "/rails-ai Add email validation to User model"
 
 ```
 rails-ai/
-├── .claude/
-│   └── commands/
-│       └── rails-ai.md          # NEW: Convenience command
+├── commands/
+│   └── rails-ai.md              # NEW: Convenience command (plugin-level)
 ├── agents/
 │   └── architect.md             # Existing architect agent
 ├── skills/
@@ -152,7 +151,7 @@ rails-ai/
 
 ## Implementation Checklist
 
-- [ ] Create `.claude/commands/rails-ai.md` with passthrough content
+- [ ] Create `commands/rails-ai.md` with passthrough content (plugin root level)
 - [ ] Update README.md Usage section to introduce `/rails-ai` as recommended
 - [ ] Update README.md Installation step 3 to mention the command
 - [ ] Update skills/using-rails-ai/SKILL.md Getting Started section

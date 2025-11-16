@@ -107,7 +107,18 @@ See rules/TEAM_RULES.md for all 20 rules.
 
 ## Getting Started
 
-**Entry point:** @rails-ai:architect
+**Primary interface:** `/rails-ai` command
+
+The simplest way to use Rails-AI is the `/rails-ai` convenience command:
+
+```text
+/rails-ai add user authentication
+/rails-ai fix failing test in user_test.rb
+/rails-ai plan payment processing feature
+/rails-ai refactor UserController
+```
+
+This command invokes `@agent-rails-ai:architect`, which:
 - Analyzes requests
 - Loads superpowers workflows (for process)
 - Loads rails-ai skills (for domain expertise)
@@ -118,7 +129,7 @@ See rules/TEAM_RULES.md for all 20 rules.
 
 ```text
 
-User: "Add email validation to User model"
+User: "/rails-ai Add email validation to User model"
 
 @rails-ai:architect:
 1. Determines this is model work requiring TDD
@@ -129,6 +140,8 @@ User: "Add email validation to User model"
 6. Verifies TEAM_RULES.md compliance
 
 ```
+
+**Alternative:** You can also invoke the architect directly with `@agent-rails-ai:architect <request>`
 
 ## Learn More
 

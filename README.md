@@ -105,12 +105,17 @@ Install rails-ai as a Claude Code plugin:
    /plugin install rails-ai
    ```
 
-3. **Start using the architect:**
+3. **Start using Rails-AI:**
 
-   In any Claude Code session, you can now invoke the architect:
+   Once installed, you can use the `/rails-ai` convenience command in any Claude Code session:
+
+   ```text
+   /rails-ai add user authentication
+   /rails-ai debug failing test
+   /rails-ai plan new feature
    ```
-   @agent-rails-ai:architect - Main Rails architect (loads superpowers workflows + rails-ai skills)
-   ```
+
+   The command invokes `@agent-rails-ai:architect`, which loads superpowers workflows (process) and rails-ai skills (domain expertise) as needed.
 
    For complete details on available skills and usage patterns, see `skills/using-rails-ai/SKILL.md`.
 
@@ -121,8 +126,14 @@ That's it! The architect is now available globally in all your Rails projects.
 In any Rails project with Claude Code:
 
 ```text
+# Use the convenience command (recommended)
+/rails-ai Add user authentication feature
+
+# Or invoke the architect agent directly
 @agent-rails-ai:architect Add user authentication feature
 ```
+
+The `/rails-ai` command is a shortcut that invokes the architect agent. Use it for features, debugging, planning, refactoring, or any Rails development task.
 
 The architect will analyze requirements, load relevant superpowers workflows (for process) and rails-ai skills (for domain expertise), and deliver a complete implementation with tests.
 
@@ -163,6 +174,7 @@ Rails-AI is a **two-layer system** built on Superpowers:
 ```text
 rails-ai/
 ├── agents/          # @rails-ai:architect (single agent)
+├── commands/        # /rails-ai convenience command
 ├── skills/          # 12 domain-organized skills (see skills/using-rails-ai/SKILL.md for details)
 ├── rules/           # Team rules and decision matrices
 ├── test/            # Minitest-based skill testing framework

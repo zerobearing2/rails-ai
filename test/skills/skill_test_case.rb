@@ -75,7 +75,7 @@ class SkillTestCase < Minitest::Test
 
     # Extract YAML frontmatter
     if content =~ /\A---\s*\n(.*?)\n---\s*\n/m
-      frontmatter = YAML.safe_load($1)
+      frontmatter = YAML.safe_load($1, permitted_classes: [Symbol])
       body = content.sub(/\A---\s*\n.*?\n---\s*\n/m, "")
     else
       frontmatter = {}
@@ -86,6 +86,9 @@ class SkillTestCase < Minitest::Test
     prompt = body[/# Scenario\s*\n(.*?)(?=\n# )/m, 1]&.strip
     assertions_text = body[/# Assertions\s*\n(.*)/m, 1]&.strip
 
+    # Validate required sections
+    validate_scenario_sections(file, prompt, assertions_text)
+
     {
       skill: frontmatter["skill"],
       antipattern: frontmatter["antipattern"],
@@ -93,6 +96,20 @@ class SkillTestCase < Minitest::Test
       prompt: prompt,
       assertions: parse_assertions(assertions_text)
     }
+  rescue Errno::ENOENT => e
+    raise "Scenario file not found: #{file} (#{e.message})"
+  rescue Psych::SyntaxError => e
+    raise "Invalid YAML frontmatter in #{file}: #{e.message}"
+  end
+
+  def validate_scenario_sections(file, prompt, assertions_text)
+    errors = []
+    errors << "Missing '# Scenario' section" if prompt.nil? || prompt.empty?
+    errors << "Missing '# Assertions' section" if assertions_text.nil? || assertions_text.empty?
+
+    return if errors.empty?
+
+    raise "Invalid scenario file #{file}:\n  #{errors.join("\n  ")}"
   end
 
   def parse_assertions(text)
@@ -125,7 +142,12 @@ class SkillTestCase < Minitest::Test
     else
       # GREEN: With skill access
       skill_path = File.join(ROOT_PATH, "skills", skill_name, "SKILL.md")
-      skill_content = File.read(skill_path)
+
+      begin
+        skill_content = File.read(skill_path)
+      rescue Errno::ENOENT => e
+        raise "Skill file not found: #{skill_path} (#{e.message})"
+      end
 
       <<~PROMPT
         You are implementing features for a Rails 8.1 application.
@@ -145,13 +167,19 @@ class SkillTestCase < Minitest::Test
     failures = []
 
     scenario[:assertions].each do |assertion|
+      # Create regex pattern with word boundaries for more precise matching
+      # Escape special regex characters in the assertion
+      escaped_assertion = Regexp.escape(assertion)
+      # Use word boundaries (\b) to match whole words/phrases
+      pattern = /\b#{escaped_assertion}\b/
+
       # Check baseline DOESN'T have good pattern (proves RED works)
-      if baseline.include?(assertion)
+      if baseline.match?(pattern)
         failures << "BASELINE CONTAMINATED: Found '#{assertion}' in baseline (should only appear with skill)"
       end
 
       # Check with-skill DOES have good pattern (proves GREEN works)
-      unless with_skill.include?(assertion)
+      unless with_skill.match?(pattern)
         failures << "MISSING PATTERN: Expected '#{assertion}' in with-skill output"
       end
     end

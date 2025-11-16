@@ -32,7 +32,7 @@ class SkillTestCase < Minitest::Test
 
     return unless Dir.exist?(scenario_dir)
 
-    Dir.glob(File.join(scenario_dir, "*.md")).sort.each do |scenario_file|
+    Dir.glob(File.join(scenario_dir, "*.md")).each do |scenario_file|
       scenario_name = File.basename(scenario_file, ".md")
 
       define_method("test_#{scenario_name}") do
@@ -75,7 +75,7 @@ class SkillTestCase < Minitest::Test
 
     # Extract YAML frontmatter
     if content =~ /\A---\s*\n(.*?)\n---\s*\n/m
-      frontmatter = YAML.safe_load($1, permitted_classes: [Symbol])
+      frontmatter = YAML.safe_load(::Regexp.last_match(1), permitted_classes: [Symbol])
       body = content.sub(/\A---\s*\n.*?\n---\s*\n/m, "")
     else
       frontmatter = {}
@@ -179,14 +179,13 @@ class SkillTestCase < Minitest::Test
       end
 
       # Check with-skill DOES have good pattern (proves GREEN works)
-      unless with_skill.match?(pattern)
-        failures << "MISSING PATTERN: Expected '#{assertion}' in with-skill output"
-      end
+      failures << "MISSING PATTERN: Expected '#{assertion}' in with-skill output" unless with_skill.match?(pattern)
     end
 
     if failures.any?
       summary = "#{failures.size} assertion(s) failed:\n" + failures.join("\n")
       File.write(File.join(results_dir, "failures.txt"), summary)
+
       flunk(summary)
     else
       File.write(File.join(results_dir, "success.txt"), "All assertions passed!")

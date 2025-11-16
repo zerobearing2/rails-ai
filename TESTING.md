@@ -138,7 +138,7 @@ If agent finds loopholes:
 
 ## Test Structure
 
-```
+```text
 test/
   skills/
     jobs/

@@ -1196,11 +1196,20 @@ end
 </related-skills>
 
 <resources>
-- [Rails Configuration Guide](https://guides.rubyonrails.org/configuring.html)
-- [Encrypted Credentials](https://guides.rubyonrails.org/security.html#custom-credentials)
-- [Rails 8 Solid Stack](https://fly.io/ruby-dispatch/solid-cache-solid-queue-solid-cable/)
-- [Rails 8 Docker Guide](https://guides.rubyonrails.org/getting_started_with_docker.html)
-- [Kamal Documentation](https://kamal-deploy.org/)
-- [RuboCop Documentation](https://docs.rubocop.org/)
-- [rubocop-rails-omakase](https://github.com/rails/rubocop-rails-omakase)
+
+**Official Documentation:**
+- [Rails Guides - Configuring Rails Applications](https://guides.rubyonrails.org/configuring.html)
+- [Rails Guides - Encrypted Credentials](https://guides.rubyonrails.org/security.html#custom-credentials)
+- [Rails Guides - Getting Started with Docker](https://guides.rubyonrails.org/getting_started_with_docker.html)
+
+**Gems & Libraries:**
+- [rubocop-rails-omakase](https://github.com/rails/rubocop-rails-omakase) - Rails Omakase RuboCop config
+
+**Tools:**
+- [Kamal](https://kamal-deploy.org/) - Deploy web apps anywhere
+- [RuboCop](https://docs.rubocop.org/) - Ruby static code analyzer
+
+**Community Resources:**
+- [Rails 8 Solid Stack Overview](https://fly.io/ruby-dispatch/solid-cache-solid-queue-solid-cable/) - Solid Queue, Solid Cache, Solid Cable
+
 </resources>

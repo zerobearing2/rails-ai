@@ -147,3 +147,16 @@ User: "/rails-ai Add email validation to User model"
 
 **Superpowers skills:** Use superpowers:using-superpowers for full introduction
 **Rails-AI rules:** See rules/TEAM_RULES.md
+
+<resources>
+
+**Official Documentation:**
+- [Rails-AI GitHub](https://github.com/zerobearing2/rails-ai) - Main repository
+- [Superpowers GitHub](https://github.com/zerobearing2/superpowers) - Workflow dependency
+- [Claude Code](https://code.claude.com/) - Platform documentation
+
+**Internal References:**
+- TEAM_RULES.md - Team coding standards and conventions
+- All 12 domain skills in skills/ directory
+
+</resources>

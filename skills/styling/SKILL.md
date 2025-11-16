@@ -419,9 +419,16 @@ end
 </related-skills>
 
 <resources>
+
+**Official Documentation:**
 - [Tailwind CSS Documentation](https://tailwindcss.com/docs)
-- [Tailwind CSS Cheat Sheet](https://nerdcave.com/tailwind-cheat-sheet)
 - [DaisyUI Documentation](https://daisyui.com/)
 - [DaisyUI Components](https://daisyui.com/components/)
-- [Tailwind UI Components](https://tailwindui.com/)
+
+**Tools:**
+- [Tailwind CSS Cheat Sheet](https://nerdcave.com/tailwind-cheat-sheet)
+
+**Community Resources:**
+- [Tailwind UI Components](https://tailwindui.com/) - Premium component library
+
 </resources>

@@ -1145,10 +1145,13 @@ end
 </related-skills>
 
 <resources>
-- [Active Record Basics](https://guides.rubyonrails.org/active_record_basics.html)
-- [Associations](https://guides.rubyonrails.org/association_basics.html)
-- [Validations](https://guides.rubyonrails.org/active_record_validations.html)
-- [Query Interface](https://guides.rubyonrails.org/active_record_querying.html)
-- [ActiveSupport::Concern](https://api.rubyonrails.org/classes/ActiveSupport/Concern.html)
-- [ActiveModel::API](https://api.rubyonrails.org/classes/ActiveModel/API.html)
+
+**Official Documentation:**
+- [Rails Guides - Active Record Basics](https://guides.rubyonrails.org/active_record_basics.html)
+- [Rails Guides - Active Record Associations](https://guides.rubyonrails.org/association_basics.html)
+- [Rails Guides - Active Record Validations](https://guides.rubyonrails.org/active_record_validations.html)
+- [Rails Guides - Active Record Query Interface](https://guides.rubyonrails.org/active_record_querying.html)
+- [Rails API - ActiveSupport::Concern](https://api.rubyonrails.org/classes/ActiveSupport/Concern.html)
+- [Rails API - ActiveModel::API](https://api.rubyonrails.org/classes/ActiveModel/API.html)
+
 </resources>

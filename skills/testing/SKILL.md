@@ -1917,9 +1917,14 @@ rails test:system
 </related-skills>
 
 <resources>
-- [Rails Testing Guide](https://guides.rubyonrails.org/testing.html)
-- [Minitest Documentation](https://github.com/minitest/minitest)
+
+**Official Documentation:**
+- [Rails Guides - Testing Rails Applications](https://guides.rubyonrails.org/testing.html)
+- [Rails API - ActiveRecord::FixtureSet](https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html)
 - [Minitest Assertions](https://docs.seattlerb.org/minitest/Minitest/Assertions.html)
-- [WebMock Documentation](https://github.com/bblimke/webmock)
-- [FixtureSet Documentation](https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html)
+
+**Gems & Libraries:**
+- [Minitest](https://github.com/minitest/minitest) - Ruby testing framework
+- [WebMock](https://github.com/bblimke/webmock) - HTTP request stubbing
+
 </resources>

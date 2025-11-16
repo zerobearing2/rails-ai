@@ -598,9 +598,14 @@ end
 </related-skills>
 
 <resources>
-- [SolidQueue GitHub](https://github.com/rails/solid_queue)
-- [SolidCache GitHub](https://github.com/rails/solid_cache)
-- [SolidCable GitHub](https://github.com/rails/solid_cable)
-- [Active Job Basics](https://guides.rubyonrails.org/active_job_basics.html)
-- [Rails 8 Release Notes](https://edgeguides.rubyonrails.org/8_0_release_notes.html)
+
+**Official Documentation:**
+- [Rails Guides - Active Job Basics](https://guides.rubyonrails.org/active_job_basics.html)
+- [Rails 8 Release Notes](https://edgeguides.rubyonrails.org/8_0_release_notes.html) - Solid Stack introduction
+
+**Gems & Libraries:**
+- [SolidQueue](https://github.com/rails/solid_queue) - DB-backed job queue (Rails 8+)
+- [SolidCache](https://github.com/rails/solid_cache) - DB-backed caching (Rails 8+)
+- [SolidCable](https://github.com/rails/solid_cable) - DB-backed Action Cable (Rails 8+)
+
 </resources>

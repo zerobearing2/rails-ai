@@ -1560,11 +1560,16 @@ config.action_dispatch.default_headers = {
 </related-skills>
 
 <resources>
-- [Rails Security Guide](https://guides.rubyonrails.org/security.html)
-- [OWASP Top 10](https://owasp.org/www-project-top-ten/)
-- [OWASP XSS Prevention](https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html)
+
+**Official Documentation:**
+- [Rails Guides - Securing Rails Applications](https://guides.rubyonrails.org/security.html)
+
+**Security Standards:**
+- [OWASP Top 10](https://owasp.org/www-project-top-ten/) - Most critical web app security risks
+- [OWASP XSS Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html)
 - [OWASP SQL Injection Prevention](https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html)
 - [OWASP CSRF Prevention](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html)
 - [OWASP File Upload Security](https://cheatsheetseries.owasp.org/cheatsheets/File_Upload_Cheat_Sheet.html)
 - [OWASP Command Injection](https://owasp.org/www-community/attacks/Command_Injection)
+
 </resources>

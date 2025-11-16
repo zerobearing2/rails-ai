@@ -687,8 +687,13 @@ end
 </related-skills>
 
 <resources>
+
+**Official Documentation:**
 - [Turbo Handbook](https://turbo.hotwired.dev/handbook/introduction)
-- [Turbo Page Refreshes](https://turbo.hotwired.dev/handbook/page_refreshes)
+- [Turbo Page Refreshes (Morph)](https://turbo.hotwired.dev/handbook/page_refreshes)
 - [Stimulus Handbook](https://stimulus.hotwired.dev/handbook/introduction)
+
+**Community Resources:**
 - [Hotwire Discussion Forum](https://discuss.hotwired.dev/)
+
 </resources>

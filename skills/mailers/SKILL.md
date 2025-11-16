@@ -533,8 +533,17 @@ end
 </related-skills>
 
 <resources>
+
+**Official Documentation:**
 - [Rails Guides - Action Mailer Basics](https://guides.rubyonrails.org/action_mailer_basics.html)
-- [letter_opener gem](https://github.com/ryanb/letter_opener)
+
+**Gems & Libraries:**
+- [letter_opener](https://github.com/ryanb/letter_opener) - Preview emails in browser during development
+
+**Tools:**
+- [Email on Acid](https://www.emailonacid.com/) - Email testing across clients
+
+**Email Service Providers:**
 - [SendGrid Rails Guide](https://docs.sendgrid.com/for-developers/sending-email/rubyonrails)
-- [Email on Acid - Testing Tool](https://www.emailonacid.com/)
+
 </resources>

@@ -242,3 +242,19 @@ rails db:migrate
 - rails-ai:controllers (Request debugging, parameter inspection)
 - rails-ai:testing (Test debugging, failure investigation)
 </related-skills>
+
+<resources>
+
+**Official Documentation:**
+- [Rails Guides - Debugging Rails Applications](https://guides.rubyonrails.org/debugging_rails_applications.html)
+- [Rails API - ActiveSupport::Logger](https://api.rubyonrails.org/classes/ActiveSupport/Logger.html)
+- [Ruby Debugging Guide](https://ruby-doc.org/stdlib-3.0.0/libdoc/debug/rdoc/index.html)
+
+**Gems & Libraries:**
+- [byebug](https://github.com/deivid-rodriguez/byebug) - Ruby debugger
+- [bullet](https://github.com/flyerhzm/bullet) - N+1 query detection
+
+**Tools:**
+- [Rack Mini Profiler](https://github.com/MiniProfiler/rack-mini-profiler) - Performance profiling
+
+</resources>

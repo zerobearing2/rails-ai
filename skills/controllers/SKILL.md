@@ -995,9 +995,12 @@ end
 </related-skills>
 
 <resources>
-- [Rails Guides - Controllers](https://guides.rubyonrails.org/action_controller_overview.html)
-- [Rails Routing Guide](https://guides.rubyonrails.org/routing.html)
-- [Rails Strong Parameters](https://guides.rubyonrails.org/action_controller_overview.html#strong-parameters)
-- [Rails 8.1 Parameters expect()](https://edgeguides.rubyonrails.org/action_controller_overview.html#parameters-expect)
-- [Active Support Concern](https://api.rubyonrails.org/classes/ActiveSupport/Concern.html)
+
+**Official Documentation:**
+- [Rails Guides - Action Controller Overview](https://guides.rubyonrails.org/action_controller_overview.html)
+- [Rails Guides - Routing](https://guides.rubyonrails.org/routing.html)
+- [Rails Guides - Strong Parameters](https://guides.rubyonrails.org/action_controller_overview.html#strong-parameters)
+- [Rails API - ActiveSupport::Concern](https://api.rubyonrails.org/classes/ActiveSupport/Concern.html)
+- [Rails Edge Guides - Parameters expect()](https://edgeguides.rubyonrails.org/action_controller_overview.html#parameters-expect) - Rails 8.1+
+
 </resources>

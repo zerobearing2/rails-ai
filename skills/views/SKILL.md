@@ -642,11 +642,18 @@ end
 </related-skills>
 
 <resources>
+
+**Official Documentation:**
 - [Rails Guides - Layouts and Rendering](https://guides.rubyonrails.org/layouts_and_rendering.html)
 - [Rails Guides - Action View Helpers](https://guides.rubyonrails.org/action_view_helpers.html)
-- [WCAG 2.1 Guidelines](https://www.w3.org/WAI/WCAG21/quickref/)
-- [Rails Accessibility Guide](https://guides.rubyonrails.org/accessibility.html)
-- [WebAIM WCAG Checklist](https://webaim.org/standards/wcag/checklist)
-- [WAI-ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/)
-- [axe DevTools Browser Extension](https://www.deque.com/axe/devtools/)
+- [Rails Guides - Rails Accessibility](https://guides.rubyonrails.org/accessibility.html)
+
+**Accessibility Standards:**
+- [WCAG 2.1 Quick Reference](https://www.w3.org/WAI/WCAG21/quickref/)
+- [WebAIM WCAG 2 Checklist](https://webaim.org/standards/wcag/checklist)
+- [WAI-ARIA Authoring Practices Guide](https://www.w3.org/WAI/ARIA/apg/)
+
+**Tools:**
+- [axe DevTools](https://www.deque.com/axe/devtools/) - Accessibility testing browser extension
+
 </resources>

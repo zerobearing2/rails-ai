@@ -2,9 +2,9 @@
 
 require "test_helper"
 
-class JobsMailersTest < SkillTestCase
-  self.skill_name = "jobs-mailers"
-  self.skill_directory = "jobs-mailers"
+class JobsTest < SkillTestCase
+  self.skill_name = "jobs"
+  self.skill_directory = "jobs"
 
   def test_skill_directory_exists
     assert_skill_directory_exists

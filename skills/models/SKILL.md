@@ -1117,6 +1117,7 @@ end
 - rails-ai:controllers - RESTful controllers for models
 - rails-ai:testing - Testing models thoroughly
 - rails-ai:security - SQL injection prevention, strong parameters
+- rails-ai:jobs - Background job processing for models
 </related-skills>
 
 <resources>

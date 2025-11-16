@@ -228,7 +228,7 @@ rails db:migrate
 
 <related-skills>
 - superpowers:systematic-debugging (4-phase framework)
-- superpowers:root-cause-tracing (Deep stack traces)
-- rails-ai:activerecord-patterns (Query optimization)
-- rails-ai:tdd-minitest (Test debugging)
+- rails-ai:models (Query optimization, N+1 debugging)
+- rails-ai:controllers (Request debugging, parameter inspection)
+- rails-ai:testing (Test debugging, failure investigation)
 </related-skills>

@@ -1167,9 +1167,9 @@ end
 </testing>
 
 <related-skills>
-- rails-ai:security - Security headers, CSP, CORS configuration
-- rails-ai:jobs-mailers - SolidQueue, SolidCache, SolidCable (Rails 8 Solid Stack)
-- rails-ai:testing - Testing configuration and environment setup
+- rails-ai:models - Database configuration, migrations
+- rails-ai:jobs - SolidQueue, SolidCache, SolidCable (Rails 8 Solid Stack)
+- rails-ai:debugging - Rails debugging tools and logging configuration
 </related-skills>
 
 <resources>

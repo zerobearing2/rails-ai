@@ -12,13 +12,16 @@ test/
 │   ├── agent_integration_test_case.rb  # Base class for agent tests
 │   └── llm_adapter.rb          # LLM integration for agent tests
 ├── unit/
-│   └── skills/                 # 9 consolidated skill test files
+│   └── skills/                 # 12 consolidated skill test files
 │       ├── configuration_test.rb
 │       ├── controllers_test.rb
 │       ├── debugging_test.rb
-│       ├── jobs_mailers_test.rb
+│       ├── hotwire_test.rb
+│       ├── jobs_test.rb
+│       ├── mailers_test.rb
 │       ├── models_test.rb
 │       ├── security_test.rb
+│       ├── styling_test.rb
 │       ├── testing_test.rb
 │       ├── using_rails_ai_test.rb
 │       └── views_test.rb
@@ -115,11 +118,13 @@ The `SkillTestCase` base class provides:
 
 ## Test Statistics
 
-- **Total unit test files**: 9
+- **Total unit test files**: 12
 - **Tests per skill**: 8
-- **Total test runs**: 72 (9 skills × 8 tests)
+- **Total test runs**: 96 (12 skills × 8 tests)
 - **Total integration scenarios**: 7
-- **Skill coverage**: 100% (9/9 skills tested)
+- **Skill coverage**: 100% (12/12 skills tested)
+
+For the complete list of skills with descriptions, see `skills/using-rails-ai/SKILL.md`.
 
 ## Known Variations
 
@@ -202,9 +207,10 @@ Current consolidated skill structure (v0.3.0):
 - Path: `skills/{directory}/SKILL.md`
 - Frontmatter: Minimal YAML (`name`, `description`)
 - Naming: Directory name without prefix, frontmatter name has `rails-ai:` prefix
-- 9 domain-organized skills (controllers, models, views, testing, security, configuration, jobs-mailers, debugging, using-rails-ai)
 
 Example:
 - Directory: `skills/models/`
 - File: `skills/models/SKILL.md`
 - Frontmatter name: `rails-ai:models`
+
+For the complete list of 12 domain-organized skills, see `skills/using-rails-ai/SKILL.md`.

@@ -1528,6 +1528,7 @@ config.action_dispatch.default_headers = {
 <related-skills>
 - rails-ai:controllers - Strong parameters for mass assignment protection
 - rails-ai:models - Input validation patterns
+- rails-ai:views - XSS prevention in templates
 - rails-ai:testing - Security testing strategies
 </related-skills>
 

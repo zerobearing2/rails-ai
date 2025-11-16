@@ -30,7 +30,7 @@ We're turning that gap into a roadmap instead of a wish list.
 Five domain specialists (architect, developer, security, devops, uat) coordinate like a real team, leveraging Superpowers workflows for orchestration.
 
 **Phase 2 — Structured Intelligence** ✅ Completed
-Thirty-three modular skills, shared team rules, and custom cops bake Rails judgment into reusable modules. Every agent pulls from the same tested playbook. Built on Superpowers for universal workflows.
+Twelve domain-organized skills, shared team rules, and custom cops bake Rails judgment into reusable modules. Every agent pulls from the same tested playbook. Built on Superpowers for universal workflows.
 
 **Phase 3 — Memory & Context** 🔬 In design  
 Index thousands of production Rails patterns, wire them into a local memory + knowledge graph, and retrieve the right snippet at the right time with RAG + SQLite vector search so every response is grounded in real context.
@@ -43,7 +43,7 @@ Ship end-to-end features—auth, payments, background jobs, admin, APIs—comple
 - Five domain specialists (developer, security, devops, uat, architect) work together
 - Built on Superpowers for universal workflows (brainstorming, planning, TDD, debugging, review)
 - Context7 keeps every agent current with live Rails documentation
-- A 33-skill library provides repeatable, testable Rails knowledge
+- Twelve domain-organized skills provide repeatable, testable Rails knowledge
 - Team rules and custom RuboCop cops enforce Rails conventions
 
 **What we're building next**
@@ -142,6 +142,8 @@ Install rails-ai as a Claude Code plugin:
    @agent-rails-ai:uat - Testing and quality assurance specialist
    ```
 
+   For complete details on available skills and usage patterns, see `skills/using-rails-ai/SKILL.md`.
+
 That's it! The agents are now available globally in all your Rails projects with access to up-to-date Rails documentation via Context7.
 
 ## Usage
@@ -162,7 +164,7 @@ Rails-AI is a **layered system** built on Superpowers:
 ┌─────────────────────────────────────────────┐
 │         Rails-AI (Domain Layer)             │
 │  • 5 Rails-specialized agents               │
-│  • 33 Rails domain skills                   │
+│  • 12 Rails domain skills                   │
 │  • Team rules & RuboCop cops                │
 │  • Context7 integration                     │
 └─────────────────────────────────────────────┘
@@ -182,12 +184,14 @@ Rails-AI is a **layered system** built on Superpowers:
 ```text
 rails-ai/
 ├── agents/          # 5 specialized Rails agents (architect, developer, security, devops, uat)
-├── skills/          # 33 modular Rails skills (backend, frontend, testing, security, config)
+├── skills/          # 12 domain-organized skills (see skills/using-rails-ai/SKILL.md for details)
 ├── rules/           # Team rules and decision matrices
 ├── test/            # Minitest-based skill testing framework
 ├── bin/             # Development scripts (setup, ci)
 └── docs/            # Documentation and guides
 ```
+
+For the complete list of skills with descriptions, see `skills/using-rails-ai/SKILL.md`.
 
 ## Philosophy
 
@@ -228,7 +232,7 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ## Built by Sr. LLM
 
-Consider this the resume entry for our self-promoted "Senior LLM." Yes, this entire system—the coordinator, the specialized agents, the 41 modular skills, the test framework, even this README—was architected and refined by Claude. An AI building AI tools to help AI build better Rails apps, and insisting on the fancy title while doing it.
+Consider this the resume entry for our self-promoted "Senior LLM." Yes, this entire system—the coordinator, the specialized agents, the 12 modular skills, the test framework, even this README—was architected and refined by Claude. An AI building AI tools to help AI build better Rails apps, and insisting on the fancy title while doing it.
 
 ```text
 ┌─────────────────────────────────────────┐

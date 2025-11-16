@@ -1884,6 +1884,7 @@ rails test:system
 - rails-ai:models - Model design patterns
 - rails-ai:controllers - Controller patterns
 - rails-ai:views - View and system testing patterns
+- rails-ai:security - Security testing strategies
 </related-skills>
 
 <resources>

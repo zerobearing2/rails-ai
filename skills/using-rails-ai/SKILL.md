@@ -60,13 +60,13 @@ Rails-AI provides **Rails-specific domain knowledge** that integrates with **Sup
 
 2. **Planning Phase:**
    - Use superpowers:writing-plans (bite-sized TDD tasks)
-   - Reference rails-ai:testing, rails-ai:models in tasks
+   - Reference rails-ai:testing, rails-ai:models, rails-ai:security in tasks
    - Include exact Rails paths (app/models/user.rb, test/models/user_test.rb)
    - Save to docs/plans/YYYY-MM-DD-auth-plan.md
 
 3. **Execution Phase:**
    - Use superpowers:subagent-driven-development (fast iteration + review)
-   - Delegate to @backend with rails-ai:models, rails-ai:controllers skills
+   - Delegate to @developer with rails-ai:models, rails-ai:controllers, rails-ai:views skills
    - Each task: RED-GREEN-REFACTOR (superpowers:TDD + rails-ai:testing)
    - Review with superpowers:code-reviewer against TEAM_RULES.md
 
@@ -77,17 +77,20 @@ Rails-AI provides **Rails-specific domain knowledge** that integrates with **Sup
 
 ## Available Rails-AI Skills
 
-**9 Domain-Based Skills (Consolidated):**
+**12 Domain-Based Skills (Consolidated):**
 
-1. **rails-ai:views** - Frontend UI with Hotwire, ViewComponent, Tailwind, DaisyUI, forms, accessibility
-2. **rails-ai:controllers** - RESTful actions, nested resources, skinny controllers, concerns, strong parameters
-3. **rails-ai:models** - ActiveRecord patterns, validations, associations, callbacks, query objects, form objects
-4. **rails-ai:testing** - TDD with Minitest, fixtures, mocking, test helpers, ViewComponent testing
-5. **rails-ai:security** - XSS, SQL injection, CSRF, strong parameters, file uploads, command injection
-6. **rails-ai:configuration** - Environment config, credentials, initializers, Docker, RuboCop
-7. **rails-ai:jobs-mailers** - SolidQueue, SolidCache, SolidCable, ActionMailer (TEAM RULE #1: NO Redis/Sidekiq)
-8. **rails-ai:debugging** - Rails debugging tools (logs, console, byebug) + superpowers:systematic-debugging
-9. **rails-ai:using-rails-ai** - This guide - how rails-ai integrates with superpowers workflows
+1. **rails-ai:views** - Partials, helpers, forms, accessibility (WCAG 2.1 AA)
+2. **rails-ai:hotwire** - Turbo Drive, Turbo Frames, Turbo Streams, Turbo Morph, Stimulus controllers
+3. **rails-ai:styling** - Tailwind CSS utility-first framework, DaisyUI component library, theming
+4. **rails-ai:controllers** - RESTful actions, nested resources, skinny controllers, concerns, strong parameters
+5. **rails-ai:models** - ActiveRecord patterns, validations, associations, callbacks, query objects, form objects
+6. **rails-ai:testing** - TDD with Minitest, fixtures, mocking, test helpers, ViewComponent testing
+7. **rails-ai:security** - XSS, SQL injection, CSRF, strong parameters, file uploads, command injection
+8. **rails-ai:configuration** - Environment config, credentials, initializers, Docker, RuboCop
+9. **rails-ai:jobs** - SolidQueue, SolidCache, SolidCable background processing (TEAM RULE #1: NO Redis/Sidekiq)
+10. **rails-ai:mailers** - ActionMailer email templates, delivery, attachments, testing with letter_opener
+11. **rails-ai:debugging** - Rails debugging tools (logs, console, byebug) + superpowers:systematic-debugging
+12. **rails-ai:using-rails-ai** - This guide - how rails-ai integrates with superpowers workflows
 
 ## TEAM_RULES.md Enforcement
 
@@ -107,7 +110,7 @@ See rules/TEAM_RULES.md for all 20 rules.
 - Analyzes requests
 - Loads relevant rails-ai skills
 - References superpowers workflows
-- Delegates to specialized agents (@backend, @frontend, @tests, @security, @debug)
+- Delegates to specialized agents (@developer, @uat, @security, @devops)
 - Enforces TEAM_RULES.md
 - Queries Context7 for current Rails/gem docs
 
@@ -118,12 +121,12 @@ See rules/TEAM_RULES.md for all 20 rules.
 User: "Add email validation to User model"
 
 @architect:
-1. Determines this is backend work
+1. Determines this is model work
 2. References superpowers:test-driven-development for TDD process
 3. Loads rails-ai:testing for Minitest patterns
 4. Loads rails-ai:models for validation patterns
-5. Delegates to @backend with context
-6. @backend follows TDD: write test → RED → implement → GREEN → refactor
+5. Delegates to @developer with context
+6. @developer follows TDD: write test → RED → implement → GREEN → refactor
 7. Reviews with superpowers:code-reviewer against TEAM_RULES.md
 
 ```

@@ -2,6 +2,97 @@
 
 This directory contains integration tests for the refactored rails-ai agent system (v0.3.0).
 
+## Quick Reference
+
+### Test Files
+
+| File | Class | Scenario | Agent(s) Tested | Purpose |
+|------|-------|----------|-----------------|---------|
+| bootstrap_test.rb | NewBootstrapTest | new_bootstrap | @architect | Basic coordination & delegation |
+| developer_agent_test.rb | DeveloperAgentTest | developer_agent_fullstack | @developer | Full-stack Rails development |
+| uat_agent_test.rb | UatAgentTest | uat_agent_testing | @uat | Testing & QA workflows |
+| devops_agent_test.rb | DevopsAgentTest | devops_agent_infrastructure | @devops | Infrastructure & deployment |
+| security_agent_test.rb | SecurityAgentTest | security_agent_audit | @security | Security auditing |
+| superpowers_integration_test.rb | SuperpowersIntegrationTest | superpowers_workflows | @architect | End-to-end workflow orchestration |
+| skill_loading_test.rb | SkillLoadingTest | skill_loading_new_structure | @architect, @developer, @security | Skill loading from consolidated structure |
+
+**Total:** 7 test files
+
+### Running Tests
+
+```bash
+# List available scenarios
+rake test:integration:list
+
+# Run bootstrap test (fast, cheap infrastructure test)
+rake test:integration:bootstrap
+
+# Run individual scenario
+rake test:integration:scenario[bootstrap]
+rake test:integration:scenario[developer_agent]
+rake test:integration:scenario[uat_agent]
+rake test:integration:scenario[devops_agent]
+rake test:integration:scenario[security_agent]
+rake test:integration:scenario[superpowers_integration]
+rake test:integration:scenario[skill_loading]
+```
+
+**Note:** Integration tests invoke Claude CLI and are slow/expensive. Run individually, not in bulk.
+
+### Key Assertions by Category
+
+**Superpowers References:**
+- `superpowers:brainstorming` - Design refinement
+- `superpowers:writing-plans` - Implementation planning
+- `superpowers:executing-plans` - Batch execution
+- `superpowers:subagent-driven-development` - Fast iteration
+- `superpowers:test-driven-development` - TDD process
+- `superpowers:systematic-debugging` - Investigation framework
+- `superpowers:verification-before-completion` - Quality validation
+
+**Agent Delegation:**
+- `@architect` - Coordinator (references superpowers)
+- `@developer` - Full-stack Rails (replaces @backend + @frontend + @debug)
+- `@uat` - Testing/QA (replaces @tests)
+- `@devops` - Infrastructure (new)
+- `@security` - Security auditing (refactored)
+
+**Skills & TEAM_RULES:**
+- See `skills/using-rails-ai/SKILL.md` for complete skill list and descriptions
+- See `rules/TEAM_RULES.md` for all 20 rules (Rule #1: No Sidekiq/Redis, Rule #2: No RSpec, Rule #4: TDD Always)
+
+### Test Architecture
+
+Each integration test:
+1. **Invokes Claude CLI** with agent prompt (via `llm_adapter.rb`)
+2. **Runs domain judges** in parallel (backend, frontend, tests, security)
+3. **Scores output** on 200-point scale (50 points per domain)
+4. **Pass threshold:** 140/200 (70%)
+
+Tests verify agents:
+- Reference appropriate superpowers workflows
+- Load correct Rails-AI consolidated skills
+- Delegate to specialized agents
+- Enforce TEAM_RULES.md
+- Produce concrete implementation plans
+
+### Interpreting Results
+
+**PASS (≥140/200):** Agent produced quality implementation with proper workflows
+**FAIL (<140/200):** Check scores by domain to identify gaps:
+- **Backend:** Model/controller implementation quality
+- **Frontend:** View/Hotwire/styling implementation
+- **Tests:** Test coverage and TDD adherence
+- **Security:** Security considerations and validation
+
+Common failure patterns:
+- Agent asks clarifying questions instead of implementing (0/200)
+- Missing TDD workflow references
+- Incomplete skill loading
+- Missing TEAM_RULES.md enforcement
+
+---
+
 ## Test Coverage
 
 ### 1. Bootstrap Test (`bootstrap_test.rb`)
@@ -23,9 +114,9 @@ This directory contains integration tests for the refactored rails-ai agent syst
 **Tests:**
 - Handles both backend and frontend work (full-stack)
 - References superpowers:test-driven-development for TDD process
-- Uses rails-ai backend skills (activerecord-patterns, controller-restful)
-- Uses rails-ai frontend skills (hotwire-turbo, view-helpers)
-- Uses rails-ai testing skills (tdd-minitest, fixtures, model-testing)
+- Uses rails-ai backend skills (models, controllers)
+- Uses rails-ai frontend skills (views, hotwire, styling)
+- Uses rails-ai testing skills (testing)
 - Follows RED-GREEN-REFACTOR workflow
 - Creates models, controllers, views, and tests end-to-end
 
@@ -44,7 +135,7 @@ This directory contains integration tests for the refactored rails-ai agent syst
 - Writes comprehensive test suites
 - Validates features meet requirements
 - References superpowers:test-driven-development
-- Uses rails-ai testing skills (tdd-minitest, fixtures, model-testing, test-helpers)
+- Uses rails-ai testing skill
 - Includes model, controller, integration, and security tests
 - References quality gates (bin/ci)
 - Scores high on tests domain (>=40/50)
@@ -64,7 +155,7 @@ This directory contains integration tests for the refactored rails-ai agent syst
 - Creates CI/CD pipelines (GitHub Actions)
 - Manages environment configuration and credentials
 - Enforces TEAM_RULES.md Rule #1 (no Sidekiq/Redis)
-- Uses rails-ai infrastructure skills (docker, solid-stack, credentials, environment-config)
+- Uses rails-ai infrastructure skills (configuration, jobs)
 
 **Agent Under Test:** @devops (new agent)
 
@@ -78,7 +169,7 @@ This directory contains integration tests for the refactored rails-ai agent syst
 **Tests:**
 - Audits code for OWASP Top 10 vulnerabilities
 - References superpowers:systematic-debugging for investigation
-- Uses rails-ai security skills (sql-injection, xss, command-injection, file-uploads)
+- Uses rails-ai security skill
 - Identifies SQL injection, XSS, command injection, and file upload vulnerabilities
 - Provides remediation guidance
 - Scores vulnerabilities by severity (Critical/High/Medium/Low)
@@ -113,9 +204,9 @@ This directory contains integration tests for the refactored rails-ai agent syst
 **Purpose:** Tests that skills load from new skills-new/ flat structure
 
 **Tests:**
-- Loads skills from skills-new/ directory (not old skills/ hierarchy)
+- Loads skills from skills/ directory (not old skills/ hierarchy)
 - References skills with rails-ai: prefix
-- Skills reference superpowers for process (tdd-minitest → superpowers:test-driven-development)
+- Skills reference superpowers for process (testing → superpowers:test-driven-development)
 - Delegates to appropriate agents (@developer, @security)
 - Does NOT reference old skills/frontend or skills/backend structure
 
@@ -150,9 +241,9 @@ ruby -Itest test-new/integration/bootstrap_test.rb --verbose
 - **No superpowers integration**
 - **Architect implemented orchestration**
 
-### New Structure (test-new/integration/)
+### New Structure (test/integration/)
 - **Agents:** @architect, @developer, @security, @devops, @uat (5 domain-based agents)
-- **Skills:** Loaded from skills-new/ (flat namespace with rails-ai: prefix)
+- **Skills:** Loaded from skills/ (flat namespace with rails-ai: prefix)
 - **Superpowers integration:** Architect references superpowers workflows
 - **Architect coordinates:** Delegates to superpowers for orchestration
 
@@ -174,11 +265,11 @@ assert_match(/@developer/,  # Not @backend or @frontend
              "Should delegate to unified developer agent")
 ```
 
-### 3. Skills-New Loading
+### 3. Skills Loading
 ```ruby
-assert_match(/rails-ai:tdd-minitest/,  # With rails-ai: prefix
+assert_match(/rails-ai:testing/,  # With rails-ai: prefix
              agent_output,
-             "Should load from skills-new/ with prefix")
+             "Should load from skills/ with prefix")
 ```
 
 ### 4. No Old Structure References
@@ -250,7 +341,7 @@ When migrating from old integration tests:
 
 3. **Update skill loading assertions:**
    - Use `rails-ai:` prefix
-   - Check skills-new/ loading
+   - Check skills/ loading
    - Verify superpowers references in skills
 
 4. **Update TEAM_RULES.md enforcement:**

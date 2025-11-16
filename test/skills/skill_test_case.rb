@@ -27,7 +27,7 @@ class SkillTestCase < Minitest::Test
   def self.generate_tests_from_scenarios
     return if self == SkillTestCase # Don't run for base class
 
-    skill = new.skill_name
+    skill = new(:dummy_test_name).skill_name
     scenario_dir = File.join(ROOT_PATH, "test", "skills", skill, "scenarios")
 
     return unless Dir.exist?(scenario_dir)

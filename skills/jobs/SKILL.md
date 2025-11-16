@@ -117,7 +117,37 @@ production:
       polling_interval: 1
 ```
 
-**Why:** Database-backed job processing with no external dependencies. Jobs are persistent and survive restarts. Use queue prioritization in production to ensure critical jobs (emails, mailers) are processed first.
+**Mission Control Setup (Web Dashboard):**
+
+```ruby
+# Gemfile
+gem "mission_control-jobs"
+
+# config/routes.rb
+Rails.application.routes.draw do
+  # Protect with authentication
+  authenticate :user, ->(user) { user.admin? } do
+    mount MissionControl::Jobs::Engine, at: "/jobs"
+  end
+
+  # Or use HTTP Basic Auth in development/staging
+  # if Rails.env.development? || Rails.env.staging?
+  #   mount MissionControl::Jobs::Engine, at: "/jobs"
+  # end
+end
+
+# config/initializers/mission_control.rb (optional customization)
+MissionControl::Jobs.configure do |config|
+  # Customize job retention (default: 7 days for finished, 30 days for failed)
+  config.finished_jobs_retention_period = 14.days
+  config.failed_jobs_retention_period = 90.days
+
+  # Filter sensitive job arguments from display
+  config.filter_parameters = [:password, :token, :secret]
+end
+```
+
+**Why:** Database-backed job processing with no external dependencies. Jobs are persistent and survive restarts. Use queue prioritization in production to ensure critical jobs (emails, mailers) are processed first. Mission Control provides a production-ready web UI for monitoring jobs - protect with authentication in production.
 </pattern>
 
 <pattern name="basic-job">
@@ -267,6 +297,68 @@ end
 ```
 
 **Why:** Direct database access makes monitoring simple - no special tools needed. Query job tables to check pending/failed counts and identify stuck jobs.
+</pattern>
+
+**Which monitoring approach?**
+
+| Approach | Best For | Access |
+|----------|----------|--------|
+| Mission Control | Production monitoring, team collaboration, visual investigation | Web UI at /jobs |
+| Rails Console | Quick debugging, one-off queries, scripting | Terminal/SSH |
+| Custom Endpoints | Programmatic monitoring, alerting systems, health checks | HTTP API |
+
+<pattern name="mission-control-dashboard">
+<description>Monitor and manage jobs with Mission Control web UI</description>
+
+**Accessing the Dashboard:**
+
+Visit `/jobs` in your browser (e.g., `https://yourapp.com/jobs`) after mounting the engine.
+
+**Dashboard Features:**
+
+```text
+Jobs Overview:
+- View all jobs across queues (pending, running, finished, failed)
+- Real-time status updates
+- Queue performance metrics (throughput, latency)
+- Search jobs by class name, queue, or status
+
+Job Details:
+- Full job arguments and context
+- Execution timeline and duration
+- Error messages and backtraces for failed jobs
+- Retry history
+
+Common Operations:
+- Retry individual failed jobs or bulk retry
+- Discard jobs that shouldn't be retried
+- Pause/resume queues
+- Filter by queue, status, time range
+```
+
+**Example Workflows:**
+
+```text
+Investigating Failed Jobs:
+1. Navigate to /jobs → Failed tab
+2. Filter by job class or time range
+3. Click job to see full error backtrace
+4. Fix underlying issue in code
+5. Retry job from dashboard
+
+Monitoring Queue Health:
+1. Navigate to /jobs → Queues tab
+2. Check pending count and oldest job age
+3. Review throughput metrics
+4. Identify bottlenecks (high latency queues)
+
+Bulk Operations:
+1. Navigate to /jobs → Failed tab
+2. Select multiple jobs with checkboxes
+3. Click "Retry Selected" or "Discard Selected"
+```
+
+**Why:** Web UI makes job monitoring accessible to entire team, not just developers with console access. Visual investigation of failures is faster than querying databases.
 </pattern>
 
 ---

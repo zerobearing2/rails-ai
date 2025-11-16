@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require_relative "../../support/skill_test_case"
+require "test_helper"
 
-class SecurityFileUploadsTest < SkillTestCase
-  self.skill_name = "rails-ai:security-file-uploads"
-  self.skill_directory = "security-file-uploads"
+class JobsMailersTest < SkillTestCase
+  self.skill_name = "jobs-mailers"
+  self.skill_directory = "jobs-mailers"
 
   def test_skill_directory_exists
     assert_skill_directory_exists

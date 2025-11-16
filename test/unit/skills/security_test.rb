@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require_relative "../../support/skill_test_case"
+require "test_helper"
 
-class AntipatternFatControllersTest < SkillTestCase
-  self.skill_name = "rails-ai:antipattern-fat-controllers"
-  self.skill_directory = "antipattern-fat-controllers"
+class SecurityTest < SkillTestCase
+  self.skill_name = "security"
+  self.skill_directory = "security"
 
   def test_skill_directory_exists
     assert_skill_directory_exists

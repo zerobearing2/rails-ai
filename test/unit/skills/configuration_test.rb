@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require_relative "../../support/skill_test_case"
+require "test_helper"
 
-class RubocopTest < SkillTestCase
-  self.skill_name = "rails-ai:rubocop"
-  self.skill_directory = "rubocop"
+class ConfigurationTest < SkillTestCase
+  self.skill_name = "configuration"
+  self.skill_directory = "configuration"
 
   def test_skill_directory_exists
     assert_skill_directory_exists

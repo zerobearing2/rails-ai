@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "../../support/skill_test_case"
+require "test_helper"
 
 class UsingRailsAiTest < SkillTestCase
   self.skill_name = "using-rails-ai"

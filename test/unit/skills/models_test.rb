@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require_relative "../../support/skill_test_case"
+require "test_helper"
 
-class SecurityCsrfTest < SkillTestCase
-  self.skill_name = "rails-ai:security-csrf"
-  self.skill_directory = "security-csrf"
+class ModelsTest < SkillTestCase
+  self.skill_name = "models"
+  self.skill_directory = "models"
 
   def test_skill_directory_exists
     assert_skill_directory_exists

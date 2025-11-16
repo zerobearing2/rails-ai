@@ -51,3 +51,4 @@ end
 
 # Include helpers in test classes
 Minitest::Test.include SkillTestHelpers
+require_relative "support/skill_test_case"

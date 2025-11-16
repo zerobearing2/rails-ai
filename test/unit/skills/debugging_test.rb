@@ -28,8 +28,9 @@ class DebuggingTest < SkillTestCase
 
   def test_has_required_sections
     assert_skill_has_section("when-to-use")
-    assert_skill_has_section("benefits")
-    assert_skill_has_section("standards")
+    # Debugging skill uses phase-based structure integrated with superpowers:systematic-debugging
+    # It has <superpowers-integration> instead of <benefits>/<standards>
+    assert_skill_has_section("superpowers-integration")
   end
 
   def test_xml_tags_valid

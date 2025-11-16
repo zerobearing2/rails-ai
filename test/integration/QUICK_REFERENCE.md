@@ -2,36 +2,38 @@
 
 ## Test Files
 
-| File | Class | Scenario | Agent(s) Tested | Lines |
-|------|-------|----------|-----------------|-------|
-| bootstrap_test.rb | NewBootstrapTest | new_bootstrap | @architect | 60 |
-| developer_agent_test.rb | DeveloperAgentTest | developer_agent_fullstack | @developer | 105 |
-| uat_agent_test.rb | UatAgentTest | uat_agent_testing | @uat | 109 |
-| devops_agent_test.rb | DevopsAgentTest | devops_agent_infrastructure | @devops | 94 |
-| security_agent_test.rb | SecurityAgentTest | security_agent_audit | @security | 111 |
-| superpowers_integration_test.rb | SuperpowersIntegrationTest | superpowers_workflows | @architect | 94 |
-| skill_loading_test.rb | SkillLoadingTest | skill_loading_new_structure | @architect, @developer, @security | 78 |
+| File | Class | Scenario | Agent(s) Tested | Purpose |
+|------|-------|----------|-----------------|---------|
+| bootstrap_test.rb | NewBootstrapTest | new_bootstrap | @architect | Basic coordination & delegation |
+| developer_agent_test.rb | DeveloperAgentTest | developer_agent_fullstack | @developer | Full-stack Rails development |
+| uat_agent_test.rb | UatAgentTest | uat_agent_testing | @uat | Testing & QA workflows |
+| devops_agent_test.rb | DevopsAgentTest | devops_agent_infrastructure | @devops | Infrastructure & deployment |
+| security_agent_test.rb | SecurityAgentTest | security_agent_audit | @security | Security auditing |
+| superpowers_integration_test.rb | SuperpowersIntegrationTest | superpowers_workflows | @architect | End-to-end workflow orchestration |
+| skill_loading_test.rb | SkillLoadingTest | skill_loading_new_structure | @architect, @developer, @security | Skill loading from consolidated structure |
 
-**Total:** 7 test files, 651 lines of code
+**Total:** 7 test files
 
 ## Running Tests
 
 ```bash
-# All tests
-ruby -Itest test-new/integration/*_test.rb
+# List available scenarios
+rake test:integration:list
 
-# Individual tests
-ruby -Itest test-new/integration/bootstrap_test.rb
-ruby -Itest test-new/integration/developer_agent_test.rb
-ruby -Itest test-new/integration/uat_agent_test.rb
-ruby -Itest test-new/integration/devops_agent_test.rb
-ruby -Itest test-new/integration/security_agent_test.rb
-ruby -Itest test-new/integration/superpowers_integration_test.rb
-ruby -Itest test-new/integration/skill_loading_test.rb
+# Run bootstrap test (fast, cheap infrastructure test)
+rake test:integration:bootstrap
 
-# With verbose output
-ruby -Itest test-new/integration/bootstrap_test.rb --verbose
+# Run individual scenario
+rake test:integration:scenario[bootstrap]
+rake test:integration:scenario[developer_agent]
+rake test:integration:scenario[uat_agent]
+rake test:integration:scenario[devops_agent]
+rake test:integration:scenario[security_agent]
+rake test:integration:scenario[superpowers_integration]
+rake test:integration:scenario[skill_loading]
 ```
+
+**Note:** Integration tests invoke Claude CLI and are slow/expensive. Run individually, not in bulk.
 
 ## Key Assertions by Category
 
@@ -51,51 +53,48 @@ ruby -Itest test-new/integration/bootstrap_test.rb --verbose
 - `@devops` - Infrastructure (new)
 - `@security` - Security auditing (refactored)
 
-### Skills Loading
-- `rails-ai:activerecord-patterns`
-- `rails-ai:controller-restful`
-- `rails-ai:hotwire-turbo`
-- `rails-ai:tdd-minitest`
-- `rails-ai:fixtures`
-- `rails-ai:model-testing`
-- `rails-ai:security-xss`
-- `rails-ai:security-sql-injection`
-- `rails-ai:security-command-injection`
-- `rails-ai:security-file-uploads`
-- `rails-ai:docker`
-- `rails-ai:solid-stack`
-- `rails-ai:credentials`
-- `rails-ai:environment-config`
+### Skills Loading (Consolidated v0.3.0)
+- `rails-ai:controllers` - RESTful controllers, nested resources, strong params
+- `rails-ai:models` - ActiveRecord patterns, validations, associations, query/form objects
+- `rails-ai:views` - Hotwire, ViewComponent, Tailwind, forms, accessibility
+- `rails-ai:testing` - TDD with Minitest, fixtures, mocking, test helpers
+- `rails-ai:security` - XSS, SQL injection, CSRF, file uploads, command injection
+- `rails-ai:configuration` - Environment config, credentials, initializers, Docker, RuboCop
+- `rails-ai:jobs-mailers` - SolidQueue, SolidCache, SolidCable, ActionMailer
+- `rails-ai:debugging` - Rails debugging tools + superpowers:systematic-debugging
+- `rails-ai:using-rails-ai` - Meta skill for Rails-AI introduction
 
 ### TEAM_RULES.md Enforcement
 - Rule #1: No Sidekiq/Redis (use SolidQueue/SolidCache)
 - Rule #2: No RSpec (use Minitest)
 - Rule #4: TDD Always (RED-GREEN-REFACTOR)
 
-## Expected Results
+## Test Architecture
 
-All tests should **PASS**:
-- ✅ bootstrap_test.rb
-- ✅ developer_agent_test.rb
-- ✅ uat_agent_test.rb
-- ✅ devops_agent_test.rb
-- ✅ security_agent_test.rb
-- ✅ superpowers_integration_test.rb
-- ✅ skill_loading_test.rb
+Each integration test:
+1. **Invokes Claude CLI** with agent prompt (via `llm_adapter.rb`)
+2. **Runs domain judges** in parallel (backend, frontend, tests, security)
+3. **Scores output** on 200-point scale (50 points per domain)
+4. **Pass threshold:** 140/200 (70%)
 
-## Phase 3 Validation
+Tests verify agents:
+- Reference appropriate superpowers workflows
+- Load correct Rails-AI consolidated skills
+- Delegate to specialized agents
+- Enforce TEAM_RULES.md
+- Produce concrete implementation plans
 
-These tests correspond to Migration Plan Section 10.3 (Phase 3: Integration & Validation):
+## Interpreting Results
 
-**Day 1-2: Superpowers Integration Testing**
-- ✅ `superpowers_integration_test.rb` - All workflows
+**PASS (≥140/200):** Agent produced quality implementation with proper workflows
+**FAIL (<140/200):** Check scores by domain to identify gaps:
+- **Backend:** Model/controller implementation quality
+- **Frontend:** View/Hotwire/styling implementation
+- **Tests:** Test coverage and TDD adherence
+- **Security:** Security considerations and validation
 
-**Day 3: Agent Integration Testing**
-- ✅ `developer_agent_test.rb` - Full-stack developer
-- ✅ `uat_agent_test.rb` - Testing/QA
-- ✅ `devops_agent_test.rb` - Infrastructure
-- ✅ `security_agent_test.rb` - Security with superpowers
-
-**Day 4: Bootstrap & Skill Loading**
-- ✅ `bootstrap_test.rb` - Basic coordination
-- ✅ `skill_loading_test.rb` - Skills-new/ structure
+Common failure patterns:
+- Agent asks clarifying questions instead of implementing (0/200)
+- Missing TDD workflow references
+- Incomplete skill loading
+- Missing TEAM_RULES.md enforcement

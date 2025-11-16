@@ -335,6 +335,7 @@ This table is updated each time an integration test runs. It provides a quick re
 
 | Scenario | Last Run | Agent Time | Judge Time | Total Time | Total Score | Backend | Frontend | Tests | Security | Result |
 |----------|----------|------------|------------|------------|-------------|---------|----------|-------|----------|--------|
+| new_bootstrap | 2025-11-16 | 20.7s | 43.0s | 1m 4s | 0/200 | 0/50 | 0/50 | 0/50 | 0/50 | ❌ FAIL |
 | bootstrap | 2025-11-08 | 11.3s | 29.8s | 41.1s | 190/200 | 50/50 | 45/50 | 45/50 | 50/50 | ✅ PASS |
 | simple_model_plan | 2025-11-08 | 1m 3s | 40.4s | 1m 44s | 179/200 | 50/50 | 50/50 | 41/50 | 38/50 | ✅ PASS |
 

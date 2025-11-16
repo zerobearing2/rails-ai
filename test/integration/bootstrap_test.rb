@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "../../test/support/agent_integration_test_case"
+require_relative "../support/agent_integration_test_case"
 
 # Bootstrap integration test for new agent structure
 # Tests that architect agent:
@@ -44,10 +44,10 @@ class NewBootstrapTest < AgentIntegrationTestCase
     assert_match(/@developer|Task.*developer/i, agent_output,
                  "Architect should delegate to @developer agent")
 
-    # Should load rails-ai skills from skills-new/
-    assert_match(/rails-ai:(controller-restful|tdd-minitest)/,
+    # Should load rails-ai skills from skills/
+    assert_match(/rails-ai:(controllers|testing|views|models)/,
                  agent_output,
-                 "Architect should load rails-ai skills")
+                 "Architect should load rails-ai consolidated skills")
 
     # Should enforce TEAM_RULES.md
     assert_match(/TEAM_RULES|Rule #|TDD|RED-GREEN-REFACTOR/i,

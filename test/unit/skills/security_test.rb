@@ -28,8 +28,10 @@ class SecurityTest < SkillTestCase
 
   def test_has_required_sections
     assert_skill_has_section("when-to-use")
-    assert_skill_has_section("benefits")
     assert_skill_has_section("standards")
+    # Security skill uses <attack-vectors> section instead of <benefits>
+    # This provides context on threats being prevented
+    assert_skill_has_section("attack-vectors")
   end
 
   def test_xml_tags_valid

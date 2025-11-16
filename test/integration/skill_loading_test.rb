@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "../../test/support/agent_integration_test_case"
+require_relative "../support/agent_integration_test_case"
 
 # Integration test for skill loading from skills-new/ directory
 # Tests that agents properly load and reference skills from the new flat structure

@@ -1,32 +1,67 @@
-# Unit Tests for New Skills Structure
+# Rails-AI Test Suite
 
-This directory contains unit tests for the new Rails-AI skills structure located in `/skills/`.
+This directory contains all tests for Rails-AI skills, agents, and rules.
 
 ## Structure
 
 ```
-test-new/
+test/
 ├── test_helper.rb              # Test configuration and helper methods
 ├── support/
-│   └── skill_test_case.rb      # Base test class for skill validation
-└── unit/
-    └── skills/                 # 38 individual skill test files
-        ├── accessibility_test.rb
-        ├── action_mailer_test.rb
-        ├── activerecord_patterns_test.rb
-        └── ... (38 total)
+│   ├── skill_test_case.rb      # Base test class for skill validation
+│   ├── agent_integration_test_case.rb  # Base class for agent tests
+│   └── llm_adapter.rb          # LLM integration for agent tests
+├── unit/
+│   └── skills/                 # 9 consolidated skill test files
+│       ├── configuration_test.rb
+│       ├── controllers_test.rb
+│       ├── debugging_test.rb
+│       ├── jobs_mailers_test.rb
+│       ├── models_test.rb
+│       ├── security_test.rb
+│       ├── testing_test.rb
+│       ├── using_rails_ai_test.rb
+│       └── views_test.rb
+└── integration/                # 7 agent integration scenarios
+    ├── bootstrap_test.rb
+    ├── developer_agent_test.rb
+    ├── devops_agent_test.rb
+    ├── security_agent_test.rb
+    ├── skill_loading_test.rb
+    ├── superpowers_integration_test.rb
+    ├── uat_agent_test.rb
+    ├── README.md               # Integration test documentation
+    └── QUICK_REFERENCE.md      # Quick integration test guide
 ```
 
 ## Running Tests
 
-Run all tests:
+### Run all unit tests (fast):
 ```bash
-ruby -Itest-new -e 'Dir.glob("test-new/unit/skills/*_test.rb").each { |f| require_relative f }'
+rake test:unit
+# or via CI
+./bin/ci
 ```
 
-Run a single test:
+### Run skill tests only:
 ```bash
-ruby -Itest-new test-new/unit/skills/tdd_minitest_test.rb
+rake test:unit:skills
+```
+
+### Run a single unit test:
+```bash
+rake test:file[test/unit/skills/models_test.rb]
+```
+
+### Run integration tests (slow, individual scenarios):
+```bash
+rake test:integration:scenario[bootstrap]
+rake test:integration:scenario[developer_agent]
+```
+
+### List available integration scenarios:
+```bash
+rake test:integration:list
 ```
 
 ## Test Coverage
@@ -80,31 +115,40 @@ The `SkillTestCase` base class provides:
 
 ## Test Statistics
 
-- **Total test files**: 38
-- **Total lines of test code**: ~1,600
+- **Total unit test files**: 9
 - **Tests per skill**: 8
-- **Total test runs**: 304 (38 skills × 8 tests)
+- **Total test runs**: 72 (9 skills × 8 tests)
+- **Total integration scenarios**: 7
+- **Skill coverage**: 100% (9/9 skills tested)
 
-## Known Issues
+## Known Variations
 
-Some skills don't follow the exact same XML structure:
+Some skills have different structures based on their purpose:
 
-1. **using-rails-ai** - Meta skill with different structure (doesn't have `<when-to-use>`, `<benefits>`, `<standards>`)
-2. **Security skills** - Use `<attack-vectors>` instead of `<benefits>`
-3. **debugging-rails** - Uses phase-specific sections instead of standard sections
+1. **using-rails-ai** - Meta/documentation skill
+   - Skips `test_has_required_sections` (uses markdown headers, not XML sections)
+   - Skips `test_has_code_examples` (documentation-focused)
 
-These differences are intentional based on skill type. Tests may need customization for these special cases.
+2. **security** - Attack-focused skill
+   - Uses `<attack-vectors>` instead of `<benefits>`
+   - Uses `<standards>` for security patterns
+
+3. **debugging** - Phase-based skill
+   - Uses `<superpowers-integration>` instead of `<benefits>`/`<standards>`
+   - Integrates with superpowers:systematic-debugging workflow
+
+These variations are intentional and properly tested.
 
 ## Example Test
 
 ```ruby
 # frozen_string_literal: true
 
-require_relative "../../support/skill_test_case"
+require "test_helper"
 
-class TddMinitestTest < SkillTestCase
-  self.skill_name = "rails-ai:tdd-minitest"
-  self.skill_directory = "tdd-minitest"
+class ModelsTest < SkillTestCase
+  self.skill_name = "models"
+  self.skill_directory = "models"
 
   def test_skill_directory_exists
     assert_skill_directory_exists
@@ -147,19 +191,20 @@ end
 When adding a new skill, create a corresponding test file:
 
 1. Name format: `{skill_directory}_test.rb` (use underscores, not hyphens)
-2. Class name: Convert to CamelCase + "Test" (e.g., `TddMinitestTest`)
+2. Class name: Convert to CamelCase + "Test" (e.g., `ModelsTest`, `JobsMailersTest`)
 3. Set `skill_name` and `skill_directory` class attributes
 4. Include standard assertions
+5. Customize for special cases (meta skills, phase-based skills)
 
-## Migration Notes
+## Skill Structure
 
-These tests are designed for the **new** flat skill structure:
+Current consolidated skill structure (v0.3.0):
 - Path: `skills/{directory}/SKILL.md`
-- Frontmatter: Minimal (`name`, `description`)
-- Naming: Directory has no prefix, but frontmatter name has `rails-ai:` prefix
+- Frontmatter: Minimal YAML (`name`, `description`)
+- Naming: Directory name without prefix, frontmatter name has `rails-ai:` prefix
+- 9 domain-organized skills (controllers, models, views, testing, security, configuration, jobs-mailers, debugging, using-rails-ai)
 
-Differences from old structure:
-- Old: `skills/{domain}/{name}.md` (e.g., `skills/testing/tdd-minitest.md`)
-- New: `skills/{name}/SKILL.md` (e.g., `skills/tdd-minitest/SKILL.md`)
-- Old frontmatter: Rich metadata (domain, version, dependencies, etc.)
-- New frontmatter: Minimal (name, description only)
+Example:
+- Directory: `skills/models/`
+- File: `skills/models/SKILL.md`
+- Frontmatter name: `rails-ai:models`

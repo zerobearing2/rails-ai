@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "../../test/support/agent_integration_test_case"
+require_relative "../support/agent_integration_test_case"
 
 # Integration test for superpowers workflows integration
 # Tests that architect agent properly references and uses superpowers workflows

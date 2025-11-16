@@ -83,7 +83,7 @@ Then in Claude Code:
 
 ### Step 2: Upgrade Rails-AI
 
-```
+```bash
 /plugin update rails-ai
 ```
 
@@ -111,16 +111,16 @@ Or reinstall:
 ```
 
 **After (v0.3.0):**
-```
+```text
 @agent-rails-ai:architect Add user authentication feature
 
-# Architect will:
-# 1. Use superpowers:brainstorming for design
-# 2. Use superpowers:writing-plans for planning
-# 3. Delegate to @developer for implementation
-# 4. Use superpowers:test-driven-development for TDD
-# 5. Use superpowers:systematic-debugging for debugging
-# 6. Use superpowers:requesting-code-review for review
+Architect will:
+1. Use superpowers:brainstorming for design
+2. Use superpowers:writing-plans for planning
+3. Delegate to @developer for implementation
+4. Use superpowers:test-driven-development for TDD
+5. Use superpowers:systematic-debugging for debugging
+6. Use superpowers:requesting-code-review for review
 ```
 
 **Or directly invoke specialists:**
@@ -135,7 +135,7 @@ Or reinstall:
 If you have custom workflows that reference specific agents:
 
 **Before:**
-```
+```text
 # Custom workflow referencing old agents
 1. @agent-rails-ai:backend - build API
 2. @agent-rails-ai:frontend - build UI
@@ -143,7 +143,7 @@ If you have custom workflows that reference specific agents:
 ```
 
 **After:**
-```
+```text
 # Custom workflow with new agents
 1. @agent-rails-ai:developer - build feature end-to-end with TDD
 2. @agent-rails-ai:security - security audit

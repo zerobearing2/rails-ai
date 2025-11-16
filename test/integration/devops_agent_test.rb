@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "../../test/support/agent_integration_test_case"
+require_relative "../support/agent_integration_test_case"
 
 # Integration test for DevOps agent
 # Tests the new DevOps agent for infrastructure and deployment

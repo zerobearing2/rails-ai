@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "../../test/support/agent_integration_test_case"
+require_relative "../support/agent_integration_test_case"
 
 # Integration test for UAT/QA agent
 # Tests the new UAT agent that replaces tests agent with broader QA focus

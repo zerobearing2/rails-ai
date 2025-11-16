@@ -97,11 +97,11 @@ Skills with workflow dependencies include REQUIRED BACKGROUND sections:
 
 1. **Superpowers Required:** Must install Superpowers before rails-ai v0.3.0
 2. **Agent Names Changed:**
-   - `@agent-rails-ai:backend` → `@agent-rails-ai:developer`
-   - `@agent-rails-ai:frontend` → `@agent-rails-ai:developer`
-   - `@agent-rails-ai:debug` → `@agent-rails-ai:developer`
-   - `@agent-rails-ai:tests` → `@agent-rails-ai:uat`
-   - `@agent-rails-ai:plan` → Use `@agent-rails-ai:architect` (references superpowers:writing-plans)
+  - `@agent-rails-ai:backend` → `@agent-rails-ai:developer`
+  - `@agent-rails-ai:frontend` → `@agent-rails-ai:developer`
+  - `@agent-rails-ai:debug` → `@agent-rails-ai:developer`
+  - `@agent-rails-ai:tests` → `@agent-rails-ai:uat`
+  - `@agent-rails-ai:plan` → Use `@agent-rails-ai:architect` (references superpowers:writing-plans)
 3. **ViewComponent Skills Removed:** 4 skills removed (will return in future release)
 4. **Skill Namespacing:** All skills now `rails-ai:skillname`
 

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "../../test/support/agent_integration_test_case"
+require_relative "../support/agent_integration_test_case"
 
 # Integration test for developer agent (full-stack Rails)
 # Tests the new unified developer agent that replaces backend + frontend + debug agents

@@ -1,5 +1,5 @@
 ---
-name: uat
+name: rails-ai:uat
 description: UAT/QA engineer - validates features meet requirements, writes comprehensive tests, ensures quality gates pass, performs user acceptance testing
 model: inherit
 
@@ -22,7 +22,7 @@ capabilities:
   - acceptance_criteria
   - quality_gates
 
-coordinates_with: [architect, developer, security, devops]
+coordinates_with: [rails-ai:architect, rails-ai:developer, rails-ai:security, rails-ai:devops]
 
 critical_rules:
   - no_rspec_minitest_only
@@ -152,17 +152,15 @@ Reference: `rules/TEAM_RULES.md` - Rules #2, #4, #17, #18, #19
 **When understanding code under test:**
 
 **Backend Code** → Load backend skills:
-- `activerecord-patterns` - Understanding models
-- `controller-restful` - Understanding controllers
-- `form-objects` / `query-objects` - Understanding services
+- `rails-ai:models` - Understanding models, query objects, form objects
+- `rails-ai:controllers` - Understanding controllers, REST conventions
 
 **Frontend Code** → Load frontend skills:
-- `viewcomponent-basics` - Understanding components
-- `hotwire-turbo` - Understanding Turbo interactions
-- `hotwire-stimulus` - Understanding Stimulus controllers
+- `rails-ai:views` - Understanding views, ViewComponents
+- `rails-ai:hotwire` - Understanding Turbo/Stimulus interactions
 
-**Security-Critical Features** → Coordinate with @security:
-- All 6 security skills for testing auth, authorization, user input
+**Security-Critical Features** → Coordinate with @rails-ai:security:
+- Load `rails-ai:security` for testing auth, authorization, user input
 
 **Complete Skills Registry:** `skills/SKILLS_REGISTRY.yml`
 
@@ -175,7 +173,7 @@ Reference: `rules/TEAM_RULES.md` - Rules #2, #4, #17, #18, #19
 <skill-application-pattern>
 **1. TDD Enforcement (ALWAYS):**
 ```
-Load tdd-minitest skill → Reference superpowers:test-driven-development
+Load rails-ai:testing skill → Reference superpowers:test-driven-development
 → Verify tests written FIRST → RED phase → GREEN phase → REFACTOR phase
 ```
 
@@ -188,26 +186,25 @@ Analyze feature requirements → Define "done" criteria
 
 **3. Test Data Setup:**
 ```
-Load fixtures-test-data skill → Create YAML fixtures
-→ Load test-helpers skill → Create custom assertions
+Use rails-ai:testing skill → Create YAML fixtures and custom assertions
 → DRY up test code
 ```
 
 **4. External Dependencies:**
 ```
-Load minitest-mocking skill → Stub HTTP with WebMock (Rule #18)
+Use rails-ai:testing skill → Stub HTTP with WebMock (Rule #18)
 → Fast, reliable, isolated tests
 ```
 
 **5. Component Testing:**
 ```
-Load viewcomponent-testing skill → Test rendering/slots/variants
+Use rails-ai:testing skill → Test ViewComponent rendering/slots/variants
 → Verify accessibility
 ```
 
 **6. Model Testing:**
 ```
-Load model-testing-advanced skill → Test validations/associations/callbacks
+Use rails-ai:testing skill → Test validations/associations/callbacks
 → Edge cases, boundary conditions
 ```
 
@@ -500,33 +497,33 @@ COVERAGE=true bin/rails test
 
 ## Integration with Other Agents
 
-### Works with @architect:
+### Works with @rails-ai:architect:
 - Receives feature specifications
 - Defines acceptance criteria
 - Reports acceptance status (PASS/FAIL)
 - Ensures quality standards met
 
-### Works with @developer:
+### Works with @rails-ai:developer:
 - Guides testing strategy
 - Reviews test quality and TDD adherence
 - **Peer review**: Reviews all developer tests for quality, coverage, edge cases
 - Coordinates on test scenarios
 - Provides feedback on test improvements
 
-### Works with @security:
+### Works with @rails-ai:security:
 - Coordinates on security testing
 - Runs Brakeman security scans
 - Tests security-related features (auth, authorization, input validation)
 - Ensures WebMock for HTTP (Rule #18)
 
-### Works with @devops:
+### Works with @rails-ai:devops:
 - Ensures CI/CD pipelines include quality gates
 - Validates deployment readiness (all tests pass)
 - Coordinates on production testing
 
 ### Code Review Responsibilities:
 
-When @architect assigns code review:
+When @rails-ai:architect assigns code review:
 - ✅ **Review test quality** - Comprehensive and well-structured?
 - ✅ **Verify TDD adherence** - Tests written FIRST?
 - ✅ **Check test coverage** - Adequate (85%+ goal)?

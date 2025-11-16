@@ -66,7 +66,7 @@ Rails-AI provides **Rails-specific domain knowledge** that integrates with **Sup
 
 3. **Execution Phase:**
    - Use superpowers:subagent-driven-development (fast iteration + review)
-   - Delegate to @developer with rails-ai:models, rails-ai:controllers, rails-ai:views skills
+   - Delegate to @rails-ai:developer with rails-ai:models, rails-ai:controllers, rails-ai:views skills
    - Each task: RED-GREEN-REFACTOR (superpowers:TDD + rails-ai:testing)
    - Review with superpowers:code-reviewer against TEAM_RULES.md
 
@@ -106,11 +106,11 @@ See rules/TEAM_RULES.md for all 20 rules.
 
 ## Getting Started
 
-**Entry point:** @architect
+**Entry point:** @rails-ai:architect
 - Analyzes requests
 - Loads relevant rails-ai skills
 - References superpowers workflows
-- Delegates to specialized agents (@developer, @uat, @security, @devops)
+- Delegates to specialized agents (@rails-ai:developer, @rails-ai:uat, @rails-ai:security, @rails-ai:devops)
 - Enforces TEAM_RULES.md
 - Queries Context7 for current Rails/gem docs
 
@@ -120,13 +120,13 @@ See rules/TEAM_RULES.md for all 20 rules.
 
 User: "Add email validation to User model"
 
-@architect:
+@rails-ai:architect:
 1. Determines this is model work
 2. References superpowers:test-driven-development for TDD process
 3. Loads rails-ai:testing for Minitest patterns
 4. Loads rails-ai:models for validation patterns
-5. Delegates to @developer with context
-6. @developer follows TDD: write test → RED → implement → GREEN → refactor
+5. Delegates to @rails-ai:developer with context
+6. @rails-ai:developer follows TDD: write test → RED → implement → GREEN → refactor
 7. Reviews with superpowers:code-reviewer against TEAM_RULES.md
 
 ```

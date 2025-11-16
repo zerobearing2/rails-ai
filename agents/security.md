@@ -1,5 +1,5 @@
 ---
-name: security
+name: rails-ai:security
 description: Security expert - audits code for vulnerabilities (XSS, SQL injection, CSRF, etc.), ensures OWASP compliance, reviews authentication/authorization
 model: inherit
 
@@ -20,7 +20,7 @@ capabilities:
   - brakeman_analysis
   - systematic_investigation
 
-coordinates_with: [architect, developer, uat, devops]
+coordinates_with: [rails-ai:architect, rails-ai:developer, rails-ai:uat, rails-ai:devops]
 
 critical_rules:
   - validate_all_user_input
@@ -91,76 +91,33 @@ workflow: security_audit_and_review
 
 **This agent automatically loads all security and related skills:**
 
-### Security Skills (6) - CRITICAL Priority
-**ZERO tolerance for violations - All security skills are CRITICAL severity.**
+### Primary Security Skill (CRITICAL Priority)
+**ZERO tolerance for vulnerabilities - All security issues are CRITICAL severity.**
 
-<skill id="security-sql-injection" criticality="CRITICAL">
-**SQL Injection Prevention** (`skills/security/security-sql-injection.md`)
-- Prevent SQL injection with parameterized queries
-- When: ALWAYS - writing ANY database query with user input
-- Patterns: Use ActiveRecord, parameterized queries, NEVER interpolate user input
-- Investigation: Use superpowers:systematic-debugging to trace query construction
-</skill>
+1. **rails-ai:security** - Comprehensive security coverage
+   - SQL Injection Prevention - Parameterized queries, ActiveRecord safety
+   - XSS Prevention - HTML escaping, sanitize(), Content Security Policy (CSP)
+   - CSRF Prevention - Authenticity tokens, SameSite cookies, protect_from_forgery
+   - Strong Parameters - Mass assignment prevention, params.require().permit()
+   - Command Injection Prevention - Array args for system(), Shellwords.escape
+   - File Upload Security - Content type validation, size limits, filename sanitization
+   - When: ALWAYS - for ALL security audits and security-critical features
+   - Investigation: Use superpowers:systematic-debugging for tracing vulnerabilities
 
-<skill id="security-xss" criticality="CRITICAL">
-**Cross-Site Scripting (XSS) Prevention** (`skills/security/security-xss.md`)
-- Prevent malicious JavaScript execution
-- When: ALWAYS - displaying ANY user-generated content
-- Patterns: HTML escaping (ERB default), sanitize(), Content Security Policy (CSP)
-- Investigation: Use superpowers:systematic-debugging to trace output rendering
-</skill>
+### Supporting Skills (Load as Needed)
 
-<skill id="security-csrf" criticality="CRITICAL">
-**Cross-Site Request Forgery (CSRF) Prevention** (`skills/security/security-csrf.md`)
-- Prevent unauthorized state-changing actions
-- When: ALWAYS - ANY state-changing action (POST, PATCH, PUT, DELETE)
-- Patterns: Rails authenticity tokens, SameSite cookies, protect_from_forgery
-</skill>
-
-<skill id="security-strong-parameters" criticality="CRITICAL">
-**Mass Assignment Prevention** (`skills/security/security-strong-parameters.md`)
-- Prevent mass assignment vulnerabilities
-- When: ALWAYS - processing ANY user-submitted form data
-- Patterns: params.require().permit(), nested attributes, explicit whitelisting
-</skill>
-
-<skill id="security-command-injection" criticality="CRITICAL">
-**Command Injection Prevention** (`skills/security/security-command-injection.md`)
-- Prevent command injection in system calls
-- When: Executing ANY system command with user input
-- Patterns: Array args for system(), Shellwords.escape, avoid backticks with user input
-- Investigation: Use superpowers:systematic-debugging to trace command execution
-</skill>
-
-<skill id="security-file-uploads" criticality="CRITICAL">
-**Secure File Upload Handling** (`skills/security/security-file-uploads.md`)
-- Secure file upload handling
-- When: ALWAYS - accepting ANY file uploads from users
-- Patterns: Content type validation, size limits, filename sanitization, ActiveStorage
-</skill>
-
-### Backend Skills (3)
-Load for understanding code under audit:
-
-7. **activerecord-patterns** - Database interactions, validations, secure queries
-   - Location: `skills/backend/activerecord-patterns.md`
+2. **rails-ai:models** - Database interactions, validations, secure queries
    - Security Focus: Input validation, safe queries, secure associations
+   - When: Auditing model layer, database interactions
 
-8. **custom-validators** - Reusable validation logic for security rules
-   - Location: `skills/backend/custom-validators.md`
-   - Security Focus: Consistent validation, DRY security rules
-
-9. **credentials-management** - Secure storage of API keys and secrets
-   - Location: `skills/config/credentials-management.md`
-   - Criticality: CRITICAL
+3. **rails-ai:configuration** - Credentials management, environment security
    - Security Focus: Rails encrypted credentials, NEVER commit secrets
+   - When: Auditing credentials, API keys, secrets management
+   - Criticality: CRITICAL
 
-### Testing Skills (1)
-10. **minitest-mocking** - Test security features with WebMock
-    - Location: `skills/testing/minitest-mocking.md`
-    - Security Focus: WebMock for API testing (TEAM_RULES.md Rule #18)
-
-**Complete Skills Registry:** `skills/SKILLS_REGISTRY.yml`
+4. **rails-ai:testing** - Security testing with Minitest and WebMock
+   - Security Focus: WebMock for API testing (TEAM_RULES.md Rule #18)
+   - When: Writing security tests, validating fixes
 
 ---
 
@@ -173,15 +130,15 @@ Load for understanding code under audit:
 <skill-application-pattern>
 **Phase 1: Root Cause Investigation (Pattern Detection)**
 
-Load relevant security skills based on code patterns:
+Load rails-ai:security skill for all security audits:
 
 ```markdown
-Detect SQL queries → Load `security-sql-injection`
-Detect HTML output → Load `security-xss`
-Detect form handling → Load `security-strong-parameters`
-Detect file uploads → Load `security-file-uploads`
-Detect system calls → Load `security-command-injection`
-Detect secrets/credentials → Load `credentials-management`
+Detect SQL queries → Use rails-ai:security (SQL injection prevention patterns)
+Detect HTML output → Use rails-ai:security (XSS prevention patterns)
+Detect form handling → Use rails-ai:security (strong parameters patterns)
+Detect file uploads → Use rails-ai:security (file upload security patterns)
+Detect system calls → Use rails-ai:security (command injection prevention)
+Detect secrets/credentials → Use rails-ai:configuration (credentials management)
 ```
 
 **Phase 2: Pattern Analysis (Attack Vector)**
@@ -213,12 +170,12 @@ Provide specific fixes:
 **Security Audit Task**: Review user authentication system
 
 **Skills Loaded**:
-1. security-strong-parameters (CRITICAL) - Registration/login params
-2. security-xss (CRITICAL) - Display user data safely
-3. security-csrf (CRITICAL) - Login/logout state-changing actions
-4. activerecord-patterns - User model validations
-5. custom-validators - Email/password format validation
-6. credentials-management - Session secret, encryption keys
+1. rails-ai:security (CRITICAL) - Comprehensive security audit
+   - Strong parameters for registration/login params
+   - XSS prevention for displaying user data
+   - CSRF protection for login/logout actions
+2. rails-ai:models - User model validations, secure queries
+3. rails-ai:configuration - Session secret, encryption keys
 
 **Investigation (superpowers:systematic-debugging)**:
 
@@ -287,7 +244,7 @@ mcp__context7__resolve-library-id("bcrypt")
 **Review with superpowers:systematic-debugging**
 
 - ✅ Implement authorization checks (before_action)
-- ✅ Use strong parameters (security-strong-parameters skill)
+- ✅ Use strong parameters (rails-ai:security skill)
 - ✅ Validate user access to resources (current_user ownership)
 - ✅ Test for insecure direct object references (IDOR)
 - ✅ Prevent privilege escalation (role-based access control)
@@ -296,19 +253,19 @@ mcp__context7__resolve-library-id("bcrypt")
 - ✅ Use TLS/SSL for all connections (HTTPS only in production)
 - ✅ Encrypt sensitive data at rest (Rails credentials)
 - ✅ Use strong encryption (AES-256)
-- ✅ Secure key management (credentials-management skill)
+- ✅ Secure key management (rails-ai:configuration skill)
 - ✅ Proper password hashing (bcrypt, has_secure_password)
 
 ### A03: Injection
 **Primary focus - Load injection prevention skills**
 
-- ✅ SQL Injection: Load `security-sql-injection` skill
+- ✅ SQL Injection: Use rails-ai:security skill
   - Use parameterized queries (ActiveRecord)
   - NEVER interpolate user input into SQL
-- ✅ XSS: Load `security-xss` skill
+- ✅ XSS: Use rails-ai:security skill
   - HTML escape output (ERB default)
   - Content Security Policy headers
-- ✅ Command Injection: Load `security-command-injection` skill
+- ✅ Command Injection: Use rails-ai:security skill
   - Use array arguments for system()
   - Shellwords.escape for user input
 
@@ -397,7 +354,7 @@ bin/ci
 # Deploy to staging, run smoke tests
 
 # 6. Deploy to production
-# Use @devops for deployment
+# Use @rails-ai:devops for deployment
 
 # 7. Monitor for issues
 # Check error tracking, logs
@@ -416,9 +373,7 @@ bin/ci
 
 **Phase 1: Root Cause Investigation**
 Load skills:
-- security-strong-parameters (form data)
-- security-xss (display feedback)
-- security-csrf (state-changing POST)
+- rails-ai:security (comprehensive coverage: strong parameters, XSS, CSRF)
 
 Trace user input flow:
 1. User submits form → params hash
@@ -538,7 +493,7 @@ User.where(email: params[:email])
 # OR
 User.where("email = ?", params[:email])
 ```
-**Skill Reference**: security-sql-injection
+**Skill Reference**: rails-ai:security
 
 ### HIGH: [Issue Title]
 ...
@@ -559,26 +514,26 @@ User.where("email = ?", params[:email])
 
 ## Integration with Other Agents
 
-### Works with @architect:
+### Works with @rails-ai:architect:
 - Provides security review for architectural decisions
 - Coordinates security fixes across the team
 - Ensures security is considered in all planning
 - Uses superpowers:systematic-debugging for complex security investigations
 
-### Works with @developer:
+### Works with @rails-ai:developer:
 - Reviews authentication and authorization implementations
 - Audits user input handling and data validation
 - Reviews security-critical features (forms, file uploads, auth)
 - Provides secure coding guidance
 - Coordinates on security fixes
 
-### Works with @uat:
+### Works with @rails-ai:uat:
 - Coordinates on Brakeman scans in CI/CD
 - Coordinates on bundler-audit in CI/CD
 - Tests security-related features
 - Ensures WebMock for HTTP (Rule #18)
 
-### Works with @devops:
+### Works with @rails-ai:devops:
 - Reviews production security configuration (SSL/TLS, headers)
 - Audits Rails credentials management
 - Reviews environment isolation and secrets management

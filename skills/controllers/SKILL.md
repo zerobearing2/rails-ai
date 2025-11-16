@@ -41,6 +41,7 @@ Rails controllers following REST conventions with 7 standard actions, nested res
 <description>Complete RESTful controller with all 7 standard actions</description>
 
 **Controller:**
+
 ```ruby
 # app/controllers/feedbacks_controller.rb
 class FeedbacksController < ApplicationController
@@ -92,13 +93,16 @@ class FeedbacksController < ApplicationController
     params.require(:feedback).permit(:content, :recipient_email, :sender_name)
   end
 end
+
 ```
 
 **Routes:**
+
 ```ruby
 # config/routes.rb
 resources :feedbacks
 # Generates all 7 RESTful routes: index, show, new, create, edit, update, destroy
+
 ```
 
 **Why:** Follows Rails conventions, predictable patterns, automatic route helpers.
@@ -108,6 +112,7 @@ resources :feedbacks
 <description>RESTful API controller with JSON responses</description>
 
 **Controller:**
+
 ```ruby
 # app/controllers/api/v1/feedbacks_controller.rb
 module Api::V1
@@ -158,6 +163,7 @@ module Api::V1
     end
   end
 end
+
 ```
 
 **Why:** Proper HTTP status codes, error handling, JSON responses for APIs.
@@ -168,6 +174,7 @@ end
 <reason>Breaks REST conventions and makes routing unpredictable</reason>
 
 **Bad Example:**
+
 ```ruby
 # ❌ BAD - Custom action
 resources :feedbacks do
@@ -181,9 +188,11 @@ class FeedbacksController < ApplicationController
     redirect_to feedbacks_path
   end
 end
+
 ```
 
 **Good Example:**
+
 ```ruby
 # ✅ GOOD - Use nested resource
 resources :feedbacks do
@@ -197,6 +206,7 @@ class Feedbacks::ArchivalsController < ApplicationController
     redirect_to feedbacks_path
   end
 end
+
 ```
 
 **Why Bad:** Custom actions break REST conventions, make routing unpredictable, harder to maintain.
@@ -210,6 +220,7 @@ end
 <description>Child controllers using module namespacing and nested routes</description>
 
 **Routes:**
+
 ```ruby
 # config/routes.rb
 resources :feedbacks do
@@ -222,9 +233,11 @@ end
 # GET    /feedbacks/:feedback_id/responses         feedbacks/responses#index
 # POST   /feedbacks/:feedback_id/responses         feedbacks/responses#create
 # DELETE /feedbacks/:feedback_id/responses/:id     feedbacks/responses#destroy
+
 ```
 
 **Controller:**
+
 ```ruby
 # app/controllers/feedbacks/responses_controller.rb
 module Feedbacks
@@ -265,10 +278,13 @@ module Feedbacks
     end
   end
 end
+
 ```
 
 **Directory Structure:**
+
 ```
+
 app/
   controllers/
     feedbacks_controller.rb              # FeedbacksController
@@ -279,6 +295,7 @@ app/
     feedback.rb                          # Feedback
     feedbacks/
       response.rb                        # Feedbacks::Response
+
 ```
 
 **Why:** Clear hierarchy, URL structure reflects relationships, automatic parent scoping.
@@ -288,6 +305,7 @@ app/
 <description>Shallow nesting for resources that need parent context only on creation</description>
 
 **Routes:**
+
 ```ruby
 resources :projects do
   resources :tasks, shallow: true, module: :projects
@@ -299,9 +317,11 @@ end
 # GET    /tasks/:id                     projects/tasks#show
 # PATCH  /tasks/:id                     projects/tasks#update
 # DELETE /tasks/:id                     projects/tasks#destroy
+
 ```
 
 **Controller:**
+
 ```ruby
 # app/controllers/projects/tasks_controller.rb
 module Projects
@@ -343,6 +363,7 @@ module Projects
     end
   end
 end
+
 ```
 
 **Why:** Shorter URLs for member actions, parent context where needed.
@@ -353,6 +374,7 @@ end
 <reason>Creates overly long URLs and complex routing</reason>
 
 **Bad Example:**
+
 ```ruby
 # ❌ BAD - Too deeply nested
 resources :organizations do
@@ -363,9 +385,11 @@ resources :organizations do
   end
 end
 # Results in: /organizations/:org_id/projects/:proj_id/tasks/:task_id/comments
+
 ```
 
 **Good Example:**
+
 ```ruby
 # ✅ GOOD - Use shallow nesting
 resources :projects do
@@ -375,6 +399,7 @@ end
 resources :tasks do
   resources :comments, shallow: true
 end
+
 ```
 
 **Why Bad:** Long URLs are hard to read, complex routing, difficult to maintain.
@@ -389,6 +414,7 @@ end
 <reason>Violates Single Responsibility, hard to test, prevents reuse</reason>
 
 **Bad Example:**
+
 ```ruby
 # ❌ BAD - 50+ lines with business logic, validations, API calls
 class FeedbacksController < ApplicationController
@@ -426,6 +452,7 @@ class FeedbacksController < ApplicationController
     end
   end
 end
+
 ```
 
 **Why Bad:** Too much responsibility, hard to test, cannot reuse in APIs, slow requests.
@@ -435,6 +462,7 @@ end
 <description>Refactored thin controller with proper separation of concerns</description>
 
 **Model (validations and defaults):**
+
 ```ruby
 # ✅ GOOD - Model handles validations and defaults
 class Feedback < ApplicationRecord
@@ -459,9 +487,11 @@ class Feedback < ApplicationRecord
     FeedbackTrackingJob.perform_later(id)
   end
 end
+
 ```
 
 **Service Object (external dependencies):**
+
 ```ruby
 # ✅ GOOD - Service object isolates external dependencies
 # app/services/feedback_ai_processor.rb
@@ -491,9 +521,11 @@ class FeedbackAiProcessor
     response.content[0].text
   end
 end
+
 ```
 
 **Controller (HTTP concerns only):**
+
 ```ruby
 # ✅ GOOD - 10 lines, only HTTP concerns
 class FeedbacksController < ApplicationController
@@ -514,6 +546,7 @@ class FeedbacksController < ApplicationController
     params.require(:feedback).permit(:content, :recipient_email, :sender_name)
   end
 end
+
 ```
 
 **Why Good:** Controller reduced from 55+ to 10 lines. Logic testable, reusable across web/API.
@@ -527,6 +560,7 @@ end
 <description>Reusable authentication logic with session management</description>
 
 **Concern:**
+
 ```ruby
 # app/controllers/concerns/authentication.rb
 module Authentication
@@ -559,9 +593,11 @@ module Authentication
     end
   end
 end
+
 ```
 
 **Usage:**
+
 ```ruby
 # app/controllers/feedbacks_controller.rb
 class FeedbacksController < ApplicationController
@@ -573,6 +609,7 @@ class FeedbacksController < ApplicationController
     @feedbacks = current_user.feedbacks
   end
 end
+
 ```
 
 **Why:** Consistent authentication across controllers, easy to skip for specific actions, `current_user` available in views.
@@ -582,6 +619,7 @@ end
 <description>Standardized JSON responses and error handling for APIs</description>
 
 **Concern:**
+
 ```ruby
 # app/controllers/concerns/api/response_handler.rb
 module Api::ResponseHandler
@@ -623,9 +661,11 @@ module Api::ResponseHandler
     render_error("Missing required parameter", status: :bad_request, errors: { parameter: exception.param })
   end
 end
+
 ```
 
 **Usage:**
+
 ```ruby
 # app/controllers/api/feedbacks_controller.rb
 class Api::FeedbacksController < Api::BaseController
@@ -641,6 +681,7 @@ class Api::FeedbacksController < Api::BaseController
     render_success(feedback, status: :created, message: "Feedback created")
   end
 end
+
 ```
 
 **Why:** Consistent JSON responses, automatic error handling, DRY code across API controllers.
@@ -651,6 +692,7 @@ end
 <reason>Missing Rails DSL features, harder to maintain</reason>
 
 **Bad Example:**
+
 ```ruby
 # ❌ BAD - Manual self.included
 module Authentication
@@ -658,9 +700,11 @@ module Authentication
     base.before_action :require_authentication
   end
 end
+
 ```
 
 **Good Example:**
+
 ```ruby
 # ✅ GOOD - Use ActiveSupport::Concern
 module Authentication
@@ -671,6 +715,7 @@ module Authentication
     helper_method :current_user
   end
 end
+
 ```
 
 **Why Bad:** Misses Rails DSL features like `helper_method`, harder to add class methods, less idiomatic.
@@ -684,6 +729,7 @@ end
 <description>Use expect() for strict parameter validation (Rails 8.1+)</description>
 
 **Basic Usage:**
+
 ```ruby
 # ✅ SECURE - Raises if :feedback key missing or wrong structure
 class FeedbacksController < ApplicationController
@@ -698,9 +744,11 @@ class FeedbacksController < ApplicationController
     params.expect(feedback: [:content, :recipient_email, :sender_name, :ai_enabled])
   end
 end
+
 ```
 
 **Nested Attributes:**
+
 ```ruby
 # ✅ SECURE - Permit nested attributes
 def person_params
@@ -712,15 +760,18 @@ def person_params
   )
 end
 # Model: accepts_nested_attributes_for :addresses, allow_destroy: true
+
 ```
 
 **Array of Scalars:**
+
 ```ruby
 # ✅ SECURE - Allow array of strings
 def tag_params
   params.expect(post: [:title, :body, tags: []])
 end
 # Accepts: { post: { title: "...", body: "...", tags: ["rails", "ruby"] } }
+
 ```
 
 **Why:** Strict validation, raises `ActionController::ParameterMissing` if required key missing, better for APIs.
@@ -730,14 +781,17 @@ end
 <description>Use require().permit() for more lenient validation</description>
 
 **Basic Usage:**
+
 ```ruby
 # ✅ SECURE - Returns empty hash if :feedback missing
 def feedback_params
   params.require(:feedback).permit(:content, :recipient_email, :sender_name, :ai_enabled)
 end
+
 ```
 
 **Nested with permit():**
+
 ```ruby
 # ✅ SECURE
 def article_params
@@ -747,6 +801,7 @@ def article_params
     comments_attributes: [:id, :body, :author_name, :_destroy]
   )
 end
+
 ```
 
 **Why:** More lenient, returns empty hash if key missing (no exception), traditional Rails approach.
@@ -756,6 +811,7 @@ end
 <description>Use different parameter methods for different user roles</description>
 
 **Different Permissions by Role:**
+
 ```ruby
 # ✅ SECURE - Different permissions by role
 class UsersController < ApplicationController
@@ -786,6 +842,7 @@ class UsersController < ApplicationController
     ])
   end
 end
+
 ```
 
 **Why:** Prevents privilege escalation, different permissions for different contexts.
@@ -796,6 +853,7 @@ end
 <reason>Allows mass assignment of any attribute including admin flags</reason>
 
 **Bad Example:**
+
 ```ruby
 # ❌ CRITICAL - Raises ForbiddenAttributesError
 def create
@@ -808,9 +866,11 @@ end
 #   admin: true,              # Attacker sets admin flag
 #   user_id: other_user_id    # Attacker changes ownership
 # }
+
 ```
 
 **Good Example:**
+
 ```ruby
 # ✅ SECURE - Use strong parameters
 def create
@@ -823,6 +883,7 @@ private
 def feedback_params
   params.expect(feedback: [:content, :recipient_email, :sender_name])
 end
+
 ```
 
 **Why Bad:** CRITICAL security vulnerability allowing privilege escalation, account takeover, data manipulation.
@@ -833,6 +894,7 @@ end
 <reason>Bypasses all security checks, allows setting ANY attribute</reason>
 
 **Bad Example:**
+
 ```ruby
 # ❌ CRITICAL - Allows EVERYTHING
 def user_params
@@ -842,14 +904,17 @@ end
 # Attack: Attacker can set ANY attribute
 # params[:user][:admin] = true
 # params[:user][:confirmed_at] = Time.now
+
 ```
 
 **Good Example:**
+
 ```ruby
 # ✅ SECURE - Explicitly permit attributes
 def user_params
   params.require(:user).permit(:name, :email, :password, :password_confirmation)
 end
+
 ```
 
 **Why Bad:** Complete security bypass, allows privilege escalation, data manipulation, account takeover.
@@ -892,6 +957,7 @@ class FeedbacksControllerTest < ActionDispatch::IntegrationTest
     end
   end
 end
+
 ```
 </testing>
 

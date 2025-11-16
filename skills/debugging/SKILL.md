@@ -22,29 +22,32 @@ description: Use when debugging Rails issues - provides Rails-specific debugging
 
 <tool name="rails-logs">
 <description>Check Rails logs for errors and request traces</description>
+
 ```bash
 # Development logs
 tail -f log/development.log
 
-# Production logs (Heroku)
-heroku logs --tail --app production
+# Production logs (Kamal)
+kamal app logs --tail
 
 # Filter by severity
 grep ERROR log/production.log
 
 # Filter by request
 grep "Started GET" log/development.log
+
 ```
 </tool>
 
 <tool name="rails-console">
 <description>Interactive Rails console for testing models/queries</description>
+
 ```ruby
 # Start console
 rails console
 
-# Or production console (read-only)
-heroku run rails console --app production
+# Or production console (Kamal)
+kamal app exec 'bin/rails console'
 
 # Test models
 user = User.find(1)
@@ -54,11 +57,13 @@ user.errors.full_messages  # See errors
 # Test queries
 User.where(email: "test@example.com").to_sql  # See SQL
 User.includes(:posts).where(posts: { published: true })  # Avoid N+1
+
 ```
 </tool>
 
 <tool name="byebug">
 <description>Breakpoint debugger for stepping through code</description>
+
 ```ruby
 # Add to any Rails file
 def some_method
@@ -73,11 +78,13 @@ end
 # pp variable  - pretty print
 # var local  - show local variables
 # exit  - quit debugger
+
 ```
 </tool>
 
 <tool name="sql-logging">
 <description>Enable verbose SQL logging to see queries</description>
+
 ```ruby
 # In rails console or code
 ActiveRecord::Base.logger = Logger.new(STDOUT)
@@ -85,6 +92,7 @@ ActiveRecord::Base.logger = Logger.new(STDOUT)
 # Now all SQL queries print to console
 User.all
 # => SELECT "users".* FROM "users"
+
 ```
 </tool>
 
@@ -94,6 +102,7 @@ User.all
 
 <tool name="rails-routes">
 <description>Check route definitions and paths</description>
+
 ```bash
 # List all routes
 rails routes
@@ -103,11 +112,13 @@ rails routes | grep users
 
 # Show routes for controller
 rails routes -c users
+
 ```
 </tool>
 
 <tool name="rails-db-status">
 <description>Check migration status and schema</description>
+
 ```bash
 # Migration status
 rails db:migrate:status
@@ -117,6 +128,7 @@ rails db:version
 
 # Check pending migrations
 rails db:abort_if_pending_migrations
+
 ```
 </tool>
 
@@ -126,6 +138,7 @@ rails db:abort_if_pending_migrations
 
 <tool name="rails-runner">
 <description>Run Ruby code in Rails environment</description>
+
 ```bash
 # Run one-liner
 rails runner "puts User.count"
@@ -135,6 +148,7 @@ rails runner scripts/investigate_users.rb
 
 # Production environment
 RAILS_ENV=production rails runner "User.pluck(:email)"
+
 ```
 </tool>
 
@@ -144,6 +158,7 @@ RAILS_ENV=production rails runner "User.pluck(:email)"
 
 <tool name="rails-test-verbose">
 <description>Run tests with detailed output</description>
+
 ```bash
 # Run single test with backtrace
 rails test test/models/user_test.rb --verbose
@@ -153,6 +168,7 @@ RUBYOPT=-W rails test
 
 # Run with seed for reproducibility
 rails test --seed 12345
+
 ```
 </tool>
 
@@ -163,21 +179,26 @@ rails test --seed 12345
 <issue name="n-plus-one-queries">
 <detection>
 Check logs for many similar queries:
+
 ```
+
 User Load (0.1ms)  SELECT * FROM users WHERE id = 1
 Post Load (0.1ms)  SELECT * FROM posts WHERE user_id = 1
 Post Load (0.1ms)  SELECT * FROM posts WHERE user_id = 2
 Post Load (0.1ms)  SELECT * FROM posts WHERE user_id = 3
+
 ```
 </detection>
 <solution>
 Use includes/preload:
+
 ```ruby
 # Bad
 users.each { |user| user.posts.count }
 
 # Good
 users.includes(:posts).each { |user| user.posts.count }
+
 ```
 </solution>
 </issue>
@@ -187,6 +208,7 @@ users.includes(:posts).each { |user| user.posts.count }
 Error: "ActiveRecord::StatementInvalid: no such column"
 </detection>
 <solution>
+
 ```bash
 # Check migration status
 rails db:migrate:status
@@ -197,6 +219,7 @@ rails db:migrate
 # Or rollback and retry
 rails db:rollback
 rails db:migrate
+
 ```
 </solution>
 </issue>

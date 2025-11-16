@@ -45,15 +45,18 @@ Configure background job processing, caching, WebSockets, and email delivery usi
 
 <implementation>
 **Environment Configuration:**
+
 ```ruby
 # config/environments/{development,production}.rb
 Rails.application.configure do
   config.active_job.queue_adapter = :solid_queue
   config.solid_queue.connects_to = { database: { writing: :queue } }
 end
+
 ```
 
 **Database Configuration:**
+
 ```yaml
 # config/database.yml
 default: &default
@@ -69,9 +72,11 @@ production:
     <<: *default
     database: storage/production_queue.sqlite3
     migrations_paths: db/queue_migrate
+
 ```
 
 **Queue Configuration (Production Prioritization):**
+
 ```yaml
 # config/queue.yml
 production:
@@ -84,6 +89,7 @@ production:
       threads: 3
       processes: 2
       polling_interval: 1
+
 ```
 </implementation>
 
@@ -94,6 +100,7 @@ production:
 <description>Using Sidekiq/Redis instead of Solid Stack - VIOLATES TEAM RULE #1</description>
 
 <bad-example>
+
 ```ruby
 # ❌ WRONG - VIOLATES TEAM RULE #1
 gem 'sidekiq'
@@ -107,10 +114,12 @@ config.cache_store = :redis_cache_store, { url: ENV['REDIS_URL'] }
 production:
   adapter: redis
   url: <%= ENV['REDIS_URL'] %>
+
 ```
 </bad-example>
 
 <good-example>
+
 ```ruby
 # ✅ CORRECT - Solid Stack (TEAM RULE #1)
 # No gems needed - built into Rails 8
@@ -123,6 +132,7 @@ config.solid_queue.connects_to = { database: { writing: :queue } }
 # config/cable.yml
 production:
   adapter: solid_cable
+
 ```
 </good-example>
 
@@ -134,13 +144,16 @@ production:
 
 <implementation>
 **Rails Console:**
+
 ```ruby
 SolidQueue::Job.pending.count  # => 42
 SolidQueue::Job.failed.count   # => 3
 SolidQueue::Job.failed.each { |job| puts "#{job.class_name}: #{job.error}" }
+
 ```
 
 **Health Check:**
+
 ```ruby
 # app/controllers/health_controller.rb
 class HealthController < ApplicationController
@@ -160,6 +173,7 @@ class HealthController < ApplicationController
     ((Time.current - oldest.created_at) / 60).round
   end
 end
+
 ```
 </implementation>
 
@@ -173,6 +187,7 @@ end
 
 <implementation>
 **Configuration:**
+
 ```ruby
 # config/environments/{development,production}.rb
 config.cache_store = :solid_cache_store
@@ -183,19 +198,24 @@ production:
     <<: *default
     database: storage/production_cache.sqlite3
     migrations_paths: db/cache_migrate
+
 ```
 
 **Usage:**
+
 ```ruby
 Rails.cache.fetch("user_#{user.id}", expires_in: 1.hour) { expensive_computation(user) }
 
 # Fragment caching
 <% cache @post do %><%= render @post %><% end %>
+
 ```
 
 **Migrations:**
+
 ```bash
 rails db:migrate:cache
+
 ```
 </implementation>
 
@@ -209,6 +229,7 @@ rails db:migrate:cache
 
 <implementation>
 **Configuration:**
+
 ```yaml
 # config/cable.yml
 production:
@@ -220,9 +241,11 @@ production:
     <<: *default
     database: storage/production_cable.sqlite3
     migrations_paths: db/cable_migrate
+
 ```
 
 **Usage:**
+
 ```ruby
 # app/channels/notifications_channel.rb
 class NotificationsChannel < ApplicationCable::Channel
@@ -233,6 +256,7 @@ end
 
 # Broadcasting
 ActionCable.server.broadcast("notifications_#{user.id}", { message: "New notification" })
+
 ```
 </implementation>
 
@@ -243,6 +267,7 @@ ActionCable.server.broadcast("notifications_#{user.id}", { message: "New notific
 <description>Sharing database between primary and Solid Stack components</description>
 
 <bad-example>
+
 ```yaml
 # ❌ WRONG - All on same database creates contention
 production:
@@ -252,10 +277,12 @@ production:
     database: storage/production.sqlite3  # Same database!
   cache:
     database: storage/production.sqlite3  # Same database!
+
 ```
 </bad-example>
 
 <good-example>
+
 ```yaml
 # ✅ CORRECT - Separate databases for isolation
 production:
@@ -270,6 +297,7 @@ production:
   cable:
     database: storage/production_cable.sqlite3
     migrations_paths: db/cable_migrate
+
 ```
 </good-example>
 
@@ -283,17 +311,21 @@ production:
 
 <implementation>
 **Setup:**
+
 ```bash
 rails db:create  # Creates all databases
 rails db:migrate  # Migrates primary, queue, cache, cable
 rails db:prepare  # Production: creates + migrates
+
 ```
 
 **Individual Operations:**
+
 ```bash
 rails db:migrate:{queue,cache,cable}
 rails db:migrate:status:{queue,cache,cable}
 rails db:rollback:queue
+
 ```
 </implementation>
 
@@ -307,6 +339,7 @@ rails db:rollback:queue
 
 <implementation>
 **Mailer Class:**
+
 ```ruby
 # app/mailers/application_mailer.rb
 class ApplicationMailer < ActionMailer::Base
@@ -328,30 +361,37 @@ class NotificationMailer < ApplicationMailer
     mail(to: user.email, subject: "Password Reset Instructions")
   end
 end
+
 ```
 
 **HTML Template:**
+
 ```erb
 <%# app/views/notification_mailer/welcome_email.html.erb %>
 <h1>Welcome, <%= @user.name %>!</h1>
 <p>Thanks for signing up. Get started by logging in:</p>
 <%= link_to "Login Now", @login_url, class: "button" %>
+
 ```
 
 **Text Template:**
+
 ```erb
 <%# app/views/notification_mailer/welcome_email.text.erb %>
 Welcome, <%= @user.name %>!
 
 Thanks for signing up. Get started by logging in:
 <%= @login_url %>
+
 ```
 
 **Usage (Async with SolidQueue):**
+
 ```ruby
 # In controller or service
 NotificationMailer.welcome_email(@user).deliver_later
 NotificationMailer.password_reset(@user).deliver_later(queue: :mailers)
+
 ```
 </implementation>
 
@@ -362,6 +402,7 @@ NotificationMailer.password_reset(@user).deliver_later(queue: :mailers)
 <description>Using deliver_now in production (blocks HTTP request)</description>
 
 <bad-example>
+
 ```ruby
 # ❌ WRONG - Blocks HTTP request thread
 def create
@@ -369,10 +410,12 @@ def create
   NotificationMailer.welcome_email(@user).deliver_now  # Blocks!
   redirect_to @user
 end
+
 ```
 </bad-example>
 
 <good-example>
+
 ```ruby
 # ✅ CORRECT - Async delivery via SolidQueue
 def create
@@ -380,6 +423,7 @@ def create
   NotificationMailer.welcome_email(@user).deliver_later  # Non-blocking
   redirect_to @user
 end
+
 ```
 </good-example>
 
@@ -390,6 +434,7 @@ end
 <description>Use .with() to pass parameters cleanly to mailers</description>
 
 <implementation>
+
 ```ruby
 class NotificationMailer < ApplicationMailer
   def custom_notification
@@ -401,7 +446,9 @@ end
 
 # Usage
 NotificationMailer.with(user: user, message: "Update", subject: "Alert").custom_notification.deliver_later
+
 ```
+
 </implementation>
 
 <why>Cleaner syntax, easier to read and modify, and works seamlessly with background jobs.</why>
@@ -413,6 +460,7 @@ NotificationMailer.with(user: user, message: "Update", subject: "Alert").custom_
 <description>Shared layouts for consistent email branding</description>
 
 <implementation>
+
 ```erb
 <%# app/views/layouts/mailer.html.erb %>
 <!DOCTYPE html>
@@ -432,7 +480,9 @@ NotificationMailer.with(user: user, message: "Update", subject: "Alert").custom_
 
 <%# app/views/layouts/mailer.text.erb %>
 <%= yield %>
+
 ```
+
 </implementation>
 
 <why>Consistent branding across all emails. Inline CSS ensures styling works across email clients.</why>
@@ -442,6 +492,7 @@ NotificationMailer.with(user: user, message: "Update", subject: "Alert").custom_
 <description>Attach files to emails (PDFs, CSVs, images)</description>
 
 <implementation>
+
 ```ruby
 class ReportMailer < ApplicationMailer
   def monthly_report(user, data)
@@ -452,8 +503,11 @@ class ReportMailer < ApplicationMailer
   end
 end
 
+
 # In template: <%= image_tag attachments["logo.png"].url %>
+
 ```
+
 </implementation>
 
 <why>Attach reports, exports, or inline images. Inline attachments can be referenced in email body with image_tag.</why>
@@ -463,6 +517,7 @@ end
 <description>Using *_path helpers instead of *_url in emails (broken links)</description>
 
 <bad-example>
+
 ```ruby
 # ❌ WRONG - Relative path doesn't work in emails
 def welcome_email(user)
@@ -470,10 +525,13 @@ def welcome_email(user)
   @login_url = login_path  # => "/login" (relative path)
   mail(to: user.email, subject: "Welcome")
 end
+
 ```
+
 </bad-example>
 
 <good-example>
+
 ```ruby
 # ✅ CORRECT - Full URL works in emails
 def welcome_email(user)
@@ -485,7 +543,9 @@ end
 # Required configuration
 # config/environments/production.rb
 config.action_mailer.default_url_options = { host: "example.com", protocol: "https" }
+
 ```
+
 </good-example>
 
 <why-bad>Emails are viewed outside your application context, so relative paths don't work. Always use *_url helpers to generate absolute URLs.</why-bad>
@@ -497,7 +557,9 @@ config.action_mailer.default_url_options = { host: "example.com", protocol: "htt
 <description>Preview emails in browser during development without sending</description>
 
 <implementation>
+
 **Configuration:**
+
 ```ruby
 # Gemfile
 group :development do
@@ -518,9 +580,11 @@ config.action_mailer.smtp_settings = {
   authentication: :plain
 }
 config.action_mailer.default_url_options = { host: "example.com", protocol: "https" }
+
 ```
 
 **Mailer Previews:**
+
 ```ruby
 # test/mailers/previews/notification_mailer_preview.rb
 class NotificationMailerPreview < ActionMailer::Preview
@@ -529,7 +593,9 @@ class NotificationMailerPreview < ActionMailer::Preview
     NotificationMailer.welcome_email(User.first || User.new(name: "Test", email: "test@example.com"))
   end
 end
+
 ```
+
 </implementation>
 
 <why>letter_opener opens emails in browser during development - no SMTP setup needed. Mailer previews at /rails/mailers let you see all email variations without sending.</why>
@@ -539,6 +605,7 @@ end
 <description>Test email delivery and content with ActionMailer::TestCase</description>
 
 <implementation>
+
 ```ruby
 # test/mailers/notification_mailer_test.rb
 class NotificationMailerTest < ActionMailer::TestCase
@@ -555,7 +622,9 @@ class NotificationMailerTest < ActionMailer::TestCase
     end
   end
 end
+
 ```
+
 </implementation>
 
 <why>Test email delivery, content, and background job enqueuing. Verify recipients, subjects, and that emails are queued properly.</why>
@@ -567,6 +636,7 @@ end
 <description>Monitor job queue health in production</description>
 
 <implementation>
+
 ```ruby
 # app/controllers/health_controller.rb
 class HealthController < ApplicationController
@@ -597,13 +667,16 @@ class MetricsJob < ApplicationJob
     Rails.logger.error("Many failures") if failed > 50
   end
 end
+
 ```
+
 </implementation>
 
 <why>Monitor queue health via database queries. Alert on high pending counts or failures. No special monitoring tools needed.</why>
 </pattern>
 
 <testing>
+
 ```ruby
 # test/integration/solid_stack_test.rb
 class SolidStackTest < ActionDispatch::IntegrationTest
@@ -648,7 +721,9 @@ class SampleJobTest < ActiveJob::TestCase
     # Assert side effects
   end
 end
+
 ```
+
 </testing>
 
 <related-skills>

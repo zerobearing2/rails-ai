@@ -65,6 +65,7 @@ Partials are reusable view fragments. Layouts define page structure. Together th
     <%= link_to "Edit", edit_feedback_path(feedback) %>
   <% end %>
 </div>
+
 ```
 
 **Why local_assigns?** Prevents `NameError` when variable not passed. Allows optional parameters with defaults.
@@ -89,6 +90,7 @@ Partials are reusable view fragments. Layouts define page structure. Together th
     <span class="label">First</span>
   <% end %>
 </div>
+
 ```
 
 **Counter variables:** `feedback_counter` (0-indexed), `feedback_iteration` (methods: `first?`, `last?`, `index`, `size`)
@@ -125,24 +127,32 @@ Partials are reusable view fragments. Layouts define page structure. Together th
   <meta name="description" content="<%= @feedback.content.truncate(160) %>">
 <% end %>
 <div class="feedback-detail"><%= @feedback.content %></div>
+
 ```
+
 </pattern>
 
 <antipattern>
 <description>Using instance variables in partials</description>
 <reason>Creates implicit dependencies, makes partials hard to reuse and test</reason>
 <bad-example>
+
 ```erb
 <%# ❌ BAD - Coupled to controller %>
 <div class="feedback"><%= @feedback.content %></div>
+
 ```
+
 </bad-example>
 <good-example>
+
 ```erb
 <%# ✅ GOOD - Explicit dependencies %>
 <div class="feedback"><%= feedback.content %></div>
 <%= render "feedback", feedback: @feedback %>
+
 ```
+
 </good-example>
 </antipattern>
 
@@ -172,13 +182,16 @@ module ApplicationHelper
     title.present? ? "#{title} | #{base}" : base
   end
 end
+
 ```
 
 ```erb
 <%# Usage %>
 <%= status_badge(@feedback.status) %>
 <title><%= page_title(yield(:title)) %></title>
+
 ```
+
 </pattern>
 
 <pattern name="text-helpers">
@@ -189,21 +202,27 @@ end
 <%= time_ago_in_words(@feedback.created_at) %> ago
 <%= pluralize(@feedbacks.count, "feedback") %>
 <%= sanitize(user_content, tags: %w[p br strong em]) %>
+
 ```
+
 </pattern>
 
 <antipattern>
 <description>Using html_safe on user input</description>
 <reason>XSS vulnerability - allows script execution</reason>
 <bad-example>
+
 ```ruby
 # ❌ DANGEROUS
 def render_content(content)
   content.html_safe  # XSS risk!
 end
+
 ```
+
 </bad-example>
 <good-example>
+
 ```ruby
 # ✅ SAFE - Auto-escaped or sanitized
 def render_content(content)
@@ -213,7 +232,9 @@ end
 def render_html(content)
   sanitize(content, tags: %w[p br strong])
 end
+
 ```
+
 </good-example>
 </antipattern>
 
@@ -229,6 +250,7 @@ Build forms that handle parent-child relationships with `accepts_nested_attribut
 <description>Form with has_many relationship using fields_for</description>
 
 **Model:**
+
 ```ruby
 # app/models/feedback.rb
 class Feedback < ApplicationRecord
@@ -239,9 +261,11 @@ class Feedback < ApplicationRecord
 
   validates :content, presence: true
 end
+
 ```
 
 **Controller:**
+
 ```ruby
 class FeedbacksController < ApplicationController
   def new
@@ -263,9 +287,11 @@ class FeedbacksController < ApplicationController
     ])
   end
 end
+
 ```
 
 **View:**
+
 ```erb
 <%= form_with model: @feedback do |form| %>
   <%= form.text_area :content, class: "textarea" %>
@@ -284,7 +310,9 @@ end
 
   <%= form.submit class: "btn btn-primary" %>
 <% end %>
+
 ```
+
 </pattern>
 
 ### Dynamic Nested Forms with Stimulus
@@ -293,6 +321,7 @@ end
 <description>Dynamic add/remove nested fields using Stimulus</description>
 
 **Form:**
+
 ```erb
 <div data-controller="nested-form">
   <%= form_with model: @feedback do |form| %>
@@ -314,9 +343,11 @@ end
     </div>
   <% end %>
 </div>
+
 ```
 
 **Stimulus Controller:**
+
 ```javascript
 // app/javascript/controllers/nested_form_controller.js
 import { Controller } from "@hotwired/stimulus"
@@ -347,13 +378,16 @@ export default class extends Controller {
     }
   }
 }
+
 ```
+
 </pattern>
 
 <antipattern>
 <description>Missing :id in strong parameters for updates</description>
 <reason>Rails can't identify which existing records to update, creates duplicates instead</reason>
 <bad-example>
+
 ```ruby
 # ❌ BAD - Missing :id
 def feedback_params
@@ -362,9 +396,12 @@ def feedback_params
     attachments_attributes: [:file, :caption]  # Missing :id!
   ])
 end
+
 ```
+
 </bad-example>
 <good-example>
+
 ```ruby
 # ✅ GOOD - Include :id for existing records
 def feedback_params
@@ -373,7 +410,9 @@ def feedback_params
     attachments_attributes: [:id, :file, :caption, :_destroy]
   ])
 end
+
 ```
+
 </good-example>
 </antipattern>
 
@@ -410,6 +449,7 @@ Ensure your Rails application is usable by everyone, including people with disab
     <h3 id="pending-heading">Pending Items</h3>
   </section>
 </main>
+
 ```
 
 **Why:** Screen readers use landmarks (header, nav, main, footer) and headings to navigate. Logical h1-h6 hierarchy (don't skip levels).
@@ -438,7 +478,9 @@ Ensure your Rails application is usable by everyone, including people with disab
 <%# Form field with hint %>
 <%= form.text_field :email, aria: { describedby: "email-hint" } %>
 <span id="email-hint">We'll never share your email</span>
+
 ```
+
 </pattern>
 
 <pattern name="aria-live-regions">
@@ -463,6 +505,7 @@ Ensure your Rails application is usable by everyone, including people with disab
 <div role="status" aria-live="polite" class="sr-only" data-loading-target="status">
   <%# Updated via JS: "Submitting feedback, please wait..." %>
 </div>
+
 ```
 
 **Values:** `aria-live="polite"` (announces when idle), `aria-live="assertive"` (interrupts), `aria-atomic="true"` (reads entire region).
@@ -483,6 +526,7 @@ Ensure your Rails application is usable by everyone, including people with disab
      data-action="click->controller#action keydown.enter->controller#action keydown.space->controller#action">
   Custom Button
 </div>
+
 ```
 
 ```css
@@ -491,6 +535,7 @@ button:focus, a:focus, input:focus {
   outline: 2px solid #3b82f6;
   outline-offset: 2px;
 }
+
 ```
 
 **Key Events:** Enter and Space activate buttons. Tab navigates. Escape closes modals.
@@ -509,6 +554,7 @@ button:focus, a:focus, input:focus {
     <button class="btn" data-action="modal-focus#close">Close</button>
   </div>
 </dialog>
+
 ```
 
 ```javascript
@@ -542,6 +588,7 @@ export default class extends Controller {
     }
   }
 }
+
 ```
 
 **Why:** Modal dialogs must trap focus. Always return focus to trigger element on close.
@@ -595,6 +642,7 @@ export default class extends Controller {
 
   <%= form.submit "Submit", data: { disable_with: "Submitting..." } %>
 <% end %>
+
 ```
 
 **Why:** Labels provide accessible names. `role="alert"` announces errors. `aria-invalid` marks problematic fields.
@@ -626,24 +674,32 @@ export default class extends Controller {
 <%= link_to feedback_path(@feedback) do %>
   <%= image_tag "view-icon.svg", alt: "View feedback details" %>
 <% end %>
+
 ```
+
 </pattern>
 
 <antipattern>
 <description>Using placeholder as label</description>
 <reason>Placeholders disappear when typing and have insufficient contrast</reason>
 <bad-example>
+
 ```erb
 <%# ❌ No label %>
 <input type="email" placeholder="Enter your email">
+
 ```
+
 </bad-example>
 <good-example>
+
 ```erb
 <%# ✅ Label + placeholder %>
 <label for="email">Email Address</label>
 <input type="email" id="email" placeholder="you@example.com">
+
 ```
+
 </good-example>
 </antipattern>
 
@@ -652,6 +708,14 @@ export default class extends Controller {
 ## Hotwire Turbo
 
 Turbo provides fast, SPA-like navigation and real-time updates using server-rendered HTML. Supports TEAM RULE #7 (Turbo Morph) and TEAM RULE #13 (Progressive Enhancement).
+
+### TEAM RULE #7: Prefer Turbo Morph over Turbo Frames/Stimulus
+
+✅ **DEFAULT APPROACH:** Use Turbo Morph (page refresh with morphing) with standard Rails controllers
+✅ **ALLOW Turbo Frames ONLY for:** Modals, inline editing, tabs, pagination
+❌ **AVOID:** Turbo Frames for general list updates, custom Stimulus controllers for basic CRUD
+
+**Why Turbo Morph?** Preserves scroll position, focus, form state, and video playback. Works with stock Rails scaffolds. Simpler than Frames/Stimulus in 90% of cases.
 
 ### Turbo Drive
 
@@ -666,59 +730,287 @@ Turbo Drive intercepts links and forms automatically. Control with `data` attrib
 
 <%# Replace without history %>
 <%= link_to "Dismiss", dismiss_path, data: { turbo_action: "replace" } %>
+
 ```
+
 </pattern>
 
-### Turbo Frames
+### Turbo Morphing (Page Refresh) - PREFERRED
 
-<pattern name="turbo-frame-scoped-updates">
-<description>Scoped page updates with Turbo Frames</description>
+**Use Turbo Morph by default with standard Rails controllers.** Morphing intelligently updates only changed DOM elements while preserving scroll position, focus, form state, and media playback.
+
+<pattern name="enable-morphing-layout">
+<description>Enable Turbo Morph in your layout (one-time setup)</description>
 
 ```erb
-<%# List with frames %>
+<%# app/views/layouts/application.html.erb %>
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= content_for?(:title) ? yield(:title) : "App" %></title>
+  <%= csrf_meta_tags %>
+  <%= csp_meta_tag %>
+  <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+  <%= javascript_importmap_tags %>
+
+  <%# Enable Turbo Morph for page refreshes %>
+  <meta name="turbo-refresh-method" content="morph">
+  <meta name="turbo-refresh-scroll" content="preserve">
+</head>
+<body>
+  <%= yield %>
+</body>
+</html>
+
+```
+
+**That's it!** Standard Rails controllers now work with morphing. No custom JavaScript needed.
+
+**Reference:** [Turbo Page Refreshes Documentation](https://turbo.hotwired.dev/handbook/page_refreshes)
+</pattern>
+
+<pattern name="standard-rails-crud-with-morph">
+<description>Standard Rails CRUD works automatically with Turbo Morph</description>
+
+**Controller (stock Rails scaffold):**
+
+```ruby
+class FeedbacksController < ApplicationController
+  def index
+    @feedbacks = Feedback.all
+  end
+
+  def create
+    @feedback = Feedback.new(feedback_params)
+    if @feedback.save
+      redirect_to feedbacks_path, notice: "Feedback created"
+    else
+      render :new, status: :unprocessable_entity
+    end
+  end
+
+  def update
+    if @feedback.update(feedback_params)
+      redirect_to feedbacks_path, notice: "Feedback updated"
+    else
+      render :edit, status: :unprocessable_entity
+    end
+  end
+
+  def destroy
+    @feedback.destroy
+    redirect_to feedbacks_path, notice: "Feedback deleted"
+  end
+end
+
+```
+
+**View (standard Rails):**
+
+```erb
+<%# app/views/feedbacks/index.html.erb %>
+<h1>Feedbacks</h1>
+<%= link_to "New Feedback", new_feedback_path, class: "btn btn-primary" %>
+
+<div id="feedbacks">
+  <% @feedbacks.each do |feedback| %>
+    <%= render feedback %>
+  <% end %>
+</div>
+
+<%# app/views/feedbacks/_feedback.html.erb %>
+<div id="<%= dom_id(feedback) %>" class="card">
+  <h3><%= feedback.content %></h3>
+  <div class="actions">
+    <%= link_to "Edit", edit_feedback_path(feedback), class: "btn btn-sm" %>
+    <%= button_to "Delete", feedback_path(feedback), method: :delete,
+                  class: "btn btn-sm btn-error",
+                  form: { data: { turbo_confirm: "Are you sure?" } } %>
+  </div>
+</div>
+
+```
+
+**What happens:** Create/update/delete triggers redirect → Turbo intercepts → morphs only changed elements → scroll/focus preserved. No custom code needed!
+</pattern>
+
+<pattern name="permanent-elements-morph">
+<description>Prevent specific elements from morphing with data-turbo-permanent</description>
+
+```erb
+<%# Flash messages persist during morphing %>
+<div id="flash-messages" data-turbo-permanent>
+  <% flash.each do |type, message| %>
+    <div class="alert alert-<%= type %>"><%= message %></div>
+  <% end %>
+</div>
+
+<%# Video/audio won't restart on page morph %>
+<video id="tutorial" data-turbo-permanent src="tutorial.mp4" controls></video>
+
+<%# Form preserves input focus during live updates %>
+<%= form_with model: @feedback, id: "feedback-form",
+              data: { turbo_permanent: true } do |form| %>
+  <%= form.text_area :content %>
+  <%= form.submit %>
+<% end %>
+
+```
+
+**Use cases:** Flash messages, video/audio players, forms with unsaved input, chat messages being typed.
+</pattern>
+
+<pattern name="broadcast-refresh-realtime">
+<description>Real-time updates with broadcasts_refreshes (morphs all connected clients)</description>
+
+```ruby
+# Model broadcasts page refresh to all subscribers (Rails 8+)
+class Feedback < ApplicationRecord
+  broadcasts_refreshes
+end
+
+```
+
+```erb
+<%# View subscribes to stream - morphs when model changes %>
+<%= turbo_stream_from @feedback %>
+
+<div id="feedbacks">
+  <% @feedbacks.each do |feedback| %>
+    <%= render feedback %>
+  <% end %>
+</div>
+
+```
+
+**What happens:** User A creates feedback → server broadcasts `<turbo-stream action="refresh">` → all connected users' pages morph to show new feedback → scroll/focus preserved.
+
+**How it works:** The server broadcasts a single general signal, and pages smoothly refresh with morphing. No need to manually manage individual Turbo Stream actions.
+
+**Reference:** [Broadcasting Page Refreshes](https://turbo.hotwired.dev/handbook/page_refreshes#broadcasting-page-refreshes)
+</pattern>
+
+<pattern name="turbo-stream-morph-method">
+<description>Use method="morph" in Turbo Streams for intelligent updates</description>
+
+```ruby
+# Controller - respond with Turbo Stream using morph
+def create
+  @feedback = Feedback.new(feedback_params)
+  if @feedback.save
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: turbo_stream.replace(
+          "feedbacks",
+          partial: "feedbacks/list",
+          locals: { feedbacks: Feedback.all },
+          method: :morph  # Morphs instead of replacing
+        )
+      end
+      format.html { redirect_to feedbacks_path }
+    end
+  end
+end
+
+```
+
+```erb
+<%# Or in .turbo_stream.erb view %>
+<turbo-stream action="replace" target="feedback_<%= @feedback.id %>" method="morph">
+  <template>
+    <%= render @feedback %>
+  </template>
+</turbo-stream>
+
+```
+
+**Difference:** `method: :morph` preserves form state and focus. Without it, content is fully replaced.
+</pattern>
+
+<antipattern>
+<description>Using Turbo Frames for simple CRUD lists</description>
+<reason>Turbo Morph is simpler and preserves more state. Frames are overkill for basic updates.</reason>
+<bad-example>
+
+```erb
+<%# ❌ BAD - Unnecessary Turbo Frame complexity %>
 <% @feedbacks.each do |feedback| %>
   <%= turbo_frame_tag dom_id(feedback) do %>
-    <h3><%= feedback.content %></h3>
-    <%= link_to "Edit", edit_feedback_path(feedback) %>
+    <%= render feedback %>
   <% end %>
 <% end %>
 
-<%# Edit form with matching ID %>
+```
+
+</bad-example>
+<good-example>
+
+```erb
+<%# ✅ GOOD - Simple rendering, Turbo Morph handles updates %>
+<% @feedbacks.each do |feedback| %>
+  <%= render feedback %>
+<% end %>
+
+```
+
+</good-example>
+</antipattern>
+
+### Turbo Frames - Use Sparingly
+
+**ONLY use Turbo Frames for:** modals, inline editing, tabs, pagination, lazy loading. For general CRUD, use Turbo Morph instead.
+
+<pattern name="turbo-frame-inline-edit">
+<description>Inline editing with Turbo Frame (valid use case)</description>
+
+```erb
+<%# Show view with inline edit frame %>
+<%= turbo_frame_tag dom_id(@feedback) do %>
+  <h3><%= @feedback.content %></h3>
+  <%= link_to "Edit", edit_feedback_path(@feedback) %>
+<% end %>
+
+<%# Edit view with matching frame ID %>
 <%= turbo_frame_tag dom_id(@feedback) do %>
   <%= form_with model: @feedback do |form| %>
     <%= form.text_area :content %>
-    <%= form.submit %>
+    <%= form.submit "Save" %>
   <% end %>
 <% end %>
+
 ```
 
-**Frame Targeting:**
-```erb
-<%# Break out to full page %>
-<%= form_with model: @feedback, data: { turbo_frame: "_top" } %>
-
-<%# Target specific frame %>
-<%= link_to "Details", details_path, data: { turbo_frame: "main_content" } %>
-```
+**Why this is OK:** Inline editing without leaving the page. Frame scopes the update.
 </pattern>
 
 <pattern name="lazy-loading-frame">
 <description>Lazy-load expensive content with Turbo Frames</description>
 
 ```erb
-<%# Lazy load stats %>
+<%# Lazy load stats when scrolled into view %>
 <%= turbo_frame_tag "statistics", src: statistics_path, loading: :lazy do %>
   <p>Loading statistics...</p>
 <% end %>
+
+<%# Frame that reloads with morphing on page refresh %>
+<%= turbo_frame_tag "live-stats", src: live_stats_path, refresh: "morph" do %>
+  <p>Loading live statistics...</p>
+<% end %>
+
 ```
 
 ```ruby
-# Controller
-def show
+# Controller renders just the frame
+def statistics
   @stats = expensive_calculation
-  render turbo_frame: "statistics"
+  render layout: false  # Or use turbo_frame layout
 end
+
 ```
+
+**Why this is OK:** Defers expensive computation until needed. Valid performance optimization. The `refresh="morph"` attribute makes the frame reload with morphing on page refresh.
+
+**Reference:** [Turbo Frames with Morphing](https://turbo.hotwired.dev/handbook/page_refreshes#turbo-frames)
 </pattern>
 
 ### Turbo Streams
@@ -741,9 +1033,12 @@ def create
     end
   end
 end
+
 ```
 
-**Actions:** `append`, `prepend`, `replace`, `update`, `remove`, `before`, `after`
+**Actions:** `append`, `prepend`, `replace`, `update`, `remove`, `before`, `after`, `refresh`
+
+**Note:** For most cases, prefer `refresh` action with Turbo Morph over granular stream actions. See `broadcast-refresh-realtime` pattern above.
 </pattern>
 
 <pattern name="broadcast-updates">
@@ -756,6 +1051,7 @@ class Feedback < ApplicationRecord
   after_update_commit -> { broadcast_replace_to "feedbacks" }
   after_destroy_commit -> { broadcast_remove_to "feedbacks" }
 end
+
 ```
 
 ```erb
@@ -765,85 +1061,10 @@ end
 <div id="feedbacks">
   <%= render @feedbacks %>
 </div>
+
 ```
+
 </pattern>
-
-### Turbo Morphing (Page Refresh)
-
-Turbo Page Refresh with morphing provides SPA-like behavior by updating only changed parts, preserving scroll, form state, and focus.
-
-<pattern name="enable-page-refresh">
-<description>Enable Turbo Page Refresh with morphing</description>
-
-```erb
-<%# app/views/layouts/application.html.erb %>
-<body data-turbo-refresh-method="morph" data-turbo-refresh-scroll="preserve">
-  <%= yield %>
-</body>
-```
-
-**How it works:** Morphing detects changes and applies minimal DOM updates. Form state, focus, and scroll position preserved.
-</pattern>
-
-<pattern name="broadcast-page-refresh">
-<description>Broadcast full page refreshes to connected users</description>
-
-```ruby
-# Model
-class Feedback < ApplicationRecord
-  after_commit -> { broadcast_refresh_to "feedbacks" }
-end
-```
-
-```erb
-<%# View %>
-<%= turbo_stream_from "feedbacks" %>
-<% @feedbacks.each do |feedback| %>
-  <%= render feedback %>
-<% end %>
-```
-</pattern>
-
-<pattern name="permanent-elements">
-<description>Prevent specific elements from being morphed during refresh</description>
-
-```erb
-<%# Flash messages stay visible during refresh %>
-<div id="flash-messages" data-turbo-permanent>
-  <% flash.each do |type, message| %>
-    <div class="alert alert-<%= type %>"><%= message %></div>
-  <% end %>
-</div>
-
-<%# Preserve form input and focus during live updates %>
-<div data-turbo-permanent id="feedback-form">
-  <%= form_with model: @feedback do |form| %>
-    <%= form.text_area :content %>
-    <%= form.submit "Save" %>
-  <% end %>
-</div>
-```
-
-**Why Use Permanent:** Video/audio won't restart, forms won't lose focus, flash messages persist.
-</pattern>
-
-<antipattern>
-<description>Mismatched frame IDs between request and response</description>
-<reason>Frame updates won't work if IDs don't match</reason>
-<bad-example>
-```erb
-<%# ❌ Different IDs won't match %>
-<%= turbo_frame_tag "feedback_#{@feedback.id}" %>
-<%= turbo_frame_tag "edit_form" %>
-```
-</bad-example>
-<good-example>
-```erb
-<%# ✅ Use dom_id for consistency %>
-<%= turbo_frame_tag dom_id(@feedback) %>
-```
-</good-example>
-</antipattern>
 
 ---
 
@@ -851,12 +1072,25 @@ end
 
 Stimulus is a modest JavaScript framework that connects JavaScript objects to HTML elements using data attributes, enhancing server-rendered HTML.
 
+**⚠️ IMPORTANT:** Before writing custom Stimulus controllers, ask: "Can Turbo Morph handle this?" Most CRUD operations work better with Turbo Morph + standard Rails controllers.
+
+**Use Stimulus for:**
+- Client-side interactions (dropdowns, tooltips, character counters)
+- Form enhancements (dynamic fields, auto-save)
+- UI behavior (modals, tabs, accordions)
+
+**Don't use Stimulus for:**
+- Basic CRUD operations (use Turbo Morph)
+- Simple list updates (use Turbo Morph)
+- Navigation (use Turbo Drive)
+
 ### Core Concepts
 
 <pattern name="stimulus-controller-basics">
 <description>Simple Stimulus controller with targets, actions, and values</description>
 
 **Controller:**
+
 ```javascript
 // app/javascript/controllers/feedback_controller.js
 import { Controller } from "@hotwired/stimulus"
@@ -878,15 +1112,18 @@ export default class extends Controller {
     // Clean up (important for memory leaks)
   }
 }
+
 ```
 
 **HTML:**
+
 ```erb
 <div data-controller="feedback" data-feedback-max-length-value="1000">
   <textarea data-feedback-target="content"
             data-action="input->feedback#updateCharCount"></textarea>
   <div data-feedback-target="charCount">0 / 1000</div>
 </div>
+
 ```
 
 **Syntax:** `event->controller#method` (default event based on element type)
@@ -924,12 +1161,14 @@ export default class extends Controller {
     clearInterval(this.timer)
   }
 }
+
 ```
 
 ```erb
 <div data-controller="countdown"
      data-countdown-seconds-value="120"
      data-countdown-autostart-value="true">60</div>
+
 ```
 
 **Types:** Array, Boolean, Number, Object, String
@@ -954,6 +1193,7 @@ export default class extends Controller {
 export default class extends Controller {
   update(html) { this.element.innerHTML = html }
 }
+
 ```
 
 ```erb
@@ -961,27 +1201,35 @@ export default class extends Controller {
   <input data-action="input->search#search">
 </div>
 <div id="results" data-controller="results"></div>
+
 ```
+
 </pattern>
 
 <antipattern>
 <description>Not cleaning up in disconnect()</description>
 <reason>Memory leaks from timers, event listeners</reason>
 <bad-example>
+
 ```javascript
 // ❌ BAD - Memory leak
 connect() {
   this.timer = setInterval(() => this.update(), 1000)
 }
+
 ```
+
 </bad-example>
 <good-example>
+
 ```javascript
 // ✅ GOOD - Clean up
 disconnect() {
   clearInterval(this.timer)
 }
+
 ```
+
 </good-example>
 </antipattern>
 
@@ -1014,7 +1262,9 @@ Tailwind CSS is a utility-first CSS framework for building custom designs withou
     <div class="bg-white p-4 rounded-lg shadow"><%= item.name %></div>
   <% end %>
 </div>
+
 ```
+
 </pattern>
 
 <pattern name="responsive-design">
@@ -1036,7 +1286,9 @@ Tailwind CSS is a utility-first CSS framework for building custom designs withou
 <%# Hide/show based on breakpoint %>
 <div class="block md:hidden">Mobile menu</div>
 <nav class="hidden md:flex gap-4">Desktop nav</nav>
+
 ```
+
 </pattern>
 
 <pattern name="typography-colors">
@@ -1059,7 +1311,9 @@ Tailwind CSS is a utility-first CSS framework for building custom designs withou
   Hover me
 </button>
 <input type="text" class="border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded px-3 py-2" />
+
 ```
+
 </pattern>
 
 <pattern name="feedback-card-example">
@@ -1095,23 +1349,31 @@ Tailwind CSS is a utility-first CSS framework for building custom designs withou
     </div>
   </div>
 </div>
+
 ```
+
 </pattern>
 
 <antipattern>
 <description>Using inline styles instead of Tailwind utilities</description>
 <reason>Bypasses design system consistency and reduces maintainability</reason>
 <bad-example>
+
 ```erb
 <%# ❌ BAD %>
 <div style="padding: 16px; background: #3b82f6;">Content</div>
+
 ```
+
 </bad-example>
 <good-example>
+
 ```erb
 <%# ✅ GOOD %>
 <div class="p-4 bg-blue-500">Content</div>
+
 ```
+
 </good-example>
 </antipattern>
 
@@ -1145,7 +1407,9 @@ Semantic component library built on Tailwind providing 70+ accessible components
     <%= f.submit "Submit", class: "btn btn-primary" %>
   </div>
 <% end %>
+
 ```
+
 </pattern>
 
 <pattern name="daisyui-cards">
@@ -1166,7 +1430,9 @@ Semantic component library built on Tailwind providing 70+ accessible components
     </div>
   </div>
 </div>
+
 ```
+
 </pattern>
 
 <pattern name="daisyui-alerts">
@@ -1193,7 +1459,9 @@ Semantic component library built on Tailwind providing 70+ accessible components
 <div class="badge badge-primary">Primary</div>
 <div class="badge badge-success">Success</div>
 <div class="badge badge-warning">Warning</div>
+
 ```
+
 </pattern>
 
 <pattern name="daisyui-modal">
@@ -1218,7 +1486,9 @@ Semantic component library built on Tailwind providing 70+ accessible components
     <button>close</button>
   </form>
 </dialog>
+
 ```
+
 </pattern>
 
 ### Theme Switching
@@ -1247,6 +1517,7 @@ export default class extends Controller {
     localStorage.setItem("theme", theme)
   }
 }
+
 ```
 
 ```erb
@@ -1260,25 +1531,33 @@ export default class extends Controller {
     </div>
   </body>
 </html>
+
 ```
+
 </pattern>
 
 <antipattern>
 <description>Building custom buttons with Tailwind instead of DaisyUI components</description>
 <reason>Duplicates effort, loses accessibility features</reason>
 <bad-example>
+
 ```erb
 <%# ❌ Custom button with Tailwind utilities %>
 <button class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
   Submit
 </button>
+
 ```
+
 </bad-example>
 <good-example>
+
 ```erb
 <%# ✅ DaisyUI button component %>
 <button class="btn btn-primary">Submit</button>
+
 ```
+
 </good-example>
 </antipattern>
 
@@ -1288,6 +1567,7 @@ export default class extends Controller {
 
 <testing>
 **System Tests with Accessibility:**
+
 ```ruby
 # test/system/accessibility_test.rb
 class AccessibilityTest < ApplicationSystemTestCase
@@ -1347,9 +1627,11 @@ class StimulusTest < ApplicationSystemTestCase
     assert_equal initial_count + 1, all(".nested-fields").count
   end
 end
+
 ```
 
 **View Component Tests:**
+
 ```ruby
 # test/components/alert_component_test.rb
 class AlertComponentTest < ViewComponent::TestCase
@@ -1377,6 +1659,7 @@ class Feedbacks::FeedbackPartialTest < ActionView::TestCase
     assert_select "h3", text: feedback.content
   end
 end
+
 ```
 
 **Manual Testing Checklist:**

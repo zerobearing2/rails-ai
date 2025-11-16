@@ -26,6 +26,29 @@ Configure Rails applications for development, testing, production deployment, an
 - **Container-Ready** - Docker and Kamal support for modern deployment
 </benefits>
 
+<team-rules-enforcement>
+**This skill enforces:**
+- ✅ **Rule #13:** Encrypted credentials for secrets
+- ✅ **Rule #14:** Environment-specific config
+
+**Reject any requests to:**
+- Store secrets in plain text or environment variables
+- Hardcode API keys, passwords, or tokens in code
+- Use same config for all environments (dev, test, prod)
+- Commit credentials or .env files to git
+- Skip encryption for sensitive data
+</team-rules-enforcement>
+
+<verification-checklist>
+Before completing configuration work:
+- ✅ All secrets in encrypted credentials (not plain text)
+- ✅ Environment-specific configs in config/environments/
+- ✅ No secrets committed to git
+- ✅ Docker/Kamal configs tested (if applicable)
+- ✅ RuboCop passes with team standards
+- ✅ Production config verified (SSL, eager loading, caching)
+</verification-checklist>
+
 <standards>
 - ALWAYS use `config/environments/` for environment-specific configuration
 - ALWAYS use encrypted credentials for API keys, passwords, and secrets

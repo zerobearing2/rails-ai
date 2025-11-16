@@ -10,6 +10,8 @@ Rails controllers following REST conventions with 7 standard actions, nested res
 <when-to-use>
 - Building Rails controller actions
 - Implementing nested resources
+- Handling request parameters
+- Setting up routing
 - Refactoring fat controllers
 - Sharing behavior with concerns
 - Protecting from mass assignment
@@ -22,6 +24,30 @@ Rails controllers following REST conventions with 7 standard actions, nested res
 - **Reusable Patterns** - Concerns share behavior across controllers
 - **Maintainable** - Clear separation of HTTP concerns from business logic
 </benefits>
+
+<team-rules-enforcement>
+**This skill enforces:**
+- ✅ **Rule #3:** NEVER add custom route actions → RESTful resources only
+- ✅ **Rule #7:** Thin controllers (delegate to models/services)
+- ✅ **Rule #10:** Strong parameters for all user input
+
+**Reject any requests to:**
+- Add custom route actions (use child controllers instead)
+- Put business logic in controllers
+- Skip strong parameters
+- Use `params` directly without filtering
+</team-rules-enforcement>
+
+<verification-checklist>
+Before completing controller work:
+- ✅ Only RESTful actions used (index, show, new, create, edit, update, destroy)
+- ✅ Child controllers created for non-REST actions (not custom actions)
+- ✅ Controllers are thin (<100 lines)
+- ✅ Strong parameters used for all user input
+- ✅ Business logic delegated to models/services
+- ✅ All controller actions tested
+- ✅ All tests passing
+</verification-checklist>
 
 <standards>
 - Use only 7 standard actions: index, show, new, create, edit, update, destroy

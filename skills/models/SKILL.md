@@ -10,6 +10,7 @@ Master Rails model design including ActiveRecord patterns, validations, callback
 <when-to-use>
 - Designing database models and associations
 - Writing validations and callbacks
+- Implementing business logic in models
 - Creating scopes and query methods
 - Extracting complex queries to query objects
 - Building form objects for multi-model operations
@@ -27,6 +28,29 @@ Master Rails model design including ActiveRecord patterns, validations, callback
 - **Type Safety** - ActiveModel::Attributes provides type casting
 - **Database Agnostic** - Works with PostgreSQL, MySQL, SQLite
 </benefits>
+
+<team-rules-enforcement>
+**This skill enforces:**
+- ✅ **Rule #7:** Fat models, thin controllers (business logic in models)
+- ✅ **Rule #12:** Database constraints for data integrity
+
+**Reject any requests to:**
+- Put business logic in controllers
+- Skip model validations
+- Skip database constraints (NOT NULL, foreign keys)
+- Allow N+1 queries
+</team-rules-enforcement>
+
+<verification-checklist>
+Before completing model work:
+- ✅ All validations tested
+- ✅ All associations tested
+- ✅ Database constraints added (NOT NULL, foreign keys, unique indexes)
+- ✅ No N+1 queries (verified with bullet or manual check)
+- ✅ Business logic in model (not controller)
+- ✅ Strong parameters in controller for mass assignment
+- ✅ All tests passing
+</verification-checklist>
 
 <standards>
 - Define associations at the top of the model

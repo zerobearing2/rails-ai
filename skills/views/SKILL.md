@@ -24,6 +24,29 @@ Build accessible, maintainable Rails views using partials, helpers, forms, and n
 - **Flexibility** - Nested forms handle complex relationships elegantly
 </benefits>
 
+<team-rules-enforcement>
+**This skill enforces:**
+- ✅ **Rule #8:** Accessibility (WCAG 2.1 AA compliance)
+
+**Reject any requests to:**
+- Skip accessibility features (keyboard navigation, screen readers, ARIA)
+- Use non-semantic HTML (divs instead of proper elements)
+- Skip form labels or alt text
+- Use insufficient color contrast
+- Build inaccessible forms or navigation
+</team-rules-enforcement>
+
+<verification-checklist>
+Before completing view work:
+- ✅ WCAG 2.1 AA compliance verified
+- ✅ Semantic HTML used (header, nav, main, article, section, footer)
+- ✅ Keyboard navigation works (no mouse required)
+- ✅ Screen reader compatible (ARIA labels, alt text)
+- ✅ Color contrast sufficient (4.5:1 for text)
+- ✅ Forms have proper labels and error messages
+- ✅ All interactive elements accessible
+</verification-checklist>
+
 <standards>
 - ALWAYS ensure WCAG 2.1 Level AA accessibility compliance
 - Use semantic HTML as foundation (header, nav, main, section, footer)

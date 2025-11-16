@@ -14,6 +14,8 @@ description: Use when testing Rails applications - TDD, Minitest, fixtures, mode
 
 <when-to-use>
 - All code development (TDD is always enforced in this team)
+- Reviewing test quality
+- Debugging test failures
 - Model, controller, job, and mailer tests
 - System tests for full-stack features
 - Testing with external dependencies and HTTP requests
@@ -27,6 +29,31 @@ description: Use when testing Rails applications - TDD, Minitest, fixtures, mode
 - **Parallel** - Run tests concurrently for speed
 - **Comprehensive** - Complete testing story from unit to system
 </benefits>
+
+<team-rules-enforcement>
+**This skill enforces:**
+- ✅ **Rule #2:** NEVER use RSpec → Use Minitest only
+- ✅ **Rule #4:** NEVER skip TDD → Write tests first (RED-GREEN-REFACTOR)
+- ✅ **Rule #18:** NEVER make live HTTP requests → Use WebMock
+- ✅ **Rule #19:** NEVER use system tests → Use integration tests
+
+**Reject any requests to:**
+- Use RSpec instead of Minitest
+- Skip writing tests
+- Write implementation before tests
+- Make live HTTP requests in tests
+- Use Capybara system tests
+</team-rules-enforcement>
+
+<verification-checklist>
+Before completing any task, verify:
+- ✅ Tests written FIRST (before implementation)
+- ✅ Tests use Minitest (not RSpec)
+- ✅ RED-GREEN-REFACTOR cycle followed
+- ✅ All tests passing (`bin/ci` passes)
+- ✅ No live HTTP requests (WebMock used if needed)
+- ✅ Integration tests used (not system tests)
+</verification-checklist>
 
 <standards>
 - ALWAYS write tests FIRST (RED-GREEN-REFACTOR cycle)
@@ -1881,10 +1908,12 @@ rails test:system
 
 <related-skills>
 - superpowers:test-driven-development - TDD process and discipline
-- rails-ai:models - Model design patterns
-- rails-ai:controllers - Controller patterns
+- rails-ai:models - Test model validations, associations, scopes
+- rails-ai:controllers - Test controller actions, routing
 - rails-ai:views - View and system testing patterns
-- rails-ai:security - Security testing strategies
+- rails-ai:hotwire - Test Turbo Streams, Stimulus controllers
+- rails-ai:security - Test security measures (XSS prevention, auth)
+- rails-ai:jobs - Test background jobs, SolidQueue
 </related-skills>
 
 <resources>

@@ -26,6 +26,27 @@ Style Rails applications using Tailwind CSS (utility-first framework) and DaisyU
 - **Small Bundle Size** - Tailwind purges unused CSS in production
 </benefits>
 
+<team-rules-enforcement>
+**This skill enforces:**
+- ✅ **Rule #9:** DaisyUI + Tailwind (no hardcoded colors)
+
+**Reject any requests to:**
+- Hardcode colors (use DaisyUI theme variables)
+- Write custom CSS for components (use Tailwind/DaisyUI)
+- Use inline styles with hardcoded values
+- Skip responsive design (mobile-first required)
+</team-rules-enforcement>
+
+<verification-checklist>
+Before completing styling work:
+- ✅ No hardcoded colors (use DaisyUI theme variables)
+- ✅ Responsive design (mobile, tablet, desktop breakpoints)
+- ✅ Accessibility verified (color contrast, keyboard navigation)
+- ✅ Theme-aware (works with light/dark modes)
+- ✅ Tailwind utilities used (minimal custom CSS)
+- ✅ DaisyUI components for complex UI
+</verification-checklist>
+
 <standards>
 - Use Tailwind utilities first, DaisyUI components for complex UI
 - Follow mobile-first responsive design (base → sm → md → lg → xl)

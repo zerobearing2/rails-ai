@@ -18,6 +18,16 @@ description: Use when debugging Rails issues - provides Rails-specific debugging
 - Production errors need investigation
 </when-to-use>
 
+<verification-checklist>
+Before completing debugging work:
+- ✅ Root cause identified (not just symptoms)
+- ✅ Regression test added (prevents recurrence)
+- ✅ Fix verified in development and test environments
+- ✅ All tests passing (bin/ci passes)
+- ✅ Logs reviewed for related issues
+- ✅ Performance impact verified (if applicable)
+</verification-checklist>
+
 <phase1-root-cause-investigation>
 
 <tool name="rails-logs">

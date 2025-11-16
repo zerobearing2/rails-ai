@@ -39,9 +39,7 @@
       "Bash(echo:*)",
       "Bash(mkdir:*)",
       "Bash(npm:list:*)",
-      "Bash(yarn:list:*)",
-      "mcp__context7__resolve-library-id",
-      "mcp__context7__get-library-docs"
+      "Bash(yarn:list:*)"
     ],
     "deny": [
       "Bash(git:push --force:*)",

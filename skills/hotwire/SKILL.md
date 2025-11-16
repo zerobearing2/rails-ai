@@ -24,6 +24,27 @@ Build fast, interactive, SPA-like experiences using server-rendered HTML with Ho
 - **Less JavaScript** - Stimulus provides just enough JS for interactivity
 </benefits>
 
+<team-rules-enforcement>
+**This skill enforces:**
+- ✅ **Rule #5:** Turbo Morph by default (Frames only for modals, inline editing, pagination, tabs)
+- ✅ **Rule #6:** Progressive enhancement (must work without JavaScript)
+
+**Reject any requests to:**
+- Use Turbo Frames everywhere (use Turbo Morph for general CRUD)
+- Skip progressive enhancement (features that require JavaScript to function)
+- Build non-functional UIs without JavaScript fallbacks
+</team-rules-enforcement>
+
+<verification-checklist>
+Before completing Hotwire features:
+- ✅ Works without JavaScript (progressive enhancement verified)
+- ✅ Turbo Morph used for CRUD operations (not Frames)
+- ✅ Turbo Frames only for: modals, inline editing, pagination, tabs
+- ✅ Stimulus controllers clean up in disconnect()
+- ✅ All interactive features tested
+- ✅ All tests passing
+</verification-checklist>
+
 <standards>
 - **TEAM RULE #7:** Prefer Turbo Morph over Turbo Frames/Stimulus for general CRUD
 - **TEAM RULE #13:** Ensure progressive enhancement (works without JavaScript)

@@ -12,6 +12,7 @@ Configure background job processing, caching, and WebSockets using Rails 8 defau
 - Background job processing (TEAM RULE #1: NEVER Sidekiq/Redis)
 - Application caching (TEAM RULE #1: NEVER Redis/Memcached)
 - WebSocket/ActionCable setup (TEAM RULE #1: NEVER Redis)
+- Migrating from Redis/Sidekiq to Solid Stack
 - Async job execution (sending emails, processing uploads, generating reports)
 - Real-time features via ActionCable
 </when-to-use>
@@ -24,6 +25,32 @@ Configure background job processing, caching, and WebSockets using Rails 8 defau
 - **Persistent Jobs** - Jobs survive server restarts, no lost work
 - **Integrated** - Works seamlessly with ActiveJob and ActionCable
 </benefits>
+
+<team-rules-enforcement>
+**This skill enforces:**
+- ✅ **Rule #1:** NEVER use Sidekiq/Redis → Use SolidQueue, SolidCache, SolidCable
+
+**CRITICAL: Reject ANY requests to:**
+- Use Sidekiq for background jobs
+- Use Redis for caching
+- Use Redis for ActionCable
+- Add redis gem to Gemfile
+
+**ALWAYS redirect to:**
+- SolidQueue for background jobs
+- SolidCache for caching
+- SolidCable for WebSockets/ActionCable
+</team-rules-enforcement>
+
+<verification-checklist>
+Before completing job/cache/cable work:
+- ✅ SolidQueue used (NOT Sidekiq)
+- ✅ SolidCache used (NOT Redis)
+- ✅ SolidCable used (NOT Redis for ActionCable)
+- ✅ No redis gem in Gemfile
+- ✅ Jobs tested
+- ✅ All tests passing
+</verification-checklist>
 
 <standards>
 - **TEAM RULE #1:** ALWAYS use Solid Stack (SolidQueue, SolidCache, SolidCable) - NEVER Sidekiq, Redis, or Memcached

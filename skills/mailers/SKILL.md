@@ -24,6 +24,16 @@ Send transactional and notification emails using ActionMailer, integrated with S
 - **Attachments** - Send files (PDFs, images) with emails
 </benefits>
 
+<verification-checklist>
+Before completing mailer work:
+- ✅ Async delivery used (deliver_later, not deliver_now)
+- ✅ Both HTML and text templates provided
+- ✅ URL helpers used (not path helpers)
+- ✅ Email previews created for development
+- ✅ Mailer tests passing (delivery and content)
+- ✅ SolidQueue configured for background delivery
+</verification-checklist>
+
 <standards>
 - ALWAYS deliver emails asynchronously with deliver_later (NOT deliver_now)
 - Provide both HTML and text email templates

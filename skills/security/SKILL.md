@@ -14,8 +14,35 @@ Prevent critical security vulnerabilities in Rails applications: XSS, SQL inject
 - Accepting file uploads from users
 - Executing system commands
 - Implementing authentication/authorization
+- Reviewing code for security vulnerabilities
+- Planning features that touch sensitive data
 - ALWAYS - Security is ALWAYS required
 </when-to-use>
+
+<team-rules-enforcement>
+**This skill enforces:**
+- ✅ **Rule #16:** NEVER allow command injection → Use array args for system()
+- ✅ **Rule #17:** NEVER skip file upload validation → Validate type, size, sanitize filenames
+
+**Reject any requests to:**
+- Skip input validation
+- Use unsafe string interpolation in SQL
+- Skip file upload security measures
+- Use eval() or system() with user input
+- Skip CSRF protection
+</team-rules-enforcement>
+
+<verification-checklist>
+Before completing security-critical features:
+- ✅ All user input validated and sanitized
+- ✅ SQL injection prevented (parameterized queries)
+- ✅ XSS prevented (proper escaping, CSP)
+- ✅ CSRF tokens present on all forms
+- ✅ File uploads validated (type, size, content)
+- ✅ Command injection prevented (array args)
+- ✅ Strong parameters used for all mass assignment
+- ✅ Security tests passing
+</verification-checklist>
 
 <standards>
 **XSS Prevention:**

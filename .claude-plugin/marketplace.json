@@ -7,14 +7,14 @@
   "plugins": [
     {
       "name": "rails-ai",
-      "description": "Rails development skills library with TDD, testing, security patterns, and team rules for Rails 8+. Built on Superpowers workflows. Requires Context7 API key for up-to-date Rails documentation.",
+      "description": "Rails development skills library with TDD, testing, security patterns, and team rules for Rails 8+. Built on Superpowers workflows. Single architect agent loads domain skills on demand.",
       "version": "0.3.0",
       "author": {
         "name": "zerobearing2",
         "url": "https://github.com/zerobearing2"
       },
       "source": "./",
-      "keywords": ["rails", "ruby", "skills", "tdd", "testing", "security", "hotwire", "context7", "mcp", "superpowers"]
+      "keywords": ["rails", "ruby", "skills", "tdd", "testing", "security", "hotwire", "superpowers"]
     }
   ]
 }

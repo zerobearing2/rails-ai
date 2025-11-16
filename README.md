@@ -26,11 +26,11 @@ Rails was built to make developers productive by removing decisions. That same p
 
 We're turning that gap into a roadmap instead of a wish list.
 
-**Phase 1 — Specialized Agents** ✅ Completed
-Five domain specialists (architect, developer, security, devops, uat) coordinate like a real team, leveraging Superpowers workflows for orchestration.
+**Phase 1 — Specialized Agents** ✅ Completed → Simplified
+Single architect agent loads domain skills on demand. Built on Superpowers workflows for orchestration.
 
 **Phase 2 — Structured Intelligence** ✅ Completed
-Twelve domain-organized skills, shared team rules, and custom cops bake Rails judgment into reusable modules. Every agent pulls from the same tested playbook. Built on Superpowers for universal workflows.
+Twelve domain-organized skills, shared team rules, and custom cops bake Rails judgment into reusable modules. The architect loads skills as needed. Built on Superpowers for universal workflows.
 
 **Phase 3 — Memory & Context** 🔬 In design  
 Index thousands of production Rails patterns, wire them into a local memory + knowledge graph, and retrieve the right snippet at the right time with RAG + SQLite vector search so every response is grounded in real context.
@@ -40,9 +40,8 @@ Ship end-to-end features—auth, payments, background jobs, admin, APIs—comple
 
 **What already works**
 - @agent-rails-ai:architect orchestrates real features end to end
-- Five domain specialists (developer, security, devops, uat, architect) work together
+- Single architect loads Superpowers workflows (HOW to work) and Rails-AI skills (WHAT you're building)
 - Built on Superpowers for universal workflows (brainstorming, planning, TDD, debugging, review)
-- Context7 keeps every agent current with live Rails documentation
 - Twelve domain-organized skills provide repeatable, testable Rails knowledge
 - Team rules and custom RuboCop cops enforce Rails conventions
 
@@ -93,18 +92,7 @@ Install rails-ai as a Claude Code plugin:
    /plugin install superpowers
    ```
 
-2. **Get a Context7 API key:**
-
-   The rails-ai agents use the Context7 MCP server to fetch up-to-date Rails documentation.
-
-   - Sign up at [context7.com](https://context7.com) to get your free API key
-   - Add to your shell profile (`~/.bashrc`, `~/.zshrc`, etc.):
-     ```bash
-     export CONTEXT7_API_KEY="your-api-key-here"
-     ```
-   - Restart your terminal or run `source ~/.bashrc` (or `~/.zshrc`)
-
-3. **Install rails-ai:**
+2. **Install rails-ai:**
 
    Open a Claude Code session in your terminal:
    ```bash
@@ -117,34 +105,16 @@ Install rails-ai as a Claude Code plugin:
    /plugin install rails-ai
    ```
 
-   **Restart Claude Code** to activate the Context7 MCP server integration.
+3. **Start using the architect:**
 
-4. **Verify the setup:**
-
-   After restarting Claude Code, verify Context7 is connected:
+   In any Claude Code session, you can now invoke the architect:
    ```
-   /mcp
-   ```
-
-   You should see `plugin:rails-ai:context7` listed as connected. If it shows as failed, check that:
-   - Your `CONTEXT7_API_KEY` environment variable is set correctly
-   - You've restarted your terminal after setting the environment variable
-   - Claude Code can access the environment variable
-
-5. **Start using agents:**
-
-   In any Claude Code session, you can now invoke the agents:
-   ```
-   @agent-rails-ai:architect - Main Rails coordinator (references superpowers workflows)
-   @agent-rails-ai:developer - Full-stack Rails developer
-   @agent-rails-ai:security - Security specialist
-   @agent-rails-ai:devops - Infrastructure and deployment specialist
-   @agent-rails-ai:uat - Testing and quality assurance specialist
+   @agent-rails-ai:architect - Main Rails architect (loads superpowers workflows + rails-ai skills)
    ```
 
    For complete details on available skills and usage patterns, see `skills/using-rails-ai/SKILL.md`.
 
-That's it! The agents are now available globally in all your Rails projects with access to up-to-date Rails documentation via Context7.
+That's it! The architect is now available globally in all your Rails projects.
 
 ## Usage
 
@@ -154,36 +124,45 @@ In any Rails project with Claude Code:
 @agent-rails-ai:architect Add user authentication feature
 ```
 
-The architect coordinator will analyze requirements, create a plan, delegate to specialist agents, and deliver a complete implementation with tests.
+The architect will analyze requirements, load relevant superpowers workflows (for process) and rails-ai skills (for domain expertise), and deliver a complete implementation with tests.
 
 ## Architecture
 
-Rails-AI is a **layered system** built on Superpowers:
+Rails-AI is a **two-layer system** built on Superpowers:
 
 ```text
 ┌─────────────────────────────────────────────┐
-│         Rails-AI (Domain Layer)             │
-│  • 5 Rails-specialized agents               │
+│ LAYER 1: Superpowers (Universal Process)   │
+│  • brainstorming - Refine ideas             │
+│  • writing-plans - Create plans             │
+│  • test-driven-development - TDD cycle      │
+│  • systematic-debugging - Investigation     │
+│  • subagent-driven-development - Execution  │
+│  • dispatching-parallel-agents - Coordinate │
+│  • requesting-code-review - Quality gates   │
+│  • finishing-a-development-branch - Complete│
+│  • receiving-code-review - Handle feedback  │
+└─────────────────────────────────────────────┘
+                    ↓
+┌─────────────────────────────────────────────┐
+│ LAYER 2: Rails-AI (Domain Expertise)       │
+│  • @rails-ai:architect (single agent)       │
 │  • 12 Rails domain skills                   │
 │  • Team rules & RuboCop cops                │
-│  • Context7 integration                     │
-└─────────────────────────────────────────────┘
-                    ↓ uses
-┌─────────────────────────────────────────────┐
-│    Superpowers (Workflow Foundation)        │
-│  • brainstorming                            │
-│  • writing-plans                            │
-│  • test-driven-development                  │
-│  • systematic-debugging                     │
-│  • requesting-code-review                   │
+│  • Rails 8+ patterns and conventions        │
 └─────────────────────────────────────────────┘
 ```
+
+**Key Principle:**
+- **Superpowers = HOW** to work (process framework)
+- **Rails-AI = WHAT** you're building (domain knowledge)
+- The architect loads both as needed
 
 ## Project Structure
 
 ```text
 rails-ai/
-├── agents/          # 5 specialized Rails agents (architect, developer, security, devops, uat)
+├── agents/          # @rails-ai:architect (single agent)
 ├── skills/          # 12 domain-organized skills (see skills/using-rails-ai/SKILL.md for details)
 ├── rules/           # Team rules and decision matrices
 ├── test/            # Minitest-based skill testing framework

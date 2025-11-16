@@ -607,5 +607,6 @@ end
 - [SolidQueue](https://github.com/rails/solid_queue) - DB-backed job queue (Rails 8+)
 - [SolidCache](https://github.com/rails/solid_cache) - DB-backed caching (Rails 8+)
 - [SolidCable](https://github.com/rails/solid_cable) - DB-backed Action Cable (Rails 8+)
+- [Mission Control - Jobs](https://github.com/rails/mission_control-jobs) - Web dashboard for monitoring jobs
 
 </resources>

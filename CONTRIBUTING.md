@@ -65,22 +65,12 @@ rake test:unit:skills              # Skills only
 rake test:unit:agents              # Agents only
 ```
 
-### Tier 2: Integration Tests (Slow, requires Claude CLI - individual scenarios only)
-```bash
-rake test:integration:scenario[simple_model_plan]  # Specific scenario
-```
-
-**Note:** Bulk integration runs are disabled due to cost/time. Run scenarios individually.
-
 See [TESTING.md](TESTING.md) for comprehensive testing documentation.
 
 ### Running CI
 ```bash
-# Quick check (linting + unit tests)
+# Run all linters and unit tests
 bin/ci
-
-# Note: Integration tests must be run individually, not via CI
-# rake test:integration:scenario[simple_model_plan]
 ```
 
 ## Coding Conventions
@@ -94,11 +84,11 @@ This project follows Rails conventions and 37signals philosophy:
 - **Use Minitest** - No RSpec
 - **Follow the Solid Stack** - SolidQueue, SolidCache, SolidCable
 
-### Agent Development
-- Agents should be focused and specialized
+### Plugin Development
+- The architect agent coordinates work by loading Superpowers workflows and Rails-AI skills
 - Skills should be modular and testable
-- Follow the decision matrices in `rules/`
-- Document agent capabilities clearly
+- Follow the conventions in `rules/TEAM_RULES.md`
+- Document skill capabilities clearly with YAML front matter
 
 ### Code Style
 - Run `rake lint:fix` before committing
@@ -123,48 +113,43 @@ This project follows Rails conventions and 37signals philosophy:
 
 ```text
 rails-ai/
-├── agents/          # 7 specialized Rails agents
-├── skills/          # Modular skills registry
-├── rules/           # Team rules and decision matrices
+├── agents/          # @rails-ai:architect (single agent)
+├── commands/        # /rails-ai:architect convenience command
+├── skills/          # 12 domain-organized skills
+├── rules/           # Team rules (TEAM_RULES.md)
 ├── test/            # Minitest-based testing framework
-├── bin/             # Development scripts
+├── bin/             # Development scripts (setup, ci)
 └── docs/            # Documentation and guides
 ```
 
 ## Agent and Skills Architecture
 
-### Adding New Rules, Skills, or Agents
+### Adding New Skills or Rules
 
-**⚠️ CRITICAL:** Before adding new resources, **always consult the comprehensive checklists** in [AGENTS.md - Contributor Checklists](AGENTS.md#contributor-checklists). These checklists ensure you update ALL required files and tests.
+When adding new skills or rules:
 
-Quick reference:
-- **[Adding a New Rule Checklist](AGENTS.md#-adding-a-new-rule)** - Covers TEAM_RULES.md, RULES_TO_SKILLS_MAPPING.yml, tests, and more
-- **[Adding a New Skill Checklist](AGENTS.md#-adding-a-new-skill)** - Covers skill files, SKILLS_REGISTRY.yml, agent updates, tests
-- **[Adding a New Agent Checklist](AGENTS.md#-adding-a-new-agent)** - Covers agent files, documentation, integration testing
+**Skills:**
+- Add YAML front matter with name and description
+- Follow existing skill structure in `skills/` directory
+- Create corresponding unit tests in `test/unit/skills/`
+- Document in `skills/using-rails-ai/SKILL.md` if it's a domain skill
+- Update the architect agent if needed
 
-**Common mistakes to avoid:**
-- ❌ Forgetting to update counts in metadata sections
-- ❌ Missing test file updates (hardcoded counts)
-- ❌ Not updating AGENTS.md with new counts
-- ❌ Forgetting to update relevant agent files
-- ❌ YAML syntax errors (special characters like `[]`, `()`, `:`)
+**Rules:**
+- Add to `rules/TEAM_RULES.md`
+- Include in the quick lookup index
+- Add enforcement severity level
+- Create tests in `test/unit/rules/`
 
 **Verification steps:**
-1. ✅ Use the appropriate checklist from AGENTS.md
-2. ✅ Run `bin/ci` - All tests must pass
-3. ✅ Run `rake lint:fix` - Fix any style issues
-4. ✅ Commit with clear, descriptive message
-
-### Modifying Existing Resources
-- **Rules:** Use checklist in [AGENTS.md - Updating Existing Resources](AGENTS.md#-updating-existing-resources)
-- **Skills:** Update skill file, SKILLS_REGISTRY.yml, and affected agents
-- **Agents:** Update agent file, AGENTS.md, and verify integration
-- **Always run `bin/ci`** to verify changes
+1. ✅ Run `bin/ci` - All tests must pass
+2. ✅ Run `rake lint:fix` - Fix any style issues
+3. ✅ Commit with clear, descriptive message
 
 ## Getting Help
 
 - Check the [README](README.md) for basic information
-- Review [AGENTS.md](AGENTS.md) for agent architecture
+- Review `skills/using-rails-ai/SKILL.md` for architecture and usage
 - Browse the [docs/](docs/) directory for detailed guides
 - Open an issue with the "question" label
 - Reach out to maintainers

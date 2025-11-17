@@ -28,10 +28,6 @@ Rails-AI v0.3.0 introduces a **layered architecture** where Rails-AI provides Ra
 │    - 20 Rails conventions                   │
 │    - Custom cops (Hash#dig, etc.)           │
 │                                             │
-│  • Context7 integration                     │
-│    - Up-to-date Rails documentation         │
-│    - Hotwire, Solid Stack, etc.             │
-│                                             │
 └─────────────────────────────────────────────┘
                     ↓ uses
 ┌─────────────────────────────────────────────┐
@@ -104,7 +100,6 @@ The architect agent is the primary orchestrator. It references Superpowers workf
 ```markdown
 **Use superpowers:brainstorming**
 - Load rails-ai skills for context (Hotwire, ActiveRecord, etc.)
-- Query Context7 for current Rails/gem docs
 - Apply Rails conventions during ideation
 ```
 
@@ -209,7 +204,6 @@ The uat agent performs testing with systematic approach:
    ```
    Uses: superpowers:brainstorming
    Context: rails-ai skills (activerecord-patterns, security-*, forms-nested)
-   Context: Context7 Rails authentication docs
    Output: Authentication design with Rails conventions
    ```
 
@@ -299,7 +293,6 @@ The uat agent performs testing with systematic approach:
    ```
    Uses: superpowers:brainstorming
    Context: rails-ai:hotwire-turbo, rails-ai:hotwire-stimulus
-   Context: Context7 Hotwire Turbo Frame docs
    Output: Turbo Frame design following TEAM_RULES.md Rule #9
    ```
 
@@ -437,7 +430,7 @@ Users must install Superpowers first:
 
 ```bash
 # 1. Install Superpowers
-/plugin marketplace add zerobearing2/superpowers
+/plugin marketplace add obra/superpowers
 /plugin install superpowers
 
 # 2. Install Rails-AI

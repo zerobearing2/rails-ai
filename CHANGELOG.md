@@ -82,10 +82,6 @@ Skills with workflow dependencies include REQUIRED BACKGROUND sections:
 - All 20 team rules from TEAM_RULES.md remain enforced
 - Custom RuboCop cops preserved (Style/NestedBracketAccess)
 
-#### Context7 Integration
-- Context7 MCP server integration unchanged
-- Up-to-date Rails documentation fetching preserved
-
 #### Core Skills
 - Backend skills (ActiveRecord, controllers, mailers, etc.)
 - Frontend skills (Hotwire, Tailwind, DaisyUI, views, etc.)
@@ -144,7 +140,6 @@ Based on the commits, here's the CHANGELOG entry:
 
 ### Added
 - Planning Agent for Specification Pyramid Framework
-- Context7 MCP support for up-to-date Rails documentation
 
 ### Changed
 - Updated concerns location conventions for better organization

@@ -1,5 +1,7 @@
 # rails-ai 🚂🤖
 
+> **⚠️ EXPERIMENTAL:** This project is under active development and not yet stable. APIs, architecture, and workflows may change significantly. Use in production at your own risk. We're currently in Phase 2 of a 4-phase roadmap.
+
 ## The Vision
 
 Build Rails apps so autonomously they leave today's Next.js and React generators in the dust. We're not playing catch-up—we're setting the pace and showing what LLM-driven development really looks like when Rails is in the driver's seat. This project exists to prove that Rails has always been the right tool for this moment, and we're here to back that up.
@@ -88,7 +90,7 @@ Install rails-ai as a Claude Code plugin:
 
    Then in Claude Code:
    ```
-   /plugin marketplace add zerobearing2/superpowers
+   /plugin marketplace add obra/superpowers
    /plugin install superpowers
    ```
 
@@ -242,9 +244,13 @@ An AI wrote a rulebook for other AIs, teaching them Rails conventions, when to r
 
 ## Credits
 
+### Dependencies
+
+Rails-AI is built on top of [Superpowers](https://github.com/obra/superpowers), a universal workflow framework for Claude Code that provides the process layer (brainstorming, planning, TDD, debugging, code review). Superpowers is a required dependency.
+
 ### Specification Pyramid Concept
 
-The planning agent's systematic documentation approach (Vision → Architecture → Features → Tasks) is inspired by the **Specification Pyramid** concept from [Robert Evans](https://www.linkedin.com/in/rrevans/), a highly accomplished Rubyist, friend, colleague, and expert in the field.
+The planning workflow's systematic documentation approach (Vision → Architecture → Features → Tasks) is inspired by the **Specification Pyramid** concept from [Robert Evans](https://www.linkedin.com/in/rrevans/), a highly accomplished Rubyist, friend, colleague, and expert in the field.
 
 Read more about the Specification Pyramid in his article: [Why Your PRD Isn't Working for AI](https://signalthinking.com/p/why-your-prd-isnt-working-for-ai-083)
 

@@ -18,7 +18,7 @@ CONTENT=$(echo "$CONTENT" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | awk '{printf "
 cat << EOF
 {
   "event": "session-start",
-  "context": "Rails-AI loaded - domain layer on Superpowers workflows. Use @architect for Rails development.",
+  "context": "Rails-AI loaded - domain layer on Superpowers workflows. Use /rails-ai:architect for Rails development.",
   "content": "$CONTENT"
 }
 EOF

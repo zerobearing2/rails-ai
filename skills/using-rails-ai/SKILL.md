@@ -44,14 +44,14 @@ description: Rails-AI introduction - explains how rails-ai (Rails domain layer) 
 - Overlap between agent roles and workflows
 
 **Current architecture (simple):**
-- 1 agent (@rails-ai:architect)
+- 1 agent (architect)
 - Superpowers workflows handle coordination
 - Rails-AI skills provide domain expertise
 - Clean separation of concerns
 
 ### How It Works
 
-**User request** → **@rails-ai:architect** → **Loads workflows + skills** → **Executes work**
+**User request** → **/rails-ai:architect** → **Loads workflows + skills** → **Executes work**
 
 #### Example: "Add user authentication"
 
@@ -107,18 +107,18 @@ See rules/TEAM_RULES.md for all 20 rules.
 
 ## Getting Started
 
-**Primary interface:** `/rails-ai` command
+**Primary interface:** `/rails-ai:architect` command
 
-The simplest way to use Rails-AI is the `/rails-ai` convenience command:
+The simplest way to use Rails-AI is the `/rails-ai:architect` convenience command:
 
 ```text
-/rails-ai add user authentication
-/rails-ai fix failing test in user_test.rb
-/rails-ai plan payment processing feature
-/rails-ai refactor UserController
+/rails-ai:architect add user authentication
+/rails-ai:architect fix failing test in user_test.rb
+/rails-ai:architect plan payment processing feature
+/rails-ai:architect refactor UserController
 ```
 
-This command invokes `@agent-rails-ai:architect`, which:
+This command invokes the Rails architect agent, which:
 - Analyzes requests
 - Loads superpowers workflows (for process)
 - Loads rails-ai skills (for domain expertise)
@@ -129,9 +129,9 @@ This command invokes `@agent-rails-ai:architect`, which:
 
 ```text
 
-User: "/rails-ai Add email validation to User model"
+User: "/rails-ai:architect Add email validation to User model"
 
-@rails-ai:architect:
+Architect:
 1. Determines this is model work requiring TDD
 2. Loads superpowers:test-driven-development for process
 3. Loads rails-ai:testing for Minitest patterns

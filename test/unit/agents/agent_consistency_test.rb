@@ -49,12 +49,12 @@ class AgentConsistencyTest < Minitest::Test
   end
 
   def test_agents_match_documentation
-    # Check AGENTS.md documents the skills-based architecture
+    # Check AGENTS.md documents the single-agent architecture
     agents_doc = File.read("AGENTS.md")
 
-    # Should mention skills-based architecture
-    assert_match(/skills.*based.*architecture/i, agents_doc,
-                 "AGENTS.md should document skills-based architecture")
+    # Should mention single-agent architecture
+    assert_match(/single-agent architecture/i, agents_doc,
+                 "AGENTS.md should document single-agent architecture")
 
     # Should reference the architect coordinator
     assert_match(/architect/i, agents_doc,

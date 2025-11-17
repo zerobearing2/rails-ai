@@ -15,33 +15,8 @@ namespace :test do
     t.warning = false
   end
 
-  # Integration tests (slow) - agent planning scenarios
-  # Note: Bulk test run disabled due to cost/time. Use test:integration:scenario[name] instead.
-  desc "Run all integration tests (DISABLED - use test:integration:scenario[name] instead)"
-  task :integration do
-    puts "\n#{'=' * 80}"
-    puts "ERROR: Bulk integration test run is disabled"
-    puts("=" * 80)
-    puts ""
-    puts "Integration tests are expensive and time-consuming."
-    puts "Run individual scenarios instead:"
-    puts ""
-    puts "  rake test:integration:scenario[scenario_name]"
-    puts ""
-    puts "Available scenarios:"
-    Dir.glob("test/integration/*_test.rb").each do |file|
-      name = File.basename(file, "_test.rb")
-      puts "  - #{name}"
-    end
-    puts ""
-    puts "To run a specific scenario:"
-    puts "  rake test:integration:scenario[simple_model_plan]"
-    puts ""
-    exit 1
-  end
-
   # Run all tests
-  desc "Run all tests (unit only - integration tests must be run individually)"
+  desc "Run all tests"
   task all: :unit
 
   # Category-specific tasks for backward compatibility and granular control
@@ -71,63 +46,6 @@ namespace :test do
     end
   end
 
-  namespace :integration do
-    desc "List available integration test scenarios"
-    task :list do
-      puts "\n=== Available Integration Test Scenarios ==="
-      puts ""
-
-      scenarios = Dir.glob("test/integration/*_test.rb").map do |file|
-        File.basename(file, "_test.rb")
-      end
-
-      if scenarios.empty?
-        puts "No integration test scenarios found."
-      else
-        scenarios.sort.each do |name|
-          if name == "bootstrap"
-            puts "  • #{name} (fast infrastructure test)"
-          else
-            puts "  • #{name}"
-          end
-        end
-        puts ""
-        puts "Run with:"
-        puts "  rake test:integration:bootstrap               # Fast infrastructure test"
-        puts "  rake test:integration:scenario[scenario_name] # Specific scenario"
-      end
-      puts ""
-    end
-
-    desc "Run bootstrap test (fast test to verify integration test harness)"
-    task :bootstrap do
-      puts "Running bootstrap integration test (fast, cheap test)..."
-      system("ruby -Itest test/integration/bootstrap_test.rb")
-    end
-
-    desc "Run a specific integration scenario"
-    task :scenario, [:scenario_name] do |_t, args|
-      scenario_name = args[:scenario_name]
-      raise "Usage: rake test:integration:scenario[scenario_name]" unless scenario_name
-
-      test_file = "test/integration/#{scenario_name}_test.rb"
-
-      if File.exist?(test_file)
-        puts "Running integration test: #{test_file}"
-        system("ruby -Itest #{test_file}")
-      else
-        puts "Error: Integration test not found: #{test_file}"
-        puts ""
-        puts "Available scenarios:"
-        Dir.glob("test/integration/*_test.rb").each do |file|
-          name = File.basename(file, "_test.rb")
-          puts "  - #{name}"
-        end
-        exit 1
-      end
-    end
-  end
-
   # Test coverage reports
   desc "Show test coverage report"
   task :report do
@@ -147,12 +65,10 @@ namespace :test do
     # Agents
     total_agents = Dir.glob("agents/*.md").count
     agent_unit_tests = Dir.glob("test/unit/agents/**/*_test.rb").count
-    agent_integration_tests = Dir.glob("test/integration/*_test.rb").count
 
     puts "Agents:"
     puts "  Total: #{total_agents}"
     puts "  Unit Tests: #{agent_unit_tests}"
-    puts "  Integration Scenarios: #{agent_integration_tests}"
     puts ""
 
     # Rules
@@ -166,20 +82,15 @@ namespace :test do
 
     # Overall
     total_unit = skill_unit_tests + agent_unit_tests + rules_unit_tests
-    total_integration = agent_integration_tests
 
     puts "Overall:"
     puts "  Unit Tests: #{total_unit}"
-    puts "  Integration Scenarios: #{total_integration}"
-    puts "  Total Tests: #{total_unit + total_integration}"
     puts ""
     puts "Run tests:"
-    puts "  rake test:unit                    # Fast unit tests"
-    puts "  rake test:integration             # Slow integration scenarios"
-    puts "  rake test:unit:skills             # Skills unit tests only"
-    puts "  rake test:unit:agents             # Agents unit tests only"
-    puts "  rake test:unit:rules              # Rules unit tests only"
-    puts "  rake test:integration:scenario[X] # Specific scenario"
+    puts "  rake test:unit         # All unit tests"
+    puts "  rake test:unit:skills  # Skills unit tests only"
+    puts "  rake test:unit:agents  # Agents unit tests only"
+    puts "  rake test:unit:rules   # Rules unit tests only"
     puts ""
   end
 

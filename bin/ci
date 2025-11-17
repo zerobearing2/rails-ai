@@ -119,23 +119,6 @@ else
   print_error "Unit tests failed"
 fi
 
-# Integration tests - disabled for bulk run
-if [ "$INTEGRATION" = "1" ]; then
-  print_warning "Integration tests cannot be run in bulk (too expensive/time-consuming)"
-  print_info "Run individual scenarios instead:"
-  print_info "  rake test:integration:scenario[simple_model_plan]"
-  print_info ""
-  print_info "Available scenarios:"
-  for file in test/integration/*_test.rb; do
-    if [ -f "$file" ]; then
-      scenario=$(basename "$file" _test.rb)
-      print_info "  - $scenario"
-    fi
-  done
-else
-  print_info "Integration tests skipped (run individually with rake test:integration:scenario[name])"
-fi
-
 # ==============================================================================
 # TEST COVERAGE REPORT
 # ==============================================================================

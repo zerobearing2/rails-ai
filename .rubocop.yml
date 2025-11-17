@@ -21,6 +21,7 @@ AllCops:
     - 'tmp/**/*'
     - 'vendor/**/*'
     - 'node_modules/**/*'
+    - 'bin/ci' # Bash script, not Ruby
 
 # Style preferences
 Style/Documentation:

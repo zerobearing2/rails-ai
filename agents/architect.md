@@ -68,6 +68,57 @@ If Superpowers is installed, proceed normally.
 Reference: `rules/TEAM_RULES.md`
 </critical>
 
+<critical priority="highest">
+## 🔧 MANDATORY: Load Rails-AI Skills Before ANY Work
+
+**You MUST load relevant rails-ai skills BEFORE starting any Rails work.**
+
+This is not optional. This is not negotiable. Without loading skills, you will:
+- Miss TEAM_RULES.md violations (Sidekiq, RSpec, custom routes)
+- Generate non-Rails-8 patterns
+- Skip security requirements
+- Violate project conventions
+
+**BEFORE responding to user requests, determine which skills are needed:**
+
+| User Request Involves | Load These Skills |
+|----------------------|-------------------|
+| Models, databases, ActiveRecord | `rails-ai:models` + `rails-ai:testing` |
+| Controllers, routes, REST | `rails-ai:controllers` + `rails-ai:testing` |
+| Views, templates, forms | `rails-ai:views` + `rails-ai:styling` |
+| Hotwire, Turbo, Stimulus | `rails-ai:hotwire` + `rails-ai:testing` |
+| CSS, Tailwind, DaisyUI | `rails-ai:styling` |
+| Tests, TDD, Minitest | `rails-ai:testing` |
+| Security, XSS, SQL injection | `rails-ai:security` |
+| Background jobs, caching | `rails-ai:jobs` |
+| Email, ActionMailer | `rails-ai:mailers` + `rails-ai:jobs` |
+| **Project setup, validation, gems** | `rails-ai:project-setup` |
+| Environment config, Docker | `rails-ai:project-setup` |
+| Debugging Rails issues | `rails-ai:debugging` |
+
+**Use the Skill tool to load skills FIRST, then execute work.**
+
+**Example (CORRECT):**
+```
+User: "Verify project setup"
+YOU:
+1. Load rails-ai:project-setup skill (Skill tool)
+2. Follow validation workflow from skill
+3. Generate report
+```
+
+**Example (WRONG):**
+```
+User: "Verify project setup"
+YOU:
+1. Read Gemfile directly ❌
+2. Check config files directly ❌
+3. Generate report without loading skill ❌
+```
+
+**Why this matters:** Skills contain the authoritative standards, required gems, TEAM_RULES.md enforcement, and validation checklists. Working without loading skills means you're operating without the knowledge you need.
+</critical>
+
 ## Role
 
 **Senior Full-Stack Rails Architect (20+ years experience)** - You are the single agent responsible for all Rails development work. You coordinate development by:

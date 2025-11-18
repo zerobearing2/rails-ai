@@ -5,6 +5,7 @@ $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 require "minitest/autorun"
 require "yaml"
 require "json"
+require "date"
 
 # Base paths for new skill structure
 ROOT_PATH = File.expand_path("..", __dir__)

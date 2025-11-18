@@ -2,7 +2,7 @@
 
 ## Overview
 
-Rails-AI v0.3.0 introduces a **layered architecture** where Rails-AI provides Rails-specific domain knowledge on top of Superpowers' universal workflow foundation. This document explains how the two systems integrate and work together.
+Rails-AI provides a **layered architecture** where Rails-specific domain knowledge sits on top of Superpowers' universal workflow foundation. This document explains how the two systems integrate and work together.
 
 ## Layered Architecture
 
@@ -10,22 +10,26 @@ Rails-AI v0.3.0 introduces a **layered architecture** where Rails-AI provides Ra
 ┌─────────────────────────────────────────────┐
 │         Rails-AI (Domain Layer)             │
 │                                             │
-│  • 5 Rails-specialized agents               │
-│    - architect (coordinator)                │
-│    - developer (full-stack)                 │
-│    - security (auditing)                    │
-│    - devops (infrastructure)                │
-│    - uat (testing)                          │
+│  • 1 Rails architect agent                  │
+│    - Loads Superpowers workflows (HOW)      │
+│    - Loads Rails-AI skills (WHAT)           │
 │                                             │
-│  • 33 Rails domain skills                   │
-│    - ActiveRecord patterns                  │
-│    - Hotwire/Turbo/Stimulus                 │
-│    - Minitest/TDD                           │
-│    - Security patterns                      │
-│    - Docker/Solid Stack                     │
+│  • 12 Rails domain skills                   │
+│    - Configuration                          │
+│    - Controllers                            │
+│    - Debugging                              │
+│    - Hotwire                                │
+│    - Jobs (Solid Stack)                     │
+│    - Mailers                                │
+│    - Models                                 │
+│    - Security                               │
+│    - Styling (Tailwind + DaisyUI)           │
+│    - Testing (Minitest/TDD)                 │
+│    - Using Rails-AI                         │
+│    - Views                                  │
 │                                             │
 │  • Team rules & RuboCop cops                │
-│    - 20 Rails conventions                   │
+│    - 20+ Rails conventions                  │
 │    - Custom cops (Hash#dig, etc.)           │
 │                                             │
 └─────────────────────────────────────────────┘
@@ -66,7 +70,7 @@ This created duplication with Superpowers, which provides battle-tested implemen
 
 ### Solution: Layering
 
-v0.3.0 reorganizes the system into clear layers:
+Rails-AI reorganizes the system into clear layers:
 
 **Superpowers (Foundation):** Universal workflows that work for any language/framework
 - Brainstorming, planning, TDD, debugging, review
@@ -74,13 +78,15 @@ v0.3.0 reorganizes the system into clear layers:
 - Workflow orchestration
 
 **Rails-AI (Domain):** Rails-specific knowledge and patterns
+- Single architect agent that loads skills dynamically
+- 12 focused domain skills (Models, Controllers, Views, Hotwire, Security, etc.)
 - Rails conventions (REST, strong parameters, etc.)
-- Hotwire/Turbo/Stimulus patterns
 - ActiveRecord best practices
+- Hotwire/Turbo/Stimulus patterns
 - Minitest/TDD for Rails
 - Security patterns (SQL injection, XSS, CSRF, etc.)
-- Solid Stack configuration
-- 20 team rules specific to Rails
+- Solid Stack (SolidQueue, SolidCache, SolidCable)
+- 20+ team rules specific to Rails
 
 ### Benefits
 
@@ -90,20 +96,18 @@ v0.3.0 reorganizes the system into clear layers:
 4. **Automatic Improvements:** When Superpowers improves TDD workflow, Rails-AI benefits
 5. **Ecosystem Integration:** Other domain plugins can build on same foundation
 
-## How Agents Reference Superpowers
+## How the Architect Uses Superpowers
 
-### Architect Agent
+The architect agent is the single agent in Rails-AI. It references Superpowers workflows at each phase and loads Rails-AI skills as needed:
 
-The architect agent is the primary orchestrator. It references Superpowers workflows at each phase:
-
-#### Design Phase (Rough Idea → Design)
+### Design Phase (Rough Idea → Design)
 ```markdown
 **Use superpowers:brainstorming**
-- Load rails-ai skills for context (Hotwire, ActiveRecord, etc.)
+- Load rails-ai skills for context (Hotwire, ActiveRecord, Security, etc.)
 - Apply Rails conventions during ideation
 ```
 
-#### Planning Phase (Design → Implementation Plan)
+### Planning Phase (Design → Implementation Plan)
 ```markdown
 **Use superpowers:writing-plans**
 - Reference rails-ai skills in tasks
@@ -111,82 +115,34 @@ The architect agent is the primary orchestrator. It references Superpowers workf
 - Follow Rails file structure conventions
 ```
 
-#### Execution Phase (Plan → Implementation)
+### Execution Phase (Plan → Implementation)
 ```markdown
 **Choose execution style:**
 - Batch: superpowers:executing-plans
 - Fast: superpowers:subagent-driven-development
-- Delegate to @developer, @security, @devops, @uat with rails-ai skills
+- Always use superpowers:test-driven-development for TDD
+- Load rails-ai skills as needed (models, controllers, views, etc.)
 ```
 
-#### Debugging Phase (Issues → Root Cause → Fix)
+### Debugging Phase (Issues → Root Cause → Fix)
 ```markdown
 **Use superpowers:systematic-debugging**
-- Load rails-ai:debugging-rails for Rails-specific tools
-- Delegate to @developer for Rails debugging
+- Load rails-ai:debugging for Rails-specific debugging tools
 ```
 
-#### Review Phase (Work → Verification)
+### Review Phase (Work → Verification)
 ```markdown
 **Use superpowers:requesting-code-review**
 - Review against TEAM_RULES.md + Rails conventions
+- Load rails-ai:security for security review
 **Use superpowers:verification-before-completion**
 - Run bin/ci before claiming success
 ```
 
-#### Parallel Coordination
+### Parallel Coordination
 ```markdown
 **Use superpowers:dispatching-parallel-agents**
-- Coordinate @developer, @security, @devops, @uat in parallel
-```
-
-### Developer Agent
-
-The developer agent implements features using Superpowers TDD workflow:
-
-```markdown
-**TDD Mandatory:**
-**Use superpowers:test-driven-development for process**
-**Use rails-ai:tdd-minitest for Rails/Minitest patterns**
-
-Process:
-1. superpowers:test-driven-development provides RED-GREEN-REFACTOR workflow
-2. rails-ai:tdd-minitest provides Rails-specific test patterns
-3. Developer combines both for Rails TDD implementation
-```
-
-### Security Agent
-
-The security agent audits code using Superpowers review workflow:
-
-```markdown
-**Use superpowers:requesting-code-review**
-- Apply Rails security rules from TEAM_RULES.md
-- Check against rails-ai security skills
-- Verify strong parameters, CSRF protection, etc.
-```
-
-### DevOps Agent
-
-The devops agent configures infrastructure with verification:
-
-```markdown
-**Use superpowers:verification-before-completion**
-- Verify Docker configurations
-- Test Solid Stack setup
-- Run bin/ci for quality gates
-```
-
-### UAT Agent
-
-The uat agent performs testing with systematic approach:
-
-```markdown
-**Use superpowers:systematic-debugging for test failures**
-**Use rails-ai:tdd-minitest for test patterns**
-- Run test suites
-- Debug failures using superpowers workflow
-- Apply Rails testing patterns
+- Dispatch parallel subagents when needed for independent tasks
 ```
 
 ## Workflow Examples
@@ -195,7 +151,7 @@ The uat agent performs testing with systematic approach:
 
 **User request:**
 ```
-@agent-rails-ai:architect Add user authentication feature
+/rails-ai:architect Add user authentication feature
 ```
 
 **Architect workflow:**
@@ -203,61 +159,53 @@ The uat agent performs testing with systematic approach:
 1. **Design Phase**
    ```
    Uses: superpowers:brainstorming
-   Context: rails-ai skills (activerecord-patterns, security-*, forms-nested)
+   Loads: rails-ai:models, rails-ai:security
    Output: Authentication design with Rails conventions
    ```
 
 2. **Planning Phase**
    ```
    Uses: superpowers:writing-plans
-   Context: Rails file structure (app/models, app/controllers, etc.)
-   Context: rails-ai:controller-restful, rails-ai:security-strong-params
-   Output: Specification Pyramid plan with Rails tasks
+   Loads: rails-ai:controllers, rails-ai:views, rails-ai:security
+   Output: Implementation plan with Rails tasks
    ```
 
 3. **Execution Phase**
    ```
-   Delegates to: @agent-rails-ai:developer
-
-   Developer uses:
-   - superpowers:test-driven-development (RED-GREEN-REFACTOR)
-   - rails-ai:tdd-minitest (Rails test patterns)
-   - rails-ai:activerecord-patterns (User model)
-   - rails-ai:controller-restful (SessionsController)
-   - rails-ai:security-strong-params (parameter filtering)
-   - rails-ai:security-csrf (CSRF protection)
+   Uses: superpowers:test-driven-development (RED-GREEN-REFACTOR)
+   Loads:
+   - rails-ai:testing (Minitest patterns)
+   - rails-ai:models (User model)
+   - rails-ai:controllers (SessionsController)
+   - rails-ai:security (strong parameters, CSRF protection)
    ```
 
-4. **Security Review**
+4. **Review**
    ```
-   Delegates to: @agent-rails-ai:security
-
-   Security uses:
-   - superpowers:requesting-code-review (review workflow)
-   - rails-ai:security-* skills (all security patterns)
-   - TEAM_RULES.md (Rule #8: Strong parameters, Rule #15: Security patterns)
+   Uses: superpowers:requesting-code-review
+   Loads: rails-ai:security (security audit)
+   Checks: TEAM_RULES.md compliance
    ```
 
 5. **Verification**
    ```
    Uses: superpowers:verification-before-completion
    Runs: bin/ci (linting, tests, quality gates)
-   Checks: All tests pass, no security issues
    ```
 
 ### Example 2: Debugging Failing Test
 
 **User request:**
 ```
-@agent-rails-ai:developer Fix failing test in UserTest
+/rails-ai:architect Fix failing test in UserTest
 ```
 
-**Developer workflow:**
+**Architect workflow:**
 
 1. **Analyze Failure**
    ```
    Uses: superpowers:systematic-debugging
-   Context: rails-ai:debugging-rails (Rails debugging tools)
+   Loads: rails-ai:debugging (Rails debugging tools)
    Actions:
    - Read test output
    - Identify failure reason
@@ -267,7 +215,7 @@ The uat agent performs testing with systematic approach:
 2. **Fix with TDD**
    ```
    Uses: superpowers:test-driven-development
-   Context: rails-ai:tdd-minitest
+   Loads: rails-ai:testing (Minitest patterns)
    Actions:
    - Write failing test (RED)
    - Implement fix (GREEN)
@@ -284,7 +232,7 @@ The uat agent performs testing with systematic approach:
 
 **User request:**
 ```
-@agent-rails-ai:architect Add Turbo Frame for live updating comments
+/rails-ai:architect Add Turbo Frame for live updating comments
 ```
 
 **Architect workflow:**
@@ -292,56 +240,51 @@ The uat agent performs testing with systematic approach:
 1. **Design**
    ```
    Uses: superpowers:brainstorming
-   Context: rails-ai:hotwire-turbo, rails-ai:hotwire-stimulus
-   Output: Turbo Frame design following TEAM_RULES.md Rule #9
+   Loads: rails-ai:hotwire
+   Output: Turbo Frame design following TEAM_RULES.md conventions
    ```
 
 2. **Plan**
    ```
    Uses: superpowers:writing-plans
    Tasks:
-   - Add Turbo Frame to view (rails-ai:hotwire-turbo)
-   - Add Stimulus controller if needed (rails-ai:hotwire-stimulus)
-   - Write tests (rails-ai:tdd-minitest)
+   - Add Turbo Frame to view (rails-ai:views + rails-ai:hotwire)
+   - Add Stimulus controller if needed (rails-ai:hotwire)
+   - Write tests (rails-ai:testing)
    ```
 
 3. **Execute**
    ```
-   Delegates to: @developer
-
-   Developer uses:
-   - superpowers:test-driven-development
-   - rails-ai:hotwire-turbo (Turbo Frame patterns)
-   - rails-ai:hotwire-stimulus (Stimulus controller patterns)
-   - rails-ai:view-helpers (view helper patterns)
+   Uses: superpowers:test-driven-development
+   Loads:
+   - rails-ai:hotwire (Turbo Frame + Stimulus patterns)
+   - rails-ai:views (view helper patterns)
+   - rails-ai:testing (Minitest patterns)
    ```
 
 ## Skills That Reference Superpowers
 
-Several Rails-AI skills include "REQUIRED BACKGROUND" sections that reference Superpowers skills:
+Several Rails-AI skills reference Superpowers workflows:
 
-### rails-ai:tdd-minitest
+### rails-ai:testing
 ```markdown
-## REQUIRED BACKGROUND
-Load superpowers:test-driven-development for TDD workflow (RED-GREEN-REFACTOR)
+Uses superpowers:test-driven-development for TDD workflow (RED-GREEN-REFACTOR)
 
-This skill provides Rails/Minitest-specific patterns.
+This skill provides Rails/Minitest-specific test patterns.
 Superpowers provides the TDD process.
 ```
 
-### rails-ai:debugging-rails
+### rails-ai:debugging
 ```markdown
-## REQUIRED BACKGROUND
-Load superpowers:systematic-debugging for debugging methodology
+Uses superpowers:systematic-debugging for debugging methodology
 
-This skill provides Rails-specific debugging tools.
+This skill provides Rails-specific debugging tools (logs, console, etc.).
 Superpowers provides the debugging workflow.
 ```
 
 ### rails-ai:using-rails-ai
 ```markdown
-## REQUIRED BACKGROUND
-Load superpowers:* workflows for orchestration
+Uses superpowers:* workflows for orchestration
 
 This skill explains how Rails-AI leverages Superpowers.
 ```
@@ -368,7 +311,7 @@ This skill explains how Rails-AI leverages Superpowers.
 
 ## Integration Points
 
-### 1. Architect Agent System Prompt
+### 1. Architect Agent
 The architect's system prompt includes workflow selection logic:
 
 ```markdown
@@ -382,6 +325,7 @@ The architect's system prompt includes workflow selection logic:
 
 ### Execution Phase (Plan → Implementation)
 **Use superpowers:executing-plans or superpowers:subagent-driven-development**
+**Always use superpowers:test-driven-development for TDD**
 
 ### Debugging Phase (Issues → Root Cause → Fix)
 **Use superpowers:systematic-debugging**
@@ -391,24 +335,14 @@ The architect's system prompt includes workflow selection logic:
 **Use superpowers:verification-before-completion**
 ```
 
-### 2. Developer Agent System Prompt
-The developer's system prompt enforces TDD via Superpowers:
+### 2. Skills Reference Superpowers
+Skills reference Superpowers workflows where appropriate:
 
-```markdown
-**TDD Mandatory:**
-**Use superpowers:test-driven-development for process**
-**Use rails-ai:tdd-minitest for Rails/Minitest patterns**
-```
+- rails-ai:testing → superpowers:test-driven-development
+- rails-ai:debugging → superpowers:systematic-debugging
+- All skills benefit from superpowers:verification-before-completion
 
-### 3. Skills REQUIRED BACKGROUND Sections
-Skills that depend on Superpowers workflows include explicit background requirements:
-
-```markdown
-## REQUIRED BACKGROUND
-Load superpowers:test-driven-development for TDD workflow
-```
-
-This ensures Claude loads both the workflow and the domain patterns.
+This ensures the architect loads both the workflow and the domain patterns.
 
 ## Dependency Management
 
@@ -418,7 +352,7 @@ Rails-AI declares Superpowers as a dependency:
 ```json
 {
   "name": "rails-ai",
-  "version": "0.3.0",
+  "version": "0.3.x",
   "dependencies": {
     "superpowers": ">=0.1.0"
   }
@@ -466,25 +400,27 @@ Future Superpowers workflows that Rails-AI could leverage:
 
 ## Summary
 
-Rails-AI v0.3.0 introduces a clean separation of concerns:
+Rails-AI provides a clean separation of concerns:
 
-**Superpowers = Universal Workflows**
+**Superpowers = Universal Workflows (HOW)**
 - Brainstorming, planning, TDD, debugging, review
 - Cross-language patterns
 - Workflow orchestration
 
-**Rails-AI = Rails Domain Knowledge**
+**Rails-AI = Rails Domain Knowledge (WHAT)**
+- Single architect agent that loads skills dynamically
+- 12 focused domain skills
 - Rails conventions and patterns
 - Hotwire/Turbo/Stimulus
 - ActiveRecord best practices
 - Minitest/TDD for Rails
-- Security patterns
-- Configuration (Docker, Solid Stack)
-- 20 team rules
+- Security patterns (XSS, SQL injection, CSRF, etc.)
+- Solid Stack (SolidQueue, SolidCache, SolidCable)
+- 20+ team rules
 
 Together, they provide a powerful system for Rails development where:
-- Architects orchestrate using Superpowers workflows
-- Developers implement using Rails-AI domain skills
+- The architect orchestrates using Superpowers workflows (HOW)
+- The architect implements using Rails-AI domain skills (WHAT)
 - Both systems work together seamlessly
 
 This layered architecture means better maintenance, less duplication, clearer responsibilities, and automatic improvements as both systems evolve.

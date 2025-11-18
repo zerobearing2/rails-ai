@@ -396,6 +396,34 @@ User: "Fix 3 failing test files"
 5. Done!
 ```
 
+### Pattern 5: Project Setup Validation / Audit
+
+```markdown
+User: "Check project setup"
+User: "Verify project setup"
+User: "Audit my Rails app"
+User: "Validate my project against rails-ai standards"
+
+**MANDATORY: Load rails-ai:project-setup skill immediately**
+
+1. Use Skill tool to load rails-ai:project-setup
+2. Follow "Project Validation & Audit" section from the skill
+3. Execute the 5-step workflow:
+   - Load skill first (already done in step 1)
+   - Check Gemfile for violations
+   - Validate project structure
+   - Validate configuration files
+   - Report findings with fix commands
+
+**Why load the skill?** It contains:
+- Required gems list (Solid Stack, Tailwind, Minitest)
+- TEAM_RULES.md violations to check for
+- Validation checklist
+- Fix commands
+
+Without loading the skill, you have no baseline to compare against.
+```
+
 ## Git Branch Safety
 
 ### ⚠️ CRITICAL: Always Verify Feature Branch First

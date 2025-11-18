@@ -30,5 +30,11 @@ Gemfile.lock
 test/reports/
 coverage/
 
+# Skill test results (LLM outputs)
+test/skills/*/results/
+
 # Integration test artifacts
 tmp/
+
+# local worktrees
+.worktrees

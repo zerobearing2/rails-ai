@@ -9,21 +9,7 @@ class AgentReferencesTest < Minitest::Test
     @existing_agents = @agent_files.map { |f| File.basename(f, ".md") }
   end
 
-  def test_coordinates_with_only_references_existing_agents
-    @agent_files.each do |file|
-      yaml = extract_yaml_front_matter(file)
-      next unless yaml && yaml["coordinates_with"]
-
-      coordinates = yaml["coordinates_with"]
-
-      coordinates.each do |agent|
-        assert_includes @existing_agents, agent,
-                        "#{file}: coordinates_with references non-existent agent '#{agent}'"
-      end
-    end
-  end
-
-  def test_no_references_to_deleted_agents
+  def test_no_references_to_old_multi_agent_architecture
     # Check for old agent mentions with @ prefix (agent references, not URLs or filenames)
     legacy_patterns = [
       /rails\.md(?!\.)/, # Old coordinator filename (not in URLs)
@@ -32,7 +18,13 @@ class AgentReferencesTest < Minitest::Test
       /@rails-frontend/,
       /@rails-tests/,
       /@rails-security/,
-      /@rails-debug/
+      /@rails-debug/,
+      /@plan(?![a-z])/, # Old planning agent (but allow "planning")
+      /@backend(?![a-z])/,
+      /@frontend(?![a-z])/,
+      /@tests(?![a-z])/,
+      /@security(?![a-z])/,
+      /@debug(?![a-z])/
     ]
 
     @agent_files.each do |file|
@@ -45,48 +37,26 @@ class AgentReferencesTest < Minitest::Test
     end
   end
 
-  def test_skill_references_exist_in_registry
-    registry = YAML.load_file("skills/SKILLS_REGISTRY.yml")
-    all_skills = registry["skills"].keys
-
+  def test_skill_file_references_exist
     @agent_files.each do |file|
       content = File.read(file)
 
       # Extract skill file references like: skills/frontend/viewcomponent-basics.md
-      skill_refs = content.scan(%r{skills/\w+/([\w-]+)\.md})
+      skill_refs = content.scan(%r{skills/([\w/-]+\.md)})
 
-      skill_refs.flatten.each do |skill_name|
-        assert_includes all_skills, skill_name,
-                        "#{file}: references non-existent skill '#{skill_name}'"
+      skill_refs.flatten.each do |skill_path|
+        assert_path_exists "skills/#{skill_path}",
+                           "#{file}: references non-existent skill file 'skills/#{skill_path}'"
       end
     end
   end
 
-  def test_all_specialized_agents_coordinate_with_architect
-    specialized_agents = @agent_files.reject { |f| f.include?("architect.md") }
+  def test_architect_yaml_is_well_formed
+    architect = @agent_files.find { |f| f.include?("architect.md") }
+    yaml = extract_yaml_front_matter(architect)
 
-    specialized_agents.each do |file|
-      yaml = extract_yaml_front_matter(file)
-      next unless yaml && yaml["coordinates_with"]
-
-      coordinates = yaml["coordinates_with"]
-
-      assert_includes coordinates, "architect",
-                      "#{file}: should coordinate with 'architect' - found: #{coordinates.inspect}"
-    end
-  end
-
-  def test_coordinator_coordinates_with_all_specialized_agents
-    coordinator = @agent_files.find { |f| f.include?("architect.md") }
-    yaml = extract_yaml_front_matter(coordinator)
-
-    specialized = @existing_agents - ["architect"]
-    coordinates = yaml["coordinates_with"]
-
-    specialized.each do |agent|
-      assert_includes coordinates, agent,
-                      "Coordinator should coordinate with '#{agent}'"
-    end
+    refute_nil yaml, "Architect YAML front matter should be parseable"
+    assert_kind_of Hash, yaml, "Architect YAML should be a hash"
   end
 
   private

@@ -18,33 +18,21 @@ class AgentYamlValidationTest < Minitest::Test
       assert yaml["name"], "#{file}: missing 'name' field"
       assert yaml["description"], "#{file}: missing 'description' field"
 
-      # Name matches filename (architect.md → architect, backend.md → backend)
-      expected_name = File.basename(file, ".md")
-
-      assert_equal expected_name, yaml["name"],
-                   "#{file}: name '#{yaml['name']}' should match filename '#{expected_name}'"
+      # Name should include namespace (rails-ai:architect)
+      assert_includes yaml["name"], "rails-ai:",
+                      "#{file}: name '#{yaml['name']}' should include namespace 'rails-ai:'"
     end
   end
 
-  def test_specialized_agents_have_coordinates_with
-    specialized_agents = @agent_files.reject { |f| f.include?("architect.md") }
+  def test_architect_has_valid_front_matter
+    architect = @agent_files.find { |f| f.include?("architect.md") }
+    yaml = extract_yaml_front_matter(architect)
 
-    specialized_agents.each do |file|
-      yaml = extract_yaml_front_matter(file)
-
-      assert yaml["coordinates_with"], "#{file}: missing 'coordinates_with' field"
-      assert_kind_of Array, yaml["coordinates_with"], "#{file}: 'coordinates_with' should be an array"
-      refute_empty yaml["coordinates_with"], "#{file}: 'coordinates_with' should not be empty"
-    end
-  end
-
-  def test_coordinator_has_valid_front_matter
-    coordinator = @agent_files.find { |f| f.include?("architect.md") }
-    yaml = extract_yaml_front_matter(coordinator)
-
-    assert_equal "architect", yaml["name"]
-    assert yaml["description"].include?("architect") || yaml["description"].include?("coordinator")
-    assert yaml["coordinates_with"], "Coordinator should list agents it coordinates"
+    assert_equal "rails-ai:architect", yaml["name"],
+                 "Architect name should be 'rails-ai:architect'"
+    assert yaml["description"], "Architect should have description"
+    assert yaml["role"], "Architect should have role field"
+    assert yaml["capabilities"], "Architect should have capabilities field"
   end
 
   private

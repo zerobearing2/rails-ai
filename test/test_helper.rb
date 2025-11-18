@@ -6,16 +6,16 @@ require "minitest/autorun"
 require "yaml"
 require "json"
 
-# Base paths
+# Base paths for new skill structure
 ROOT_PATH = File.expand_path("..", __dir__)
-SKILLS_PATH = File.join(ROOT_PATH, "skills")
-AGENTS_PATH = File.join(ROOT_PATH, "agents")
+SKILLS_NEW_PATH = File.join(ROOT_PATH, "skills")
 TEST_SUPPORT_PATH = File.join(__dir__, "support")
 
-# Helper methods for skill testing
+# Helper methods for new skill structure testing
 module SkillTestHelpers
-  def load_skill(domain, skill_name)
-    skill_path = File.join(SKILLS_PATH, domain, "#{skill_name}.md")
+  # Load skill from new flat structure: skills/{skill-directory}/SKILL.md
+  def load_skill(skill_directory)
+    skill_path = File.join(SKILLS_NEW_PATH, skill_directory, "SKILL.md")
     File.read(skill_path)
   end
 
@@ -37,13 +37,18 @@ module SkillTestHelpers
 
   def extract_code_examples(skill_content)
     # Extract all code blocks
-    skill_content.scan(/```(?:ruby|erb|javascript|bash)\n(.*?)```/m).map(&:first)
+    skill_content.scan(/```(?:ruby|erb|javascript|bash|yaml|json)\n(.*?)```/m).map(&:first)
   end
 
-  def skill_file_exists?(domain, skill_name)
-    File.exist?(File.join(SKILLS_PATH, domain, "#{skill_name}.md"))
+  def skill_directory_exists?(skill_directory)
+    Dir.exist?(File.join(SKILLS_NEW_PATH, skill_directory))
+  end
+
+  def skill_file_exists?(skill_directory)
+    File.exist?(File.join(SKILLS_NEW_PATH, skill_directory, "SKILL.md"))
   end
 end
 
 # Include helpers in test classes
 Minitest::Test.include SkillTestHelpers
+require_relative "support/skill_test_case"

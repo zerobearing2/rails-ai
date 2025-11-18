@@ -8,57 +8,42 @@ class AgentStructureTest < Minitest::Test
     @agent_files = Dir.glob("agents/*.md")
   end
 
-  def test_specialized_agents_have_skills_preset_section
-    # Exclude coordinator (architect) and strategic agent (plan)
-    specialized_agents = @agent_files.reject { |f| f.include?("architect.md") || f.include?("plan.md") }
+  def test_architect_references_skills
+    # Architect should reference skills in content
+    architect = @agent_files.find { |f| f.include?("architect.md") }
+    content = File.read(architect)
 
-    specialized_agents.each do |file|
-      content = File.read(file)
-
-      # Should have a Skills Preset section (various heading formats)
-      assert_match(/##.*Skills.*Preset|##.*Preset.*Skills/i, content,
-                   "#{file}: missing 'Skills Preset' section")
-    end
+    # Should reference skills directory or SKILLS_REGISTRY
+    assert_match(/skills/i, content,
+                 "Architect: should reference skills")
   end
 
-  def test_agents_reference_external_yaml_registries
+  def test_agents_reference_skills
     @agent_files.each do |file|
       content = File.read(file)
 
-      # Should reference SKILLS_REGISTRY.yml
-      assert_match(/SKILLS_REGISTRY\.yml/, content,
-                   "#{file}: should reference SKILLS_REGISTRY.yml")
+      # Should reference skills in some form (rails-ai:skills or skills/)
+      skill_pattern = %r{rails-ai:(models|controllers|views|hotwire|styling|testing|security|
+                                    debugging|jobs|mailers|configuration|using-rails-ai)|skills/}ix
+
+      assert_match(skill_pattern, content, "#{file}: should reference rails-ai skills")
     end
   end
 
-  def test_specialized_agents_have_role_description
-    # Exclude coordinator (architect) - plan agent has role in YAML
-    specialized_agents = @agent_files.reject { |f| f.include?("architect.md") }
+  def test_architect_has_role_description
+    architect = @agent_files.find { |f| f.include?("architect.md") }
+    yaml = extract_yaml_front_matter(architect)
 
-    specialized_agents.each do |file|
-      yaml = extract_yaml_front_matter(file)
-
-      assert yaml["role"], "#{file}: missing 'role' field in YAML front matter"
-      refute_empty yaml["role"], "#{file}: 'role' field should not be empty"
-    end
+    assert yaml["role"], "Architect: missing 'role' field in YAML front matter"
+    refute_empty yaml["role"], "Architect: 'role' field should not be empty"
   end
 
-  def test_all_agents_have_descriptive_names
-    @agent_files.each do |file|
-      basename = File.basename(file, ".md")
-
-      # All agents should have simple, descriptive names
-      assert_match(/^(architect|plan|backend|frontend|tests|security|debug)$/, basename,
-                   "#{file}: should have a descriptive name without 'rails-' prefix")
-    end
-  end
-
-  def test_coordinator_has_unique_name
-    coordinator = @agent_files.find { |f| f.include?("architect.md") }
-    basename = File.basename(coordinator, ".md")
+  def test_architect_has_descriptive_name
+    architect = @agent_files.find { |f| f.include?("architect.md") }
+    basename = File.basename(architect, ".md")
 
     assert_equal "architect", basename,
-                 "Coordinator should be named 'architect.md'"
+                 "Agent should be named 'architect.md'"
   end
 
   private

@@ -1,0 +1,43 @@
+# frozen_string_literal: true
+
+require "test_helper"
+
+class DebuggingTest < SkillTestCase
+  self.skill_name = "debugging"
+  self.skill_directory = "debugging"
+
+  def test_skill_directory_exists
+    assert_skill_directory_exists
+  end
+
+  def test_has_skill_md_file
+    assert_has_skill_md_file
+  end
+
+  def test_has_minimal_frontmatter
+    assert_has_minimal_frontmatter
+  end
+
+  def test_name_has_rails_ai_prefix
+    assert_name_has_rails_ai_prefix
+  end
+
+  def test_description_is_present
+    assert_description_is_present
+  end
+
+  def test_has_required_sections
+    assert_skill_has_section("when-to-use")
+    # Debugging skill uses phase-based structure integrated with superpowers:systematic-debugging
+    # It has <superpowers-integration> instead of <benefits>/<standards>
+    assert_skill_has_section("superpowers-integration")
+  end
+
+  def test_xml_tags_valid
+    assert_xml_tags_valid
+  end
+
+  def test_has_code_examples
+    assert_code_examples_are_valid
+  end
+end

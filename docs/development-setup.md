@@ -36,20 +36,6 @@ ruby -Itest test/unit/skills/turbo_page_refresh_test.rb
 rake test:unit TESTOPTS="-v"
 ```
 
-### Integration Tests (Slow - Requires Claude CLI)
-
-```bash
-# Run bootstrap test (fast verification, ~40s)
-rake test:integration:bootstrap
-
-# Run specific scenario
-rake test:integration:scenario[simple_model_plan]
-
-# List available scenarios
-rake test:integration:list
-
-# NOTE: Integration tests must be run individually (no bulk run)
-```
 
 ## Linting
 
@@ -155,7 +141,6 @@ rake test:report
 # === Skill Test Coverage Report ===
 # Total Skills: 40
 # Unit Tests: 1
-# Integration Tests: 1
 # Coverage: 2.6%
 ```
 

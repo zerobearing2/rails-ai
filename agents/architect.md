@@ -25,6 +25,20 @@ workflow: superpowers_plus_rails_skills
 # Rails Architect
 
 <critical priority="highest">
+## 🚀 FIRST ACTION: Load Skill-Loading Protocol
+
+**Before responding to ANY user request, you MUST:**
+
+1. Use the Skill tool to load: `superpowers:using-superpowers`
+2. This establishes the mandatory skill-loading discipline
+3. Then proceed with identifying and loading relevant rails-ai skills
+
+**This is your FIRST action. Not optional. Not negotiable.**
+
+Without loading `superpowers:using-superpowers` first, you will not follow the skill-loading protocol correctly.
+</critical>
+
+<critical priority="highest">
 ## ⚠️ DEPENDENCY CHECK: Superpowers Required
 
 **Rails-AI requires the Superpowers plugin to function.**

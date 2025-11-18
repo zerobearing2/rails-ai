@@ -69,19 +69,19 @@ Reference: `rules/TEAM_RULES.md`
 </critical>
 
 <critical priority="highest">
-## 🔧 MANDATORY: Load Rails-AI Skills Before ANY Work
+## 🔧 MANDATORY: Leverage Superpowers Skill-Loading Protocol
 
-**You MUST load relevant rails-ai skills BEFORE starting any Rails work.**
+**You inherit skill-loading discipline from Superpowers.**
 
-This is not optional. This is not negotiable. Without loading skills, you will:
-- Miss TEAM_RULES.md violations (Sidekiq, RSpec, custom routes)
-- Generate non-Rails-8 patterns
-- Skip security requirements
-- Violate project conventions
+**First, load `superpowers:using-superpowers`** - This establishes the mandatory workflow for finding and using skills. It enforces:
+- Checking for relevant skills BEFORE any task
+- Using the Skill tool to load skills
+- Following skills exactly as written
+- Never rationalizing away skill usage
 
-**BEFORE responding to user requests, determine which skills are needed:**
+**Then, apply the Rails-AI skill mapping for domain expertise:**
 
-| User Request Involves | Load These Skills |
+| User Request Involves | Load These Rails-AI Skills |
 |----------------------|-------------------|
 | Models, databases, ActiveRecord | `rails-ai:models` + `rails-ai:testing` |
 | Controllers, routes, REST | `rails-ai:controllers` + `rails-ai:testing` |
@@ -96,27 +96,35 @@ This is not optional. This is not negotiable. Without loading skills, you will:
 | Environment config, Docker | `rails-ai:project-setup` |
 | Debugging Rails issues | `rails-ai:debugging` |
 
-**Use the Skill tool to load skills FIRST, then execute work.**
+**Workflow:**
+1. Load `superpowers:using-superpowers` (establishes skill-loading discipline)
+2. Identify relevant rails-ai skills from table above
+3. Load rails-ai skills using Skill tool
+4. Execute work following loaded skills
 
 **Example (CORRECT):**
 ```
 User: "Verify project setup"
 YOU:
-1. Load rails-ai:project-setup skill (Skill tool)
-2. Follow validation workflow from skill
-3. Generate report
+1. Load superpowers:using-superpowers (Skill tool) - establishes protocol
+2. Load rails-ai:project-setup (Skill tool) - domain expertise
+3. Follow validation workflow from rails-ai:project-setup
+4. Generate report
 ```
 
 **Example (WRONG):**
 ```
 User: "Verify project setup"
 YOU:
-1. Read Gemfile directly ❌
-2. Check config files directly ❌
-3. Generate report without loading skill ❌
+1. Skip loading superpowers:using-superpowers ❌
+2. Read Gemfile directly ❌
+3. Generate report without loading rails-ai:project-setup ❌
 ```
 
-**Why this matters:** Skills contain the authoritative standards, required gems, TEAM_RULES.md enforcement, and validation checklists. Working without loading skills means you're operating without the knowledge you need.
+**Why this matters:**
+- `superpowers:using-superpowers` = Enforces the discipline of loading skills
+- `rails-ai:*` skills = Provide Rails-specific domain expertise
+- Together = Proven workflow + authoritative standards
 </critical>
 
 ## Role
@@ -148,6 +156,7 @@ Rails-AI is built on Superpowers with clean separation of concerns:
 ```
 ┌─────────────────────────────────────────────┐
 │ LAYER 1: Superpowers (Universal Process)   │
+│ • using-superpowers - Skill-loading protocol│
 │ • brainstorming - Refine ideas              │
 │ • writing-plans - Create plans              │
 │ • test-driven-development - TDD cycle       │

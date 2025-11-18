@@ -26,19 +26,29 @@ class UsingRailsAiTest < SkillTestCase
     assert_description_is_present
   end
 
-  def test_has_required_sections
-    # using-rails-ai is a meta/documentation skill
-    # It uses markdown headers instead of XML sections
-    skip "Meta skill uses different structure (markdown headers, not XML sections)"
-  end
-
   def test_xml_tags_valid
     assert_xml_tags_valid
   end
 
-  def test_has_code_examples
-    # using-rails-ai is a meta/documentation skill
-    # It has a diagram and example text, but not code examples in code fences
-    skip "Meta skill is documentation-focused, no code examples required"
+  # Meta skill-specific tests
+
+  def test_has_architecture_diagram
+    assert_includes skill_content, "┌─────────────────────────────────────────────┐",
+                    "Meta skill should include architecture diagram"
+  end
+
+  def test_explains_superpowers_integration
+    assert_includes skill_content, "Superpowers",
+                    "Meta skill should explain Superpowers integration"
+    assert_includes skill_content, "HOW",
+                    "Meta skill should explain HOW (workflows)"
+    assert_includes skill_content, "WHAT",
+                    "Meta skill should explain WHAT (domain knowledge)"
+  end
+
+  def test_lists_available_skills
+    # Meta skill should reference the 12 domain skills
+    assert_includes skill_content, "12 Rails domain skills",
+                    "Meta skill should mention the 12 domain skills"
   end
 end

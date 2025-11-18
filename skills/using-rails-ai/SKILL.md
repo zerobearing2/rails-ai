@@ -5,6 +5,43 @@ description: Rails-AI introduction - explains how rails-ai (Rails domain layer) 
 
 # Using Rails-AI: Rails Domain Layer on Superpowers Workflows
 
+<EXTREMELY-IMPORTANT>
+## MANDATORY: Load Rails-AI Skills for Rails Work
+
+**Before doing ANY Rails work, you MUST load the relevant rails-ai skills.**
+
+If the user's request involves:
+- **Models, databases, ActiveRecord** → Load rails-ai:models
+- **Controllers, routes, REST** → Load rails-ai:controllers
+- **Views, templates, forms** → Load rails-ai:views
+- **Hotwire, Turbo, Stimulus** → Load rails-ai:hotwire
+- **CSS, Tailwind, DaisyUI** → Load rails-ai:styling
+- **Tests, TDD, Minitest** → Load rails-ai:testing
+- **Security, XSS, SQL injection** → Load rails-ai:security
+- **Background jobs, caching** → Load rails-ai:jobs
+- **Email, ActionMailer** → Load rails-ai:mailers
+- **Project setup, validation, gems** → Load rails-ai:project-setup
+- **Environment config, Docker** → Load rails-ai:project-setup
+- **Debugging Rails issues** → Load rails-ai:debugging
+
+**This is not optional. This is not negotiable.**
+
+Rails-AI skills contain:
+- Required gems and dependencies
+- TEAM_RULES.md enforcement
+- Rails 8+ patterns and conventions
+- Security requirements
+- Code examples and anti-patterns
+
+**Without loading skills, you will:**
+- Miss TEAM_RULES.md violations (Sidekiq, RSpec, custom routes)
+- Generate non-Rails-8 patterns
+- Skip security requirements
+- Violate project conventions
+
+**Use the Skill tool to load skills BEFORE starting work.**
+</EXTREMELY-IMPORTANT>
+
 ## How Rails-AI Works
 
 **Rails-AI is a two-layer system built on Superpowers:**

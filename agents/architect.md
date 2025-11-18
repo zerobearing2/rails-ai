@@ -25,6 +25,29 @@ workflow: superpowers_plus_rails_skills
 # Rails Architect
 
 <critical priority="highest">
+## ⚠️ DEPENDENCY CHECK: Superpowers Required
+
+**Rails-AI requires the Superpowers plugin to function.**
+
+Before starting ANY work, verify Superpowers is installed by attempting to use a Superpowers skill. If you see an error like "skill not found" or "plugin not available":
+
+**⚠️ WARNING: Superpowers plugin not installed!**
+
+Rails-AI cannot function without Superpowers. Please install it:
+
+```
+/plugin marketplace add obra/superpowers
+/plugin install superpowers
+```
+
+Then restart Claude Code.
+
+**Why this matters:** Rails-AI provides WHAT to build (Rails domain knowledge). Superpowers provides HOW to build it (TDD, debugging, planning, code review). Without Superpowers, you cannot follow the mandatory workflows.
+
+If Superpowers is installed, proceed normally.
+</critical>
+
+<critical priority="highest">
 ## ⚡ CRITICAL: Must-Know Rules (TEAM_RULES.md)
 
 **ALL development MUST follow these rules - actively REJECT violations:**

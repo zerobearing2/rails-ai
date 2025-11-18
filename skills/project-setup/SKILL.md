@@ -1,14 +1,17 @@
 ---
-name: rails-ai:configuration
-description: Use when configuring Rails applications - environment config, credentials, initializers, Docker, RuboCop
+name: rails-ai:project-setup
+description: Setting up and configuring Rails 8+ projects - Gemfile dependencies, environment config, credentials, initializers, Docker, RuboCop, project validation
 ---
 
-# Configuration
+# Project Setup & Configuration
 
-Configure Rails applications for development, testing, production deployment, and code quality standards.
+Set up new Rails 8+ projects with required dependencies, configure environments for development/test/production, and validate existing projects against rails-ai standards.
 
 <when-to-use>
-- Setting up new Rails applications or deployment environments
+- Setting up new Rails 8+ applications from scratch
+- Validating existing Rails projects against rails-ai standards
+- Auditing project setup (checking for TEAM_RULES.md violations)
+- Installing and configuring required gems (Solid Stack, Tailwind, Minitest)
 - Configuring environment-specific behavior (development, test, production, staging)
 - Managing encrypted credentials and secrets (API keys, passwords, tokens)
 - Configuring application initialization (gems, frameworks, security policies)
@@ -59,6 +62,213 @@ Before completing configuration work:
 - Store deployment configs in ENV vars, not hardcoded values
 - Follow Team Rule #16 (Double Quotes) and #20 (Hash#dig) via RuboCop
 </standards>
+
+---
+
+## Project Validation & Audit
+
+**When asked to validate or check a Rails project setup**, follow this workflow:
+
+### Step 1: Load This Skill First
+
+Before exploring the project, ensure rails-ai:project-setup skill is loaded to establish the baseline for comparison.
+
+### Step 2: Check Gemfile for Required Dependencies
+
+**Required Gems (TEAM RULES.md violations if missing):**
+
+```ruby
+# Gemfile
+
+# Background Jobs - TEAM RULE #1: NEVER Sidekiq/Redis
+gem "solid_queue"      # Job processing
+gem "solid_cache"      # Caching
+gem "solid_cable"      # WebSockets
+
+# Frontend
+gem "tailwindcss-rails"  # Utility-first CSS
+gem "daisyui-rails"      # Component library
+
+# Testing - TEAM RULE #2: NEVER RSpec
+# Minitest is Rails default - verify RSpec NOT present
+
+# Code Quality
+gem "rubocop-rails-omakase", require: false  # Rails 8 default
+
+# Security (recommended)
+gem "brakeman", require: false
+gem "bundler-audit", require: false
+
+# Deployment (recommended)
+gem "kamal", require: false
+```
+
+**CRITICAL Violations to Check:**
+- ❌ `gem "sidekiq"` or `gem "redis"` → TEAM RULE #1 violation
+- ❌ `gem "rspec-rails"` → TEAM RULE #2 violation
+- ❌ Custom route gems → TEAM RULE #3 violation
+
+### Step 3: Validate Project Structure
+
+**Directory Structure:**
+```
+app/
+├── assets/stylesheets/  # Tailwind CSS
+├── controllers/         # RESTful only
+├── models/              # ActiveRecord
+└── views/               # ERB templates
+
+config/
+├── environments/        # dev, test, prod configs
+├── initializers/        # Gem configs
+├── credentials/         # Encrypted secrets
+└── tailwind.config.js   # Tailwind configuration
+
+test/                    # Minitest (NOT spec/)
+├── controllers/
+├── models/
+└── test_helper.rb
+
+Dockerfile              # Rails 8 default
+config.ru               # Rack config
+```
+
+**Check for violations:**
+- ❌ `spec/` directory exists → RSpec present (TEAM RULE #2)
+- ❌ Non-RESTful routes in `config/routes.rb` → TEAM RULE #3
+
+### Step 4: Validate Configuration Files
+
+**Essential configs to check:**
+
+1. **config/environments/production.rb**
+   - SSL enabled
+   - Eager loading enabled
+   - Caching configured
+
+2. **config/tailwind.config.js**
+   - DaisyUI plugin present
+   - Content paths include Rails views
+
+3. **.rubocop.yml**
+   - Inherits from rubocop-rails-omakase
+   - Custom cops for TEAM RULES.md
+
+4. **Procfile.dev**
+   - Rails server
+   - Solid Queue worker
+   - Tailwind watcher
+
+### Step 5: Report Findings
+
+Provide actionable report with specific fixes:
+
+**✅ Correct Setup:**
+- List what's properly configured
+- Praise compliance with TEAM_RULES.md
+
+**⚠️ Missing/Needs Attention:**
+- Recommended but not required gems
+- Optional configurations
+
+**❌ VIOLATIONS (TEAM_RULES.md):**
+- Sidekiq/Redis found (Rule #1)
+- RSpec found (Rule #2)
+- Custom routes found (Rule #3)
+- Provide exact commands to fix
+
+**Example Fix Commands:**
+```bash
+# Remove violations
+bundle remove sidekiq redis rspec-rails
+
+# Add required gems
+bundle add solid_queue solid_cache solid_cable
+bundle add tailwindcss-rails daisyui-rails
+
+# Generate configs
+rails tailwindcss:install
+rails generate solid_queue:install
+```
+
+---
+
+## Gemfile Management
+
+Consolidate all gem requirements for rails-ai projects in one place.
+
+### Required Gems (CRITICAL)
+
+**Solid Stack (TEAM RULE #1):**
+```ruby
+gem "solid_queue"      # Background job processing
+gem "solid_cache"      # Application caching
+gem "solid_cable"      # WebSocket connections
+```
+
+**Frontend:**
+```ruby
+gem "tailwindcss-rails"  # Utility-first CSS framework
+gem "daisyui-rails"      # Component library
+```
+
+**Testing (TEAM RULE #2):**
+```ruby
+# Minitest is Rails 8 default - no gem needed
+# Verify RSpec is NOT present
+```
+
+### Recommended Gems
+
+**Code Quality:**
+```ruby
+gem "rubocop-rails-omakase", require: false  # Rails 8 default linter
+```
+
+**Security:**
+```ruby
+gem "brakeman", require: false         # Static security scanner
+gem "bundler-audit", require: false    # Dependency vulnerability scanner
+```
+
+**Deployment:**
+```ruby
+gem "kamal", require: false  # Docker deployment to any server
+```
+
+**Development/Test:**
+```ruby
+group :development, :test do
+  gem "letter_opener"  # Open emails in browser
+end
+```
+
+### Installation Commands
+
+**New Rails 8+ app with rails-ai stack:**
+```bash
+# Create new Rails 8 app
+rails new myapp
+
+cd myapp
+
+# Add required gems
+bundle add solid_queue solid_cache solid_cable
+bundle add tailwindcss-rails daisyui-rails
+
+# Add recommended gems
+bundle add --group development rubocop-rails-omakase
+bundle add --group development brakeman bundler-audit
+bundle add kamal --skip-install
+
+# Generate configurations
+rails tailwindcss:install
+rails generate solid_queue:install
+bin/rails db:create db:migrate
+
+# Verify setup
+bin/ci
+```
 
 ---
 

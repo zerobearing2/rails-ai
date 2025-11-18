@@ -2,9 +2,9 @@
 
 require "test_helper"
 
-class ConfigurationTest < SkillTestCase
-  self.skill_name = "configuration"
-  self.skill_directory = "configuration"
+class ProjectSetupTest < SkillTestCase
+  self.skill_name = "rails-ai:project-setup"
+  self.skill_directory = "project-setup"
 
   def test_skill_directory_exists
     assert_skill_directory_exists

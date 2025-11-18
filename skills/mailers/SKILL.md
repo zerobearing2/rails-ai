@@ -529,7 +529,7 @@ end
 - rails-ai:jobs - Background job processing with SolidQueue
 - rails-ai:views - Email templates and layouts
 - rails-ai:testing - Testing email delivery
-- rails-ai:configuration - Environment-specific email configuration
+- rails-ai:project-setup - Environment-specific email configuration
 </related-skills>
 
 <resources>

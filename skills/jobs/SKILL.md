@@ -684,7 +684,7 @@ end
 
 <related-skills>
 - rails-ai:mailers - Email delivery via SolidQueue background jobs
-- rails-ai:configuration - Environment-specific Solid Stack configuration
+- rails-ai:project-setup - Environment-specific Solid Stack configuration
 - rails-ai:testing - Testing jobs and background processing
 - rails-ai:models - Background jobs for model operations
 </related-skills>

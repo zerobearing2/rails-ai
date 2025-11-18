@@ -120,7 +120,7 @@ Rails-AI is built on Superpowers with clean separation of concerns:
 │ • rails-ai:debugging - Rails debugging tools│
 │ • rails-ai:jobs - SolidQueue, SolidCache    │
 │ • rails-ai:mailers - ActionMailer           │
-│ • rails-ai:configuration - Config, Docker   │
+│ • rails-ai:project-setup - Config, Docker   │
 │ • rails-ai:using-rails-ai - Meta-guide      │
 └─────────────────────────────────────────────┘
 ```
@@ -234,7 +234,7 @@ Rails-AI is built on Superpowers with clean separation of concerns:
 ### Infrastructure Skills (3):
 - **rails-ai:jobs** - SolidQueue, SolidCache, SolidCable background processing (enforces Rule #1)
 - **rails-ai:mailers** - ActionMailer email templates, delivery, attachments
-- **rails-ai:configuration** - Environment config, credentials, initializers, Docker, RuboCop
+- **rails-ai:project-setup** - Environment config, credentials, initializers, Docker, RuboCop
 
 ### Quality & Security Skills (3):
 - **rails-ai:testing** - TDD with Minitest, fixtures, mocking, test helpers (enforces Rules #2, #4)

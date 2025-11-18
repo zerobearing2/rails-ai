@@ -87,7 +87,7 @@ description: Rails-AI introduction - explains how rails-ai (Rails domain layer) 
 5. **rails-ai:models** - ActiveRecord patterns, validations, associations, callbacks, query objects, form objects
 6. **rails-ai:testing** - TDD with Minitest, fixtures, mocking, test helpers
 7. **rails-ai:security** - XSS, SQL injection, CSRF, strong parameters, file uploads, command injection
-8. **rails-ai:configuration** - Environment config, credentials, initializers, Docker, RuboCop
+8. **rails-ai:project-setup** - Environment config, credentials, initializers, Docker, RuboCop
 9. **rails-ai:jobs** - SolidQueue, SolidCache, SolidCable background processing (TEAM RULE #1: NO Redis/Sidekiq)
 10. **rails-ai:mailers** - ActionMailer email templates, delivery, attachments, testing with letter_opener
 11. **rails-ai:debugging** - Rails debugging tools (logs, console, byebug) + superpowers:systematic-debugging

@@ -47,40 +47,31 @@ If Superpowers is installed, proceed normally.
 - You will rationalize that tasks are "too simple" for skills
 - You will operate without the proven process framework
 
-## MANDATORY: Load Rails-AI Skills for Rails Work
+## Rails-AI Skill-to-Task Mapping
 
-**After loading superpowers:using-superpowers, load the relevant rails-ai skills:**
+**Superpowers handles skill-loading enforcement. This table tells you WHICH Rails skills to load:**
 
-If the user's request involves:
-- **Models, databases, ActiveRecord** → Load rails-ai:models
-- **Controllers, routes, REST** → Load rails-ai:controllers
-- **Views, templates, forms** → Load rails-ai:views
-- **Hotwire, Turbo, Stimulus** → Load rails-ai:hotwire
-- **CSS, Tailwind, DaisyUI** → Load rails-ai:styling
-- **Tests, TDD, Minitest** → Load rails-ai:testing
-- **Security, XSS, SQL injection** → Load rails-ai:security
-- **Background jobs, caching** → Load rails-ai:jobs
-- **Email, ActionMailer** → Load rails-ai:mailers
-- **Project setup, validation, gems** → Load rails-ai:project-setup
-- **Environment config, Docker** → Load rails-ai:project-setup
-- **Debugging Rails issues** → Load rails-ai:debugging
+| User Request Involves | Load These Skills |
+|----------------------|-------------------|
+| Models, databases, ActiveRecord | rails-ai:models |
+| Controllers, routes, REST | rails-ai:controllers |
+| Views, templates, forms | rails-ai:views |
+| Hotwire, Turbo, Stimulus | rails-ai:hotwire |
+| CSS, Tailwind, DaisyUI | rails-ai:styling |
+| Tests, TDD, Minitest | rails-ai:testing |
+| Security, XSS, SQL injection | rails-ai:security |
+| Background jobs, caching | rails-ai:jobs |
+| Email, ActionMailer | rails-ai:mailers |
+| Project setup, validation, gems | rails-ai:project-setup |
+| Environment config, Docker | rails-ai:project-setup |
+| Debugging Rails issues | rails-ai:debugging |
 
-**This is not optional. This is not negotiable.**
-
-Rails-AI skills contain:
+**Each Rails-AI skill contains:**
 - Required gems and dependencies
-- TEAM_RULES.md enforcement
+- TEAM_RULES.md enforcement for that domain
 - Rails 8+ patterns and conventions
 - Security requirements
 - Code examples and anti-patterns
-
-**Without loading skills, you will:**
-- Miss TEAM_RULES.md violations (Sidekiq, RSpec, custom routes)
-- Generate non-Rails-8 patterns
-- Skip security requirements
-- Violate project conventions
-
-**Use the Skill tool to load skills BEFORE starting work.**
 </EXTREMELY-IMPORTANT>
 
 ## How Rails-AI Works
@@ -122,33 +113,34 @@ Rails-AI skills contain:
 - Overlap between agent roles and workflows
 
 **Current architecture (simple):**
-- 1 agent (architect)
-- Superpowers workflows handle coordination
-- Rails-AI skills provide domain expertise
+- 1 slash command (/rails-ai:architect) - coordinator
+- Superpowers workflows handle process (HOW)
+- Rails-AI skills provide domain expertise (WHAT)
+- General-purpose workers implement features
 - Clean separation of concerns
 
 ### How It Works
 
-**User request** → **/rails-ai:architect** → **Loads workflows + skills** → **Executes work**
+**User request** → **/rails-ai:architect** → **Loads skills** → **Dispatches workers** → **Reviews**
 
 #### Example: "Add user authentication"
 
-1. **Architect loads superpowers:brainstorming**
+1. **Coordinator loads superpowers:brainstorming**
    - Loads rails-ai:models + rails-ai:security for context
    - Refines design with user
 
-2. **Architect loads superpowers:writing-plans**
+2. **Coordinator loads superpowers:writing-plans**
    - Creates implementation plan
-   - Specifies which skills to use per task
+   - Specifies which skills workers should load per task
 
-3. **Architect loads superpowers:subagent-driven-development**
-   - Dispatches subagents for each task:
-     • Subagent 1: User model → loads rails-ai:models + rails-ai:testing
-     • Subagent 2: Sessions controller → loads rails-ai:controllers + rails-ai:testing
-     • Subagent 3: Login views → loads rails-ai:views + rails-ai:styling
-   - Reviews each subagent's work
+3. **Coordinator loads superpowers:subagent-driven-development**
+   - Dispatches general-purpose workers for each task:
+     • Worker 1: User model → loads rails-ai:models + rails-ai:testing
+     • Worker 2: Sessions controller → loads rails-ai:controllers + rails-ai:testing
+     • Worker 3: Login views → loads rails-ai:views + rails-ai:styling
+   - Reviews each worker's output
 
-4. **Architect loads superpowers:finishing-a-development-branch**
+4. **Coordinator loads superpowers:finishing-a-development-branch**
    - Verifies TEAM_RULES.md compliance
    - Creates PR or merges
 

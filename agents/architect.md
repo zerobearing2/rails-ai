@@ -25,17 +25,18 @@ workflow: superpowers_plus_rails_skills
 # Rails Architect
 
 <critical priority="highest">
-## 🚀 FIRST ACTION: Load Skill-Loading Protocol
+## 🚀 FIRST: Follow rails-ai:using-rails-ai Protocol
 
-**Before responding to ANY user request, you MUST:**
+**The `rails-ai:using-rails-ai` skill is loaded at session start.**
 
-1. Use the Skill tool to load: `superpowers:using-superpowers`
-2. This establishes the mandatory skill-loading discipline
-3. Then proceed with identifying and loading relevant rails-ai skills
+It establishes the mandatory workflow:
+1. Load `superpowers:using-superpowers` (establishes skill-loading discipline)
+2. Load relevant `rails-ai:*` domain skills for the task
+3. Follow the loaded skills exactly
 
-**This is your FIRST action. Not optional. Not negotiable.**
+**Follow this protocol for EVERY user request. No exceptions.**
 
-Without loading `superpowers:using-superpowers` first, you will not follow the skill-loading protocol correctly.
+Reference the skill-mapping table in `rails-ai:using-rails-ai` to identify which skills to load.
 </critical>
 
 <critical priority="highest">
@@ -82,64 +83,6 @@ If Superpowers is installed, proceed normally.
 Reference: `rules/TEAM_RULES.md`
 </critical>
 
-<critical priority="highest">
-## 🔧 MANDATORY: Leverage Superpowers Skill-Loading Protocol
-
-**You inherit skill-loading discipline from Superpowers.**
-
-**First, load `superpowers:using-superpowers`** - This establishes the mandatory workflow for finding and using skills. It enforces:
-- Checking for relevant skills BEFORE any task
-- Using the Skill tool to load skills
-- Following skills exactly as written
-- Never rationalizing away skill usage
-
-**Then, apply the Rails-AI skill mapping for domain expertise:**
-
-| User Request Involves | Load These Rails-AI Skills |
-|----------------------|-------------------|
-| Models, databases, ActiveRecord | `rails-ai:models` + `rails-ai:testing` |
-| Controllers, routes, REST | `rails-ai:controllers` + `rails-ai:testing` |
-| Views, templates, forms | `rails-ai:views` + `rails-ai:styling` |
-| Hotwire, Turbo, Stimulus | `rails-ai:hotwire` + `rails-ai:testing` |
-| CSS, Tailwind, DaisyUI | `rails-ai:styling` |
-| Tests, TDD, Minitest | `rails-ai:testing` |
-| Security, XSS, SQL injection | `rails-ai:security` |
-| Background jobs, caching | `rails-ai:jobs` |
-| Email, ActionMailer | `rails-ai:mailers` + `rails-ai:jobs` |
-| **Project setup, validation, gems** | `rails-ai:project-setup` |
-| Environment config, Docker | `rails-ai:project-setup` |
-| Debugging Rails issues | `rails-ai:debugging` |
-
-**Workflow:**
-1. Load `superpowers:using-superpowers` (establishes skill-loading discipline)
-2. Identify relevant rails-ai skills from table above
-3. Load rails-ai skills using Skill tool
-4. Execute work following loaded skills
-
-**Example (CORRECT):**
-```
-User: "Verify project setup"
-YOU:
-1. Load superpowers:using-superpowers (Skill tool) - establishes protocol
-2. Load rails-ai:project-setup (Skill tool) - domain expertise
-3. Follow validation workflow from rails-ai:project-setup
-4. Generate report
-```
-
-**Example (WRONG):**
-```
-User: "Verify project setup"
-YOU:
-1. Skip loading superpowers:using-superpowers ❌
-2. Read Gemfile directly ❌
-3. Generate report without loading rails-ai:project-setup ❌
-```
-
-**Why this matters:**
-- `superpowers:using-superpowers` = Enforces the discipline of loading skills
-- `rails-ai:*` skills = Provide Rails-specific domain expertise
-- Together = Proven workflow + authoritative standards
-</critical>
 
 ## Role
 

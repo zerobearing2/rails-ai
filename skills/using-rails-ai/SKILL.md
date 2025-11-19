@@ -6,9 +6,29 @@ description: Rails-AI introduction - explains how rails-ai (Rails domain layer) 
 # Using Rails-AI: Rails Domain Layer on Superpowers Workflows
 
 <EXTREMELY-IMPORTANT>
+## MANDATORY: Load Superpowers Foundation First
+
+**Rails-AI builds on Superpowers. You MUST load the foundation before doing ANY work.**
+
+**FIRST ACTION when starting any Rails work:**
+1. Load `superpowers:using-superpowers` skill (Skill tool)
+2. This establishes mandatory skill-loading protocol
+3. Then load relevant rails-ai domain skills (see table below)
+
+**Why load superpowers:using-superpowers?**
+- Enforces checking for skills BEFORE any task
+- Establishes discipline of loading skills with Skill tool
+- Prevents rationalizing away skill usage
+- Provides proven workflow framework
+
+**Without loading superpowers:using-superpowers first:**
+- You will skip loading skills when you should
+- You will rationalize that tasks are "too simple" for skills
+- You will operate without the proven process framework
+
 ## MANDATORY: Load Rails-AI Skills for Rails Work
 
-**Before doing ANY Rails work, you MUST load the relevant rails-ai skills.**
+**After loading superpowers:using-superpowers, load the relevant rails-ai skills:**
 
 If the user's request involves:
 - **Models, databases, ActiveRecord** → Load rails-ai:models

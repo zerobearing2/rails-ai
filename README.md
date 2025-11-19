@@ -51,6 +51,14 @@ claude
 /rails-ai:architect refactor UserController
 ```
 
+**Local Development Note:** If you're developing rails-ai locally (installed from a local directory), SessionStart hooks don't execute due to a [Claude Code limitation](https://github.com/anthropics/claude-code/issues/11939). Manually load the skill once per session:
+
+```text
+Load the skill: using-rails-ai
+```
+
+This loads the full protocol including Superpowers integration and skill-loading enforcement. Not needed when installed from GitHub.
+
 ## Architecture
 
 **Two-layer system:**

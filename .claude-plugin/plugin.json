@@ -1,0 +1,13 @@
+{
+  "name": "rails-ai",
+  "description": "Rails development coordinator with domain skills for Rails 8+, Hotwire, security, and TDD. Built on Superpowers workflows.",
+  "version": "0.3.0",
+  "author": {
+    "name": "zerobearing2",
+    "url": "https://github.com/zerobearing2"
+  },
+  "homepage": "https://github.com/zerobearing2/rails-ai",
+  "repository": "https://github.com/zerobearing2/rails-ai",
+  "license": "MIT",
+  "keywords": ["rails", "ruby", "skills", "tdd", "testing", "security", "hotwire", "superpowers", "rails-8"]
+}

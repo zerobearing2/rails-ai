@@ -18,6 +18,8 @@ Set up new Rails 8+ projects with required dependencies, configure environments 
 - Setting up Docker containers and deployment with Kamal
 - Customizing RuboCop for team standards (TEAM_RULES.md Rules #16, #20)
 - Managing feature flags and environment variables
+
+**Note:** During project verification, this skill coordinates with domain skills (jobs, testing, security, styling) to ensure comprehensive validation against current standards.
 </when-to-use>
 
 <benefits>
@@ -69,44 +71,37 @@ Before completing configuration work:
 
 **When asked to validate or check a Rails project setup**, follow this workflow:
 
-### Step 1: Load This Skill First
+### Step 1: Use Required Domain Skills
 
-Before exploring the project, ensure rails-ai:project-setup skill is loaded to establish the baseline for comparison.
+Before exploring the project, use the relevant domain skills to establish authoritative standards:
+
+```text
+Use these skills with the Skill tool:
+- rails-ai:jobs (Solid Stack requirements)
+- rails-ai:testing (Minitest patterns and requirements)
+- rails-ai:security (Security configuration standards)
+```
+
+**Why use domain skills first?**
+- Each domain skill is the authoritative source for its requirements
+- Prevents duplicating knowledge in project-setup
+- Ensures verification uses current standards from each domain
 
 ### Step 2: Check Gemfile for Required Dependencies
 
-**Required Gems (TEAM RULES.md violations if missing):**
+**Reference the used domain skills for authoritative gem requirements:**
 
-```ruby
-# Gemfile
+- **rails-ai:jobs** → Solid Stack gems (solid_queue, solid_cache, solid_cable)
+- **rails-ai:testing** → Minitest patterns (verify RSpec NOT present)
+- **rails-ai:security** → Security gems (brakeman, bundler-audit)
+- **rails-ai:styling** → Frontend gems (tailwindcss-rails, daisyui-rails)
 
-# Background Jobs - TEAM RULE #1: NEVER Sidekiq/Redis
-gem "solid_queue"      # Job processing
-gem "solid_cache"      # Caching
-gem "solid_cable"      # WebSockets
-
-# Frontend
-gem "tailwindcss-rails"  # Utility-first CSS
-gem "daisyui-rails"      # Component library
-
-# Testing - TEAM RULE #2: NEVER RSpec
-# Minitest is Rails default - verify RSpec NOT present
-
-# Code Quality
-gem "rubocop-rails-omakase", require: false  # Rails 8 default
-
-# Security (recommended)
-gem "brakeman", require: false
-gem "bundler-audit", require: false
-
-# Deployment (recommended)
-gem "kamal", require: false
-```
-
-**CRITICAL Violations to Check:**
-- ❌ `gem "sidekiq"` or `gem "redis"` → TEAM RULE #1 violation
-- ❌ `gem "rspec-rails"` → TEAM RULE #2 violation
+**CRITICAL Violations to Check (from TEAM_RULES.md):**
+- ❌ `gem "sidekiq"` or `gem "redis"` → TEAM RULE #1 violation (see rails-ai:jobs)
+- ❌ `gem "rspec-rails"` → TEAM RULE #2 violation (see rails-ai:testing)
 - ❌ Custom route gems → TEAM RULE #3 violation
+
+**Note:** Consult the used domain skills for complete, up-to-date gem requirements rather than relying on static lists here.
 
 ### Step 3: Validate Project Structure
 
@@ -139,25 +134,28 @@ config.ru               # Rack config
 
 ### Step 4: Validate Configuration Files
 
-**Essential configs to check:**
+**Reference used domain skills for configuration standards:**
 
 1. **config/environments/production.rb**
-   - SSL enabled
-   - Eager loading enabled
-   - Caching configured
+   - Use **rails-ai:security** for SSL, security headers, and production hardening
+   - Verify encrypted credentials usage (TEAM RULE #13)
 
 2. **config/tailwind.config.js**
-   - DaisyUI plugin present
-   - Content paths include Rails views
+   - Use **rails-ai:styling** for Tailwind and DaisyUI configuration
+   - Verify content paths include Rails views
 
 3. **.rubocop.yml**
    - Inherits from rubocop-rails-omakase
-   - Custom cops for TEAM RULES.md
+   - Custom cops for TEAM RULES.md (Rules #16, #20)
 
 4. **Procfile.dev**
    - Rails server
-   - Solid Queue worker
-   - Tailwind watcher
+   - Solid Queue worker (see **rails-ai:jobs**)
+   - Tailwind watcher (see **rails-ai:styling**)
+
+5. **config/credentials/*.yml.enc**
+   - Use **rails-ai:security** for credential structure and validation
+   - Verify no secrets in plain text (TEAM RULE #13)
 
 ### Step 5: Report Findings
 
@@ -1400,9 +1398,16 @@ end
 </testing>
 
 <related-skills>
-- rails-ai:models - Database configuration, migrations
-- rails-ai:jobs - SolidQueue, SolidCache, SolidCable (Rails 8 Solid Stack)
+**Must use during project verification:**
+- rails-ai:jobs - SolidQueue, SolidCache, SolidCable requirements (TEAM RULE #1)
+- rails-ai:testing - Minitest patterns and anti-patterns (TEAM RULE #2)
+- rails-ai:security - Security configuration, credentials, SSL, CSP (TEAM RULE #13)
+- rails-ai:styling - Tailwind CSS and DaisyUI configuration
+
+**May use for specific checks:**
+- rails-ai:models - Database configuration and migrations
 - rails-ai:debugging - Rails debugging tools and logging configuration
+- rails-ai:controllers - RESTful routing verification (TEAM RULE #3)
 </related-skills>
 
 <resources>

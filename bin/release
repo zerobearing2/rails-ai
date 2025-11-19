@@ -297,14 +297,15 @@ if [ "$DRY_RUN" = true ]; then
   echo "  # Update CHANGELOG.md (insert after ## [Unreleased])"
   echo "  awk -v version=\"$NEW_VERSION\" -v date=\"$TODAY\" -v notes=\"\$RELEASE_NOTES\" ..."
   echo ""
-  echo "  # Update plugin version"
+  echo "  # Update plugin versions"
   echo "  sed -i 's/\"version\": \"[0-9]*\.[0-9]*\.[0-9]*\"/\"version\": \"$NEW_VERSION\"/' .claude-plugin/marketplace.json"
+  echo "  sed -i 's/\"version\": \"[0-9]*\.[0-9]*\.[0-9]*\"/\"version\": \"$NEW_VERSION\"/' .claude-plugin/plugin.json"
   echo ""
   echo "  # Run linting (before committing)"
   echo "  bundle exec rake lint:markdown"
   echo ""
   echo "  # Commit changes (only if linting passes)"
-  echo "  git add CHANGELOG.md .claude-plugin/marketplace.json"
+  echo "  git add CHANGELOG.md .claude-plugin/marketplace.json .claude-plugin/plugin.json"
   echo "  git commit -m \"Release $NEW_VERSION\""
   echo ""
   echo "  # Create and push tag"
@@ -356,9 +357,21 @@ if [ -f ".claude-plugin/marketplace.json" ]; then
   # Use sed to update the version field in the JSON
   sed -i "s/\"version\": \"[0-9]*\.[0-9]*\.[0-9]*\"/\"version\": \"$NEW_VERSION\"/" .claude-plugin/marketplace.json
 
-  print_success "Plugin version updated to $NEW_VERSION"
+  print_success "marketplace.json version updated to $NEW_VERSION"
 else
   print_warning ".claude-plugin/marketplace.json not found, skipping plugin version update"
+fi
+
+# Update Claude plugin version in plugin.json
+if [ -f ".claude-plugin/plugin.json" ]; then
+  print_info "Updating .claude-plugin/plugin.json..."
+
+  # Use sed to update the version field in the JSON
+  sed -i "s/\"version\": \"[0-9]*\.[0-9]*\.[0-9]*\"/\"version\": \"$NEW_VERSION\"/" .claude-plugin/plugin.json
+
+  print_success "plugin.json version updated to $NEW_VERSION"
+else
+  print_warning ".claude-plugin/plugin.json not found, skipping plugin version update"
 fi
 
 # Run linting BEFORE committing to avoid creating a bad commit
@@ -373,6 +386,9 @@ else
   if [ -f ".claude-plugin/marketplace.json" ]; then
     git restore .claude-plugin/marketplace.json
   fi
+  if [ -f ".claude-plugin/plugin.json" ]; then
+    git restore .claude-plugin/plugin.json
+  fi
   print_info "Files have been restored. Fix linting issues and try again."
   exit 1
 fi
@@ -382,6 +398,9 @@ print_info "Committing version changes..."
 git add CHANGELOG.md
 if [ -f ".claude-plugin/marketplace.json" ]; then
   git add .claude-plugin/marketplace.json
+fi
+if [ -f ".claude-plugin/plugin.json" ]; then
+  git add .claude-plugin/plugin.json
 fi
 git commit -m "Release $NEW_VERSION
 
@@ -447,7 +466,7 @@ echo ""
 print_success "Version: $NEW_VERSION"
 print_success "Tag: v$NEW_VERSION"
 print_success "CHANGELOG.md updated"
-print_success "Plugin version updated"
+print_success "Plugin versions updated (marketplace.json, plugin.json)"
 print_success "Linting checks passed"
 print_success "Pushed to GitHub"
 print_success "GitHub release created"

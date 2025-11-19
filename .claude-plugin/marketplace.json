@@ -7,7 +7,7 @@
   "plugins": [
     {
       "name": "rails-ai",
-      "description": "Rails development skills library with TDD, testing, security patterns, and team rules for Rails 8+. Built on Superpowers workflows. Single architect agent loads domain skills on demand.",
+      "description": "Rails development coordinator with domain skills for Rails 8+, Hotwire, security, and TDD. Built on Superpowers workflows.",
       "version": "0.3.0",
       "author": {
         "name": "zerobearing2",

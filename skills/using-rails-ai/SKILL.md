@@ -27,31 +27,31 @@ Then restart Claude Code.
 
 If Superpowers is installed, proceed normally.
 
-## MANDATORY: Load Superpowers Foundation First
+## MANDATORY: Use Superpowers Foundation First
 
-**Rails-AI builds on Superpowers. You MUST load the foundation before doing ANY work.**
+**Rails-AI builds on Superpowers. You MUST use the foundation before doing ANY work.**
 
 **FIRST ACTION when starting any Rails work:**
-1. Load `superpowers:using-superpowers` skill (Skill tool)
+1. Use `superpowers:using-superpowers` skill (Skill tool)
 2. This establishes mandatory skill-loading protocol
-3. Then load relevant rails-ai domain skills (see table below)
+3. Then use relevant rails-ai domain skills (see table below)
 
-**Why load superpowers:using-superpowers?**
+**Why use superpowers:using-superpowers?**
 - Enforces checking for skills BEFORE any task
-- Establishes discipline of loading skills with Skill tool
+- Establishes discipline of using skills with Skill tool
 - Prevents rationalizing away skill usage
 - Provides proven workflow framework
 
-**Without loading superpowers:using-superpowers first:**
-- You will skip loading skills when you should
+**Without using superpowers:using-superpowers first:**
+- You will skip using skills when you should
 - You will rationalize that tasks are "too simple" for skills
 - You will operate without the proven process framework
 
 ## Rails-AI Skill-to-Task Mapping
 
-**Superpowers handles skill-loading enforcement. This table tells you WHICH Rails skills to load:**
+**Superpowers handles skill-loading enforcement. This table tells you WHICH Rails skills to use:**
 
-| User Request Involves | Load These Skills |
+| User Request Involves | Use These Skills |
 |----------------------|-------------------|
 | Models, databases, ActiveRecord | rails-ai:models |
 | Controllers, routes, REST | rails-ai:controllers |
@@ -121,26 +121,26 @@ If Superpowers is installed, proceed normally.
 
 ### How It Works
 
-**User request** → **/rails-ai:architect** → **Loads skills** → **Dispatches workers** → **Reviews**
+**User request** → **/rails-ai:architect** → **Uses skills** → **Dispatches workers** → **Reviews**
 
 #### Example: "Add user authentication"
 
-1. **Coordinator loads superpowers:brainstorming**
-   - Loads rails-ai:models + rails-ai:security for context
+1. **Coordinator uses superpowers:brainstorming**
+   - Uses rails-ai:models + rails-ai:security for context
    - Refines design with user
 
-2. **Coordinator loads superpowers:writing-plans**
+2. **Coordinator uses superpowers:writing-plans**
    - Creates implementation plan
-   - Specifies which skills workers should load per task
+   - Specifies which skills workers should use per task
 
-3. **Coordinator loads superpowers:subagent-driven-development**
+3. **Coordinator uses superpowers:subagent-driven-development**
    - Dispatches general-purpose workers for each task:
-     • Worker 1: User model → loads rails-ai:models + rails-ai:testing
-     • Worker 2: Sessions controller → loads rails-ai:controllers + rails-ai:testing
-     • Worker 3: Login views → loads rails-ai:views + rails-ai:styling
+     • Worker 1: User model → uses rails-ai:models + rails-ai:testing
+     • Worker 2: Sessions controller → uses rails-ai:controllers + rails-ai:testing
+     • Worker 3: Login views → uses rails-ai:views + rails-ai:styling
    - Reviews each worker's output
 
-4. **Coordinator loads superpowers:finishing-a-development-branch**
+4. **Coordinator uses superpowers:finishing-a-development-branch**
    - Verifies TEAM_RULES.md compliance
    - Creates PR or merges
 
@@ -190,8 +190,8 @@ The simplest way to use Rails-AI is the `/rails-ai:architect` convenience comman
 
 This command acts as the Rails architect coordinator, which:
 - Analyzes requests
-- Loads superpowers workflows (for process)
-- Loads rails-ai skills (for domain expertise)
+- Uses superpowers workflows (for process)
+- Uses rails-ai skills (for domain expertise)
 - Dispatches general-purpose workers to implement features
 - Reviews work and enforces TEAM_RULES.md
 

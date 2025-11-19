@@ -100,7 +100,7 @@ bin/ci                      # Full check (lint + tests)
 1. Create `skills/domain/SKILL.md` with YAML front matter
 2. Add unit tests in `test/unit/skills/domain_test.rb`
 3. Document in `skills/using-rails-ai/SKILL.md`
-4. Update architect agent if needed
+4. Update architect command if needed (`commands/architect.md`)
 5. Run `bin/ci`
 
 ### Adding Rules

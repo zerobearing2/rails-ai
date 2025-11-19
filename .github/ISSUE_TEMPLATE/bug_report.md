@@ -29,10 +29,10 @@ What actually happened instead.
 - **IDE:** [e.g. Claude Code, Cursor]
 - **OS:** [e.g. Ubuntu 22.04, macOS 14.0]
 
-## Agent/Skill Information
-- **Agent used:** [e.g. @rails-ai:architect, @rails-ai:backend]
+## Command/Skill Information
+- **Command used:** [e.g. /rails-ai:architect]
 - **Skill triggered:** [if known]
-- **Task description:** [brief description of what you asked the agent to do]
+- **Task description:** [brief description of what you asked Rails-AI to do]
 
 ## Relevant logs or output
 ```

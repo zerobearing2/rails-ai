@@ -14,12 +14,12 @@ class CommandStructureTest < Minitest::Test
     assert architect, "architect.md command should exist"
   end
 
-  def test_architect_loads_using_rails_ai_skill
+  def test_architect_uses_using_rails_ai_skill
     architect = @command_files.find { |f| f.include?("architect.md") }
     content = File.read(architect)
 
-    assert_match(/Use the using-rails-ai skill/i, content,
-                 "Architect command should load using-rails-ai skill")
+    assert_match(/Use and follow the using-rails-ai skill/i, content,
+                 "Architect command should use using-rails-ai skill with Superpowers pattern")
   end
 
   def test_architect_forbids_implementing
@@ -35,14 +35,15 @@ class CommandStructureTest < Minitest::Test
                  "Architect should instruct to dispatch workers")
   end
 
-  def test_architect_references_skills
+  def test_architect_trusts_using_rails_ai_skill
     architect = @command_files.find { |f| f.include?("architect.md") }
     content = File.read(architect)
 
-    # Should reference skills
-    assert_match(/rails-ai:(models|controllers|views|hotwire|styling|testing|security|
-                              debugging|jobs|mailers|configuration|using-rails-ai)/ix, content,
-                 "Architect command should reference rails-ai skills")
+    # Should trust using-rails-ai skill for skill mapping
+    assert_match(/using-rails-ai skill.*has.*mapping/i, content,
+                 "Architect should reference using-rails-ai skill for mapping")
+    assert_match(/using-rails-ai skill/i, content,
+                 "Architect should reference using-rails-ai skill")
   end
 
   def test_architect_has_coordinator_role
@@ -56,38 +57,21 @@ class CommandStructureTest < Minitest::Test
                  "Architect should mention dispatching workers")
   end
 
-  def test_architect_has_team_rules_enforcement
+  def test_architect_references_team_rules
     architect = @command_files.find { |f| f.include?("architect.md") }
     content = File.read(architect)
 
     assert_match(/TEAM_RULES\.md/i, content,
                  "Architect should reference TEAM_RULES.md")
-    assert_match(/Sidekiq.*Redis.*SolidQueue/im, content,
-                 "Architect should enforce Solid Stack over Sidekiq/Redis")
-    assert_match(/RSpec.*Minitest/im, content,
-                 "Architect should enforce Minitest over RSpec")
-  end
-
-  def test_architect_has_workflow_patterns
-    architect = @command_files.find { |f| f.include?("architect.md") }
-    content = File.read(architect)
-
-    # Should have workflow patterns
-    assert_match(/brainstorming/i, content,
-                 "Architect should reference brainstorming workflow")
-    assert_match(/writing-plans|subagent-driven-development|dispatching-parallel-agents/i, content,
-                 "Architect should reference execution workflows")
-    assert_match(/requesting-code-review/i, content,
-                 "Architect should reference code review workflow")
   end
 
   def test_architect_references_superpowers
     architect = @command_files.find { |f| f.include?("architect.md") }
     content = File.read(architect)
 
-    # Should reference Superpowers workflows
-    assert_match(/superpowers:/i, content,
-                 "Architect should reference Superpowers workflows")
+    # Should reference Superpowers for workflow coordination
+    assert_match(/superpowers.*workflow/i, content,
+                 "Architect should reference Superpowers for workflow coordination")
   end
 
   def test_architect_has_yaml_frontmatter

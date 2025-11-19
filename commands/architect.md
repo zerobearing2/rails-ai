@@ -96,7 +96,7 @@ Rails-AI is built on Superpowers with clean separation of concerns:
 │ • rails-ai:debugging - Rails debugging tools│
 │ • rails-ai:jobs - SolidQueue, SolidCache    │
 │ • rails-ai:mailers - ActionMailer           │
-│ • rails-ai:configuration - Config, Docker   │
+│ • rails-ai:project-setup - Config, validation│
 │ • rails-ai:using-rails-ai - Meta-guide      │
 └─────────────────────────────────────────────┘
 ```
@@ -108,6 +108,15 @@ Rails-AI is built on Superpowers with clean separation of concerns:
 
 ## Workflow: How to Handle Any Request
 
+**FIRST: Match request to a Common Task Pattern (see below)**
+- Project validation/audit/setup check → Pattern 5
+- Simple feature → Pattern 1
+- Complex feature → Pattern 2
+- Debugging/errors → Pattern 3
+- Multiple independent tasks → Pattern 4
+
+**Patterns tell you which skills to load for both YOU and WORKERS.**
+
 ### Step 1: Understand the Request
 **Load superpowers:brainstorming** to refine vague ideas into clear designs.
 
@@ -115,6 +124,7 @@ Rails-AI is built on Superpowers with clean separation of concerns:
 - User wants auth? Load rails-ai:models + rails-ai:security
 - User wants UI feature? Load rails-ai:hotwire + rails-ai:styling
 - User wants background job? Load rails-ai:jobs
+- User wants project validation? Load rails-ai:project-setup
 
 **Output:** Clear design ready for planning
 
@@ -332,6 +342,37 @@ User: "Fix 3 failing test files"
 3. Integrate fixes
 4. Run bin/ci
 5. Done!
+```
+
+### Pattern 5: Project Setup Validation
+
+```markdown
+User: "Verify project setup"
+User: "Check project setup"
+User: "Audit my Rails app"
+User: "Validate project against rails-ai standards"
+
+1. Load rails-ai:project-setup for context
+   - Understand validation checklist
+   - Know what to check for
+
+2. Dispatch general-purpose worker via Task tool:
+   - Load rails-ai:project-setup skill first
+   - Follow "Project Validation & Audit" section
+   - Check Gemfile for TEAM_RULES.md violations
+   - Validate project structure
+   - Validate configuration files
+   - Report findings with fix commands
+
+3. Review worker's validation report
+4. Present findings to user with actionable fixes
+5. Done!
+
+**Critical:** Worker MUST load rails-ai:project-setup skill to get:
+- Required gems list (Solid Stack, Tailwind, Minitest)
+- TEAM_RULES.md violations to check for
+- Validation checklist
+- Fix commands
 ```
 
 ## Git Branch Safety

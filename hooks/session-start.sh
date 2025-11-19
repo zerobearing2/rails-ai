@@ -18,8 +18,15 @@ CONTENT=$(echo "$CONTENT" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | awk '{printf "
 cat << EOF
 {
   "event": "session-start",
-  "context": "Rails-AI loaded - domain layer on Superpowers workflows. Use /rails-ai:architect for Rails development.",
-  "content": "$CONTENT"
+  "context": "🚀 Rails-AI SessionStart Hook Executed - using-rails-ai skill loaded with Superpowers dependency check and skill-loading protocol. Use /rails-ai:architect for Rails development.",
+  "content": "$CONTENT",
+  "debug": {
+    "hook_executed": true,
+    "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+    "skill_loaded": "rails-ai:using-rails-ai",
+    "skill_path": "$INTRO_FILE",
+    "content_length": $(echo "$CONTENT" | wc -c)
+  }
 }
 EOF
 

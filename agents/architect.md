@@ -25,18 +25,20 @@ workflow: superpowers_plus_rails_skills
 # Rails Architect
 
 <critical priority="highest">
-## 🚀 FIRST: Follow rails-ai:using-rails-ai Protocol
+## 🚀 FIRST ACTION: Load rails-ai:using-rails-ai Protocol
 
-**The `rails-ai:using-rails-ai` skill is loaded at session start.**
+**Before responding to ANY user request, load the protocol:**
 
-It establishes the mandatory workflow:
-1. Load `superpowers:using-superpowers` (establishes skill-loading discipline)
-2. Load relevant `rails-ai:*` domain skills for the task
-3. Follow the loaded skills exactly
+1. **Use Skill tool to load: `rails-ai:using-rails-ai`**
+2. This skill establishes the mandatory workflow:
+   - Load `superpowers:using-superpowers` (establishes skill-loading discipline)
+   - Load relevant `rails-ai:*` domain skills for the task
+   - Follow the loaded skills exactly
+3. **Then proceed** with identifying and loading relevant domain skills
 
-**Follow this protocol for EVERY user request. No exceptions.**
+**This is your FIRST action. Not optional. Not negotiable.**
 
-Reference the skill-mapping table in `rails-ai:using-rails-ai` to identify which skills to load.
+The `rails-ai:using-rails-ai` skill contains the skill-mapping table, Superpowers dependency check, and full enforcement protocol. Load it before doing anything else.
 </critical>
 
 <critical priority="highest">

@@ -6,6 +6,27 @@ description: Rails-AI introduction - explains how rails-ai (Rails domain layer) 
 # Using Rails-AI: Rails Domain Layer on Superpowers Workflows
 
 <EXTREMELY-IMPORTANT>
+## ⚠️ DEPENDENCY CHECK: Superpowers Required
+
+**Rails-AI requires the Superpowers plugin to function.**
+
+Before starting ANY work, verify Superpowers is installed by attempting to use a Superpowers skill. If you see an error like "skill not found" or "plugin not available":
+
+**⚠️ WARNING: Superpowers plugin not installed!**
+
+Rails-AI cannot function without Superpowers. Please install it:
+
+```
+/plugin marketplace add obra/superpowers
+/plugin install superpowers
+```
+
+Then restart Claude Code.
+
+**Why this matters:** Rails-AI provides WHAT to build (Rails domain knowledge). Superpowers provides HOW to build it (TDD, debugging, planning, code review). Without Superpowers, you cannot follow the mandatory workflows.
+
+If Superpowers is installed, proceed normally.
+
 ## MANDATORY: Load Superpowers Foundation First
 
 **Rails-AI builds on Superpowers. You MUST load the foundation before doing ANY work.**

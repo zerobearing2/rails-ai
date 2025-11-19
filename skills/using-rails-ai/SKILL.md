@@ -196,12 +196,12 @@ The simplest way to use Rails-AI is the `/rails-ai:architect` convenience comman
 /rails-ai:architect refactor UserController
 ```
 
-This command invokes the Rails architect agent, which:
+This command acts as the Rails architect coordinator, which:
 - Analyzes requests
 - Loads superpowers workflows (for process)
 - Loads rails-ai skills (for domain expertise)
-- Executes work directly or via subagent-driven-development
-- Enforces TEAM_RULES.md
+- Dispatches general-purpose workers to implement features
+- Reviews work and enforces TEAM_RULES.md
 
 **Example:**
 
@@ -209,17 +209,17 @@ This command invokes the Rails architect agent, which:
 
 User: "/rails-ai:architect Add email validation to User model"
 
-Architect:
+Architect (coordinator):
 1. Determines this is model work requiring TDD
 2. Loads superpowers:test-driven-development for process
 3. Loads rails-ai:testing for Minitest patterns
 4. Loads rails-ai:models for validation patterns
-5. Follows TDD cycle: write test → RED → implement → GREEN → refactor
-6. Verifies TEAM_RULES.md compliance
+5. Dispatches general-purpose worker with those skills loaded
+6. Worker follows TDD cycle: write test → RED → implement → GREEN → refactor
+7. Reviews worker output and verifies TEAM_RULES.md compliance
 
 ```
 
-**Alternative:** You can also invoke the architect directly with `@agent-rails-ai:architect <request>`
 
 ## Learn More
 

@@ -9,10 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Major Architecture Refactor (v0.3.0)
 
-**Single-Agent Architecture**: Consolidated from 7 agents to 1 architect agent that dynamically loads Superpowers workflows and Rails-AI skills.
+**Coordinator Architecture**: Consolidated from 7 agents to `/rails-ai:architect` slash command that coordinates development by dispatching general-purpose workers.
 
 #### Architecture Changes
-- **BREAKING**: 7 agents → 1 architect agent
+- **BREAKING**: 7 agents → 1 `/rails-ai:architect` slash command (coordinator, not agent)
 - **BREAKING**: Removed SKILLS_REGISTRY.yml (now file-based skill discovery)
 - **BREAKING**: Removed RULES_TO_SKILLS_MAPPING.yml (rules in TEAM_RULES.md)
 - **NEW**: Built on Superpowers for universal workflows (brainstorming, planning, TDD, debugging, code review)
@@ -26,8 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Legacy agent files: plan.md, backend.md, frontend.md, tests.md, security.md, debug.md
 
 #### Added
-- Single architect agent coordinates all work
-- Command: `/rails-ai:architect` (renamed from `/rails-ai:rails-ai`)
+- `/rails-ai:architect` slash command coordinates all work (loads skills, dispatches workers)
+- Clean separation: coordinator (loads context) vs workers (implement features)
 - Superpowers dependency (required)
 - SessionStart hook with proper plugin configuration
 - `using-rails-ai` skill explaining architecture

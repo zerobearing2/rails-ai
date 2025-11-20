@@ -49,7 +49,7 @@ If Superpowers is installed, proceed normally.
 
 ## Rails-AI Skill-to-Task Mapping
 
-**Superpowers handles skill-loading enforcement. This table tells you WHICH Rails skills to use:**
+**Superpowers handles skill-usage enforcement. This table tells you WHICH Rails skills to use:**
 
 | User Request Involves | Use These Skills |
 |----------------------|-------------------|

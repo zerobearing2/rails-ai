@@ -40,7 +40,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Documentation**: Drastically simplified (README: 268→71 lines, CONTRIBUTING: 160→68 lines, AGENTS.md: 876→146 lines)
 
 #### Skills (12 total)
-1. configuration - Environment config, credentials, Docker, RuboCop
+1. project-setup - Project validation, environment config, credentials, Docker, RuboCop (coordinates with domain skills)
 2. controllers - RESTful actions, strong parameters, concerns
 3. debugging - Rails debugging tools + superpowers:systematic-debugging
 4. hotwire - Turbo Drive, Frames, Streams, Morph, Stimulus

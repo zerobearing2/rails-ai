@@ -33,7 +33,7 @@ If Superpowers is installed, proceed normally.
 
 **FIRST ACTION when starting any Rails work:**
 1. Use `superpowers:using-superpowers` skill (Skill tool)
-2. This establishes mandatory skill-loading protocol
+2. This establishes mandatory skill-usage protocol
 3. Then use relevant rails-ai domain skills (see table below)
 
 **Why use superpowers:using-superpowers?**

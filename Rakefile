@@ -29,6 +29,14 @@ namespace :test do
       t.warning = false
     end
 
+    desc "Run command unit tests only"
+    Rake::TestTask.new(:commands) do |t|
+      t.libs << "test"
+      t.test_files = FileList["test/unit/commands/**/*_test.rb"]
+      t.verbose = true
+      t.warning = false
+    end
+
     desc "Run agent unit tests only"
     Rake::TestTask.new(:agents) do |t|
       t.libs << "test"

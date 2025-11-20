@@ -123,7 +123,7 @@ bin/ci                      # Full check (lint + tests)
 
 ### Modifying Architect
 
-1. Edit `agents/architect.md`
+1. Edit `commands/architect.md`
 2. Maintain YAML front matter structure
 3. Reference Superpowers workflows correctly
 4. Run `bin/ci`

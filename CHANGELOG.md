@@ -7,6 +7,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2025-11-20
+
+Based on my analysis of the git commits, here's the CHANGELOG entry:
+
+### Added
+- Rake task `test:unit:commands` for running command tests
+- Project validation workflow to verify TEAM_RULES.md compliance, required gems, and configuration
+
+### Changed
+- **BREAKING**: Architect converted from agent to slash command coordinator (`agents/architect.md` → `commands/architect.md`)
+- **BREAKING**: Architecture simplified from 7 agents to single `/rails-ai:architect` command that dispatches general-purpose workers
+- Renamed skill: `rails-ai:configuration` → `rails-ai:project-setup`
+- Consolidated skill-loading enforcement into `using-rails-ai` skill as single source of truth
+- Test infrastructure: replaced 5 agent test files (375 lines) with command structure tests (10 tests, 33 assertions)
+- Terminology consistency: "skill-loading" → "skill-usage" throughout documentation
+
+### Fixed
+- AGENTS.md path reference: `agents/architect.md` → `commands/architect.md`
+- Missing Rake task for command tests
+- 31 test failures by adding `require "date"` to test helper
+- 2 skipped tests in `using-rails-ai` skill with proper assertions
+
+### Removed
+- 6 agent files: `backend.md`, `debug.md`, `frontend.md`, `plan.md`, `security.md`, `tests.md`
+- Obsolete integration test infrastructure from Rakefile and CI scripts
+- Outdated documentation files: PR template, development setup, GitHub Actions setup, releasing guide
+- `.claude/` configuration directory (users manage their own settings)
+- 33 individual skill markdown files, consolidated into 12 domain skill files
+
+
 ### Major Architecture Refactor (v0.3.0)
 
 **Coordinator Architecture**: Consolidated from 7 agents to `/rails-ai:architect` slash command that coordinates development by dispatching general-purpose workers.

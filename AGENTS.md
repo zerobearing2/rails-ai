@@ -21,7 +21,7 @@ rails-ai/
 ├── commands/
 │   └── architect.md           # /rails-ai:architect command
 ├── skills/                    # 12 domain skills
-│   ├── configuration/
+│   ├── project-setup/
 │   ├── controllers/
 │   ├── debugging/
 │   ├── hotwire/
@@ -43,7 +43,7 @@ rails-ai/
 
 **12 domain-organized skills** with YAML front matter:
 
-1. **configuration** - Environment config, credentials, Docker, RuboCop
+1. **project-setup** - Project validation, environment config, credentials, Docker, RuboCop (coordinates with other skills)
 2. **controllers** - RESTful actions, strong parameters, concerns
 3. **debugging** - Rails debugging tools + superpowers:systematic-debugging
 4. **hotwire** - Turbo Drive, Frames, Streams, Morph, Stimulus
@@ -99,9 +99,13 @@ bin/ci                      # Full check (lint + tests)
 
 1. Create `skills/domain/SKILL.md` with YAML front matter
 2. Add unit tests in `test/unit/skills/domain_test.rb`
-3. Document in `skills/using-rails-ai/SKILL.md`
-4. Update architect agent if needed
-5. Run `bin/ci`
+3. Document in `skills/using-rails-ai/SKILL.md` (skill-to-task mapping table)
+4. **Update `skills/project-setup/SKILL.md`** if the new skill affects project verification:
+   - Add to Step 1 if required for verification
+   - Reference in Step 2 (Gemfile), Step 4 (config files), or other steps as needed
+   - Update `<related-skills>` section
+5. Update architect command if needed (`commands/architect.md`)
+6. Run `bin/ci`
 
 ### Adding Rules
 
@@ -109,7 +113,13 @@ bin/ci                      # Full check (lint + tests)
 2. Update quick lookup index
 3. Set enforcement severity
 4. Add tests in `test/unit/rules/`
-5. Run `bin/ci`
+5. **Update `skills/project-setup/SKILL.md`** if the rule affects project setup verification:
+   - Add rule checks to Step 2 (Gemfile violations)
+   - Add rule checks to Step 3 (project structure)
+   - Add rule checks to Step 4 (configuration files)
+   - Reference the appropriate domain skill for verification
+6. Update domain skills that enforce the rule
+7. Run `bin/ci`
 
 ### Modifying Architect
 
@@ -117,6 +127,29 @@ bin/ci                      # Full check (lint + tests)
 2. Maintain YAML front matter structure
 3. Reference Superpowers workflows correctly
 4. Run `bin/ci`
+
+### Updating Domain Skills
+
+1. Edit `skills/domain/SKILL.md`
+2. If adding gem requirements → Update `skills/project-setup/SKILL.md` Step 2
+3. If adding configuration patterns → Update `skills/project-setup/SKILL.md` Step 4
+4. If skill becomes required for verification → Add to `skills/project-setup/SKILL.md` Step 1
+5. Update tests in `test/unit/skills/domain_test.rb`
+6. Run `bin/ci`
+
+### Maintaining Cross-Skill Consistency
+
+**The project-setup skill coordinates verification** - when you update:
+
+- **TEAM_RULES.md** → Ensure project-setup checks for violations
+- **Domain skills** (jobs, testing, security, styling) → Ensure project-setup references them
+- **Gem requirements** → Add to domain skill, ensure project-setup references it
+- **Configuration patterns** → Add to domain skill, ensure project-setup references it
+
+**Think of it as:**
+- Domain skills = Authoritative source of truth
+- project-setup = Orchestrator that references domain skills
+- When domain changes, project-setup references should update
 
 ## Quality Checks
 

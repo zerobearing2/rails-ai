@@ -28,7 +28,7 @@ Rails was built to make developers productive by removing decisions. That same p
 
 Adds Rails-specific skills to Claude Code: ActiveRecord patterns, Hotwire, Minitest/TDD, security, Solid Stack (Rails 8), and 20+ team conventions.
 
-The architect agent loads Superpowers workflows (process) and Rails-AI skills (domain knowledge) to build features end-to-end.
+The `/rails-ai:architect` command loads Superpowers workflows (process) and Rails-AI skills (domain knowledge), then coordinates general-purpose agents to build features end-to-end.
 
 ## Installation
 
@@ -51,6 +51,14 @@ claude
 /rails-ai:architect refactor UserController
 ```
 
+**Local Development Note:** If you're developing rails-ai locally (installed from a local directory), SessionStart hooks don't execute due to a [Claude Code limitation](https://github.com/anthropics/claude-code/issues/11939). Manually use the skill once per session:
+
+```text
+Use the skill: using-rails-ai
+```
+
+This uses the full protocol including Superpowers integration and skill-loading enforcement. Not needed when installed from GitHub.
+
 ## Architecture
 
 **Two-layer system:**
@@ -58,7 +66,7 @@ claude
 - **Superpowers** = HOW to work (brainstorming, planning, TDD, debugging, code review)
 - **Rails-AI** = WHAT you're building (12 Rails domain skills + team rules)
 
-The architect loads both as needed.
+The `/rails-ai:architect` slash command loads both layers, then dispatches general-purpose agents as workers to implement features.
 
 ## Philosophy
 
@@ -73,8 +81,8 @@ Opinionated Rails development:
 
 We're turning that gap into a roadmap instead of a wish list.
 
-**Phase 1 — Single Architect Agent** ✅ Complete
-Clean architecture with one architect that loads Superpowers workflows (HOW) and Rails-AI skills (WHAT). No complexity, just focused expertise.
+**Phase 1 — Architect Coordinator** ✅ Complete
+Clean architecture with `/rails-ai:architect` slash command that coordinates development: loads Superpowers workflows (HOW) and Rails-AI skills (WHAT), then dispatches general-purpose workers to implement. No complexity, clear separation between coordination and execution.
 
 **Phase 2 — Domain Skills & Team Rules** 🚧 Current
 12 focused domain skills, 20+ team conventions, and custom RuboCop cops. Every decision backed by Rails best practices in reusable, testable modules.
@@ -86,10 +94,11 @@ Index thousands of production Rails patterns, wire them into local memory + know
 Ship end-to-end features—auth, payments, background jobs, admin, APIs—complete with tests and security. Target: 85%+ first-pass success rate.
 
 **What already works:**
-- Single architect orchestrates features end-to-end
+- `/rails-ai:architect` coordinates features end-to-end (planning → worker dispatch → review)
 - 12 domain skills cover models, controllers, views, Hotwire, security, testing, and more
 - Superpowers workflows provide battle-tested TDD, debugging, and code review
 - 20+ team rules enforce Rails conventions automatically
+- Clean separation: coordinator loads skills, workers implement features
 
 **What we're building next:**
 - Phase 3 RAG pipeline with SQLite vector search

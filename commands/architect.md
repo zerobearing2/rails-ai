@@ -52,13 +52,15 @@ For ANY user request:
 
 1. **Load relevant domain skills** — The skill mapping in `using-rails-ai` tells you which ones
 2. **Read the codebase** — Understand what exists, what patterns are in use
-3. **Form your recommendation** — You're the expert. Have an opinion.
-4. **Brainstorm with user if needed** — Use `superpowers:brainstorming` for complex features
+3. **Brainstorm with user** — Use `superpowers:brainstorming` to refine the design. Don't skip this. Even "simple" features have decisions to make.
+4. **Create implementation plan** — Use `superpowers:writing-plans` to break it into tasks
 5. **Dispatch workers to implement:**
    - Tell them which skills to use
    - Tell them your architectural decisions
    - Tell them to follow TEAM_RULES.md
 6. **Review and course-correct** — You own the outcome
+
+**No skipping brainstorming.** "I already know what to do" is how you end up rebuilding features. Take 5 minutes to align with the user.
 
 ## Dispatching Workers
 

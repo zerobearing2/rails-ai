@@ -18,19 +18,19 @@ class CommandStructureTest < Minitest::Test
     architect = @command_files.find { |f| f.include?("architect.md") }
     content = File.read(architect)
 
-    assert_match(/Use and follow the using-rails-ai skill/i, content,
-                 "Architect command should use using-rails-ai skill with Superpowers pattern")
+    assert_match(/load the.*rails-ai:using-rails-ai.*skill/i, content,
+                 "Architect command should load using-rails-ai skill")
   end
 
   def test_architect_forbids_implementing
     architect = @command_files.find { |f| f.include?("architect.md") }
     content = File.read(architect)
 
-    # Should have CRITICAL block forbidding implementation
-    assert_match(/CRITICAL/i, content,
-                 "Architect should have CRITICAL enforcement block")
-    assert_match(/FORBIDDEN|DO NOT IMPLEMENT/i, content,
-                 "Architect should explicitly forbid implementing")
+    # Should clearly define what architect cannot do
+    assert_match(/YOU DON'T.*Write or edit code/im, content,
+                 "Architect should forbid writing code")
+    assert_match(/workers implement/i, content,
+                 "Architect should clarify workers implement")
     assert_match(/dispatch.*worker/i, content,
                  "Architect should instruct to dispatch workers")
   end
@@ -40,9 +40,9 @@ class CommandStructureTest < Minitest::Test
     content = File.read(architect)
 
     # Should trust using-rails-ai skill for skill mapping
-    assert_match(/using-rails-ai skill.*has.*mapping/i, content,
-                 "Architect should reference using-rails-ai skill for mapping")
-    assert_match(/using-rails-ai skill/i, content,
+    assert_match(/using-rails-ai.*skill.*tells you/i, content,
+                 "Architect should reference using-rails-ai skill for guidance")
+    assert_match(/using-rails-ai/i, content,
                  "Architect should reference using-rails-ai skill")
   end
 

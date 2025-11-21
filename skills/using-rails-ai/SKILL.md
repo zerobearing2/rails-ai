@@ -164,6 +164,7 @@ Superpowers provides universal workflows. Here's when to use each in Rails devel
 - Always load rails-ai domain skills BEFORE superpowers workflows
 - `rails-ai:debugging` wraps `superpowers:systematic-debugging` with Rails context
 - `rails-ai:testing` enforces TDD via `superpowers:test-driven-development`
+</EXTREMELY-IMPORTANT>
 
 ## External Dependencies (Optional)
 
@@ -186,7 +187,6 @@ The `frontend-design:frontend-design` skill provides creative direction for UI w
 **When to use:**
 - New pages or components → load frontend-design first
 - UI tweaks → skip frontend-design, use rails-ai:styling directly
-</EXTREMELY-IMPORTANT>
 
 ## How Rails-AI Works
 

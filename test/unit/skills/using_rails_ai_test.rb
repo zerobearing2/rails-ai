@@ -51,4 +51,11 @@ class UsingRailsAiTest < SkillTestCase
     assert_includes skill_content, "12 Rails domain skills",
                     "Meta skill should mention the 12 domain skills"
   end
+
+  def test_has_external_dependencies_section
+    assert_includes skill_content, "External Dependencies",
+                    "Meta skill should document external dependencies"
+    assert_includes skill_content, "frontend-design",
+                    "Meta skill should mention frontend-design plugin"
+  end
 end

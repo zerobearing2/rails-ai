@@ -41,6 +41,9 @@ claude
 # 2. Install rails-ai
 /plugin marketplace add zerobearing2/rails-ai
 /plugin install rails-ai
+
+# 3. Install frontend-design (optional, for UI work)
+/plugin install frontend-design@claude-code-plugins
 ```
 
 ### Local Development Install

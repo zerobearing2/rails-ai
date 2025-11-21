@@ -16,6 +16,16 @@ Style Rails applications using Tailwind CSS (utility-first framework) and DaisyU
 - Maintaining design system consistency
 </when-to-use>
 
+<creative-direction>
+**For new pages or components:** Load `frontend-design:frontend-design` first for aesthetic direction, then return here for implementation.
+
+The frontend-design skill provides the creative vision (typography, color, layout, motion). This skill provides the implementation constraints (Tailwind utilities, DaisyUI components, no custom CSS).
+
+**Resolution:** Frontend-design wins on *what* it looks like. This skill wins on *how* to build it.
+
+**Skip frontend-design for:** Tweaks to existing UI, adding buttons, fixing spacing, adjusting colors.
+</creative-direction>
+
 <benefits>
 - **Rapid Development** - Compose UIs with pre-built utilities
 - **Consistency** - Design tokens enforce consistent spacing, colors, typography

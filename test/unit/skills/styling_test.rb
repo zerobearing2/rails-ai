@@ -39,4 +39,13 @@ class StylingTest < SkillTestCase
   def test_has_code_examples
     assert_code_examples_are_valid
   end
+
+  def test_has_creative_direction_section
+    assert_skill_has_section("creative-direction")
+  end
+
+  def test_references_frontend_design
+    assert_includes skill_content, "frontend-design",
+                    "Styling skill should reference frontend-design for creative direction"
+  end
 end

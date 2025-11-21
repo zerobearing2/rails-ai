@@ -38,3 +38,6 @@ tmp/
 
 # local worktrees
 .worktrees
+
+# Planning documents (AI-generated, not source controlled)
+docs/plans/

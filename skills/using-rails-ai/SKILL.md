@@ -105,6 +105,63 @@ You can't give expert advice on Rails features if you haven't loaded the relevan
 - Reading code shows you what's already there
 - Brainstorming with this context produces better designs
 - Plans written with domain knowledge specify the right skills for workers
+
+## Superpowers Reference
+
+Superpowers provides universal workflows. Here's when to use each in Rails development:
+
+### Planning & Design
+| Skill | When to Use |
+|-------|-------------|
+| `superpowers:brainstorming` | Refining feature ideas before implementation |
+| `superpowers:writing-plans` | Creating detailed implementation plans with tasks |
+| `superpowers:executing-plans` | Running through a plan in controlled batches |
+
+### Implementation
+| Skill | When to Use |
+|-------|-------------|
+| `superpowers:test-driven-development` | Any feature or bugfix — write test first, watch fail, implement |
+| `superpowers:subagent-driven-development` | Executing plans with fresh workers per task |
+| `superpowers:dispatching-parallel-agents` | 3+ independent tasks that can run concurrently |
+| `superpowers:using-git-worktrees` | Isolating feature work from main workspace |
+
+### Quality & Review
+| Skill | When to Use |
+|-------|-------------|
+| `superpowers:requesting-code-review` | Before merging — dispatches code-reviewer agent |
+| `superpowers:receiving-code-review` | Processing review feedback with technical rigor |
+| `superpowers:verification-before-completion` | Before claiming work is done — run tests, confirm output |
+| `superpowers:finishing-a-development-branch` | Work complete, deciding merge/PR/cleanup |
+
+### Debugging & Testing
+| Skill | When to Use |
+|-------|-------------|
+| `superpowers:systematic-debugging` | Any bug or test failure — investigate before fixing |
+| `superpowers:root-cause-tracing` | Tracing errors back through call stack |
+| `superpowers:testing-anti-patterns` | Avoiding mocking mistakes, test pollution |
+| `superpowers:condition-based-waiting` | Fixing flaky tests with race conditions |
+
+### Defense & Security
+| Skill | When to Use |
+|-------|-------------|
+| `superpowers:defense-in-depth` | Validation at multiple layers to prevent bugs |
+
+### Agents
+| Agent | When to Use |
+|-------|-------------|
+| `superpowers:code-reviewer` | Dispatched by requesting-code-review for PR review |
+
+### Commands (Shortcuts)
+| Command | What it Does |
+|---------|--------------|
+| `/superpowers:brainstorm` | Quick access to brainstorming skill |
+| `/superpowers:write-plan` | Quick access to writing-plans skill |
+| `/superpowers:execute-plan` | Quick access to executing-plans skill |
+
+**Rails-specific usage:**
+- Always load rails-ai domain skills BEFORE superpowers workflows
+- `rails-ai:debugging` wraps `superpowers:systematic-debugging` with Rails context
+- `rails-ai:testing` enforces TDD via `superpowers:test-driven-development`
 </EXTREMELY-IMPORTANT>
 
 ## How Rails-AI Works

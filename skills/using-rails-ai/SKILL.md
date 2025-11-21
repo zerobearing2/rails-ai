@@ -72,6 +72,39 @@ If Superpowers is installed, proceed normally.
 - Rails 8+ patterns and conventions
 - Security requirements
 - Code examples and anti-patterns
+
+## Planning Rails Features
+
+**CRITICAL: Load domain skills BEFORE brainstorming or planning.**
+
+You can't give expert advice on Rails features if you haven't loaded the relevant domain knowledge. The brainstorming skill is process-agnostic — it doesn't know Rails patterns, TEAM_RULES, or which gems to use. You need to load that context first.
+
+**Planning workflow:**
+1. Load relevant rails-ai domain skills (see table below)
+2. Read the codebase to understand what exists
+3. THEN use `superpowers:brainstorming` to refine the idea
+4. THEN use `superpowers:writing-plans` to create implementation plan
+
+**Which skills to load for common features:**
+
+| Feature Type | Load These Skills |
+|--------------|-------------------|
+| Authentication/Authorization | `rails-ai:security` + `rails-ai:models` + `rails-ai:controllers` |
+| User-facing forms/pages | `rails-ai:views` + `rails-ai:hotwire` + `rails-ai:styling` |
+| API endpoints | `rails-ai:controllers` + `rails-ai:security` |
+| Background processing | `rails-ai:jobs` + `rails-ai:models` |
+| Email features | `rails-ai:mailers` + `rails-ai:jobs` + `rails-ai:views` |
+| Data modeling | `rails-ai:models` + `rails-ai:testing` |
+| Interactive UI | `rails-ai:hotwire` + `rails-ai:views` + `rails-ai:controllers` |
+| New project setup | `rails-ai:project-setup` |
+
+**Always include `rails-ai:testing`** — TDD is non-negotiable (TEAM_RULES #4).
+
+**Why this order matters:**
+- Domain skills give you Rails patterns and constraints
+- Reading code shows you what's already there
+- Brainstorming with this context produces better designs
+- Plans written with domain knowledge specify the right skills for workers
 </EXTREMELY-IMPORTANT>
 
 ## How Rails-AI Works

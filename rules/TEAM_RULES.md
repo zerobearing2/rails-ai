@@ -150,7 +150,7 @@ Rules for business logic and data organization.
 ### Workflow & Process
 Rules for development process and team coordination.
 
-- **Rule #6:** [Architect Reviews Everything](#6-architect-reviews-everything) - @architect coordinates all work
+- **Rule #6:** [Verification Before Completion](#6-verification-before-completion) - Verify work before claiming done
 - **Rule #11:** [Draft PRs & Code Reviews](#11-draft-prs-code-reviews) - Open PRs as drafts, request reviews
 - **Rule #17:** [bin/ci Must Pass](#17-binci-must-pass) - All checks pass before merge
 
@@ -386,20 +386,21 @@ test/controllers/feedbacks/responses_controller_test.rb
 
 <rule id="6" priority="high" category="workflow">
 
-### 6. Architect Reviews Everything
+### 6. Verification Before Completion
 
 **Type:** Workflow governance (no implementation skill)
 
-✅ **REQUIRE:** Coordinator (@architect) reviews all work before completion
-❌ **REJECT:** Agents marking work complete without coordinator review
+✅ **REQUIRE:** Verify all work before claiming completion
+❌ **REJECT:** Claiming work is done without evidence
 
-**Why:** Maintains consistency, standards, and architectural integrity.
+**Why:** Ensures quality, prevents regressions, maintains standards.
 
 **Process:**
-1. Agent completes work
-2. Coordinator reviews for standards compliance
-3. Peer reviews from related agents
-4. Coordinator approves or requests changes
+1. Complete implementation
+2. Run `bin/ci` - must pass
+3. Update CHANGELOG.md (for features/refactors)
+4. Use `superpowers:verification-before-completion` skill
+5. Evidence before claims - always
 
 </rule>
 
@@ -532,7 +533,7 @@ Patterns: Premature abstraction, unused patterns
 1. Open PR in draft mode
 2. Complete work (all checks passing)
 3. Mark ready for review
-4. Get architect approval
+4. Get code review approval
 5. Merge
 
 ❌ **REJECT:** Opening PR for immediate review, merging without approval

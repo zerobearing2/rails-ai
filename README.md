@@ -128,11 +128,11 @@ Opinionated Rails development:
 
 ## Roadmap
 
-**Phase 1 — Architect Coordinator** ✅ Complete
-Initial architecture with single coordinator command.
+**Phase 1 — Foundation (v0.1-v0.2)** ✅ Complete
+Initial skills, team rules, testing framework.
 
-**Phase 2 — Domain Workflows & Skills** ✅ Complete
-Six workflow commands, 11 domain skills, 20+ team conventions, custom RuboCop cops.
+**Phase 2 — Domain Workflows (v0.3-v0.4)** ✅ Complete
+Six workflow commands replacing architect coordinator, 11 domain skills, deterministic superpowers integration.
 
 **Phase 3 — Memory & Context** 🔬 Next
 Index production Rails patterns, wire into local memory + knowledge graph, RAG + SQLite vector search.

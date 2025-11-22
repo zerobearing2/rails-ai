@@ -301,7 +301,6 @@ Rails-AI declares Superpowers as a dependency:
 ```json
 {
   "name": "rails-ai",
-  "version": "0.4.x",
   "dependencies": {
     "superpowers": ">=0.1.0"
   }

@@ -30,7 +30,7 @@ What actually happened instead.
 - **OS:** [e.g. Ubuntu 22.04, macOS 14.0]
 
 ## Command/Skill Information
-- **Command used:** [e.g. /rails-ai:architect]
+- **Command used:** [e.g. /rails-ai:feature, /rails-ai:debug]
 - **Skill triggered:** [if known]
 - **Task description:** [brief description of what you asked Rails-AI to do]
 

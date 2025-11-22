@@ -1,15 +1,9 @@
 ---
-name: rails-ai:debugging-rails
-description: Use when debugging Rails issues - provides Rails-specific debugging tools (logs, console, byebug, SQL logging) integrated with systematic debugging process
+name: rails-ai:debugging
+description: Use when debugging Rails issues - provides Rails-specific debugging tools (logs, console, byebug, SQL logging)
 ---
 
 # Rails Debugging Tools & Techniques
-
-<superpowers-integration>
-**REQUIRED BACKGROUND:** Use superpowers:systematic-debugging for investigation process
-  - That skill defines 4-phase framework (Root Cause → Pattern → Hypothesis → Implementation)
-  - This skill provides Rails-specific debugging tools for each phase
-</superpowers-integration>
 
 <when-to-use>
 - Rails application behaving unexpectedly
@@ -237,7 +231,6 @@ rails db:migrate
 </common-issues>
 
 <related-skills>
-- superpowers:systematic-debugging (4-phase framework)
 - rails-ai:models (Query optimization, N+1 debugging)
 - rails-ai:controllers (Request debugging, parameter inspection)
 - rails-ai:testing (Test debugging, failure investigation)

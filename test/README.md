@@ -1,6 +1,6 @@
 # Rails-AI Test Suite
 
-This directory contains all tests for Rails-AI skills, agents, and rules.
+This directory contains all tests for Rails-AI skills, commands, and rules.
 
 ## Structure
 
@@ -12,29 +12,22 @@ test/
 │   ├── agent_integration_test_case.rb  # Base class for agent tests
 │   └── llm_adapter.rb          # LLM integration for agent tests
 ├── unit/
-│   └── skills/                 # 12 consolidated skill test files
-│       ├── configuration_test.rb
-│       ├── controllers_test.rb
-│       ├── debugging_test.rb
-│       ├── hotwire_test.rb
-│       ├── jobs_test.rb
-│       ├── mailers_test.rb
-│       ├── models_test.rb
-│       ├── security_test.rb
-│       ├── styling_test.rb
-│       ├── testing_test.rb
-│       ├── using_rails_ai_test.rb
-│       └── views_test.rb
-└── integration/                # 7 agent integration scenarios
-    ├── bootstrap_test.rb
-    ├── developer_agent_test.rb
-    ├── devops_agent_test.rb
-    ├── security_agent_test.rb
-    ├── skill_loading_test.rb
-    ├── superpowers_integration_test.rb
-    ├── uat_agent_test.rb
-    ├── README.md               # Integration test documentation
-    └── QUICK_REFERENCE.md      # Quick integration test guide
+│   ├── commands/               # Workflow command tests
+│   │   └── command_structure_test.rb
+│   ├── skills/                 # 11 domain skill test files
+│   │   ├── controllers_test.rb
+│   │   ├── debugging_test.rb
+│   │   ├── hotwire_test.rb
+│   │   ├── jobs_test.rb
+│   │   ├── mailers_test.rb
+│   │   ├── models_test.rb
+│   │   ├── project_setup_test.rb
+│   │   ├── security_test.rb
+│   │   ├── styling_test.rb
+│   │   ├── testing_test.rb
+│   │   └── views_test.rb
+│   └── rules/                  # Team rules tests
+└── integration/                # Agent integration scenarios
 ```
 
 ## Running Tests
@@ -49,6 +42,11 @@ rake test:unit
 ### Run skill tests only:
 ```bash
 rake test:unit:skills
+```
+
+### Run command tests only:
+```bash
+rake test:unit:commands
 ```
 
 ### Run a single unit test:
@@ -69,6 +67,8 @@ rake test:integration:list
 
 ## Test Coverage
 
+### Skill Tests
+
 Each skill test validates:
 
 1. **Directory Structure**
@@ -79,7 +79,7 @@ Each skill test validates:
    - YAML frontmatter is present
    - Has `name` field
    - Has `description` field
-   - Name has `rails-ai:` prefix (except `using-rails-ai` meta skill)
+   - Name has `rails-ai:` prefix
 
 3. **Content Structure**
    - Has required XML sections: `<when-to-use>`, `<benefits>`, `<standards>`
@@ -90,13 +90,30 @@ Each skill test validates:
    - Description is not empty
    - Code examples are not empty
 
+### Command Tests
+
+Each workflow command test validates:
+
+1. **Structure**
+   - Command file exists
+   - Has YAML frontmatter with description
+   - Has `{{ARGS}}` placeholder
+
+2. **Superpowers Integration**
+   - References appropriate superpowers workflows
+   - Feature/refactor/debug have completion checklists
+   - bin/ci requirements documented
+
+3. **Rails-AI Skills**
+   - Describes which skills to load dynamically
+
 ## SkillTestCase Base Class
 
 The `SkillTestCase` base class provides:
 
 ### Class Attributes
-- `skill_name` - Full skill name (e.g., "rails-ai:tdd-minitest")
-- `skill_directory` - Directory name (e.g., "tdd-minitest")
+- `skill_name` - Full skill name (e.g., "rails-ai:models")
+- `skill_directory` - Directory name (e.g., "models")
 
 ### Helper Methods
 - `skill_path` - Full path to skill directory
@@ -114,37 +131,31 @@ The `SkillTestCase` base class provides:
 - `assert_skill_has_section(name)` - Validates XML section exists
 - `assert_xml_tags_valid` - Validates XML tag matching
 - `assert_code_examples_are_valid` - Validates code blocks exist
-- `assert_references_superpowers(skill)` - Validates superpowers reference
 
 ## Test Statistics
 
-- **Total unit test files**: 12
-- **Tests per skill**: 8
-- **Total test runs**: 96 (12 skills × 8 tests)
-- **Total integration scenarios**: 7
-- **Skill coverage**: 100% (12/12 skills tested)
-
-For the complete list of skills with descriptions, see `skills/using-rails-ai/SKILL.md`.
+- **Total unit test files**: 15
+- **Skill test files**: 11
+- **Command test files**: 1
+- **Rules test files**: 3
+- **Skill coverage**: 100% (11/11 skills tested)
+- **Command coverage**: 100% (6/6 commands tested)
 
 ## Known Variations
 
 Some skills have different structures based on their purpose:
 
-1. **using-rails-ai** - Meta/documentation skill
-   - Skips `test_has_required_sections` (uses markdown headers, not XML sections)
-   - Skips `test_has_code_examples` (documentation-focused)
-
-2. **security** - Attack-focused skill
+1. **security** - Attack-focused skill
    - Uses `<attack-vectors>` instead of `<benefits>`
    - Uses `<standards>` for security patterns
 
-3. **debugging** - Phase-based skill
-   - Uses `<superpowers-integration>` instead of `<benefits>`/`<standards>`
-   - Integrates with superpowers:systematic-debugging workflow
+2. **debugging** - Tools-focused skill
+   - Uses `<verification-checklist>` instead of `<benefits>`/`<standards>`
+   - Provides Rails debugging tools and patterns
 
 These variations are intentional and properly tested.
 
-## Example Test
+## Example Skill Test
 
 ```ruby
 # frozen_string_literal: true
@@ -193,17 +204,23 @@ end
 
 ## Adding New Tests
 
-When adding a new skill, create a corresponding test file:
-
+### When adding a new skill:
 1. Name format: `{skill_directory}_test.rb` (use underscores, not hyphens)
-2. Class name: Convert to CamelCase + "Test" (e.g., `ModelsTest`, `JobsMailersTest`)
+2. Class name: Convert to CamelCase + "Test" (e.g., `ModelsTest`)
 3. Set `skill_name` and `skill_directory` class attributes
 4. Include standard assertions
-5. Customize for special cases (meta skills, phase-based skills)
+5. Customize for special cases
+
+### When adding a new workflow command:
+1. Add tests to `test/unit/commands/command_structure_test.rb`
+2. Test for YAML frontmatter
+3. Test for `{{ARGS}}` placeholder
+4. Test for superpowers references
+5. Test for completion checklist (if applicable)
 
 ## Skill Structure
 
-Current consolidated skill structure (v0.3.0):
+Current skill structure:
 - Path: `skills/{directory}/SKILL.md`
 - Frontmatter: Minimal YAML (`name`, `description`)
 - Naming: Directory name without prefix, frontmatter name has `rails-ai:` prefix
@@ -212,5 +229,3 @@ Example:
 - Directory: `skills/models/`
 - File: `skills/models/SKILL.md`
 - Frontmatter name: `rails-ai:models`
-
-For the complete list of 12 domain-organized skills, see `skills/using-rails-ai/SKILL.md`.

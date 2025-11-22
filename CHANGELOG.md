@@ -23,9 +23,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Feature and Refactor workflows now mandate subagent dispatch (coordinator-only pattern)
 - Implementation work happens in subagent context, keeping user context clean
 - Auto-retry on failure (3 attempts max) before escalating to user
+- Feature and Refactor require `/rails-ai:review` before completion
 - Each workflow command mirrors real Rails developer workflows
 - README completely rewritten for new architecture
-- docs/superpowers-integration.md rewritten to explain new workflow-to-superpowers mapping
 
 ### Removed
 - `/rails-ai:architect` command (replaced by 6 workflow commands)

@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.1] - 2025-11-21
+
+### Added
+- Architect persona for Rails 8+ application design and coordination
+
+### Changed
+- Upgraded to expert coordinator role for improved guidance
+
+### Removed
+- Documentation plans from source control
+
+
 ## [0.3.0] - 2025-11-20
 
 Based on my analysis of the git commits, here's the CHANGELOG entry:

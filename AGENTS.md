@@ -11,6 +11,7 @@ Rails-AI uses a **single-agent architecture** where the architect loads:
 - **Superpowers workflows** - Process layer (brainstorming, TDD, debugging, code review)
 - **Rails-AI skills** - Domain expertise (12 Rails-specific skills)
 - **Team rules** - 20 conventions from TEAM_RULES.md
+- **External plugins** (optional) - `frontend-design` for UI creative direction
 
 ### Structure
 
@@ -165,6 +166,23 @@ rake lint:fix           # Auto-fix Ruby
 1. ✅ Run `bin/ci` - must pass
 2. ✅ Update documentation if needed
 3. ✅ Use draft PR for review
+
+## External Dependencies
+
+### Required
+
+**Superpowers plugin** - Process layer (brainstorming, TDD, debugging, code review)
+
+Install: `/plugin marketplace add obra/superpowers && /plugin install superpowers`
+
+### Optional
+
+**frontend-design plugin** - Creative direction for UI work
+
+- Source: Anthropic's claude-code-plugins (https://github.com/anthropics/claude-code)
+- Install: `/plugin install frontend-design@claude-code-plugins`
+- Used for: New pages/components, UI redesigns
+- Integrates with: `rails-ai:styling` (frontend-design = vision, styling = implementation)
 
 ## Philosophy
 

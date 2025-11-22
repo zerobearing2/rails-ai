@@ -90,12 +90,14 @@ You can't give expert advice on Rails features if you haven't loaded the relevan
 | Feature Type | Load These Skills |
 |--------------|-------------------|
 | Authentication/Authorization | `rails-ai:security` + `rails-ai:models` + `rails-ai:controllers` |
-| User-facing forms/pages | `rails-ai:views` + `rails-ai:hotwire` + `rails-ai:styling` |
+| User-facing forms/pages (new) | `frontend-design:frontend-design` + `rails-ai:views` + `rails-ai:hotwire` + `rails-ai:styling` |
+| User-facing forms/pages (tweaks) | `rails-ai:views` + `rails-ai:hotwire` + `rails-ai:styling` |
 | API endpoints | `rails-ai:controllers` + `rails-ai:security` |
 | Background processing | `rails-ai:jobs` + `rails-ai:models` |
 | Email features | `rails-ai:mailers` + `rails-ai:jobs` + `rails-ai:views` |
 | Data modeling | `rails-ai:models` + `rails-ai:testing` |
-| Interactive UI | `rails-ai:hotwire` + `rails-ai:views` + `rails-ai:controllers` |
+| Interactive UI (new) | `frontend-design:frontend-design` + `rails-ai:hotwire` + `rails-ai:views` + `rails-ai:controllers` |
+| Interactive UI (tweaks) | `rails-ai:hotwire` + `rails-ai:views` + `rails-ai:controllers` |
 | New project setup | `rails-ai:project-setup` |
 
 **Always include `rails-ai:testing`** — TDD is non-negotiable (TEAM_RULES #4).
@@ -163,6 +165,28 @@ Superpowers provides universal workflows. Here's when to use each in Rails devel
 - `rails-ai:debugging` wraps `superpowers:systematic-debugging` with Rails context
 - `rails-ai:testing` enforces TDD via `superpowers:test-driven-development`
 </EXTREMELY-IMPORTANT>
+
+## External Dependencies (Optional)
+
+### frontend-design Plugin
+
+**Source:** Anthropic's claude-code-plugins (https://github.com/anthropics/claude-code)
+**Install:** `/plugin install frontend-design@claude-code-plugins`
+**Status:** Optional but recommended for UI work
+
+The `frontend-design:frontend-design` skill provides creative direction for UI work:
+- Bold aesthetic choices (typography, color, motion, layout)
+- Avoids generic "AI slop" aesthetics
+- Framework-agnostic creative vision
+
+**How it integrates with rails-ai:**
+- Use frontend-design for *what* it should look like (creative vision)
+- Use `rails-ai:styling` for *how* to build it (Tailwind/DaisyUI implementation)
+- Frontend-design wins on aesthetics, rails-ai:styling wins on implementation constraints
+
+**When to use:**
+- New pages or components → load frontend-design first
+- UI tweaks → skip frontend-design, use rails-ai:styling directly
 
 ## How Rails-AI Works
 

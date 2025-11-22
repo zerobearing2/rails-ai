@@ -4,6 +4,21 @@ description: Implement new functionality with or without a pre-written plan
 
 # Rails Feature Workflow
 
+## Role
+
+You are a **COORDINATOR ONLY** for feature implementation. You **NEVER implement directly** — all implementation work is delegated to subagents via the Task tool.
+
+## Coordinator vs Subagent Responsibilities
+
+| Coordinator (You) | Subagent (Task tool) |
+|-------------------|----------------------|
+| Plan the work | Execute the implementation |
+| Assemble context package | Write code and tests |
+| Dispatch subagent | Run verification commands |
+| Review subagent results | Report completion status |
+| Handle retries/escalation | Follow TDD cycle |
+| Update CHANGELOG | Load domain skills |
+
 ## Purpose
 
 Use this workflow when:
@@ -13,12 +28,8 @@ Use this workflow when:
 
 ## Superpowers Workflows
 
-This workflow uses:
-
 **Always:**
 - `superpowers:using-git-worktrees` — isolate feature work
-- `superpowers:test-driven-development` — RED-GREEN-REFACTOR cycle
-- `superpowers:testing-anti-patterns` — avoid test mistakes
 - `superpowers:verification-before-completion` — evidence before claims
 - `superpowers:finishing-a-development-branch` — merge/PR options
 
@@ -29,16 +40,12 @@ This workflow uses:
 **If plan provided:**
 - `superpowers:executing-plans` — execute in controlled batches
 
-**For implementation:**
-- `superpowers:subagent-driven-development` — dispatch workers per task
-- `superpowers:dispatching-parallel-agents` — if 3+ independent tasks
+## Rails-AI Skills (for Subagent)
 
-## Rails-AI Skills
+The subagent loads these based on feature scope:
 
-Load based on feature scope:
-
-| Feature involves | Load these skills |
-|------------------|-------------------|
+| Feature involves | Subagent loads |
+|------------------|----------------|
 | Models, databases, ActiveRecord | `rails-ai:models` |
 | Controllers, routes, REST | `rails-ai:controllers` |
 | Views, templates, forms | `rails-ai:views` |
@@ -49,7 +56,7 @@ Load based on feature scope:
 | Security concerns | `rails-ai:security` |
 | Tests (always) | `rails-ai:testing` |
 
-**Always load `rails-ai:testing`** — TDD is non-negotiable (TEAM_RULES #4).
+**Subagent always loads `rails-ai:testing`** — TDD is non-negotiable.
 
 ## Process
 
@@ -61,49 +68,100 @@ Use `superpowers:using-git-worktrees` to create isolated branch for feature work
 
 **If user provides a plan:**
 - Read and understand the plan
-- Skip to Step 4
+- Skip to Step 3
 
 **If no plan provided:**
-- Load relevant rails-ai domain skills
 - Use `superpowers:brainstorming` to refine the design
 - Use `superpowers:writing-plans` to create implementation tasks
 
-### Step 3: Load Rails-AI Skills
+### Step 3: Assemble Context Package
 
-Based on feature scope, load appropriate domain skills:
+Before dispatching subagent, assemble complete context:
+
+**Required Context:**
+1. **Plan** — The implementation plan (tasks, order, dependencies)
+2. **File Paths** — Absolute paths to all files subagent will need
+3. **TEAM_RULES Summary** — Critical rules subagent must follow:
+   - Rule #1: Solid Stack only (NO Sidekiq/Redis)
+   - Rule #2: Minitest only (NO RSpec)
+   - Rule #3: REST routes only
+   - Rule #4: TDD always (RED-GREEN-REFACTOR)
+   - Rule #17: `bin/ci` must pass before completion
+   - Rule #20: Use `Hash#dig` for nested hash access
+4. **Skills to Load** — Which rails-ai skills subagent should load
+5. **Completion Requirements** — What "done" looks like:
+   - All tests pass
+   - `bin/ci` passes
+   - Feature works as specified
+
+### Step 4: Dispatch Subagent (MANDATORY)
+
+**You MUST dispatch implementation to a subagent using the Task tool.**
 
 ```
+Task tool prompt structure:
+
+## Implementation Task: [Feature Name]
+
+### Context
+[Brief description of what we're building]
+
+### Plan
+[The implementation plan with numbered tasks]
+
+### Files to Read
+[List absolute file paths the subagent needs]
+
+### TEAM_RULES (MUST FOLLOW)
+- #1: Solid Stack only — NO Sidekiq, NO Redis
+- #2: Minitest only — NO RSpec
+- #3: REST routes only — no custom route patterns
+- #4: TDD always — write test first, watch it fail, then implement
+- #17: bin/ci must pass — run before claiming done
+- #20: Hash#dig — use for all nested hash access
+
+### Skills to Load
 Use Skill tool to load:
-- rails-ai:testing (always)
-- rails-ai:[domain-skill]
-- rails-ai:[domain-skill]
+- rails-ai:testing (ALWAYS)
+- [other relevant skills]
+
+### Completion Requirements
+1. All tests pass (verified RED-GREEN)
+2. bin/ci passes
+3. [Feature-specific requirements]
+
+### Verification Report
+When complete, report:
+- Tests written and passing (list them)
+- bin/ci output (pass/fail)
+- Files created/modified
+- Any issues encountered
 ```
 
-### Step 4: Execute Implementation
+### Step 5: Handle Subagent Response
 
-Use `superpowers:executing-plans` or `superpowers:subagent-driven-development`:
+When subagent returns:
 
-For each task:
-1. **Write test first** (RED) — use `superpowers:test-driven-development`
-2. **Watch test fail** — confirms test works
-3. **Implement minimal code** (GREEN)
-4. **Refactor if needed**
-5. **Verify tests pass**
+**If successful:**
+- Verify subagent ran `bin/ci`
+- Verify tests are passing
+- Continue to Step 6
 
-Use `superpowers:testing-anti-patterns` to avoid:
-- Testing mock behavior instead of real behavior
-- Adding test-only methods to production code
-- Mocking without understanding dependencies
+**If failed or incomplete:**
+- Apply retry logic (see below)
 
-For 3+ independent tasks, use `superpowers:dispatching-parallel-agents`.
+### Retry Logic
 
-### Step 5: Verify Implementation
+If subagent fails or returns incomplete work:
 
-Before claiming feature is complete:
+1. **Attempt 1:** Re-dispatch with clarified instructions
+2. **Attempt 2:** Re-dispatch with more context/file contents
+3. **Attempt 3:** Re-dispatch with explicit step-by-step guidance
 
-1. Run full test suite
-2. Run `bin/ci` (linting + tests)
-3. Use `superpowers:verification-before-completion`
+**After 3 failed attempts:** Escalate to user with:
+- What was attempted
+- What failed
+- Specific blocker requiring human input
 
 ### Step 6: Update CHANGELOG
 
@@ -117,7 +175,7 @@ Add entry under `## [Unreleased]` with appropriate section:
 ### Step 7: Complete Branch
 
 Use `superpowers:finishing-a-development-branch`:
-- Verify tests pass
+- Verify all tests pass
 - Present merge/PR options
 - Clean up worktree
 
@@ -125,8 +183,9 @@ Use `superpowers:finishing-a-development-branch`:
 
 Before claiming feature is complete:
 
-- [ ] All tests pass (RED-GREEN verified)
-- [ ] `bin/ci` passes (all linters and tests)
+- [ ] Subagent was dispatched via Task tool (MANDATORY)
+- [ ] Subagent reported `bin/ci` passes
+- [ ] All tests pass (RED-GREEN verified by subagent)
 - [ ] CHANGELOG.md updated under `## [Unreleased]`
 - [ ] `superpowers:verification-before-completion` used — evidence before claims
 - [ ] `superpowers:finishing-a-development-branch` used — proper completion

@@ -33,6 +33,7 @@ Use this workflow when:
 
 **Always:**
 - `superpowers:using-git-worktrees` — isolate refactor work
+- `superpowers:subagent-driven-development` — dispatch fresh subagent for implementation (MANDATORY)
 - `superpowers:verification-before-completion` — verify tests pass BEFORE and AFTER refactoring
 - `superpowers:finishing-a-development-branch` — merge/PR options
 

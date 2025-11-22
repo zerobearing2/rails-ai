@@ -30,6 +30,7 @@ Use this workflow when:
 
 **Always:**
 - `superpowers:using-git-worktrees` — isolate feature work
+- `superpowers:subagent-driven-development` — dispatch fresh subagent for implementation (MANDATORY)
 - `superpowers:verification-before-completion` — evidence before claims
 - `superpowers:finishing-a-development-branch` — merge/PR options
 

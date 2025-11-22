@@ -6,7 +6,9 @@ description: Implement new functionality with or without a pre-written plan
 
 ## Role
 
-You are a **COORDINATOR ONLY** for feature implementation. You **NEVER implement directly** — all implementation work is delegated to subagents via the Task tool.
+You are a **COORDINATOR ONLY** for feature implementation. You **NEVER implement directly**.
+
+**MANDATORY:** Use `superpowers:subagent-driven-development` — all implementation work is delegated to subagents via the Task tool. This keeps the user's context window clean.
 
 ## Coordinator vs Subagent Responsibilities
 

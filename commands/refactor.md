@@ -194,7 +194,20 @@ If subagent fails or returns incomplete work (but behavior was not changed):
 - What failed
 - Specific blocker requiring human input
 
-### Step 7: Update CHANGELOG
+### Step 7: Code Review
+
+Before finalizing, get a code review using `/rails-ai:review`:
+
+1. Review the refactoring against TEAM_RULES
+2. Check for over-abstraction, pattern violations
+3. Verify behavior was truly preserved
+4. Address any blockers found
+
+**If blockers found:** Dispatch subagent to fix issues, then re-review.
+
+**If clean:** Continue to Step 8.
+
+### Step 8: Update CHANGELOG
 
 Add entry under `## [Unreleased]`:
 
@@ -210,7 +223,7 @@ Or if fixing issues:
 - [Description of what was fixed]
 ```
 
-### Step 8: Complete Branch
+### Step 9: Complete Branch
 
 Use `superpowers:finishing-a-development-branch`:
 - Verify all tests pass
@@ -225,6 +238,7 @@ Before claiming refactor is complete:
 - [ ] Subagent was dispatched via Task tool (MANDATORY)
 - [ ] Subagent reported `bin/ci` passes
 - [ ] Behavior NOT changed (same tests, same outcomes)
+- [ ] `/rails-ai:review` completed — blockers addressed
 - [ ] CHANGELOG.md updated under `## [Unreleased]`
 - [ ] `superpowers:verification-before-completion` used — evidence before claims
 - [ ] `superpowers:finishing-a-development-branch` used — proper completion

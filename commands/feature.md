@@ -163,7 +163,19 @@ If subagent fails or returns incomplete work:
 - What failed
 - Specific blocker requiring human input
 
-### Step 6: Update CHANGELOG
+### Step 6: Code Review
+
+Before finalizing, get a code review using `/rails-ai:review`:
+
+1. Review the implementation against TEAM_RULES
+2. Check for security issues, missing tests, pattern violations
+3. Address any blockers found
+
+**If blockers found:** Dispatch subagent to fix issues, then re-review.
+
+**If clean:** Continue to Step 7.
+
+### Step 7: Update CHANGELOG
 
 Add entry under `## [Unreleased]` with appropriate section:
 
@@ -172,7 +184,7 @@ Add entry under `## [Unreleased]` with appropriate section:
 - [Description of new feature]
 ```
 
-### Step 7: Complete Branch
+### Step 8: Complete Branch
 
 Use `superpowers:finishing-a-development-branch`:
 - Verify all tests pass
@@ -186,6 +198,7 @@ Before claiming feature is complete:
 - [ ] Subagent was dispatched via Task tool (MANDATORY)
 - [ ] Subagent reported `bin/ci` passes
 - [ ] All tests pass (RED-GREEN verified by subagent)
+- [ ] `/rails-ai:review` completed — blockers addressed
 - [ ] CHANGELOG.md updated under `## [Unreleased]`
 - [ ] `superpowers:verification-before-completion` used — evidence before claims
 - [ ] `superpowers:finishing-a-development-branch` used — proper completion

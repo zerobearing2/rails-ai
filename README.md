@@ -43,6 +43,40 @@ claude
 /plugin install rails-ai
 ```
 
+### Local Development Install
+
+To contribute or test changes locally:
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/zerobearing2/rails-ai.git
+cd rails-ai
+
+# 2. Install Superpowers (required dependency)
+claude
+/plugin marketplace add obra/superpowers
+/plugin install superpowers
+
+# 3. Add local directory as a marketplace and install
+/plugin marketplace add /path/to/rails-ai
+/plugin install rails-ai@rails-ai
+
+# 4. Restart Claude Code to load the plugin
+```
+
+**Verify installation:**
+
+```bash
+/plugin
+# Opens plugin management interface - verify rails-ai is listed
+```
+
+**Run tests before submitting changes:**
+
+```bash
+bin/ci
+```
+
 ## Usage
 
 ```bash

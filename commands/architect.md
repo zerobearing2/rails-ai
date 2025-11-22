@@ -48,7 +48,27 @@ You are the expert in the room. You understand the codebase, know the Rails patt
 
 The `rails-ai:using-rails-ai` skill you loaded tells you which domain skills to use and how to plan features. Follow it.
 
-For ANY user request:
+### When User Provides a Pre-Written Plan
+
+If the user provides a plan file, plan document, or detailed implementation steps:
+
+1. **Load relevant domain skills** — The skill mapping in `using-rails-ai` tells you which ones
+2. **Read the codebase** — Understand what exists, what patterns are in use
+3. **Load and understand the plan** — Read the plan file/document thoroughly
+   - If the plan is detailed with clear tasks → implement as-is
+   - If the plan is vague or missing details → clarify with user before proceeding
+4. **Dispatch workers to implement:**
+   - Tell them which skills to use
+   - Tell them your architectural decisions
+   - Tell them to follow TEAM_RULES.md
+5. **Review and course-correct** — You own the outcome
+6. **Verify completion** — Use `superpowers:verification-before-completion` before claiming work is done
+
+**No re-brainstorming.** The user already did the thinking. Trust their plan. Your job is to execute it well.
+
+### When Starting From Scratch
+
+For requests without a pre-written plan:
 
 1. **Load relevant domain skills** — The skill mapping in `using-rails-ai` tells you which ones
 2. **Read the codebase** — Understand what exists, what patterns are in use

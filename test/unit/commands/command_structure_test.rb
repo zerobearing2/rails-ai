@@ -91,6 +91,44 @@ class CommandStructureTest < Minitest::Test
                  "Architect should use {{ARGS}} placeholder for user input")
   end
 
+  def test_architect_handles_pre_written_plans
+    architect = @command_files.find { |f| f.include?("architect.md") }
+    content = File.read(architect)
+
+    # Should have a section for handling pre-written plans
+    assert_match(/pre-written plan/i, content,
+                 "Architect should describe handling pre-written plans")
+    assert_match(/plan file|plan document/i, content,
+                 "Architect should recognize plan files/documents")
+  end
+
+  def test_architect_clarifies_vague_plans
+    architect = @command_files.find { |f| f.include?("architect.md") }
+    content = File.read(architect)
+
+    # Should clarify with user when plan is vague
+    assert_match(/vague.*clarify|clarify.*vague/i, content,
+                 "Architect should clarify with user when plan is vague")
+  end
+
+  def test_architect_skips_brainstorming_for_pre_written_plans
+    architect = @command_files.find { |f| f.include?("architect.md") }
+    content = File.read(architect)
+
+    # Should skip brainstorming when plan is provided
+    assert_match(/no re-brainstorming/i, content,
+                 "Architect should skip brainstorming when plan is provided")
+  end
+
+  def test_architect_implements_detailed_plans_as_is
+    architect = @command_files.find { |f| f.include?("architect.md") }
+    content = File.read(architect)
+
+    # Should implement detailed plans as-is
+    assert_match(/detailed.*implement.*as-is|implement.*as-is/i, content,
+                 "Architect should implement detailed plans as-is")
+  end
+
   private
 
   def extract_yaml_front_matter(file)

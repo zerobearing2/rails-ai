@@ -20,6 +20,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **BREAKING**: Architecture refactored from single `/rails-ai:architect` to 6 domain-specific workflow commands
 - **BREAKING**: Superpowers workflows now hardcoded per command (deterministic) instead of dynamically selected
 - Skills refactored to pure domain knowledge (removed superpowers references)
+- Feature and Refactor workflows now mandate subagent dispatch (coordinator-only pattern)
+- Implementation work happens in subagent context, keeping user context clean
+- Auto-retry on failure (3 attempts max) before escalating to user
 - Each workflow command mirrors real Rails developer workflows
 - README completely rewritten for new architecture
 - docs/superpowers-integration.md rewritten to explain new workflow-to-superpowers mapping

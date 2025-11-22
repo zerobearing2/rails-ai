@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- 6 workflow commands replacing single architect coordinator:
+  - `/rails-ai:setup` — Project configuration, gem setup, validation
+  - `/rails-ai:plan` — Brainstorm ideas, create implementation plans
+  - `/rails-ai:feature` — Implement new functionality with TDD
+  - `/rails-ai:refactor` — Improve existing code, fill test gaps
+  - `/rails-ai:debug` — Fix bugs with systematic debugging
+  - `/rails-ai:review` — Review code/PRs against TEAM_RULES
+
+### Changed
+- **BREAKING**: Architecture refactored from single `/rails-ai:architect` to 6 domain-specific workflow commands
+- **BREAKING**: Superpowers workflows now hardcoded per command (deterministic) instead of dynamically selected
+- Skills refactored to pure domain knowledge (removed superpowers references)
+- Each workflow command mirrors real Rails developer workflows
+- README completely rewritten for new architecture
+- docs/superpowers-integration.md rewritten to explain new workflow-to-superpowers mapping
+
+### Removed
+- `/rails-ai:architect` command (replaced by 6 workflow commands)
+- `using-rails-ai` skill (content moved to workflow commands)
+- SessionStart hook (no longer needed — workflows are explicit)
+- Superpowers references from `debugging` and `testing` skills
+
+### Fixed
+- Context window decay issue — workflow commands reload fresh each invocation
+- Non-deterministic superpowers selection — now hardcoded per workflow
+
 ## [0.3.1] - 2025-11-21
 
 ### Added

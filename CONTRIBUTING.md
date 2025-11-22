@@ -27,7 +27,7 @@ See [Code of Conduct](CODE_OF_CONDUCT.md).
 ```bash
 rake test:unit              # All unit tests
 rake test:unit:skills       # Skills only
-rake test:unit:agents       # Agents only
+rake test:unit:commands     # Commands only
 bin/ci                      # Full check
 ```
 
@@ -35,10 +35,18 @@ See [TESTING.md](TESTING.md) for details.
 
 ### Adding Skills
 
-1. Create `skills/domain/skill-name.md` with YAML front matter
+1. Create `skills/{skill-name}/SKILL.md` with YAML front matter
 2. Add unit tests in `test/unit/skills/`
-3. Document in `skills/using-rails-ai/SKILL.md`
-4. Run `bin/ci`
+3. Run `bin/ci`
+
+### Adding Workflow Commands
+
+1. Create `commands/{workflow}.md` with YAML front matter
+2. Reference appropriate superpowers workflows
+3. Define which rails-ai skills to load dynamically
+4. Add completion checklist if command produces code
+5. Update tests in `test/unit/commands/`
+6. Run `bin/ci`
 
 ### Adding Rules
 
@@ -60,7 +68,6 @@ See [TESTING.md](TESTING.md) for details.
 
 - [README](README.md) - basics
 - [TESTING.md](TESTING.md) - development guide
-- `skills/using-rails-ai/SKILL.md` - architecture
 - [GitHub Issues](https://github.com/zerobearing2/rails-ai/issues) - questions
 
 ## Recognition

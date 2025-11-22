@@ -4,129 +4,138 @@ require_relative "../../test_helper"
 require "yaml"
 
 class CommandStructureTest < Minitest::Test
+  WORKFLOW_COMMANDS = %w[setup plan feature refactor debug review].freeze
+
   def setup
     @command_files = Dir.glob("commands/*.md")
   end
 
-  def test_architect_command_exists
-    architect = @command_files.find { |f| f.include?("architect.md") }
+  def test_all_workflow_commands_exist
+    WORKFLOW_COMMANDS.each do |command|
+      file = @command_files.find { |f| f.include?("#{command}.md") }
 
-    assert architect, "architect.md command should exist"
+      assert file, "#{command}.md command should exist"
+    end
   end
 
-  def test_architect_uses_using_rails_ai_skill
-    architect = @command_files.find { |f| f.include?("architect.md") }
-    content = File.read(architect)
+  def test_commands_have_yaml_frontmatter
+    WORKFLOW_COMMANDS.each do |command|
+      file = @command_files.find { |f| f.include?("#{command}.md") }
+      yaml = extract_yaml_front_matter(file)
 
-    assert_match(/load the.*rails-ai:using-rails-ai.*skill/i, content,
-                 "Architect command should load using-rails-ai skill")
+      assert yaml, "#{command} should have YAML front matter"
+      assert yaml["description"], "#{command} should have description in YAML front matter"
+    end
   end
 
-  def test_architect_forbids_implementing
-    architect = @command_files.find { |f| f.include?("architect.md") }
-    content = File.read(architect)
+  def test_commands_have_args_placeholder
+    WORKFLOW_COMMANDS.each do |command|
+      file = @command_files.find { |f| f.include?("#{command}.md") }
+      content = File.read(file)
 
-    # Should clearly define what architect cannot do
-    assert_match(/YOU DON'T.*Write or edit code/im, content,
-                 "Architect should forbid writing code")
-    assert_match(/workers implement/i, content,
-                 "Architect should clarify workers implement")
-    assert_match(/dispatch.*worker/i, content,
-                 "Architect should instruct to dispatch workers")
+      assert_match(/\{\{ARGS\}\}/i, content,
+                   "#{command} should use {{ARGS}} placeholder for user input")
+    end
   end
 
-  def test_architect_trusts_using_rails_ai_skill
-    architect = @command_files.find { |f| f.include?("architect.md") }
-    content = File.read(architect)
+  def test_feature_command_references_superpowers
+    feature = @command_files.find { |f| f.include?("feature.md") }
+    content = File.read(feature)
 
-    # Should trust using-rails-ai skill for skill mapping
-    assert_match(/using-rails-ai.*skill.*tells you/i, content,
-                 "Architect should reference using-rails-ai skill for guidance")
-    assert_match(/using-rails-ai/i, content,
-                 "Architect should reference using-rails-ai skill")
+    assert_match(/superpowers:test-driven-development/i, content,
+                 "Feature command should reference TDD superpowers workflow")
+    assert_match(/superpowers:verification-before-completion/i, content,
+                 "Feature command should reference verification superpowers workflow")
   end
 
-  def test_architect_has_coordinator_role
-    architect = @command_files.find { |f| f.include?("architect.md") }
-    content = File.read(architect)
+  def test_debug_command_references_superpowers
+    debug = @command_files.find { |f| f.include?("debug.md") }
+    content = File.read(debug)
 
-    # Should describe coordinator role (not implementer)
-    assert_match(/coordinator/i, content,
-                 "Architect should describe coordinator role")
-    assert_match(/dispatch.*worker/i, content,
-                 "Architect should mention dispatching workers")
+    assert_match(/superpowers:systematic-debugging/i, content,
+                 "Debug command should reference systematic-debugging superpowers workflow")
+    assert_match(/superpowers:root-cause-tracing/i, content,
+                 "Debug command should reference root-cause-tracing superpowers workflow")
   end
 
-  def test_architect_references_team_rules
-    architect = @command_files.find { |f| f.include?("architect.md") }
-    content = File.read(architect)
+  def test_plan_command_references_superpowers
+    plan = @command_files.find { |f| f.include?("plan.md") }
+    content = File.read(plan)
 
-    assert_match(/TEAM_RULES\.md/i, content,
-                 "Architect should reference TEAM_RULES.md")
+    assert_match(/superpowers:brainstorming/i, content,
+                 "Plan command should reference brainstorming superpowers workflow")
+    assert_match(/superpowers:writing-plans/i, content,
+                 "Plan command should reference writing-plans superpowers workflow")
   end
 
-  def test_architect_references_superpowers
-    architect = @command_files.find { |f| f.include?("architect.md") }
-    content = File.read(architect)
+  def test_refactor_command_references_superpowers
+    refactor = @command_files.find { |f| f.include?("refactor.md") }
+    content = File.read(refactor)
 
-    # Should reference Superpowers for workflow coordination
-    assert_match(/superpowers.*workflow/i, content,
-                 "Architect should reference Superpowers for workflow coordination")
+    assert_match(/superpowers:verification-before-completion/i, content,
+                 "Refactor command should reference verification superpowers workflow")
+    assert_match(/superpowers:test-driven-development/i, content,
+                 "Refactor command should reference TDD superpowers workflow")
   end
 
-  def test_architect_has_yaml_frontmatter
-    architect = @command_files.find { |f| f.include?("architect.md") }
-    yaml = extract_yaml_front_matter(architect)
+  def test_review_command_references_superpowers
+    review = @command_files.find { |f| f.include?("review.md") }
+    content = File.read(review)
 
-    assert yaml, "Architect should have YAML front matter"
-    assert yaml["description"], "Architect should have description in YAML front matter"
+    assert_match(/superpowers:requesting-code-review/i, content,
+                 "Review command should reference requesting-code-review superpowers workflow")
   end
 
-  def test_architect_has_args_placeholder
-    architect = @command_files.find { |f| f.include?("architect.md") }
-    content = File.read(architect)
+  def test_feature_command_has_completion_checklist
+    feature = @command_files.find { |f| f.include?("feature.md") }
+    content = File.read(feature)
 
-    # Slash commands can use {{ARGS}} to receive user arguments
-    assert_match(/\{\{ARGS\}\}/i, content,
-                 "Architect should use {{ARGS}} placeholder for user input")
+    assert_match(/completion checklist/i, content,
+                 "Feature command should have completion checklist")
+    assert_match(%r{bin/ci}i, content,
+                 "Feature command should require bin/ci")
+    assert_match(/CHANGELOG/i, content,
+                 "Feature command should require CHANGELOG update")
   end
 
-  def test_architect_handles_pre_written_plans
-    architect = @command_files.find { |f| f.include?("architect.md") }
-    content = File.read(architect)
+  def test_refactor_command_has_completion_checklist
+    refactor = @command_files.find { |f| f.include?("refactor.md") }
+    content = File.read(refactor)
 
-    # Should have a section for handling pre-written plans
-    assert_match(/pre-written plan/i, content,
-                 "Architect should describe handling pre-written plans")
-    assert_match(/plan file|plan document/i, content,
-                 "Architect should recognize plan files/documents")
+    assert_match(/completion checklist/i, content,
+                 "Refactor command should have completion checklist")
+    assert_match(%r{bin/ci}i, content,
+                 "Refactor command should require bin/ci")
+    assert_match(/CHANGELOG/i, content,
+                 "Refactor command should require CHANGELOG update")
   end
 
-  def test_architect_clarifies_vague_plans
-    architect = @command_files.find { |f| f.include?("architect.md") }
-    content = File.read(architect)
+  def test_debug_command_has_completion_checklist
+    debug = @command_files.find { |f| f.include?("debug.md") }
+    content = File.read(debug)
 
-    # Should clarify with user when plan is vague
-    assert_match(/vague.*clarify|clarify.*vague/i, content,
-                 "Architect should clarify with user when plan is vague")
+    assert_match(/completion checklist/i, content,
+                 "Debug command should have completion checklist")
+    assert_match(%r{bin/ci}i, content,
+                 "Debug command should require bin/ci")
   end
 
-  def test_architect_skips_brainstorming_for_pre_written_plans
-    architect = @command_files.find { |f| f.include?("architect.md") }
-    content = File.read(architect)
+  def test_setup_command_references_project_setup_skill
+    setup = @command_files.find { |f| f.include?("setup.md") }
+    content = File.read(setup)
 
-    # Should skip brainstorming when plan is provided
-    assert_match(/no re-brainstorming/i, content,
-                 "Architect should skip brainstorming when plan is provided")
+    assert_match(/rails-ai:project-setup/i, content,
+                 "Setup command should reference project-setup skill")
   end
 
-  def test_architect_implements_detailed_plans_as_is
-    architect = @command_files.find { |f| f.include?("architect.md") }
-    content = File.read(architect)
+  def test_commands_describe_rails_ai_skill_loading
+    %w[feature refactor debug].each do |command|
+      file = @command_files.find { |f| f.include?("#{command}.md") }
+      content = File.read(file)
 
-    # Should implement detailed plans as-is
-    assert_match(/detailed.*implement.*as-is|implement.*as-is/i, content,
-                 "Architect should implement detailed plans as-is")
+      assert_match(/rails-ai:.*skill/i, content,
+                   "#{command} command should describe loading Rails-AI skills")
+    end
   end
 
   private

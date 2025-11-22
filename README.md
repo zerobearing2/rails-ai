@@ -117,9 +117,18 @@ Domain skills are loaded dynamically based on what the task involves:
 10. **mailers** — ActionMailer, async delivery, templates
 11. **debugging** — Rails debugging tools (logs, console, byebug)
 
+## Vision
+
+**Build an AI pair programmer that thinks like a senior Rails developer.**
+
+Rails-AI encodes the patterns, conventions, and hard-won lessons that experienced Rails developers carry in their heads. Instead of generic code generation, it produces code that follows 37signals philosophy, respects Rails conventions, and passes code review on the first try.
+
+The goal: describe what you want to build, and get production-ready Rails code with tests, security, and proper architecture — without babysitting the AI through every decision.
+
 ## Philosophy
 
 Opinionated Rails development:
+
 - 37signals philosophy (simple, pragmatic)
 - Rails conventions (REST-only)
 - Solid Stack (SolidQueue, SolidCache, SolidCable)
@@ -131,10 +140,10 @@ Opinionated Rails development:
 **Phase 1 — Foundation (v0.1-v0.2)** ✅ Complete
 Initial skills, team rules, testing framework.
 
-**Phase 2 — Domain Workflows (v0.3-v0.4)** ✅ Complete
-Six workflow commands replacing architect coordinator, 11 domain skills, deterministic superpowers integration.
+**Phase 2 — Domain Workflows (v0.3-v0.4)** 🔧 In Progress
+Six workflow commands replacing architect coordinator, 11 domain skills, deterministic superpowers integration, coordinator-only pattern with subagent dispatch.
 
-**Phase 3 — Memory & Context** 🔬 Next
+**Phase 3 — Memory & Context**
 Index production Rails patterns, wire into local memory + knowledge graph, RAG + SQLite vector search.
 
 **Phase 4 — Fully Autonomous Rails**

@@ -86,7 +86,7 @@ bin/ci
 **Two-layer system:**
 
 - **Superpowers** = HOW to work (brainstorming, planning, TDD, debugging, code review)
-- **Rails-AI** = WHAT you're building (12 Rails domain skills + team rules)
+- **Rails-AI** = WHAT you're building (11 Rails domain skills + team rules)
 
 Each workflow command combines the right superpowers workflows with the relevant Rails-AI skills for that task.
 

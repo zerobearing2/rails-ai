@@ -42,10 +42,12 @@ class CommandStructureTest < Minitest::Test
     feature = @command_files.find { |f| f.include?("feature.md") }
     content = File.read(feature)
 
-    assert_match(/superpowers:test-driven-development/i, content,
-                 "Feature command should reference TDD superpowers workflow")
     assert_match(/superpowers:verification-before-completion/i, content,
                  "Feature command should reference verification superpowers workflow")
+    assert_match(/superpowers:using-git-worktrees/i, content,
+                 "Feature command should reference git-worktrees superpowers workflow")
+    assert_match(/superpowers:finishing-a-development-branch/i, content,
+                 "Feature command should reference finishing-a-development-branch superpowers workflow")
   end
 
   def test_debug_command_references_superpowers
@@ -110,6 +112,40 @@ class CommandStructureTest < Minitest::Test
                  "Refactor command should require CHANGELOG update")
   end
 
+  def test_feature_command_has_coordinator_pattern
+    feature = @command_files.find { |f| f.include?("feature.md") }
+    content = File.read(feature)
+
+    assert_match(/COORDINATOR ONLY/i, content,
+                 "Feature command should declare COORDINATOR ONLY role")
+    assert_match(/NEVER implement directly/i, content,
+                 "Feature command should prohibit direct implementation")
+    assert_match(/Task tool/i, content,
+                 "Feature command should reference Task tool for subagent dispatch")
+    assert_match(/Retry Logic/i, content,
+                 "Feature command should have Retry Logic section")
+    assert_match(/Context Package/i, content,
+                 "Feature command should have Context Package section")
+  end
+
+  def test_refactor_command_has_coordinator_pattern
+    refactor = @command_files.find { |f| f.include?("refactor.md") }
+    content = File.read(refactor)
+
+    assert_match(/COORDINATOR ONLY/i, content,
+                 "Refactor command should declare COORDINATOR ONLY role")
+    assert_match(/NEVER implement directly/i, content,
+                 "Refactor command should prohibit direct implementation")
+    assert_match(/Task tool/i, content,
+                 "Refactor command should reference Task tool for subagent dispatch")
+    assert_match(/Retry Logic/i, content,
+                 "Refactor command should have Retry Logic section")
+    assert_match(/Verify Baseline/i, content,
+                 "Refactor command should have baseline verification step")
+    assert_match(/Behavior Changed/i, content,
+                 "Refactor command should include critical behavior change check")
+  end
+
   def test_debug_command_has_completion_checklist
     debug = @command_files.find { |f| f.include?("debug.md") }
     content = File.read(debug)
@@ -133,7 +169,7 @@ class CommandStructureTest < Minitest::Test
       file = @command_files.find { |f| f.include?("#{command}.md") }
       content = File.read(file)
 
-      assert_match(/rails-ai:.*skill/i, content,
+      assert_match(/Rails-AI Skills/i, content,
                    "#{command} command should describe loading Rails-AI skills")
     end
   end

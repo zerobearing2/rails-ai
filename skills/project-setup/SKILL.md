@@ -93,7 +93,7 @@ config.ru               # Rack config
 
 **Violations to check:**
 - ❌ `spec/` directory exists → RSpec present (TEAM RULE #2)
-- ❌ Non-RESTful routes in `config/routes.rb` → TEAM RULE #3
+- ❌ Custom controller actions (non-REST) in `config/routes.rb` → TEAM RULE #3 (friendly URLs are OK)
 
 ---
 

@@ -174,7 +174,7 @@ rake lint:fix           # Auto-fix Ruby
 - Rails-AI = WHAT you're building (domain)
 - TDD always (RED-GREEN-REFACTOR)
 - Minitest, not RSpec
-- REST-only routes
+- RESTful actions only (friendly URLs allowed)
 - Solid Stack (Rails 8)
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for full guidelines.

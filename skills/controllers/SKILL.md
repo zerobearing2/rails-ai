@@ -27,7 +27,7 @@ Rails controllers following REST conventions with 7 standard actions, nested res
 
 <team-rules-enforcement>
 **This skill enforces:**
-- ✅ **Rule #3:** NEVER add custom route actions → RESTful resources only
+- ✅ **Rule #3:** NEVER add custom controller actions → RESTful actions only (friendly URLs allowed)
 - ✅ **Rule #7:** Thin controllers (delegate to models/services)
 - ✅ **Rule #10:** Strong parameters for all user input
 
@@ -51,7 +51,8 @@ Before completing controller work:
 
 <standards>
 - Use only 7 standard actions: index, show, new, create, edit, update, destroy
-- NO custom actions - use nested resources or services instead (TEAM RULE #3)
+- NO custom controller actions - use nested resources or child controllers (TEAM RULE #3)
+- Custom route paths for friendly URLs ARE allowed (e.g., `get "verify/:token"` → `verifications#show`)
 - Keep controllers under 50 lines, actions under 10 lines
 - Move business logic to models or service objects
 - Always use strong parameters with expect() or require().permit()
@@ -132,6 +133,45 @@ resources :feedbacks
 ```
 
 **Why:** Follows Rails conventions, predictable patterns, automatic route helpers.
+</pattern>
+
+<pattern name="friendly-urls">
+<description>Custom route paths with RESTful controller actions</description>
+
+**Routes:**
+
+```ruby
+# config/routes.rb
+
+# ✅ GOOD: Friendly URLs mapping to RESTful actions
+get "verify/:token", to: "verifications#show", as: :verify
+get "login", to: "sessions#new"
+post "login", to: "sessions#create"
+delete "logout", to: "sessions#destroy"
+get "signup", to: "registrations#new"
+post "signup", to: "registrations#create"
+
+# ✅ GOOD: Resource with custom path
+resources :feedbacks, path: "reviews"  # /reviews instead of /feedbacks
+
+# ❌ BAD: Custom controller action
+get "users/:id/verify", to: "users#verify"  # Don't add #verify to UsersController
+```
+
+**Controller:**
+
+```ruby
+# app/controllers/verifications_controller.rb
+class VerificationsController < ApplicationController
+  def show  # Standard RESTful action
+    @verification = Verification.find_by!(token: params[:token])
+    @verification.confirm!
+    redirect_to root_path, notice: "Email verified!"
+  end
+end
+```
+
+**Why:** User-friendly URLs without breaking REST conventions. The URL can be anything, but the controller action must be one of the 7 standard REST actions.
 </pattern>
 
 <pattern name="api-controller">

@@ -59,7 +59,7 @@ See [TESTING.md](TESTING.md) for details.
 
 - TDD always (RED-GREEN-REFACTOR)
 - Minitest, not RSpec
-- REST-only, no custom routes
+- RESTful actions only (friendly URLs allowed, no custom controller actions)
 - Solid Stack (SolidQueue, SolidCache, SolidCable)
 - Follow `rules/TEAM_RULES.md`
 - Run `rake lint:fix` before committing

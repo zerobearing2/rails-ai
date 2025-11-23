@@ -87,7 +87,7 @@ Before dispatching subagent, assemble complete context:
 3. **TEAM_RULES Summary** — Critical rules subagent must follow:
    - Rule #1: Solid Stack only (NO Sidekiq/Redis)
    - Rule #2: Minitest only (NO RSpec)
-   - Rule #3: REST routes only
+   - Rule #3: RESTful actions only (friendly URLs allowed)
    - Rule #4: TDD always (RED-GREEN-REFACTOR)
    - Rule #17: `bin/ci` must pass before completion
    - Rule #20: Use `Hash#dig` for nested hash access
@@ -118,7 +118,7 @@ Task tool prompt structure:
 ### TEAM_RULES (MUST FOLLOW)
 - #1: Solid Stack only — NO Sidekiq, NO Redis
 - #2: Minitest only — NO RSpec
-- #3: REST routes only — no custom route patterns
+- #3: RESTful actions only — no custom controller actions, friendly URLs allowed
 - #4: TDD always — write test first, watch it fail, then implement
 - #17: bin/ci must pass — run before claiming done
 - #20: Hash#dig — use for all nested hash access

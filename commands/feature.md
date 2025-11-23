@@ -57,7 +57,7 @@ The subagent loads these based on feature scope:
 | Security concerns | `rails-ai:security` |
 | Tests (always) | `rails-ai:testing` |
 
-**Subagent always loads `rails-ai:testing`** — TDD is non-negotiable.
+**Subagent always uses `rails-ai:testing`** — TDD is non-negotiable.
 
 ### UI Detection
 
@@ -71,15 +71,15 @@ The subagent loads these based on feature scope:
 | File paths | `app/views/`, `app/javascript/controllers/`, `app/helpers/` |
 
 **If UI work detected:**
-1. Include `rails-ai:ui` in the subagent's skills to load
+1. Include `rails-ai:ui` in the subagent's skills to use
 2. The UI skill orchestrates the full frontend workflow:
    - Step 1: Assess scope (new vs tweak)
-   - Step 2: Load `frontend-design:frontend-design` for creative direction (new UI only)
-   - Step 3: Load `rails-ai:styling` for Tailwind/DaisyUI
-   - Step 4: Load `rails-ai:hotwire` for interactivity
+   - Step 2: Use `frontend-design:frontend-design` for creative direction (new UI only)
+   - Step 3: Use `rails-ai:styling` for Tailwind/DaisyUI
+   - Step 4: Use `rails-ai:hotwire` for interactivity
    - Step 5: Implement with accessibility (WCAG 2.1 AA)
 
-**Note:** When UI is detected, subagent loads `rails-ai:ui` which handles loading `styling` and `hotwire` as dependencies. Do NOT list them separately.
+**Note:** When UI is detected, subagent uses `rails-ai:ui` which handles using `styling` and `hotwire` as dependencies. Do NOT list them separately.
 
 ## Process
 
@@ -144,7 +144,7 @@ Task tool prompt structure:
 - #20: Hash#dig — use for all nested hash access
 
 ### Skills to Load
-Use Skill tool to load:
+Use Skill tool to use:
 - rails-ai:testing (ALWAYS)
 - [other relevant skills]
 

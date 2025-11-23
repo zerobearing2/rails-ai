@@ -39,7 +39,7 @@ Determine if this is:
 
 ### Step 2: Creative Direction (New UI Only)
 
-Use Skill tool to load `frontend-design:frontend-design`.
+Use Skill tool to use `frontend-design:frontend-design`.
 
 This establishes:
 - Typography choices (fonts, sizes, hierarchy)
@@ -52,7 +52,7 @@ This establishes:
 
 ### Step 3: Styling
 
-Use Skill tool to load `rails-ai:styling`.
+Use Skill tool to use `rails-ai:styling`.
 
 Translate the design direction to:
 - Tailwind CSS utilities
@@ -62,7 +62,7 @@ Translate the design direction to:
 
 ### Step 4: Interactivity
 
-Use Skill tool to load `rails-ai:hotwire`.
+Use Skill tool to use `rails-ai:hotwire`.
 
 Implement interactions with:
 - Turbo Drive (SPA-like navigation)

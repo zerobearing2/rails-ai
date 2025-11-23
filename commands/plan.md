@@ -53,7 +53,7 @@ Ask clarifying questions:
 Based on what's being planned, load the appropriate rails-ai skills for domain context.
 
 ```
-Use Skill tool to load:
+Use Skill tool to use:
 - rails-ai:[relevant-domain-skill]
 - rails-ai:[relevant-domain-skill]
 ```

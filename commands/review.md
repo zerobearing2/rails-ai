@@ -50,7 +50,7 @@ Clarify the review scope:
 Based on the code being reviewed:
 
 ```
-Use Skill tool to load:
+Use Skill tool to use:
 - rails-ai:[domain-skill]
 - rails-ai:[domain-skill]
 ```

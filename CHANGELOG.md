@@ -60,7 +60,7 @@ Based on my analysis of the git commits, here's the CHANGELOG entry:
 ### Changed
 - **BREAKING**: Architect converted from agent to slash command coordinator (`agents/architect.md` → `commands/architect.md`)
 - **BREAKING**: Architecture simplified from 7 agents to single `/rails-ai:architect` command that dispatches general-purpose workers
-- Renamed skill: `rails-ai:configuration` → `rails-ai:project-setup`
+- Renamed skill: `rails-ai:configuration` → `rails-ai:setup`
 - Consolidated skill-loading enforcement into `using-rails-ai` skill as single source of truth
 - Test infrastructure: replaced 5 agent test files (375 lines) with command structure tests (10 tests, 33 assertions)
 - Terminology consistency: "skill-loading" → "skill-usage" throughout documentation
@@ -112,7 +112,7 @@ Based on my analysis of the git commits, here's the CHANGELOG entry:
 - **Documentation**: Drastically simplified (README: 268→71 lines, CONTRIBUTING: 160→68 lines, AGENTS.md: 876→146 lines)
 
 #### Skills (12 total)
-1. project-setup - Project validation, environment config, credentials, Docker, RuboCop (coordinates with domain skills)
+1. setup - Project validation, environment config, credentials, Docker, RuboCop (coordinates with domain skills)
 2. controllers - RESTful actions, strong parameters, concerns
 3. debugging - Rails debugging tools + superpowers:systematic-debugging
 4. hotwire - Turbo Drive, Frames, Streams, Morph, Stimulus

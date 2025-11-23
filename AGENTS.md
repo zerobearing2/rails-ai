@@ -25,7 +25,7 @@ rails-ai/
 │   ├── debug.md               # /rails-ai:debug
 │   └── review.md              # /rails-ai:review
 ├── skills/                    # 11 domain skills
-│   ├── project-setup/
+│   ├── setup/
 │   ├── controllers/
 │   ├── debugging/
 │   ├── hotwire/
@@ -61,7 +61,7 @@ rails-ai/
 
 **11 domain-organized skills** with YAML front matter:
 
-1. **project-setup** - Project validation, environment config, credentials, Docker, RuboCop
+1. **setup** - Project validation, environment config, credentials, Docker, RuboCop
 2. **controllers** - RESTful actions, strong parameters, concerns
 3. **debugging** - Rails debugging tools (logs, console, byebug)
 4. **hotwire** - Turbo Drive, Frames, Streams, Morph, Stimulus
@@ -118,7 +118,7 @@ bin/ci                      # Full check (lint + tests)
 
 1. Create `skills/domain/SKILL.md` with YAML front matter
 2. Add unit tests in `test/unit/skills/domain_test.rb`
-3. **Update `skills/project-setup/SKILL.md`** if the new skill affects project verification
+3. **Update `skills/setup/SKILL.md`** if the new skill affects project verification
 4. Update workflow commands if needed
 5. Run `bin/ci`
 
@@ -128,7 +128,7 @@ bin/ci                      # Full check (lint + tests)
 2. Update quick lookup index
 3. Set enforcement severity
 4. Add tests in `test/unit/rules/`
-5. **Update `skills/project-setup/SKILL.md`** if the rule affects project setup verification
+5. **Update `skills/setup/SKILL.md`** if the rule affects project setup verification
 6. Update domain skills that enforce the rule
 7. Run `bin/ci`
 
@@ -146,8 +146,8 @@ bin/ci                      # Full check (lint + tests)
 ### Updating Domain Skills
 
 1. Edit `skills/domain/SKILL.md`
-2. If adding gem requirements → Update `skills/project-setup/SKILL.md`
-3. If adding configuration patterns → Update `skills/project-setup/SKILL.md`
+2. If adding gem requirements → Update `skills/setup/SKILL.md`
+3. If adding configuration patterns → Update `skills/setup/SKILL.md`
 4. Update tests in `test/unit/skills/domain_test.rb`
 5. Run `bin/ci`
 

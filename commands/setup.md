@@ -20,7 +20,7 @@ This workflow uses:
 ## Rails-AI Skills
 
 Load based on setup scope:
-- `rails-ai:project-setup` — always load for setup tasks
+- `rails-ai:setup` — always load for setup tasks
 
 ## Process
 
@@ -38,7 +38,7 @@ Clarify what needs to be configured:
 
 ```
 Use Skill tool to load:
-- rails-ai:project-setup
+- rails-ai:setup
 ```
 
 ### Step 3: Read Current State
@@ -50,7 +50,7 @@ Use Skill tool to load:
 
 ### Step 4: Execute Setup
 
-Follow the patterns in `rails-ai:project-setup`:
+Follow the patterns in `rails-ai:setup`:
 - Use Rails 8+ defaults (SolidQueue, SolidCache, SolidCable)
 - Follow TEAM_RULES.md conventions
 - Configure according to project standards

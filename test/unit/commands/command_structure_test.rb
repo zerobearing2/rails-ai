@@ -160,8 +160,8 @@ class CommandStructureTest < Minitest::Test
     setup = @command_files.find { |f| f.include?("setup.md") }
     content = File.read(setup)
 
-    assert_match(/rails-ai:project-setup/i, content,
-                 "Setup command should reference project-setup skill")
+    assert_match(/rails-ai:setup/i, content,
+                 "Setup command should reference setup skill")
   end
 
   def test_commands_describe_rails_ai_skill_loading

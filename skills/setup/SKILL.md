@@ -1,5 +1,5 @@
 ---
-name: rails-ai:project-setup
+name: rails-ai:setup
 description: Setting up and configuring Rails 8+ projects - Gemfile dependencies, environment config, credentials, initializers, Docker, RuboCop, project validation
 ---
 

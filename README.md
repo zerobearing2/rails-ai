@@ -105,7 +105,7 @@ Each workflow command combines the right superpowers workflows with the relevant
 
 Domain skills are loaded dynamically based on what the task involves:
 
-1. **project-setup** — Environment config, credentials, Docker, RuboCop
+1. **setup** — Environment config, credentials, Docker, RuboCop
 2. **models** — ActiveRecord patterns, validations, associations, callbacks
 3. **controllers** — RESTful actions, strong parameters, concerns
 4. **views** — Partials, helpers, forms, accessibility (WCAG 2.1 AA)

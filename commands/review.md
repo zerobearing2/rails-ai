@@ -168,9 +168,16 @@ Based on the verdict, present options:
 
 > What would you like to do next?
 >
-> 1. **Fix issues** - Address the issues, then re-run `/rails-ai:review`
+> 1. **Fix issues** - Use `/rails-ai:refactor` to fix with proper skill loading
 > 2. **Help me fix [issue]** - Get help fixing a specific issue
 > 3. **Discuss [issue]** - Challenge or clarify a finding
+
+If user chooses option 1, invoke `/rails-ai:refactor` with a summary of issues to fix:
+```
+/rails-ai:refactor Fix review findings: [list critical/important issues]
+```
+
+This ensures fixes are done via subagents with proper Rails-AI skills loaded.
 
 **If only Minor issues or clean:**
 

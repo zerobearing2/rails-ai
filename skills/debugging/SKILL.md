@@ -113,6 +113,62 @@ User.all
 Use these tools for JavaScript errors, visual issues, and Hotwire/Turbo/Stimulus problems.
 Requires Node.js. Artifacts saved to `tmp/playwright/<timestamp>/` for human review.
 
+<subagent-delegation>
+**IMPORTANT:** Browser debugging should be delegated to a subagent to preserve main context.
+
+**Why:** Browser debugging is iterative and verbose. Running Playwright scripts, analyzing artifacts, and retrying consumes significant context. Delegate to keep the coordinator context clean.
+
+**How to delegate:**
+
+```
+Use Task tool with prompt:
+
+## Browser Debugging Task
+
+### Issue
+[Description of the browser/UI issue to investigate]
+
+### URL
+[The URL to debug, e.g., http://localhost:3000/users]
+
+### Instructions
+1. Use `npx playwright install chromium` if not already installed
+2. Use browser-capture or browser-interact tools from rails-ai:debugging skill
+3. Analyze artifacts (screenshot, console.log, page.html)
+4. If issue not found, try additional interactions or different pages
+5. Report findings
+
+### Return Format
+Report back with:
+- **Summary:** Brief description of what you found (1-2 sentences)
+- **Console Errors:** List any JavaScript errors (summarized)
+- **Visual Issues:** Description of any visual problems observed
+- **Artifact Paths:** Full paths to saved artifacts for human review
+- **Suggested Fix:** If root cause identified, suggest the fix
+```
+
+**Example subagent response:**
+
+```
+## Browser Debugging Report
+
+**Summary:** Login form submit button not responding due to missing Stimulus controller.
+
+**Console Errors:**
+- [ERROR] Error connecting controller: login (http://localhost:3000/login:45)
+
+**Visual Issues:** None - page renders correctly but button click has no effect.
+
+**Artifact Paths:**
+- tmp/playwright/2025-11-23_143052/screenshot.png
+- tmp/playwright/2025-11-23_143052/console.log
+- tmp/playwright/2025-11-23_143052/page.html
+
+**Suggested Fix:** Add `data-controller="login"` to form element or create missing LoginController in app/javascript/controllers/.
+```
+
+</subagent-delegation>
+
 <tool name="browser-install">
 <description>One-time setup: install Playwright and Chromium browser</description>
 

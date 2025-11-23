@@ -12,6 +12,7 @@ class ReviewerAgentTest < Minitest::Test
     assert_path_exists @agent_file, "reviewer.md agent should exist"
   end
 
+  # Placeholder tests
   def test_agent_has_role_placeholder
     assert_match(/\{\{ROLE\}\}/i, @content,
                  "Agent should have {{ROLE}} placeholder for role injection")
@@ -27,73 +28,37 @@ class ReviewerAgentTest < Minitest::Test
                  "Agent should have {{FILES_CHANGED}} placeholder")
   end
 
-  # Security role tests
-  def test_security_role_covers_xss
-    assert_match(/XSS/i, @content,
-                 "Security role should check for XSS vulnerabilities")
-    assert_match(/html_safe/i, @content,
-                 "Security role should warn against html_safe on user input")
+  # Security role - references source file
+  def test_security_role_references_security_skill
+    assert_match(%r{skills/security/SKILL\.md}i, @content,
+                 "Security role should reference skills/security/SKILL.md")
   end
 
-  def test_security_role_covers_sql_injection
-    assert_match(/SQL injection/i, @content,
-                 "Security role should check for SQL injection")
-    assert_match(/string interpolation/i, @content,
-                 "Security role should warn against string interpolation in SQL")
+  def test_security_role_mentions_key_vulnerabilities
+    # Should mention the categories but not hardcode the details
+    assert_match(/XSS/i, @content, "Security role should mention XSS")
+    assert_match(/SQL Injection/i, @content, "Security role should mention SQL Injection")
+    assert_match(/CSRF/i, @content, "Security role should mention CSRF")
+    assert_match(/File Upload/i, @content, "Security role should mention File Upload")
+    assert_match(/Command Injection/i, @content, "Security role should mention Command Injection")
   end
 
-  def test_security_role_covers_csrf
-    assert_match(/CSRF/i, @content,
-                 "Security role should check for CSRF protection")
-    assert_match(/csrf_meta_tags/i, @content,
-                 "Security role should check for csrf_meta_tags")
+  def test_security_role_has_security_tag
+    assert_match(/\[SECURITY\]/i, @content,
+                 "Security role should use [SECURITY] tag")
   end
 
-  def test_security_role_covers_file_uploads
-    assert_match(/file upload/i, @content,
-                 "Security role should check file upload security")
-    assert_match(/ActiveStorage/i, @content,
-                 "Security role should mention ActiveStorage")
+  # Rules role - references source file
+  def test_rules_role_references_team_rules
+    assert_match(%r{rules/TEAM_RULES\.md}i, @content,
+                 "Rules role should reference rules/TEAM_RULES.md")
   end
 
-  def test_security_role_covers_command_injection
-    assert_match(/command injection/i, @content,
-                 "Security role should check for command injection")
-    assert_match(/array form/i, @content,
-                 "Security role should recommend array form for system commands")
-  end
-
-  # Rules role tests
-  def test_rules_role_covers_critical_rules
-    # Rule #1: Solid Stack
-    assert_match(/Rule #1.*Solid Stack/i, @content,
-                 "Rules role should cover Rule #1 (Solid Stack)")
-    assert_match(/sidekiq/i, @content,
-                 "Rules role should flag Sidekiq as violation")
-    assert_match(/SolidQueue/i, @content,
-                 "Rules role should recommend SolidQueue")
-
-    # Rule #2: Minitest
-    assert_match(/Rule #2.*Minitest/i, @content,
-                 "Rules role should cover Rule #2 (Minitest)")
-    assert_match(/rspec/i, @content,
-                 "Rules role should flag RSpec as violation")
-
-    # Rule #3: RESTful
-    assert_match(/Rule #3.*RESTful/i, @content,
-                 "Rules role should cover Rule #3 (RESTful actions)")
-
-    # Rule #4: TDD
-    assert_match(/Rule #4.*TDD/i, @content,
-                 "Rules role should cover Rule #4 (TDD)")
-
-    # Rule #17: bin/ci
-    assert_match(%r{Rule #17.*bin/ci}i, @content,
-                 "Rules role should cover Rule #17 (bin/ci)")
-
-    # Rule #18: WebMock
-    assert_match(/Rule #18.*WebMock/i, @content,
-                 "Rules role should cover Rule #18 (WebMock)")
+  def test_rules_role_mentions_severity_levels
+    assert_match(/Critical.*severity/i, @content,
+                 "Rules role should mention critical severity")
+    assert_match(/High.*severity/i, @content,
+                 "Rules role should mention high severity")
   end
 
   def test_rules_role_includes_quality_checks
@@ -105,141 +70,116 @@ class ReviewerAgentTest < Minitest::Test
                  "Rules role should check DRY principle")
   end
 
-  def test_rules_role_has_quality_tag
+  def test_rules_role_has_rule_and_quality_tags
+    assert_match(/\[RULE #N\]/i, @content,
+                 "Rules role should use [RULE #N] tag pattern")
     assert_match(/\[QUALITY\]/i, @content,
                  "Rules role should use [QUALITY] tag")
   end
 
-  # Domain role tests
-  def test_domain_role_covers_models
-    assert_match(/Models.*rails-ai:models/i, @content,
-                 "Domain role should reference rails-ai:models")
-    assert_match(/Validations/i, @content,
-                 "Domain role should check validations")
-    assert_match(/Associations/i, @content,
-                 "Domain role should check associations")
-    assert_match(/N\+1/i, @content,
-                 "Domain role should check N+1 queries")
+  # Domain role - references source files
+  def test_domain_role_references_models_skill
+    assert_match(%r{skills/models/SKILL\.md}i, @content,
+                 "Domain role should reference skills/models/SKILL.md")
   end
 
-  def test_domain_role_covers_controllers
-    assert_match(/Controllers.*rails-ai:controllers/i, @content,
-                 "Domain role should reference rails-ai:controllers")
-    assert_match(/Strong parameters/i, @content,
-                 "Domain role should check strong parameters")
-    assert_match(/REST actions/i, @content,
-                 "Domain role should check REST actions only")
+  def test_domain_role_references_controllers_skill
+    assert_match(%r{skills/controllers/SKILL\.md}i, @content,
+                 "Domain role should reference skills/controllers/SKILL.md")
   end
 
-  def test_domain_role_covers_jobs
-    assert_match(/Jobs.*rails-ai:jobs/i, @content,
-                 "Domain role should reference rails-ai:jobs")
-    assert_match(/SolidQueue/i, @content,
-                 "Domain role should require SolidQueue")
-    assert_match(/Idempotent/i, @content,
-                 "Domain role should check idempotent operations")
+  def test_domain_role_references_jobs_skill
+    assert_match(%r{skills/jobs/SKILL\.md}i, @content,
+                 "Domain role should reference skills/jobs/SKILL.md")
   end
 
-  def test_domain_role_covers_mailers
-    assert_match(/Mailers.*rails-ai:mailers/i, @content,
-                 "Domain role should reference rails-ai:mailers")
-    assert_match(/deliver_later/i, @content,
-                 "Domain role should check async delivery")
+  def test_domain_role_references_mailers_skill
+    assert_match(%r{skills/mailers/SKILL\.md}i, @content,
+                 "Domain role should reference skills/mailers/SKILL.md")
   end
 
-  # Testing role tests
-  def test_testing_role_covers_tdd
-    assert_match(/TDD Compliance/i, @content,
-                 "Testing role should check TDD compliance")
-    assert_match(/RED-GREEN-REFACTOR/i, @content,
-                 "Testing role should reference RED-GREEN-REFACTOR")
+  def test_domain_role_has_domain_tags
+    assert_match(/\[MODELS\]/i, @content, "Domain role should use [MODELS] tag")
+    assert_match(/\[CONTROLLERS\]/i, @content, "Domain role should use [CONTROLLERS] tag")
+    assert_match(/\[JOBS\]/i, @content, "Domain role should use [JOBS] tag")
+    assert_match(/\[MAILERS\]/i, @content, "Domain role should use [MAILERS] tag")
   end
 
-  def test_testing_role_covers_fixtures
-    assert_match(/Fixtures/i, @content,
-                 "Testing role should check fixtures usage")
-    assert_match(/not factories/i, @content,
-                 "Testing role should prefer fixtures over factories")
+  # Testing role - references source file
+  def test_testing_role_references_testing_skill
+    assert_match(%r{skills/testing/SKILL\.md}i, @content,
+                 "Testing role should reference skills/testing/SKILL.md")
   end
 
-  def test_testing_role_covers_webmock
-    assert_match(/WebMock.*HTTP/i, @content,
-                 "Testing role should require WebMock for HTTP")
-    assert_match(/mock\.verify/i, @content,
-                 "Testing role should check mock.verify")
+  def test_testing_role_mentions_key_patterns
+    assert_match(/TDD/i, @content, "Testing role should mention TDD")
+    assert_match(/Minitest/i, @content, "Testing role should mention Minitest")
+    assert_match(/Fixtures/i, @content, "Testing role should mention Fixtures")
+    assert_match(/WebMock/i, @content, "Testing role should mention WebMock")
   end
 
-  def test_testing_role_covers_minitest
-    assert_match(/Minitest.*not RSpec/i, @content,
-                 "Testing role should require Minitest")
+  def test_testing_role_has_testing_tag
+    assert_match(/\[TESTING\]/i, @content,
+                 "Testing role should use [TESTING] tag")
   end
 
-  # UI role tests
-  def test_ui_role_covers_turbo
-    assert_match(/Turbo.*Hotwire/i, @content,
-                 "UI role should cover Turbo/Hotwire")
-    assert_match(/Turbo Morph/i, @content,
-                 "UI role should prefer Turbo Morph")
-    assert_match(/Turbo Frames/i, @content,
-                 "UI role should cover Turbo Frames")
+  # UI role - references source files
+  def test_ui_role_references_ui_skill
+    assert_match(%r{skills/ui/SKILL\.md}i, @content,
+                 "UI role should reference skills/ui/SKILL.md")
   end
 
-  def test_ui_role_covers_stimulus
-    assert_match(/Stimulus/i, @content,
-                 "UI role should cover Stimulus")
-    assert_match(/_controller\.js/i, @content,
-                 "UI role should check controller naming convention")
+  def test_ui_role_references_hotwire_skill
+    assert_match(%r{skills/hotwire/SKILL\.md}i, @content,
+                 "UI role should reference skills/hotwire/SKILL.md")
   end
 
-  def test_ui_role_covers_viewcomponent
-    assert_match(/ViewComponent/i, @content,
-                 "UI role should cover ViewComponent")
-    assert_match(/not partials/i, @content,
-                 "UI role should prefer ViewComponent over partials")
+  def test_ui_role_references_styling_skill
+    assert_match(%r{skills/styling/SKILL\.md}i, @content,
+                 "UI role should reference skills/styling/SKILL.md")
   end
 
-  def test_ui_role_covers_accessibility
-    assert_match(/Accessibility/i, @content,
-                 "UI role should cover accessibility")
-    assert_match(/ARIA/i, @content,
-                 "UI role should check ARIA labels")
-    assert_match(/Keyboard/i, @content,
-                 "UI role should check keyboard navigation")
+  def test_ui_role_has_ui_tags
+    assert_match(/\[UI\]/i, @content, "UI role should use [UI] tag")
+    assert_match(/\[HOTWIRE\]/i, @content, "UI role should use [HOTWIRE] tag")
+    assert_match(/\[STYLING\]/i, @content, "UI role should use [STYLING] tag")
   end
 
   # Output format tests
   def test_agent_specifies_yaml_output_format
-    assert_match(/findings:/i, @content,
-                 "Agent should specify findings output format")
-    assert_match(/severity:/i, @content,
-                 "Agent should specify severity field")
-    assert_match(/tag:/i, @content,
-                 "Agent should specify tag field")
-    assert_match(/file:/i, @content,
-                 "Agent should specify file field")
-    assert_match(/line:/i, @content,
-                 "Agent should specify line field")
-    assert_match(/issue:/i, @content,
-                 "Agent should specify issue field")
-    assert_match(/fix:/i, @content,
-                 "Agent should specify fix field")
+    assert_match(/findings:/i, @content, "Agent should specify findings output format")
+    assert_match(/severity:/i, @content, "Agent should specify severity field")
+    assert_match(/tag:/i, @content, "Agent should specify tag field")
+    assert_match(/file:/i, @content, "Agent should specify file field")
+    assert_match(/line:/i, @content, "Agent should specify line field")
+    assert_match(/issue:/i, @content, "Agent should specify issue field")
+    assert_match(/fix:/i, @content, "Agent should specify fix field")
+    assert_match(/reference:/i, @content, "Agent should specify reference field")
   end
 
   def test_agent_defines_severity_levels
-    assert_match(/critical/i, @content,
-                 "Agent should define critical severity")
-    assert_match(/important/i, @content,
-                 "Agent should define important severity")
-    assert_match(/minor/i, @content,
-                 "Agent should define minor severity")
+    assert_match(/critical/i, @content, "Agent should define critical severity")
+    assert_match(/important/i, @content, "Agent should define important severity")
+    assert_match(/minor/i, @content, "Agent should define minor severity")
   end
 
-  def test_agent_has_all_required_tags
-    tags = %w[SECURITY RULE QUALITY MODELS CONTROLLERS JOBS MAILERS TESTING UI HOTWIRE STYLING]
+  def test_agent_instructs_to_read_source_files_first
+    assert_match(/Read.*source.*files.*FIRST/i, @content,
+                 "Agent should instruct to read source files first")
+  end
 
-    tags.each do |tag|
-      assert_match(/\[#{tag}/i, @content,
-                   "Agent should define [#{tag}] tag")
-    end
+  def test_agent_requires_reference_field
+    assert_match(/reference.*field.*citing/i, @content,
+                 "Agent should require reference field citing source")
+  end
+
+  # Process tests
+  def test_agent_has_clear_process_steps
+    assert_match(/Read the source files/i, @content,
+                 "Agent should have step to read source files")
+    assert_match(/Analyze the diff/i, @content,
+                 "Agent should have step to analyze diff")
+    assert_match(/Return findings/i, @content,
+                 "Agent should have step to return findings")
   end
 end

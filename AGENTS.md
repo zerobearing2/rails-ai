@@ -35,7 +35,7 @@ rails-ai/
 │   ├── security/
 │   ├── styling/
 │   ├── testing/
-│   └── views/
+│   └── ui/                    # Unified frontend (orchestrates design → styling → hotwire)
 ├── rules/
 │   └── TEAM_RULES.md          # 20 team conventions
 └── test/
@@ -71,7 +71,9 @@ rails-ai/
 8. **security** - XSS, SQL injection, CSRF, file uploads
 9. **styling** - Tailwind CSS, DaisyUI
 10. **testing** - TDD with Minitest, fixtures, mocking
-11. **views** - Partials, helpers, forms, accessibility (WCAG 2.1 AA)
+11. **ui** - Unified frontend workflow: design → styling → hotwire → accessibility (WCAG 2.1 AA)
+
+**Frontend workflow:** The `ui` skill orchestrates the complete frontend flow. When loaded, it sequentially loads `frontend-design:frontend-design` (creative direction), `rails-ai:styling`, and `rails-ai:hotwire` to ensure cohesive UI development.
 
 Each skill includes:
 

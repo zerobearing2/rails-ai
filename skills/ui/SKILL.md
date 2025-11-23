@@ -1,20 +1,84 @@
 ---
-name: rails-ai:views
-description: Use when building Rails view structure - partials, helpers, forms, nested forms, accessibility (WCAG 2.1 AA)
+name: rails-ai:ui
+description: Use when building Rails frontend - orchestrates design, styling, and interactivity into accessible, production-ready UI
 ---
 
-# Rails Views
+# Rails UI
 
-Build accessible, maintainable Rails views using partials, helpers, forms, and nested forms. Ensure WCAG 2.1 AA accessibility compliance in all view patterns.
+Build production-ready, accessible Rails frontends. This skill orchestrates the complete frontend workflow: creative direction → styling → interactivity → implementation.
 
 <when-to-use>
-- Building ANY user interface or view in Rails
-- Creating reusable view components and partials
+- Building ANY user interface in Rails
+- Creating new pages, components, or layouts
 - Implementing forms (simple or nested)
+- Adding interactivity (Turbo, Stimulus)
 - Ensuring accessibility compliance (WCAG 2.1 AA)
-- Organizing view logic with helpers
-- Managing layouts and content blocks
+- Styling with Tailwind/DaisyUI
 </when-to-use>
+
+<frontend-workflow>
+**This skill orchestrates the complete frontend workflow.**
+
+When loaded, follow this sequence:
+
+### Step 1: Assess Scope
+
+Determine if this is:
+- **New/significant UI** (new page, new component, major redesign) → Full flow (Steps 2-5)
+- **Tweak/fix** (spacing, colors, bug fix, small change) → Skip to Step 3
+
+**Indicators of new/significant UI:**
+- "build", "create", "new", "design", "redesign" in the request
+- No existing view files for the feature
+- User mentions aesthetics, look and feel, or visual direction
+
+**Indicators of tweak/fix:**
+- "fix", "adjust", "tweak", "update", "change" in the request
+- Existing view files being modified
+- Specific technical issue (spacing, alignment, color)
+
+### Step 2: Creative Direction (New UI Only)
+
+Use Skill tool to load `frontend-design:frontend-design`.
+
+This establishes:
+- Typography choices (fonts, sizes, hierarchy)
+- Color palette and theme direction
+- Layout and spatial composition
+- Motion and interaction patterns
+- Overall aesthetic direction
+
+**Capture the design direction before proceeding.** The design skill provides the "what it should look like" — the remaining steps provide "how to build it."
+
+### Step 3: Styling
+
+Use Skill tool to load `rails-ai:styling`.
+
+Translate the design direction to:
+- Tailwind CSS utilities
+- DaisyUI components
+- Theme variables (no hardcoded colors — TEAM RULE #9)
+- Responsive breakpoints (mobile-first)
+
+### Step 4: Interactivity
+
+Use Skill tool to load `rails-ai:hotwire`.
+
+Implement interactions with:
+- Turbo Drive (SPA-like navigation)
+- Turbo Frames (partial page updates)
+- Turbo Streams (real-time updates)
+- Stimulus controllers (JavaScript behavior)
+
+### Step 5: Implementation
+
+Use this skill's patterns (below) for:
+- Semantic HTML structure
+- Accessible forms and navigation
+- Partials and view helpers
+- WCAG 2.1 AA compliance
+
+</frontend-workflow>
 
 <benefits>
 - **DRY Views** - Reusable partials and helpers reduce duplication
@@ -635,8 +699,9 @@ end
 ---
 
 <related-skills>
-- rails-ai:hotwire - Add interactivity with Turbo and Stimulus
-- rails-ai:styling - Style views with Tailwind and DaisyUI
+- frontend-design:frontend-design - Creative direction and aesthetic design (loaded in Step 2)
+- rails-ai:styling - Tailwind CSS and DaisyUI implementation (loaded in Step 3)
+- rails-ai:hotwire - Turbo and Stimulus interactivity (loaded in Step 4)
 - rails-ai:controllers - RESTful actions and strong parameters for form handling
 - rails-ai:testing - View and system testing patterns
 </related-skills>

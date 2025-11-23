@@ -2,9 +2,9 @@
 
 require "test_helper"
 
-class ViewsTest < SkillTestCase
-  self.skill_name = "views"
-  self.skill_directory = "views"
+class UiTest < SkillTestCase
+  self.skill_name = "ui"
+  self.skill_directory = "ui"
 
   def test_skill_directory_exists
     assert_skill_directory_exists
@@ -30,6 +30,7 @@ class ViewsTest < SkillTestCase
     assert_skill_has_section("when-to-use")
     assert_skill_has_section("benefits")
     assert_skill_has_section("standards")
+    assert_skill_has_section("frontend-workflow")
   end
 
   def test_xml_tags_valid

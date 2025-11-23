@@ -29,7 +29,11 @@ claude
 /plugin marketplace add obra/superpowers
 /plugin install superpowers
 
-# 2. Install rails-ai
+# 2. Install frontend-design (recommended for UI work)
+/plugin marketplace add claude-code-plugins
+/plugin install frontend-design
+
+# 3. Install rails-ai
 /plugin marketplace add zerobearing2/rails-ai
 /plugin install rails-ai
 ```
@@ -108,7 +112,7 @@ Domain skills are loaded dynamically based on what the task involves:
 1. **setup** — Environment config, credentials, Docker, RuboCop
 2. **models** — ActiveRecord patterns, validations, associations, callbacks
 3. **controllers** — RESTful actions, strong parameters, concerns
-4. **views** — Partials, helpers, forms, accessibility (WCAG 2.1 AA)
+4. **ui** — Unified frontend workflow: design → styling → interactivity → accessibility (orchestrates skills below)
 5. **hotwire** — Turbo Drive, Frames, Streams, Morph, Stimulus
 6. **styling** — Tailwind CSS, DaisyUI theming
 7. **testing** — TDD with Minitest, fixtures, mocking
@@ -116,6 +120,8 @@ Domain skills are loaded dynamically based on what the task involves:
 9. **jobs** — SolidQueue, SolidCache, SolidCable (NO Redis/Sidekiq)
 10. **mailers** — ActionMailer, async delivery, templates
 11. **debugging** — Rails debugging tools (logs, console, byebug) + Playwright browser debugging
+
+**Frontend workflow:** When UI work is detected, `rails-ai:ui` is loaded. It orchestrates the full frontend flow: `frontend-design:frontend-design` (creative direction) → `rails-ai:styling` → `rails-ai:hotwire` → implementation with WCAG 2.1 AA accessibility.
 
 ## Vision
 

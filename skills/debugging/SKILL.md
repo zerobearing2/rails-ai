@@ -1,6 +1,6 @@
 ---
 name: rails-ai:debugging
-description: Use when debugging Rails issues - provides Rails-specific debugging tools (logs, console, byebug, SQL logging)
+description: Use when debugging Rails issues - provides Rails-specific debugging tools (logs, console, byebug, SQL logging) and browser debugging with Playwright
 ---
 
 # Rails Debugging Tools & Techniques
@@ -10,6 +10,10 @@ description: Use when debugging Rails issues - provides Rails-specific debugging
 - Tests failing with unclear errors
 - Performance issues or N+1 queries
 - Production errors need investigation
+- JavaScript console errors or exceptions
+- Visual/layout issues (CSS, responsiveness)
+- Hotwire/Turbo/Stimulus behavior problems
+- Form submission or interaction bugs
 </when-to-use>
 
 <verification-checklist>
@@ -20,6 +24,8 @@ Before completing debugging work:
 - ✅ All tests passing (bin/ci passes)
 - ✅ Logs reviewed for related issues
 - ✅ Performance impact verified (if applicable)
+- ✅ JavaScript console errors checked (if UI issue)
+- ✅ Screenshots reviewed for visual regressions (if UI issue)
 </verification-checklist>
 
 <phase1-root-cause-investigation>
@@ -101,6 +107,145 @@ User.all
 </tool>
 
 </phase1-root-cause-investigation>
+
+<phase-browser-debugging>
+
+Use these tools for JavaScript errors, visual issues, and Hotwire/Turbo/Stimulus problems.
+Requires Node.js. Artifacts saved to `tmp/playwright/<timestamp>/` for human review.
+
+<tool name="browser-install">
+<description>One-time setup: install Playwright and Chromium browser</description>
+
+```bash
+# Install Playwright and download Chromium
+npx playwright install chromium
+```
+
+</tool>
+
+<tool name="browser-capture">
+<description>Capture screenshot, console logs, and HTML from a URL</description>
+
+```bash
+# Capture artifacts from a page (assumes Rails server running on localhost:3000)
+SESSION="tmp/playwright/$(date +%Y-%m-%d_%H%M%S)"
+mkdir -p "$SESSION"
+node -e "
+const { chromium } = require('playwright');
+(async () => {
+  const browser = await chromium.launch();
+  const page = await browser.newPage();
+  const logs = [];
+  page.on('console', msg => logs.push('[' + msg.type() + '] ' + msg.text()));
+  page.on('pageerror', err => logs.push('[ERROR] ' + err.message));
+  await page.goto('http://localhost:3000/users');
+  await page.screenshot({ path: '$SESSION/screenshot.png', fullPage: true });
+  require('fs').writeFileSync('$SESSION/console.log', logs.join('\n'));
+  require('fs').writeFileSync('$SESSION/page.html', await page.content());
+  await browser.close();
+  console.log('Artifacts saved to: $SESSION/');
+})();
+"
+
+# Review artifacts
+ls -la "$SESSION"
+cat "$SESSION/console.log"
+```
+
+</tool>
+
+<tool name="browser-interact">
+<description>Capture with interactions: fill forms, click buttons, wait for elements</description>
+
+```bash
+# Example: Debug login flow
+SESSION="tmp/playwright/$(date +%Y-%m-%d_%H%M%S)"
+mkdir -p "$SESSION"
+node -e "
+const { chromium } = require('playwright');
+(async () => {
+  const browser = await chromium.launch();
+  const page = await browser.newPage();
+  const logs = [];
+  page.on('console', msg => logs.push('[' + msg.type() + '] ' + msg.text()));
+  page.on('pageerror', err => logs.push('[ERROR] ' + err.message));
+
+  // Navigate to login page
+  await page.goto('http://localhost:3000/login');
+
+  // Fill form
+  await page.fill('input[name=\"email\"]', 'test@example.com');
+  await page.fill('input[name=\"password\"]', 'password');
+
+  // Screenshot before submit
+  await page.screenshot({ path: '$SESSION/before_submit.png', fullPage: true });
+
+  // Submit and wait for navigation
+  await page.click('button[type=\"submit\"]');
+  await page.waitForLoadState('networkidle');
+
+  // Capture final state
+  await page.screenshot({ path: '$SESSION/screenshot.png', fullPage: true });
+  require('fs').writeFileSync('$SESSION/console.log', logs.join('\n'));
+  require('fs').writeFileSync('$SESSION/page.html', await page.content());
+  await browser.close();
+  console.log('Artifacts saved to: $SESSION/');
+})();
+"
+```
+
+**Common Playwright interactions:**
+
+```javascript
+// Click elements
+await page.click('button.submit');
+await page.click('a[href="/dashboard"]');
+
+// Fill inputs
+await page.fill('input[name="email"]', 'user@example.com');
+await page.fill('textarea#comment', 'My comment');
+
+// Select dropdowns
+await page.selectOption('select#country', 'US');
+
+// Wait for elements
+await page.waitForSelector('.flash-message');
+await page.waitForURL('**/dashboard');
+await page.waitForLoadState('networkidle');
+
+// Check visibility
+const visible = await page.isVisible('.error-message');
+
+// Get text content
+const text = await page.textContent('.alert');
+```
+
+</tool>
+
+<workflow name="system-test-debugging">
+<description>Debug failing system/integration tests</description>
+
+1. Identify the failing test and URL being tested
+2. Run `browser-capture` against that URL
+3. Check `console.log` for JavaScript errors
+4. Review `screenshot.png` for visual issues
+5. Inspect `page.html` for missing/incorrect DOM elements
+6. Fix the issue and re-run test
+
+</workflow>
+
+<workflow name="ad-hoc-debugging">
+<description>Debug browser issues reported by users or discovered during development</description>
+
+1. Get the URL where issue occurs
+2. Use `browser-capture` for simple inspection
+3. Use `browser-interact` if issue requires form submission or navigation
+4. Analyze console errors and screenshots
+5. Fix and verify with another capture
+
+</workflow>
+
+</phase-browser-debugging>
 
 <phase2-pattern-analysis>
 
@@ -234,6 +379,7 @@ rails db:migrate
 - rails-ai:models (Query optimization, N+1 debugging)
 - rails-ai:controllers (Request debugging, parameter inspection)
 - rails-ai:testing (Test debugging, failure investigation)
+- rails-ai:hotwire (Turbo/Stimulus debugging, JavaScript behavior)
 </related-skills>
 
 <resources>
@@ -242,6 +388,8 @@ rails db:migrate
 - [Rails Guides - Debugging Rails Applications](https://guides.rubyonrails.org/debugging_rails_applications.html)
 - [Rails API - ActiveSupport::Logger](https://api.rubyonrails.org/classes/ActiveSupport/Logger.html)
 - [Ruby Debugging Guide](https://ruby-doc.org/stdlib-3.0.0/libdoc/debug/rdoc/index.html)
+- [Playwright Documentation](https://playwright.dev/docs/intro)
+- [Playwright CLI Reference](https://playwright.dev/docs/test-cli)
 
 **Gems & Libraries:**
 - [byebug](https://github.com/deivid-rodriguez/byebug) - Ruby debugger
@@ -249,5 +397,6 @@ rails db:migrate
 
 **Tools:**
 - [Rack Mini Profiler](https://github.com/MiniProfiler/rack-mini-profiler) - Performance profiling
+- [Playwright](https://playwright.dev/) - Browser automation for debugging
 
 </resources>

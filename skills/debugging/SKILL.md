@@ -6,16 +6,17 @@ description: Use when debugging Rails issues - provides Rails-specific debugging
 # Rails Debugging Tools & Techniques
 
 <superpowers-integration>
-**REQUIRED:** Use `superpowers:systematic-debugging` for the investigation process.
+**WORKFLOW:** `superpowers:systematic-debugging` defines the four-phase investigation process.
 
-This skill provides Rails-specific tools for each phase of systematic debugging:
+**TOOLS:** This skill provides Rails-specific tools to execute that workflow:
 - **Phase 1 (Root Cause):** Rails logs, console, byebug, SQL logging
 - **Phase 2 (Pattern Analysis):** Routes, migrations, schema inspection
 - **Phase 3 (Hypothesis Testing):** Rails runner, targeted queries
 - **Phase 4 (Implementation):** Verbose tests, fix verification
-- **Browser Debugging:** Playwright for JS/UI issues (delegate to subagent)
 
-The phase sections below map directly to the systematic-debugging framework.
+**BROWSER TOOL:** Playwright is a deep-dive tool for debugging live requests in the browser — capturing console logs, JavaScript errors, screenshots, and DOM state. Use it when you need to see the full stack from server response through browser rendering. Delegate to subagent to preserve context.
+
+The phase sections below provide Rails-specific tooling for each systematic-debugging phase.
 </superpowers-integration>
 
 <when-to-use>

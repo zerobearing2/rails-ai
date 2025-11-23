@@ -1,14 +1,22 @@
 ---
-name: rails-ai:debugging-rails
-description: Use when debugging Rails issues - provides Rails-specific debugging tools (logs, console, byebug, SQL logging) integrated with systematic debugging process
+name: rails-ai:debugging
+description: Use when debugging Rails issues - provides Rails-specific debugging tools (logs, console, byebug, SQL logging) and browser debugging with Playwright
 ---
 
 # Rails Debugging Tools & Techniques
 
 <superpowers-integration>
-**REQUIRED BACKGROUND:** Use superpowers:systematic-debugging for investigation process
-  - That skill defines 4-phase framework (Root Cause → Pattern → Hypothesis → Implementation)
-  - This skill provides Rails-specific debugging tools for each phase
+**WORKFLOW:** `superpowers:systematic-debugging` defines the four-phase investigation process.
+
+**TOOLS:** This skill provides Rails-specific tools to execute that workflow:
+- **Phase 1 (Root Cause):** Rails logs, console, byebug, SQL logging
+- **Phase 2 (Pattern Analysis):** Routes, migrations, schema inspection
+- **Phase 3 (Hypothesis Testing):** Rails runner, targeted queries
+- **Phase 4 (Implementation):** Verbose tests, fix verification
+
+**BROWSER TOOL:** Playwright is a deep-dive tool for debugging live requests in the browser — capturing console logs, JavaScript errors, screenshots, and DOM state. Use it when you need to see the full stack from server response through browser rendering. Delegate to subagent to preserve context.
+
+The phase sections below provide Rails-specific tooling for each systematic-debugging phase.
 </superpowers-integration>
 
 <when-to-use>
@@ -16,6 +24,10 @@ description: Use when debugging Rails issues - provides Rails-specific debugging
 - Tests failing with unclear errors
 - Performance issues or N+1 queries
 - Production errors need investigation
+- JavaScript console errors or exceptions
+- Visual/layout issues (CSS, responsiveness)
+- Hotwire/Turbo/Stimulus behavior problems
+- Form submission or interaction bugs
 </when-to-use>
 
 <verification-checklist>
@@ -26,6 +38,8 @@ Before completing debugging work:
 - ✅ All tests passing (bin/ci passes)
 - ✅ Logs reviewed for related issues
 - ✅ Performance impact verified (if applicable)
+- ✅ JavaScript console errors checked (if UI issue)
+- ✅ Screenshots reviewed for visual regressions (if UI issue)
 </verification-checklist>
 
 <phase1-root-cause-investigation>
@@ -107,6 +121,297 @@ User.all
 </tool>
 
 </phase1-root-cause-investigation>
+
+<phase-browser-debugging>
+
+Use these tools for JavaScript errors, visual issues, and Hotwire/Turbo/Stimulus problems.
+Requires Node.js. Artifacts saved to `tmp/playwright/<timestamp>/` for human review.
+
+<subagent-delegation>
+**IMPORTANT:** Browser debugging should be delegated to a subagent to preserve main context.
+
+**Why:** Browser debugging is iterative and verbose. Running Playwright scripts, analyzing artifacts, and retrying consumes significant context. Delegate to keep the coordinator context clean.
+
+**How to delegate:**
+
+```
+Use Task tool with prompt:
+
+## Browser Debugging Task
+
+### Issue
+[Description of the browser/UI issue to investigate]
+
+### URL
+[The URL to debug, e.g., http://localhost:3000/users]
+
+### Instructions
+1. Use `npx playwright install chromium` if not already installed
+2. Use browser-capture or browser-interact tools from rails-ai:debugging skill
+3. Analyze artifacts (screenshot, console.log, page.html)
+4. If issue not found, try additional interactions or different pages
+5. Report findings
+
+### Return Format
+Report back with:
+- **Summary:** Brief description of what you found (1-2 sentences)
+- **Console Errors:** List any JavaScript errors (summarized)
+- **Visual Issues:** Description of any visual problems observed
+- **Artifact Paths:** Full paths to saved artifacts for human review
+- **Suggested Fix:** If root cause identified, suggest the fix
+```
+
+**Example subagent response:**
+
+```
+## Browser Debugging Report
+
+**Summary:** Login form submit button not responding due to missing Stimulus controller.
+
+**Console Errors:**
+- [ERROR] Error connecting controller: login (http://localhost:3000/login:45)
+
+**Visual Issues:** None - page renders correctly but button click has no effect.
+
+**Artifact Paths:**
+- tmp/playwright/2025-11-23_143052/screenshot.png
+- tmp/playwright/2025-11-23_143052/console.log
+- tmp/playwright/2025-11-23_143052/page.html
+
+**Suggested Fix:** Add `data-controller="login"` to form element or create missing LoginController in app/javascript/controllers/.
+```
+
+</subagent-delegation>
+
+<tool name="browser-install">
+<description>One-time setup: install Playwright and Chromium browser</description>
+
+```bash
+# Install Playwright and download Chromium
+npx playwright install chromium
+```
+
+</tool>
+
+<tool name="browser-capture">
+<description>Capture screenshot, console logs, and HTML from a URL</description>
+
+```bash
+# Capture artifacts from a page
+# Set URL (default: localhost:3000, adjust port if using foreman/overmind)
+URL="${URL:-http://localhost:3000}/users"
+SESSION="tmp/playwright/$(date +%Y-%m-%d_%H%M%S)"
+mkdir -p "$SESSION"
+node -e "
+const { chromium } = require('playwright');
+(async () => {
+  let browser;
+  const logs = [];
+  try {
+    browser = await chromium.launch();
+    const page = await browser.newPage();
+    page.on('console', msg => {
+      const loc = msg.location();
+      const location = loc.url ? ' (' + loc.url + ':' + loc.lineNumber + ')' : '';
+      logs.push('[' + msg.type() + '] ' + msg.text() + location);
+    });
+    page.on('pageerror', err => logs.push('[ERROR] ' + err.message + '\n' + (err.stack || '')));
+    await page.goto('$URL', { timeout: 30000, waitUntil: 'domcontentloaded' });
+    await page.screenshot({ path: '$SESSION/screenshot.png', fullPage: true });
+    require('fs').writeFileSync('$SESSION/console.log', logs.join('\n'));
+    require('fs').writeFileSync('$SESSION/page.html', await page.content());
+    console.log('Artifacts saved to: $SESSION/');
+  } catch (error) {
+    console.error('Browser capture failed:', error.message);
+    require('fs').writeFileSync('$SESSION/error.log', error.stack || error.message);
+    if (logs.length) require('fs').writeFileSync('$SESSION/console.log', logs.join('\n'));
+    process.exit(1);
+  } finally {
+    if (browser) await browser.close();
+  }
+})();
+"
+
+# Review artifacts
+ls -la "$SESSION"
+cat "$SESSION/console.log"
+```
+
+</tool>
+
+<tool name="browser-interact">
+<description>Capture with interactions: fill forms, click buttons, wait for elements</description>
+
+```bash
+# Example: Debug login flow
+# Set BASE_URL (default: localhost:3000, adjust port if using foreman/overmind)
+BASE_URL="${BASE_URL:-http://localhost:3000}"
+SESSION="tmp/playwright/$(date +%Y-%m-%d_%H%M%S)"
+mkdir -p "$SESSION"
+node -e "
+const { chromium } = require('playwright');
+(async () => {
+  let browser;
+  const logs = [];
+  try {
+    browser = await chromium.launch();
+    const page = await browser.newPage();
+    page.on('console', msg => {
+      const loc = msg.location();
+      const location = loc.url ? ' (' + loc.url + ':' + loc.lineNumber + ')' : '';
+      logs.push('[' + msg.type() + '] ' + msg.text() + location);
+    });
+    page.on('pageerror', err => logs.push('[ERROR] ' + err.message + '\n' + (err.stack || '')));
+
+    // Navigate to login page
+    await page.goto('$BASE_URL/login', { timeout: 30000, waitUntil: 'domcontentloaded' });
+
+    // Fill form
+    await page.fill('input[name=\"email\"]', 'test@example.com');
+    await page.fill('input[name=\"password\"]', 'password');
+
+    // Screenshot before submit
+    await page.screenshot({ path: '$SESSION/before_submit.png', fullPage: true });
+
+    // Submit and wait for navigation
+    await page.click('button[type=\"submit\"]');
+    await page.waitForLoadState('networkidle');
+
+    // Capture final state
+    await page.screenshot({ path: '$SESSION/screenshot.png', fullPage: true });
+    require('fs').writeFileSync('$SESSION/console.log', logs.join('\n'));
+    require('fs').writeFileSync('$SESSION/page.html', await page.content());
+    console.log('Artifacts saved to: $SESSION/');
+  } catch (error) {
+    console.error('Browser interaction failed:', error.message);
+    require('fs').writeFileSync('$SESSION/error.log', error.stack || error.message);
+    if (logs.length) require('fs').writeFileSync('$SESSION/console.log', logs.join('\n'));
+    process.exit(1);
+  } finally {
+    if (browser) await browser.close();
+  }
+})();
+"
+```
+
+**Common Playwright interactions:**
+
+```javascript
+// Click elements
+await page.click('button.submit');
+await page.click('a[href="/dashboard"]');
+
+// Fill inputs
+await page.fill('input[name="email"]', 'user@example.com');
+await page.fill('textarea#comment', 'My comment');
+
+// Select dropdowns
+await page.selectOption('select#country', 'US');
+
+// Wait for elements
+await page.waitForSelector('.flash-message');
+await page.waitForURL('**/dashboard');
+await page.waitForLoadState('networkidle');
+
+// Check visibility
+const visible = await page.isVisible('.error-message');
+
+// Get text content
+const text = await page.textContent('.alert');
+```
+
+</tool>
+
+<tool name="browser-trace">
+<description>Capture detailed trace with timeline, DOM snapshots, and network requests. Best for debugging Hotwire/Turbo issues where event sequence matters.</description>
+
+```bash
+# Capture trace for detailed debugging (especially useful for Hotwire/Turbo)
+BASE_URL="${BASE_URL:-http://localhost:3000}"
+SESSION="tmp/playwright/$(date +%Y-%m-%d_%H%M%S)"
+mkdir -p "$SESSION"
+node -e "
+const { chromium } = require('playwright');
+(async () => {
+  let browser;
+  const logs = [];
+  try {
+    browser = await chromium.launch();
+    const context = await browser.newContext();
+
+    // Start tracing with screenshots, DOM snapshots, and source files
+    await context.tracing.start({ screenshots: true, snapshots: true, sources: true });
+
+    const page = await context.newPage();
+    page.on('console', msg => {
+      const loc = msg.location();
+      const location = loc.url ? ' (' + loc.url + ':' + loc.lineNumber + ')' : '';
+      logs.push('[' + msg.type() + '] ' + msg.text() + location);
+    });
+    page.on('pageerror', err => logs.push('[ERROR] ' + err.message + '\n' + (err.stack || '')));
+
+    // Navigate and perform interactions
+    await page.goto('$BASE_URL/users', { timeout: 30000, waitUntil: 'domcontentloaded' });
+
+    // Add your interactions here (clicks, form fills, etc.)
+
+    // Stop and save trace
+    await context.tracing.stop({ path: '$SESSION/trace.zip' });
+
+    await page.screenshot({ path: '$SESSION/screenshot.png', fullPage: true });
+    require('fs').writeFileSync('$SESSION/console.log', logs.join('\n'));
+    require('fs').writeFileSync('$SESSION/page.html', await page.content());
+
+    console.log('Artifacts saved to: $SESSION/');
+    console.log('View trace: npx playwright show-trace $SESSION/trace.zip');
+  } catch (error) {
+    console.error('Trace capture failed:', error.message);
+    require('fs').writeFileSync('$SESSION/error.log', error.stack || error.message);
+    if (logs.length) require('fs').writeFileSync('$SESSION/console.log', logs.join('\n'));
+    process.exit(1);
+  } finally {
+    if (browser) await browser.close();
+  }
+})();
+"
+
+# View trace in Playwright Trace Viewer (opens browser UI)
+npx playwright show-trace "$SESSION/trace.zip"
+```
+
+**Trace includes:**
+- Timeline of all actions
+- DOM snapshots before/after each action
+- Network requests and responses
+- Console logs with timestamps
+- Screenshots at each step
+
+</tool>
+
+<workflow name="system-test-debugging">
+<description>Debug failing system/integration tests</description>
+
+1. Identify the failing test and URL being tested
+2. Run `browser-capture` against that URL
+3. Check `console.log` for JavaScript errors
+4. Review `screenshot.png` for visual issues
+5. Inspect `page.html` for missing/incorrect DOM elements
+6. Fix the issue and re-run test
+
+</workflow>
+
+<workflow name="ad-hoc-debugging">
+<description>Debug browser issues reported by users or discovered during development</description>
+
+1. Get the URL where issue occurs
+2. Use `browser-capture` for simple inspection
+3. Use `browser-interact` if issue requires form submission or navigation
+4. Analyze console errors and screenshots
+5. Fix and verify with another capture
+
+</workflow>
+
+</phase-browser-debugging>
 
 <phase2-pattern-analysis>
 
@@ -237,10 +542,10 @@ rails db:migrate
 </common-issues>
 
 <related-skills>
-- superpowers:systematic-debugging (4-phase framework)
 - rails-ai:models (Query optimization, N+1 debugging)
 - rails-ai:controllers (Request debugging, parameter inspection)
 - rails-ai:testing (Test debugging, failure investigation)
+- rails-ai:hotwire (Turbo/Stimulus debugging, JavaScript behavior)
 </related-skills>
 
 <resources>
@@ -249,6 +554,8 @@ rails db:migrate
 - [Rails Guides - Debugging Rails Applications](https://guides.rubyonrails.org/debugging_rails_applications.html)
 - [Rails API - ActiveSupport::Logger](https://api.rubyonrails.org/classes/ActiveSupport/Logger.html)
 - [Ruby Debugging Guide](https://ruby-doc.org/stdlib-3.0.0/libdoc/debug/rdoc/index.html)
+- [Playwright Documentation](https://playwright.dev/docs/intro)
+- [Playwright CLI Reference](https://playwright.dev/docs/test-cli)
 
 **Gems & Libraries:**
 - [byebug](https://github.com/deivid-rodriguez/byebug) - Ruby debugger
@@ -256,5 +563,6 @@ rails db:migrate
 
 **Tools:**
 - [Rack Mini Profiler](https://github.com/MiniProfiler/rack-mini-profiler) - Performance profiling
+- [Playwright](https://playwright.dev/) - Browser automation for debugging
 
 </resources>

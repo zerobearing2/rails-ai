@@ -7,6 +7,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- 6 workflow commands replacing single architect coordinator:
+  - `/rails-ai:setup` — Project configuration, gem setup, validation
+  - `/rails-ai:plan` — Brainstorm ideas, create implementation plans
+  - `/rails-ai:feature` — Implement new functionality with TDD
+  - `/rails-ai:refactor` — Improve existing code, fill test gaps
+  - `/rails-ai:debug` — Fix bugs with systematic debugging
+  - `/rails-ai:review` — Review code/PRs against TEAM_RULES
+- Playwright browser debugging in `rails-ai:debugging` skill:
+  - Headless browser debugging via official Playwright package (`npx playwright`)
+  - Tools: `browser-capture`, `browser-interact`, `browser-trace`
+  - Captures screenshots, console logs, HTML, and traces to `tmp/playwright/<timestamp>/`
+  - Subagent delegation to preserve main context window
+  - Integrates with `superpowers:systematic-debugging` workflow
+
+### Changed
+- **BREAKING**: Architecture refactored from single `/rails-ai:architect` to 6 domain-specific workflow commands
+- **BREAKING**: Superpowers workflows now hardcoded per command (deterministic) instead of dynamically selected
+- Skills refactored to pure domain knowledge (removed superpowers references)
+- Feature and Refactor workflows now mandate subagent dispatch (coordinator-only pattern)
+- Implementation work happens in subagent context, keeping user context clean
+- Auto-retry on failure (3 attempts max) before escalating to user
+- Feature and Refactor require `/rails-ai:review` before completion
+- Each workflow command mirrors real Rails developer workflows
+- README completely rewritten for new architecture
+
+### Removed
+- `/rails-ai:architect` command (replaced by 6 workflow commands)
+- `using-rails-ai` skill (content moved to workflow commands)
+- SessionStart hook (no longer needed — workflows are explicit)
+- Superpowers references from `testing` skill (debugging skill retains systematic-debugging integration)
+
+### Fixed
+- Context window decay issue — workflow commands reload fresh each invocation
+- Non-deterministic superpowers selection — now hardcoded per workflow
+
 ## [0.3.1] - 2025-11-21
 
 ### Added
@@ -30,7 +66,7 @@ Based on my analysis of the git commits, here's the CHANGELOG entry:
 ### Changed
 - **BREAKING**: Architect converted from agent to slash command coordinator (`agents/architect.md` → `commands/architect.md`)
 - **BREAKING**: Architecture simplified from 7 agents to single `/rails-ai:architect` command that dispatches general-purpose workers
-- Renamed skill: `rails-ai:configuration` → `rails-ai:project-setup`
+- Renamed skill: `rails-ai:configuration` → `rails-ai:setup`
 - Consolidated skill-loading enforcement into `using-rails-ai` skill as single source of truth
 - Test infrastructure: replaced 5 agent test files (375 lines) with command structure tests (10 tests, 33 assertions)
 - Terminology consistency: "skill-loading" → "skill-usage" throughout documentation
@@ -82,7 +118,7 @@ Based on my analysis of the git commits, here's the CHANGELOG entry:
 - **Documentation**: Drastically simplified (README: 268→71 lines, CONTRIBUTING: 160→68 lines, AGENTS.md: 876→146 lines)
 
 #### Skills (12 total)
-1. project-setup - Project validation, environment config, credentials, Docker, RuboCop (coordinates with domain skills)
+1. setup - Project validation, environment config, credentials, Docker, RuboCop (coordinates with domain skills)
 2. controllers - RESTful actions, strong parameters, concerns
 3. debugging - Rails debugging tools + superpowers:systematic-debugging
 4. hotwire - Turbo Drive, Frames, Streams, Morph, Stimulus

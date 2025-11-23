@@ -23,7 +23,7 @@ categories:
 violation_keywords:
   rule_1: [sidekiq, redis, memcached, resque]
   rule_2: [rspec, describe, context, let, subject]
-  rule_3: [member, collection, custom action]
+  rule_3: [custom action, non-REST action, def publish, def archive]
   rule_4: [skip tests, tests later, no tests]
   rule_9: [service object, validator service, complex abstraction]
   rule_14: [premature optimization, just in case]
@@ -70,11 +70,11 @@ rule_index:
     skills: [tdd-minitest, fixtures-test-data, minitest-mocking]
 
   3:
-    name: "REST Routes Only"
+    name: "RESTful Actions Only"
     severity: critical
-    triggers: [member, collection, custom action]
+    triggers: [custom action, non-REST action]
     action: REJECT
-    skills: [controller-restful, nested-resources]
+    skills: [controllers]
 
   4:
     name: "TDD Always"
@@ -124,7 +124,7 @@ Rules governing technology choices and infrastructure.
 ### Routing & Controllers
 Rules for URL structure and controller organization.
 
-- **Rule #3:** [RESTful Routes Only](#3-restful-routes-only-no-custom-actions) - REST resources only (create child controllers for custom actions)
+- **Rule #3:** [RESTful Actions Only](#3-restful-actions-only) - REST actions only, friendly URLs allowed (create child controllers for additional actions)
 - **Rule #12:** [Fat Models, Thin Controllers](#12-fat-models-thin-controllers) - Business logic in models, controllers coordinate
 
 ### Testing
@@ -150,7 +150,7 @@ Rules for business logic and data organization.
 ### Workflow & Process
 Rules for development process and team coordination.
 
-- **Rule #6:** [Architect Reviews Everything](#6-architect-reviews-everything) - @architect coordinates all work
+- **Rule #6:** [Verification Before Completion](#6-verification-before-completion) - Verify work before claiming done
 - **Rule #11:** [Draft PRs & Code Reviews](#11-draft-prs-code-reviews) - Open PRs as drafts, request reviews
 - **Rule #17:** [bin/ci Must Pass](#17-binci-must-pass) - All checks pass before merge
 
@@ -246,26 +246,26 @@ Patterns: `gem "rspec-rails"`, `RSpec.describe`, `context "when"`
 
 <rule id="3" priority="critical" category="routing">
 
-### 3. RESTful Routes Only
+### 3. RESTful Actions Only
 
 <violation-triggers>
-Keywords: member, collection, custom action
-Patterns: `member do`, `collection do`, `post :publish`, `get :archive`
+Keywords: custom action, non-REST action
+Patterns: `def publish`, `def archive`, `def activate` (non-standard actions in controllers)
 </violation-triggers>
 
-✅ **REQUIRE:** Standard REST actions (index, show, new, create, edit, update, destroy)
+✅ **REQUIRE:** Standard REST actions only (index, show, new, create, edit, update, destroy)
+✅ **ALLOW:** Custom route paths for friendly URLs
 ✅ **ALTERNATIVE:** Nested child controllers for additional actions
-❌ **REJECT:** Custom route actions (member/collection)
+❌ **REJECT:** Custom controller actions (non-REST methods)
 
 <enforcement action="REJECT" severity="critical">
 **Action:** Immediately reject request
-**Response:** "We use RESTful resources only per TEAM_RULES.md Rule #3"
-**Redirect:** "Create nested child controller (e.g., `Feedbacks::PublicationsController` in `app/controllers/feedbacks/`) - delegating to @backend"
+**Response:** "We use RESTful actions only per TEAM_RULES.md Rule #3"
+**Redirect:** "Create nested child controller with standard REST actions"
 </enforcement>
 
 <implementation-skills>
-- **Primary:** `skills/backend/controller-restful.md` - RESTful conventions
-- **Primary:** `skills/backend/nested-resources.md` - Child controller pattern
+- **Primary:** `skills/controllers/SKILL.md` - RESTful conventions
 </implementation-skills>
 
 **Why:**
@@ -273,11 +273,29 @@ Patterns: `member do`, `collection do`, `post :publish`, `get :archive`
 - Nested directory structure keeps controllers organized
 - Module namespacing prevents conflicts
 - Every action maps to a resource lifecycle
+- Friendly URLs improve user experience without breaking REST
 
-**Pattern:**
-- Child controllers: `app/controllers/[parent_plural]/[child_controller].rb`
-- Module namespace: `module [ParentPlural]; class [ChildController]`
-- Route: `/feedbacks/:id/sending` → `Feedbacks::SendingsController#create`
+**Pattern - Friendly URLs:**
+```ruby
+# ✅ GOOD: Custom route path, RESTful action
+get "verify/:token", to: "verifications#show"
+get "login", to: "sessions#new"
+post "login", to: "sessions#create"
+delete "logout", to: "sessions#destroy"
+
+# ❌ BAD: Custom controller action
+get "users/:id/verify", to: "users#verify"  # Don't add #verify to UsersController
+```
+
+**Pattern - Child Controllers:**
+```ruby
+# Instead of adding #publish to FeedbacksController:
+# ✅ Create Feedbacks::PublicationsController with #create
+namespace :feedbacks do
+  resources :publications, only: [:create]
+end
+# Route: POST /feedbacks/:feedback_id/publications → Feedbacks::PublicationsController#create
+```
 
 </rule>
 
@@ -386,20 +404,21 @@ test/controllers/feedbacks/responses_controller_test.rb
 
 <rule id="6" priority="high" category="workflow">
 
-### 6. Architect Reviews Everything
+### 6. Verification Before Completion
 
 **Type:** Workflow governance (no implementation skill)
 
-✅ **REQUIRE:** Coordinator (@architect) reviews all work before completion
-❌ **REJECT:** Agents marking work complete without coordinator review
+✅ **REQUIRE:** Verify all work before claiming completion
+❌ **REJECT:** Claiming work is done without evidence
 
-**Why:** Maintains consistency, standards, and architectural integrity.
+**Why:** Ensures quality, prevents regressions, maintains standards.
 
 **Process:**
-1. Agent completes work
-2. Coordinator reviews for standards compliance
-3. Peer reviews from related agents
-4. Coordinator approves or requests changes
+1. Complete implementation
+2. Run `bin/ci` - must pass
+3. Update CHANGELOG.md (for features/refactors)
+4. Use `superpowers:verification-before-completion` skill
+5. Evidence before claims - always
 
 </rule>
 
@@ -532,7 +551,7 @@ Patterns: Premature abstraction, unused patterns
 1. Open PR in draft mode
 2. Complete work (all checks passing)
 3. Mark ready for review
-4. Get architect approval
+4. Get code review approval
 5. Merge
 
 ❌ **REJECT:** Opening PR for immediate review, merging without approval
@@ -861,7 +880,7 @@ name = user[:name]
 |----|------|----------|------|------------|
 | 1 | Solid Stack Only | Critical | Technology | ✅ Yes |
 | 2 | Minitest Only | Critical | Technology | ✅ Yes |
-| 3 | RESTful Routes Only | Critical | Pattern | ✅ Yes |
+| 3 | RESTful Actions Only | Critical | Pattern | ✅ Yes |
 | 4 | TDD Always | Critical | Workflow | ✅ Yes |
 | 5 | Proper Namespacing | Moderate | Pattern | ✅ Yes |
 | 6 | Architect Reviews | High | Workflow | ❌ No |

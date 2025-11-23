@@ -53,9 +53,6 @@ class SkillTestCase < Minitest::Test
   def assert_name_has_rails_ai_prefix
     name = skill_metadata["name"]
 
-    # Exception: using-rails-ai meta skill doesn't have prefix
-    return if self.class.skill_directory == "using-rails-ai"
-
     assert name&.start_with?("rails-ai:"),
            "Skill name must have 'rails-ai:' prefix, got: #{name}"
   end

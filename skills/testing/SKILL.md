@@ -5,13 +5,6 @@ description: Use when testing Rails applications - TDD, Minitest, fixtures, mode
 
 # Testing Rails Applications with Minitest
 
-<superpowers-integration>
-**REQUIRED BACKGROUND:** Use superpowers:test-driven-development for TDD process
-  - That skill defines RED-GREEN-REFACTOR cycle
-  - That skill enforces "NO CODE WITHOUT FAILING TEST FIRST"
-  - This skill adds Rails/Minitest implementation specifics
-</superpowers-integration>
-
 <when-to-use>
 - All code development (TDD is always enforced in this team)
 - Reviewing test quality
@@ -1907,7 +1900,6 @@ rails test:system
 ---
 
 <related-skills>
-- superpowers:test-driven-development - TDD process and discipline
 - rails-ai:models - Test model validations, associations, scopes
 - rails-ai:controllers - Test controller actions, routing
 - rails-ai:views - View and system testing patterns

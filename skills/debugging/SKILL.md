@@ -5,6 +5,19 @@ description: Use when debugging Rails issues - provides Rails-specific debugging
 
 # Rails Debugging Tools & Techniques
 
+<superpowers-integration>
+**REQUIRED:** Use `superpowers:systematic-debugging` for the investigation process.
+
+This skill provides Rails-specific tools for each phase of systematic debugging:
+- **Phase 1 (Root Cause):** Rails logs, console, byebug, SQL logging
+- **Phase 2 (Pattern Analysis):** Routes, migrations, schema inspection
+- **Phase 3 (Hypothesis Testing):** Rails runner, targeted queries
+- **Phase 4 (Implementation):** Verbose tests, fix verification
+- **Browser Debugging:** Playwright for JS/UI issues (delegate to subagent)
+
+The phase sections below map directly to the systematic-debugging framework.
+</superpowers-integration>
+
 <when-to-use>
 - Rails application behaving unexpectedly
 - Tests failing with unclear errors

@@ -31,7 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `/rails-ai:architect` command (replaced by 6 workflow commands)
 - `using-rails-ai` skill (content moved to workflow commands)
 - SessionStart hook (no longer needed — workflows are explicit)
-- Superpowers references from `debugging` and `testing` skills
+- Superpowers references from `testing` skill (debugging skill retains systematic-debugging integration)
 
 ### Fixed
 - Context window decay issue — workflow commands reload fresh each invocation

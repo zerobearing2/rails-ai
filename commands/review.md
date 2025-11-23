@@ -1,125 +1,208 @@
 ---
-description: Review code and PRs against TEAM_RULES
+description: Comprehensive code review using parallel specialized agents
+allowed-tools: Bash(git *), Bash(gh *), Glob, Grep, Read, Task
 ---
 
-# Rails Review Workflow
+# Rails-AI Code Review
 
-## Purpose
-
-Use this workflow when:
-- Reviewing a pull request
-- Reviewing a branch before merge
-- Auditing code for TEAM_RULES compliance
-- Getting a second opinion on implementation
-
-**This workflow produces feedback, not code.**
-
-## Superpowers Workflows
-
-This workflow uses:
-- `superpowers:requesting-code-review` — dispatch reviewer agent
-- `superpowers:receiving-code-review` — if processing/responding to feedback
-
-## Rails-AI Skills
-
-Load based on what's being reviewed:
-
-| Code involves | Load these skills |
-|---------------|-------------------|
-| Models, ActiveRecord | `rails-ai:models` |
-| Controllers, routes | `rails-ai:controllers` |
-| Views, templates | `rails-ai:ui` |
-| Hotwire, Turbo | `rails-ai:hotwire` |
-| Styling, CSS | `rails-ai:styling` |
-| Background jobs | `rails-ai:jobs` |
-| Mailers | `rails-ai:mailers` |
-| Security | `rails-ai:security` |
-| Tests | `rails-ai:testing` |
+Multi-agent code review checking security, TEAM_RULES, domain patterns, testing, and UI/Hotwire.
 
 ## Process
 
-### Step 1: Identify What to Review
+### Step 1: Detect Review Scope
 
-Clarify the review scope:
-- Specific PR? (provide URL or branch name)
-- Specific files or directory?
-- Full codebase audit?
-
-### Step 2: Load Relevant Skills
-
-Based on the code being reviewed:
+Determine what to review based on arguments:
 
 ```
-Use Skill tool to use:
-- rails-ai:[domain-skill]
-- rails-ai:[domain-skill]
+{{ARGS}} provided?
+├── Contains github.com PR URL → Extract PR number, use `gh pr diff`
+├── Contains branch name → use `git diff main...{branch}`
+├── Empty and on feature branch → use `git diff main...HEAD`
+└── Empty and on main → use `git diff HEAD` (uncommitted changes)
 ```
 
-### Step 3: Review Against TEAM_RULES
+Run these commands to gather context:
 
-Check code against all 20 TEAM_RULES. Critical violations to catch:
+```bash
+# Detect current branch
+git branch --show-current
 
-**Reject immediately:**
-1. Sidekiq/Redis instead of SolidQueue/SolidCache
-2. RSpec instead of Minitest
-3. Custom routes instead of RESTful resources
-4. Missing tests (TDD violation)
-5. Merge without bin/ci passing
-6. WebMock not mocking all HTTP in tests
+# Check if on main/master
+git rev-parse --verify main 2>/dev/null || git rev-parse --verify master
 
-**Check thoroughly:**
-- Proper use of concerns
-- Strong parameters
-- N+1 query prevention
-- Security vulnerabilities (XSS, SQL injection, CSRF)
-- Accessibility (WCAG 2.1 AA)
-- Code organization and patterns
+# Get diff (adjust based on scope detection)
+git diff --stat [range]
+git diff [range]
 
-### Step 4: Dispatch Review
+# Get changed files
+git diff --name-only [range]
+```
 
-Use `superpowers:requesting-code-review`:
-- Dispatches code-reviewer agent
-- Reviews against plan/requirements
-- Checks TEAM_RULES compliance
-- Reports findings
+### Step 2: Analyze Changed Files
 
-### Step 5: Present Findings
+Categorize files to determine which agents/skills are needed:
 
-Organize feedback by severity:
+| File Pattern | Domain | Skill to Reference |
+|--------------|--------|-------------------|
+| `app/models/**` | models | rails-ai:models |
+| `app/controllers/**` | controllers | rails-ai:controllers |
+| `app/jobs/**` | jobs | rails-ai:jobs |
+| `app/mailers/**` | mailers | rails-ai:mailers |
+| `app/views/**` | ui | rails-ai:ui |
+| `app/components/**` | ui | rails-ai:ui |
+| `app/javascript/**` | hotwire | rails-ai:hotwire |
+| `*_controller.js` | hotwire | rails-ai:hotwire |
+| `**/*.css`, `**/*.scss` | styling | rails-ai:styling |
+| `test/**` | testing | rails-ai:testing |
 
-**Blockers** (must fix before merge):
-- TEAM_RULES violations
-- Security vulnerabilities
-- Missing tests for new behavior
-- Broken functionality
+### Step 3: Dispatch 5 Parallel Review Agents
 
-**Suggestions** (should consider):
-- Code organization improvements
-- Performance concerns
-- Better patterns available
+Use the Task tool to dispatch 5 `rails-ai:reviewer` agents in parallel:
 
-**Nitpicks** (optional):
-- Style preferences
-- Minor naming suggestions
+**Agent 1: Security**
+```
+Role: security
+Task: Review for XSS, SQL injection, CSRF, file upload, command injection vulnerabilities
+```
 
-### Step 6: If Processing Feedback
+**Agent 2: Rules + Quality**
+```
+Role: rules
+Task: Review against all 20 TEAM_RULES + general code quality (architecture, error handling, DRY)
+```
 
-If you're on the receiving end of a review:
+**Agent 3: Domain**
+```
+Role: domain
+Task: Review against domain-specific patterns based on changed file types
+Inject: Relevant skill content for models/controllers/jobs/mailers
+```
 
-Use `superpowers:receiving-code-review`:
-- Apply technical rigor to feedback
-- Don't blindly agree — verify suggestions make sense
-- Push back on questionable feedback with evidence
+**Agent 4: Testing**
+```
+Role: testing
+Task: Review test quality, TDD compliance, fixtures, mocking patterns
+```
 
-## Completion
+**Agent 5: UI/Hotwire** (only if frontend files changed)
+```
+Role: ui
+Task: Review Turbo patterns, Stimulus, ViewComponent, styling, accessibility
+Skip if: No files in app/views, app/components, app/javascript, or CSS files
+```
 
-**No completion checklist** — this workflow produces feedback, not code.
+**Dispatch Template:**
 
-Output is:
-- Review findings organized by severity
-- Specific line references where applicable
-- Recommendations for addressing issues
+For each agent, use the Task tool with:
+- subagent_type: `general-purpose`
+- prompt: Include the reviewer agent content from `agents/reviewer.md` with:
+  - The role set (security, rules, domain, testing, ui)
+  - The diff content
+  - The list of changed files
+  - Any additional skill content for domain/ui roles
+
+### Step 4: Consolidate Findings
+
+Collect findings from all agents and:
+
+1. **Parse** each agent's YAML output
+2. **Dedupe** - Same file:line + similar issue = keep one, note "flagged by multiple agents"
+3. **Sort** by severity: critical → important → minor
+4. **Format** with tags
+
+### Step 5: Generate Verdict
+
+Based on findings:
+- **Critical issues exist** → "No - X Critical issues must be fixed"
+- **Only Important/Minor** → "With fixes - X Important issues should be addressed"
+- **Clean** → "Yes - No significant issues found"
+
+### Step 6: Present Output
+
+Format the consolidated review:
+
+```markdown
+## Rails-AI Code Review
+
+**Scope:** [describe what was reviewed]
+**Files reviewed:** X files changed (+Y, -Z)
+**Agents run:** [list agents that ran]
 
 ---
 
-**Now handle the review request: {{ARGS}}**
+### Critical (Must Fix)
+
+1. **[TAG] Issue title**
+   - File: path/to/file.rb:line
+   - Issue: Description of the problem
+   - Fix: How to fix it
+
+### Important (Should Fix)
+
+2. **[TAG] Issue title**
+   - File: path/to/file.rb:line
+   - Issue: Description
+   - Fix: Solution
+
+### Minor (Nice to Have)
+
+3. **[TAG] Issue title**
+   - File: path/to/file.rb:line
+   - Issue: Description
+   - Fix: Solution
+
+---
+
+### Verdict
+
+**Ready to merge:** [Yes | No | With fixes]
+
+**Summary:** [1-2 sentence summary of findings]
+```
+
+### Step 7: Present Next Actions
+
+Based on the verdict, present options:
+
+**If Critical or Important issues found:**
+
+> What would you like to do next?
+>
+> 1. **Fix issues** - Address the issues, then re-run `/rails-ai:review`
+> 2. **Help me fix [issue]** - Get help fixing a specific issue
+> 3. **Discuss [issue]** - Challenge or clarify a finding
+
+**If only Minor issues or clean:**
+
+> What would you like to do next?
+>
+> 1. **Create PR** - Run `gh pr create --draft`
+> 2. **Commit changes** - Commit the reviewed changes
+> 3. **Mark PR ready** - Run `gh pr ready`
+> 4. **Run bin/ci** - Final verification before merge
+
+---
+
+## Quick Reference
+
+**Tags used in findings:**
+- `[SECURITY]` - Security vulnerabilities
+- `[RULE #N]` - TEAM_RULES violations (with rule number)
+- `[QUALITY]` - General code quality issues
+- `[MODELS]` - Model pattern violations
+- `[CONTROLLERS]` - Controller pattern violations
+- `[JOBS]` - Background job issues
+- `[MAILERS]` - Mailer issues
+- `[TESTING]` - Test quality issues
+- `[UI]` - View/component issues
+- `[HOTWIRE]` - Turbo/Stimulus issues
+- `[STYLING]` - CSS/Tailwind issues
+
+**Severity levels:**
+- **Critical** - Must fix before merge (security, critical rule violations, bugs)
+- **Important** - Should fix (high-severity rules, missing tests, poor patterns)
+- **Minor** - Nice to have (style, suggestions, optimizations)
+
+---
+
+**Now execute the review for: {{ARGS}}**

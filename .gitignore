@@ -39,5 +39,5 @@ tmp/
 # local worktrees
 .worktrees
 
-# Planning documents (AI-generated, not source controlled)
-docs/plans/
+# Planning documents - now tracked for feature branches
+# docs/plans/

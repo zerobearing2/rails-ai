@@ -127,23 +127,38 @@ npx playwright install chromium
 <description>Capture screenshot, console logs, and HTML from a URL</description>
 
 ```bash
-# Capture artifacts from a page (assumes Rails server running on localhost:3000)
+# Capture artifacts from a page
+# Set URL (default: localhost:3000, adjust port if using foreman/overmind)
+URL="${URL:-http://localhost:3000}/users"
 SESSION="tmp/playwright/$(date +%Y-%m-%d_%H%M%S)"
 mkdir -p "$SESSION"
 node -e "
 const { chromium } = require('playwright');
 (async () => {
-  const browser = await chromium.launch();
-  const page = await browser.newPage();
+  let browser;
   const logs = [];
-  page.on('console', msg => logs.push('[' + msg.type() + '] ' + msg.text()));
-  page.on('pageerror', err => logs.push('[ERROR] ' + err.message));
-  await page.goto('http://localhost:3000/users');
-  await page.screenshot({ path: '$SESSION/screenshot.png', fullPage: true });
-  require('fs').writeFileSync('$SESSION/console.log', logs.join('\n'));
-  require('fs').writeFileSync('$SESSION/page.html', await page.content());
-  await browser.close();
-  console.log('Artifacts saved to: $SESSION/');
+  try {
+    browser = await chromium.launch();
+    const page = await browser.newPage();
+    page.on('console', msg => {
+      const loc = msg.location();
+      const location = loc.url ? ' (' + loc.url + ':' + loc.lineNumber + ')' : '';
+      logs.push('[' + msg.type() + '] ' + msg.text() + location);
+    });
+    page.on('pageerror', err => logs.push('[ERROR] ' + err.message + '\n' + (err.stack || '')));
+    await page.goto('$URL', { timeout: 30000, waitUntil: 'domcontentloaded' });
+    await page.screenshot({ path: '$SESSION/screenshot.png', fullPage: true });
+    require('fs').writeFileSync('$SESSION/console.log', logs.join('\n'));
+    require('fs').writeFileSync('$SESSION/page.html', await page.content());
+    console.log('Artifacts saved to: $SESSION/');
+  } catch (error) {
+    console.error('Browser capture failed:', error.message);
+    require('fs').writeFileSync('$SESSION/error.log', error.stack || error.message);
+    if (logs.length) require('fs').writeFileSync('$SESSION/console.log', logs.join('\n'));
+    process.exit(1);
+  } finally {
+    if (browser) await browser.close();
+  }
 })();
 "
 
@@ -159,37 +174,52 @@ cat "$SESSION/console.log"
 
 ```bash
 # Example: Debug login flow
+# Set BASE_URL (default: localhost:3000, adjust port if using foreman/overmind)
+BASE_URL="${BASE_URL:-http://localhost:3000}"
 SESSION="tmp/playwright/$(date +%Y-%m-%d_%H%M%S)"
 mkdir -p "$SESSION"
 node -e "
 const { chromium } = require('playwright');
 (async () => {
-  const browser = await chromium.launch();
-  const page = await browser.newPage();
+  let browser;
   const logs = [];
-  page.on('console', msg => logs.push('[' + msg.type() + '] ' + msg.text()));
-  page.on('pageerror', err => logs.push('[ERROR] ' + err.message));
+  try {
+    browser = await chromium.launch();
+    const page = await browser.newPage();
+    page.on('console', msg => {
+      const loc = msg.location();
+      const location = loc.url ? ' (' + loc.url + ':' + loc.lineNumber + ')' : '';
+      logs.push('[' + msg.type() + '] ' + msg.text() + location);
+    });
+    page.on('pageerror', err => logs.push('[ERROR] ' + err.message + '\n' + (err.stack || '')));
 
-  // Navigate to login page
-  await page.goto('http://localhost:3000/login');
+    // Navigate to login page
+    await page.goto('$BASE_URL/login', { timeout: 30000, waitUntil: 'domcontentloaded' });
 
-  // Fill form
-  await page.fill('input[name=\"email\"]', 'test@example.com');
-  await page.fill('input[name=\"password\"]', 'password');
+    // Fill form
+    await page.fill('input[name=\"email\"]', 'test@example.com');
+    await page.fill('input[name=\"password\"]', 'password');
 
-  // Screenshot before submit
-  await page.screenshot({ path: '$SESSION/before_submit.png', fullPage: true });
+    // Screenshot before submit
+    await page.screenshot({ path: '$SESSION/before_submit.png', fullPage: true });
 
-  // Submit and wait for navigation
-  await page.click('button[type=\"submit\"]');
-  await page.waitForLoadState('networkidle');
+    // Submit and wait for navigation
+    await page.click('button[type=\"submit\"]');
+    await page.waitForLoadState('networkidle');
 
-  // Capture final state
-  await page.screenshot({ path: '$SESSION/screenshot.png', fullPage: true });
-  require('fs').writeFileSync('$SESSION/console.log', logs.join('\n'));
-  require('fs').writeFileSync('$SESSION/page.html', await page.content());
-  await browser.close();
-  console.log('Artifacts saved to: $SESSION/');
+    // Capture final state
+    await page.screenshot({ path: '$SESSION/screenshot.png', fullPage: true });
+    require('fs').writeFileSync('$SESSION/console.log', logs.join('\n'));
+    require('fs').writeFileSync('$SESSION/page.html', await page.content());
+    console.log('Artifacts saved to: $SESSION/');
+  } catch (error) {
+    console.error('Browser interaction failed:', error.message);
+    require('fs').writeFileSync('$SESSION/error.log', error.stack || error.message);
+    if (logs.length) require('fs').writeFileSync('$SESSION/console.log', logs.join('\n'));
+    process.exit(1);
+  } finally {
+    if (browser) await browser.close();
+  }
 })();
 "
 ```
@@ -219,6 +249,72 @@ const visible = await page.isVisible('.error-message');
 // Get text content
 const text = await page.textContent('.alert');
 ```
+
+</tool>
+
+<tool name="browser-trace">
+<description>Capture detailed trace with timeline, DOM snapshots, and network requests. Best for debugging Hotwire/Turbo issues where event sequence matters.</description>
+
+```bash
+# Capture trace for detailed debugging (especially useful for Hotwire/Turbo)
+BASE_URL="${BASE_URL:-http://localhost:3000}"
+SESSION="tmp/playwright/$(date +%Y-%m-%d_%H%M%S)"
+mkdir -p "$SESSION"
+node -e "
+const { chromium } = require('playwright');
+(async () => {
+  let browser;
+  const logs = [];
+  try {
+    browser = await chromium.launch();
+    const context = await browser.newContext();
+
+    // Start tracing with screenshots, DOM snapshots, and source files
+    await context.tracing.start({ screenshots: true, snapshots: true, sources: true });
+
+    const page = await context.newPage();
+    page.on('console', msg => {
+      const loc = msg.location();
+      const location = loc.url ? ' (' + loc.url + ':' + loc.lineNumber + ')' : '';
+      logs.push('[' + msg.type() + '] ' + msg.text() + location);
+    });
+    page.on('pageerror', err => logs.push('[ERROR] ' + err.message + '\n' + (err.stack || '')));
+
+    // Navigate and perform interactions
+    await page.goto('$BASE_URL/users', { timeout: 30000, waitUntil: 'domcontentloaded' });
+
+    // Add your interactions here (clicks, form fills, etc.)
+
+    // Stop and save trace
+    await context.tracing.stop({ path: '$SESSION/trace.zip' });
+
+    await page.screenshot({ path: '$SESSION/screenshot.png', fullPage: true });
+    require('fs').writeFileSync('$SESSION/console.log', logs.join('\n'));
+    require('fs').writeFileSync('$SESSION/page.html', await page.content());
+
+    console.log('Artifacts saved to: $SESSION/');
+    console.log('View trace: npx playwright show-trace $SESSION/trace.zip');
+  } catch (error) {
+    console.error('Trace capture failed:', error.message);
+    require('fs').writeFileSync('$SESSION/error.log', error.stack || error.message);
+    if (logs.length) require('fs').writeFileSync('$SESSION/console.log', logs.join('\n'));
+    process.exit(1);
+  } finally {
+    if (browser) await browser.close();
+  }
+})();
+"
+
+# View trace in Playwright Trace Viewer (opens browser UI)
+npx playwright show-trace "$SESSION/trace.zip"
+```
+
+**Trace includes:**
+- Timeline of all actions
+- DOM snapshots before/after each action
+- Network requests and responses
+- Console logs with timestamps
+- Screenshots at each step
 
 </tool>
 

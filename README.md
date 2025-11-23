@@ -115,7 +115,7 @@ Domain skills are loaded dynamically based on what the task involves:
 8. **security** — XSS, SQL injection, CSRF, file uploads
 9. **jobs** — SolidQueue, SolidCache, SolidCable (NO Redis/Sidekiq)
 10. **mailers** — ActionMailer, async delivery, templates
-11. **debugging** — Rails debugging tools (logs, console, byebug)
+11. **debugging** — Rails debugging tools (logs, console, byebug) + Playwright browser debugging
 
 ## Vision
 

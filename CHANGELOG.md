@@ -15,6 +15,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `/rails-ai:refactor` — Improve existing code, fill test gaps
   - `/rails-ai:debug` — Fix bugs with systematic debugging
   - `/rails-ai:review` — Review code/PRs against TEAM_RULES
+- Playwright browser debugging in `rails-ai:debugging` skill:
+  - Headless browser debugging via official Playwright package (`npx playwright`)
+  - Tools: `browser-capture`, `browser-interact`, `browser-trace`
+  - Captures screenshots, console logs, HTML, and traces to `tmp/playwright/<timestamp>/`
+  - Subagent delegation to preserve main context window
+  - Integrates with `superpowers:systematic-debugging` workflow
 
 ### Changed
 - **BREAKING**: Architecture refactored from single `/rails-ai:architect` to 6 domain-specific workflow commands

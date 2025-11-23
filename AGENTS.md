@@ -63,7 +63,7 @@ rails-ai/
 
 1. **setup** - Project validation, environment config, credentials, Docker, RuboCop
 2. **controllers** - RESTful actions, strong parameters, concerns
-3. **debugging** - Rails debugging tools (logs, console, byebug)
+3. **debugging** - Rails debugging tools (logs, console, byebug) + Playwright browser debugging
 4. **hotwire** - Turbo Drive, Frames, Streams, Morph, Stimulus
 5. **jobs** - SolidQueue, SolidCache, SolidCable (NO Redis/Sidekiq)
 6. **mailers** - ActionMailer with async delivery

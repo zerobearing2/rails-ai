@@ -15,6 +15,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Loads relevant skills based on task (critical rules embedded, domain rules from skills)
   - Implements with TDD (RED-GREEN-REFACTOR)
   - Structured completion reporting
+- Enhanced `/rails-ai:review` command with parallel multi-agent architecture:
+  - 5 specialized review roles: security, rules+quality, domain, testing, ui
+  - Single `agents/reviewer.md` agent with role-based checklists
+  - Smart git range detection (PR URL, branch name, feature branch, uncommitted changes)
+  - Comprehensive security checks (XSS, SQL injection, CSRF, file uploads, command injection)
+  - All 20 TEAM_RULES compliance checking with severity levels
+  - General code quality checks (architecture, error handling, DRY)
+  - Domain-specific pattern validation (models, controllers, jobs, mailers)
+  - Testing quality review (TDD compliance, fixtures, WebMock, Minitest)
+  - UI/Hotwire review (Turbo, Stimulus, ViewComponent, accessibility)
+  - Consolidated output with `[TAG]` categorization and severity sorting
+  - Guided next-actions workflow based on findings
+- `agents/` directory for reusable agent definitions (developer + reviewer)
 - Parallel agent dispatch via `superpowers:dispatching-parallel-agents` in feature, refactor, and debug commands
 - 6 workflow commands replacing single architect coordinator:
   - `/rails-ai:setup` — Project configuration, gem setup, validation
@@ -43,6 +56,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **BREAKING**: Renamed `rails-ai:views` skill to `rails-ai:ui` (unified frontend workflow)
 - Skills refactored to pure domain knowledge (removed superpowers references)
 - Feature, Refactor, and Debug workflows now use `@agent-rails-ai:developer` agent (coordinator-only pattern)
+- Review workflow now uses `@agent-rails-ai:reviewer` agent with 5 parallel roles
 - Implementation work delegated to developer agent, keeping user context clean
 - Skill loading, TDD patterns, and verification centralized in developer agent
 - Auto-retry on failure (3 attempts max) before escalating to user

@@ -17,7 +17,7 @@ Provides Rails-specific workflows and domain skills for Claude Code: ActiveRecor
 | `/rails-ai:feature` | Implement new functionality |
 | `/rails-ai:refactor` | Improve existing code, fill test gaps |
 | `/rails-ai:debug` | Fix bugs and broken functionality |
-| `/rails-ai:review` | Review code/PRs against TEAM_RULES |
+| `/rails-ai:review` | Multi-agent code review (security, rules, patterns, tests, UI) |
 
 Each workflow command loads the appropriate Superpowers workflows (process) and Rails-AI skills (domain knowledge) automatically.
 
@@ -81,8 +81,10 @@ bin/ci
 # Debug an issue
 /rails-ai:debug tests failing in user_test.rb
 
-# Review before merge
-/rails-ai:review check PR #123 against team rules
+# Review before merge (parallel multi-agent review)
+/rails-ai:review
+/rails-ai:review https://github.com/org/repo/pull/123
+/rails-ai:review feature-branch
 ```
 
 ## Architecture
@@ -103,7 +105,7 @@ Each workflow command combines the right superpowers workflows with the relevant
 | `feature` | using-git-worktrees, brainstorming, writing-plans, executing-plans, verification-before-completion, finishing-a-development-branch, dispatching-parallel-agents (when 3+ tasks) |
 | `refactor` | using-git-worktrees, test-driven-development, testing-anti-patterns, verification-before-completion, finishing-a-development-branch, dispatching-parallel-agents (when 3+ areas) |
 | `debug` | systematic-debugging, root-cause-tracing, condition-based-waiting, verification-before-completion, dispatching-parallel-agents (when multiple bugs) |
-| `review` | requesting-code-review, receiving-code-review |
+| `review` | finishing-a-development-branch, 5 parallel reviewer agents (security, rules, domain, testing, ui) |
 
 ### Rails-AI Skills (11 total)
 

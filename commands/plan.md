@@ -28,7 +28,7 @@ Load based on what's being planned:
 |-------------------|-------------------|
 | Models, databases | `rails-ai:models` |
 | Controllers, routes | `rails-ai:controllers` |
-| Views, templates, forms | `rails-ai:views` |
+| Views, templates, forms | `rails-ai:ui` |
 | Hotwire, Turbo, Stimulus | `rails-ai:hotwire` |
 | CSS, Tailwind, DaisyUI | `rails-ai:styling` |
 | Background jobs, caching | `rails-ai:jobs` |

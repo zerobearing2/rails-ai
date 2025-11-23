@@ -33,7 +33,7 @@ Load based on where the bug is:
 |--------------|-------------------|
 | Models, database | `rails-ai:models` |
 | Controllers, routes | `rails-ai:controllers` |
-| Views, templates | `rails-ai:views` |
+| Views, templates | `rails-ai:ui` |
 | Hotwire, Turbo | `rails-ai:hotwire` |
 | Background jobs | `rails-ai:jobs` |
 | Mailers | `rails-ai:mailers` |

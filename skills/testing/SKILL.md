@@ -1902,7 +1902,7 @@ rails test:system
 <related-skills>
 - rails-ai:models - Test model validations, associations, scopes
 - rails-ai:controllers - Test controller actions, routing
-- rails-ai:views - View and system testing patterns
+- rails-ai:ui - View and system testing patterns
 - rails-ai:hotwire - Test Turbo Streams, Stimulus controllers
 - rails-ai:security - Test security measures (XSS prevention, auth)
 - rails-ai:jobs - Test background jobs, SolidQueue

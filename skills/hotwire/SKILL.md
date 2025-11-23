@@ -680,7 +680,7 @@ end
 ---
 
 <related-skills>
-- rails-ai:views - Partials, helpers, forms, and view structure
+- rails-ai:ui - Partials, helpers, forms, and view structure
 - rails-ai:styling - Tailwind/DaisyUI for styling Hotwire components
 - rails-ai:controllers - RESTful actions that work with Turbo
 - rails-ai:testing - System tests for Turbo and Stimulus

@@ -413,7 +413,7 @@ end
 ---
 
 <related-skills>
-- rails-ai:views - View structure and partials to style
+- rails-ai:ui - View structure and partials to style
 - rails-ai:hotwire - Interactive components that need styling
 - rails-ai:testing - Visual regression and accessibility testing
 </related-skills>

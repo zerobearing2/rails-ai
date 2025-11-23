@@ -21,10 +21,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Captures screenshots, console logs, HTML, and traces to `tmp/playwright/<timestamp>/`
   - Subagent delegation to preserve main context window
   - Integrates with `superpowers:systematic-debugging` workflow
+- Unified frontend workflow with `rails-ai:ui` skill:
+  - Orchestrates complete designer → developer handoff
+  - Sequential loading: `frontend-design:frontend-design` → `rails-ai:styling` → `rails-ai:hotwire`
+  - Smart scope detection (new UI vs tweaks)
+  - WCAG 2.1 AA accessibility built-in
+- UI detection in feature/refactor commands (automatic frontend workflow triggering)
+- `frontend-design` plugin as recommended dependency for creative direction
 
 ### Changed
 - **BREAKING**: Architecture refactored from single `/rails-ai:architect` to 6 domain-specific workflow commands
 - **BREAKING**: Superpowers workflows now hardcoded per command (deterministic) instead of dynamically selected
+- **BREAKING**: Renamed `rails-ai:views` skill to `rails-ai:ui` (unified frontend workflow)
 - Skills refactored to pure domain knowledge (removed superpowers references)
 - Feature and Refactor workflows now mandate subagent dispatch (coordinator-only pattern)
 - Implementation work happens in subagent context, keeping user context clean

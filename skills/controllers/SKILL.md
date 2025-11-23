@@ -1029,7 +1029,7 @@ end
 
 <related-skills>
 - rails-ai:models - Model validations, callbacks, associations
-- rails-ai:views - Forms, Turbo Frames/Streams
+- rails-ai:ui - Forms, Turbo Frames/Streams
 - rails-ai:security - XSS, CSRF, SQL injection prevention
 - rails-ai:testing - Controller and integration testing
 </related-skills>

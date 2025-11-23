@@ -28,7 +28,7 @@ Load based on what's being reviewed:
 |---------------|-------------------|
 | Models, ActiveRecord | `rails-ai:models` |
 | Controllers, routes | `rails-ai:controllers` |
-| Views, templates | `rails-ai:views` |
+| Views, templates | `rails-ai:ui` |
 | Hotwire, Turbo | `rails-ai:hotwire` |
 | Styling, CSS | `rails-ai:styling` |
 | Background jobs | `rails-ai:jobs` |
@@ -50,7 +50,7 @@ Clarify the review scope:
 Based on the code being reviewed:
 
 ```
-Use Skill tool to load:
+Use Skill tool to use:
 - rails-ai:[domain-skill]
 - rails-ai:[domain-skill]
 ```

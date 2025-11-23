@@ -20,7 +20,7 @@ This workflow uses:
 ## Rails-AI Skills
 
 Load based on setup scope:
-- `rails-ai:setup` — always load for setup tasks
+- `rails-ai:setup` — always use for setup tasks
 
 ## Process
 
@@ -37,7 +37,7 @@ Clarify what needs to be configured:
 ### Step 2: Load Skills
 
 ```
-Use Skill tool to load:
+Use Skill tool to use:
 - rails-ai:setup
 ```
 

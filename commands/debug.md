@@ -33,7 +33,7 @@ Load based on where the bug is:
 |--------------|-------------------|
 | Models, database | `rails-ai:models` |
 | Controllers, routes | `rails-ai:controllers` |
-| Views, templates | `rails-ai:views` |
+| Views, templates | `rails-ai:ui` |
 | Hotwire, Turbo | `rails-ai:hotwire` |
 | Background jobs | `rails-ai:jobs` |
 | Mailers | `rails-ai:mailers` |
@@ -41,14 +41,14 @@ Load based on where the bug is:
 | Rails debugging tools | `rails-ai:debugging` |
 | Tests | `rails-ai:testing` |
 
-**Always load `rails-ai:debugging`** — Rails-specific debugging tools and patterns.
+**Always use `rails-ai:debugging`** — Rails-specific debugging tools and patterns.
 
 ## Process
 
 ### Step 1: Load Debugging Skills
 
 ```
-Use Skill tool to load:
+Use Skill tool to use:
 - rails-ai:debugging
 - rails-ai:[domain-skill based on bug location]
 ```

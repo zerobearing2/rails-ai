@@ -51,15 +51,35 @@ The subagent loads these based on refactor scope:
 |----------------------|----------------|
 | Models, ActiveRecord | `rails-ai:models` |
 | Controllers | `rails-ai:controllers` |
-| Views, partials | `rails-ai:views` |
-| Hotwire, Stimulus | `rails-ai:hotwire` |
-| Styling, CSS | `rails-ai:styling` |
+| **UI work (see detection below)** | `rails-ai:ui` (orchestrates frontend flow) |
 | Background jobs | `rails-ai:jobs` |
 | Mailers | `rails-ai:mailers` |
 | Security improvements | `rails-ai:security` |
 | Tests (always) | `rails-ai:testing` |
 
-**Subagent always loads `rails-ai:testing`** — refactoring without tests is gambling.
+**Subagent always uses `rails-ai:testing`** — refactoring without tests is gambling.
+
+### UI Detection
+
+**Detect frontend work by looking for these signals:**
+
+| Signal Type | Keywords/Patterns |
+|-------------|-------------------|
+| View-related | page, form, UI, interface, dashboard, layout, modal, component, view, partial |
+| User-facing | display, show, render, present, list, table, card, grid |
+| Interaction | click, submit, toggle, filter, search, drag, dropdown, button |
+| File paths | `app/views/`, `app/javascript/controllers/`, `app/helpers/` |
+
+**If UI work detected:**
+1. Include `rails-ai:ui` in the subagent's skills to use
+2. The UI skill orchestrates the full frontend workflow:
+   - Step 1: Assess scope (new vs tweak)
+   - Step 2: Use `frontend-design:frontend-design` for creative direction (new UI only)
+   - Step 3: Use `rails-ai:styling` for Tailwind/DaisyUI
+   - Step 4: Use `rails-ai:hotwire` for interactivity
+   - Step 5: Implement with accessibility (WCAG 2.1 AA)
+
+**Note:** When UI is detected, subagent uses `rails-ai:ui` which handles using `styling` and `hotwire` as dependencies. Do NOT list them separately.
 
 ## Process
 
@@ -139,7 +159,7 @@ bin/ci passed before starting. Behavior must NOT change.
 - #17: bin/ci must pass — run before claiming done
 
 ### Skills to Load
-Use Skill tool to load:
+Use Skill tool to use:
 - rails-ai:testing (ALWAYS)
 - [other relevant skills]
 

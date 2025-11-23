@@ -51,15 +51,35 @@ The subagent loads these based on feature scope:
 |------------------|----------------|
 | Models, databases, ActiveRecord | `rails-ai:models` |
 | Controllers, routes, REST | `rails-ai:controllers` |
-| Views, templates, forms | `rails-ai:views` |
-| Hotwire, Turbo, Stimulus | `rails-ai:hotwire` |
-| CSS, Tailwind, DaisyUI | `rails-ai:styling` |
+| **UI work (see detection below)** | `rails-ai:ui` (orchestrates frontend flow) |
 | Background jobs, caching | `rails-ai:jobs` |
 | Email functionality | `rails-ai:mailers` |
 | Security concerns | `rails-ai:security` |
 | Tests (always) | `rails-ai:testing` |
 
-**Subagent always loads `rails-ai:testing`** — TDD is non-negotiable.
+**Subagent always uses `rails-ai:testing`** — TDD is non-negotiable.
+
+### UI Detection
+
+**Detect frontend work by looking for these signals:**
+
+| Signal Type | Keywords/Patterns |
+|-------------|-------------------|
+| View-related | page, form, UI, interface, dashboard, layout, modal, component, view |
+| User-facing | display, show, render, present, list, table, card, grid |
+| Interaction | click, submit, toggle, filter, search, drag, dropdown, button |
+| File paths | `app/views/`, `app/javascript/controllers/`, `app/helpers/` |
+
+**If UI work detected:**
+1. Include `rails-ai:ui` in the subagent's skills to use
+2. The UI skill orchestrates the full frontend workflow:
+   - Step 1: Assess scope (new vs tweak)
+   - Step 2: Use `frontend-design:frontend-design` for creative direction (new UI only)
+   - Step 3: Use `rails-ai:styling` for Tailwind/DaisyUI
+   - Step 4: Use `rails-ai:hotwire` for interactivity
+   - Step 5: Implement with accessibility (WCAG 2.1 AA)
+
+**Note:** When UI is detected, subagent uses `rails-ai:ui` which handles using `styling` and `hotwire` as dependencies. Do NOT list them separately.
 
 ## Process
 
@@ -124,7 +144,7 @@ Task tool prompt structure:
 - #20: Hash#dig — use for all nested hash access
 
 ### Skills to Load
-Use Skill tool to load:
+Use Skill tool to use:
 - rails-ai:testing (ALWAYS)
 - [other relevant skills]
 

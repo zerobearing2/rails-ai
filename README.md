@@ -163,6 +163,8 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) and [TESTING.md](TESTING.md).
 
 Built on [Superpowers](https://github.com/obra/superpowers) by [@obra](https://github.com/obra).
 
+UI workflow integrates [frontend-design](https://github.com/anthropics/claude-code-plugins/tree/main/plugins/frontend-design) from [Claude Code Plugins](https://github.com/anthropics/claude-code-plugins) by Anthropic.
+
 ## License
 
 MIT License - see [LICENSE](LICENSE).

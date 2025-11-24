@@ -57,49 +57,57 @@ Categorize files to determine which agents/skills are needed:
 
 ### Step 3: Dispatch 5 Parallel Review Agents
 
-Use the Task tool to dispatch 5 `rails-ai:reviewer` agents in parallel:
+Use the Task tool to dispatch 5 `@agent-rails-ai:reviewer` agents **in parallel** (single message with 5 Task tool calls):
 
 **Agent 1: Security**
 ```
 Role: security
-Task: Review for XSS, SQL injection, CSRF, file upload, command injection vulnerabilities
+Files Changed: [list of changed files]
+Diff: [diff content]
 ```
 
 **Agent 2: Rules + Quality**
 ```
 Role: rules
-Task: Review against all 20 TEAM_RULES + general code quality (architecture, error handling, DRY)
+Files Changed: [list of changed files]
+Diff: [diff content]
 ```
 
 **Agent 3: Domain**
 ```
 Role: domain
-Task: Review against domain-specific patterns based on changed file types
-Inject: Relevant skill content for models/controllers/jobs/mailers
+Files Changed: [list of changed files]
+Diff: [diff content]
 ```
 
 **Agent 4: Testing**
 ```
 Role: testing
-Task: Review test quality, TDD compliance, fixtures, mocking patterns
+Files Changed: [list of changed files]
+Diff: [diff content]
 ```
 
 **Agent 5: UI/Hotwire** (only if frontend files changed)
 ```
 Role: ui
-Task: Review Turbo patterns, Stimulus, ViewComponent, styling, accessibility
+Files Changed: [list of changed files]
+Diff: [diff content]
 Skip if: No files in app/views, app/components, app/javascript, or CSS files
 ```
 
 **Dispatch Template:**
 
 For each agent, use the Task tool with:
-- subagent_type: `general-purpose`
-- prompt: Include the reviewer agent content from `agents/reviewer.md` with:
-  - The role set (security, rules, domain, testing, ui)
-  - The diff content
-  - The list of changed files
-  - Any additional skill content for domain/ui roles
+- subagent_type: `@agent-rails-ai:reviewer`
+- prompt: |
+    Role: [security | rules | domain | testing | ui]
+    Files Changed: [list of changed files]
+    Diff:
+    ```diff
+    [diff content]
+    ```
+
+The `@agent-rails-ai:reviewer` agent will automatically load its instructions and relevant skills based on the role.
 
 ### Step 4: Consolidate Findings
 

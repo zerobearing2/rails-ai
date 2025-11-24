@@ -190,10 +190,10 @@ class CommandStructureTest < Minitest::Test
     review = @command_files.find { |f| f.include?("review.md") }
     content = File.read(review)
 
-    assert_match(/rails-ai:reviewer/i, content,
-                 "Review command should reference reviewer agent")
-    assert_match(%r{agents/reviewer\.md}i, content,
-                 "Review command should reference agent file path")
+    assert_match(/@agent-rails-ai:reviewer/i, content,
+                 "Review command should reference @agent-rails-ai:reviewer agent")
+    assert_match(/subagent_type:.*@agent-rails-ai:reviewer/i, content,
+                 "Review command should dispatch via subagent_type")
   end
 
   def test_feature_command_has_completion_checklist

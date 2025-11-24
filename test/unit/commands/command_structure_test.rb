@@ -124,8 +124,8 @@ class CommandStructureTest < Minitest::Test
                  "Feature command should reference Task tool for subagent dispatch")
     assert_match(/Retry Logic/i, content,
                  "Feature command should have Retry Logic section")
-    assert_match(%r{agents/developer\.md}i, content,
-                 "Feature command should reference developer agent")
+    assert_match(/rails-ai:developer.*FEATURE mode/im, content,
+                 "Feature command should have inline developer agent instructions")
   end
 
   def test_refactor_command_has_coordinator_pattern
@@ -144,8 +144,8 @@ class CommandStructureTest < Minitest::Test
                  "Refactor command should have baseline verification step")
     assert_match(/behavior.changed/i, content,
                  "Refactor command should include behavior change check")
-    assert_match(%r{agents/developer\.md}i, content,
-                 "Refactor command should reference developer agent")
+    assert_match(/rails-ai:developer.*REFACTOR mode/im, content,
+                 "Refactor command should have inline developer agent instructions")
   end
 
   def test_debug_command_has_completion_checklist

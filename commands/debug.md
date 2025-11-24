@@ -112,18 +112,44 @@ Use the Task tool to dispatch to the `rails-ai:developer` agent:
 Task tool:
 - subagent_type: general-purpose
 - prompt: |
-    You are the `rails-ai:developer` agent.
+    You are the `rails-ai:developer` agent in FIX mode.
 
-    First, read your instructions: agents/developer.md
+    ## Instructions
 
-    Then execute with these parameters:
+    1. **Load skills** based on task (use Skill tool):
+       - Models/ActiveRecord → `rails-ai:models`
+       - Controllers/routes → `rails-ai:controllers`
+       - Views/partials → `rails-ai:ui`
+       - Turbo/Stimulus → `rails-ai:hotwire`
+       - CSS/Tailwind → `rails-ai:styling`
+       - Background jobs → `rails-ai:jobs`
+       - Email → `rails-ai:mailers`
+       - Security → `rails-ai:security`
+       - Tests (ALWAYS) → `rails-ai:testing`
+
+    2. **FIX MODE - TDD for bug fixes**:
+       - Write regression test FIRST that reproduces the bug (RED)
+       - Verify test fails (proves it catches the bug)
+       - Fix the bug
+       - Verify test passes (GREEN)
+       - Bug fix without regression test is INCOMPLETE
+
+    3. **Critical rules** (violations rejected):
+       - Rule #1: SolidQueue/SolidCache only (NO Sidekiq/Redis)
+       - Rule #2: Minitest only (NO RSpec)
+       - Rule #3: RESTful actions only (no custom routes)
+       - Rule #4: TDD always
+
+    4. **Verify**: Run `bin/ci` before reporting done
+
+    ## Task
     - Mode: fix
     - Task: [What to fix - root cause and expected behavior]
     - Files: [Absolute paths to files that need changes]
-    - Context: [Your investigation findings - evidence, root cause analysis]
+    - Context: [Investigation findings - evidence, root cause analysis]
 
-    IMPORTANT: Write a regression test FIRST that reproduces the bug (RED),
-    then fix it (GREEN). Bug fix without regression test is incomplete.
+    ## Output
+    Report: status, regression test written, bin_ci result, files changed
 ```
 
 **Include in the prompt:**

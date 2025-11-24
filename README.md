@@ -105,7 +105,7 @@ Each workflow command combines the right superpowers workflows with the relevant
 | `feature` | using-git-worktrees, brainstorming, writing-plans, executing-plans, verification-before-completion, finishing-a-development-branch, dispatching-parallel-agents (when 3+ tasks) |
 | `refactor` | using-git-worktrees, test-driven-development, testing-anti-patterns, verification-before-completion, finishing-a-development-branch, dispatching-parallel-agents (when 3+ areas) |
 | `debug` | systematic-debugging, root-cause-tracing, condition-based-waiting, verification-before-completion, dispatching-parallel-agents (when multiple bugs) |
-| `review` | finishing-a-development-branch, 5 parallel reviewer agents (security, rules, domain, testing, ui) |
+| `review` | finishing-a-development-branch, 3 parallel reviewer agents (security-and-rules, implementation, ui) |
 
 ### Rails-AI Skills (11 total)
 

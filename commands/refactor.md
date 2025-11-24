@@ -87,31 +87,32 @@ Use `superpowers:dispatching-parallel-agents` when the refactor scope includes *
 
 **IMPORTANT for refactor mode:** Even with parallel dispatch, each agent must independently verify `behavior_changed: false`. If ANY agent reports behavior changed, stop all work and escalate.
 
-#### Dispatch Parameters
+#### Dispatch to Developer Agent
 
-Dispatch with mode `refactor`:
+Use the Task tool to dispatch to the developer agent:
 
 ```
-Task tool parameters:
+Task tool:
 - subagent_type: general-purpose
 - prompt: |
-    Read and follow: agents/developer.md
+    You are the Rails-AI Developer Agent.
 
-    Mode: refactor
-    Task: [The refactoring task - what to restructure]
-    Files: [Absolute paths to files the agent will need]
-    Context: [Baseline status, expected outcome]
+    First, read your instructions: agents/developer.md
+
+    Then execute with these parameters:
+    - Mode: refactor
+    - Task: [What to restructure]
+    - Files: [Absolute paths needed]
+    - Context: [Baseline status, expected outcome]
 
     CRITICAL: Behavior must NOT change. Report behavior_changed: false.
 ```
 
-**Context to include in prompt:**
+**Include in the prompt:**
 1. Baseline status: `bin/ci` passed before starting
 2. Refactor scope: What code is being restructured and why
 3. File paths the agent will need
 4. Expected outcome (structure change, NOT behavior change)
-
-The subagent reads its own instructions - don't load them into coordinator context.
 
 ### Step 5: Handle Developer Agent Response
 

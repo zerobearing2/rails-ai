@@ -74,29 +74,30 @@ Use `superpowers:dispatching-parallel-agents` when the plan has **3+ independent
 
 **Sequential dispatch:** If tasks depend on each other (e.g., controller depends on model), dispatch one at a time.
 
-#### Dispatch Parameters
+#### Dispatch to Developer Agent
 
-Dispatch with mode `feature`:
+Use the Task tool to dispatch to the developer agent:
 
 ```
-Task tool parameters:
+Task tool:
 - subagent_type: general-purpose
 - prompt: |
-    Read and follow: agents/developer.md
+    You are the Rails-AI Developer Agent.
 
-    Mode: feature
-    Task: [The implementation task from the plan]
-    Files: [Absolute paths to files the agent will need]
-    Context: [Additional context - plan, requirements, dependencies]
+    First, read your instructions: agents/developer.md
+
+    Then execute with these parameters:
+    - Mode: feature
+    - Task: [What to implement]
+    - Files: [Absolute paths needed]
+    - Context: [Plan details, requirements, dependencies]
 ```
 
-**Context to include in prompt:**
+**Include in the prompt:**
 1. The implementation task (what to build)
-2. File paths the agent will need to read
-3. Any dependencies or related code
+2. File paths the agent will need
+3. Dependencies or related code
 4. Completion requirements
-
-The subagent reads its own instructions - don't load them into coordinator context.
 
 ### Step 4: Handle Developer Agent Response
 

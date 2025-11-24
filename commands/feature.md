@@ -80,45 +80,15 @@ Use the Task tool to dispatch to the `rails-ai:developer` agent:
 
 ```
 Task tool:
-- subagent_type: general-purpose
+- subagent_type: rails-ai:developer
 - prompt: |
-    You are the `rails-ai:developer` agent in FEATURE mode.
-
-    ## Instructions
-
-    1. **Load skills** based on task (use Skill tool):
-       - Models/ActiveRecord → `rails-ai:models`
-       - Controllers/routes → `rails-ai:controllers`
-       - Views/partials → `rails-ai:ui`
-       - Turbo/Stimulus → `rails-ai:hotwire`
-       - CSS/Tailwind → `rails-ai:styling`
-       - Background jobs → `rails-ai:jobs`
-       - Email → `rails-ai:mailers`
-       - Security → `rails-ai:security`
-       - Tests (ALWAYS) → `rails-ai:testing`
-
-    2. **Implement with TDD** (RED-GREEN-REFACTOR):
-       - Write failing test first (RED)
-       - Write minimal code to pass (GREEN)
-       - Clean up (REFACTOR)
-
-    3. **Critical rules** (violations rejected):
-       - Rule #1: SolidQueue/SolidCache only (NO Sidekiq/Redis)
-       - Rule #2: Minitest only (NO RSpec)
-       - Rule #3: RESTful actions only (no custom routes)
-       - Rule #4: TDD always
-
-    4. **Verify**: Run `bin/ci` before reporting done
-
-    ## Task
-    - Mode: feature
-    - Task: [What to implement]
-    - Files: [Absolute paths needed]
-    - Context: [Plan details, requirements, dependencies]
-
-    ## Output
-    Report: status (success/failed/blocked), tests written, bin_ci result, files changed
+    Mode: feature
+    Task: [What to implement]
+    Files: [Absolute paths needed]
+    Context: [Plan details, requirements, dependencies]
 ```
+
+The `rails-ai:developer` agent will automatically load its instructions and relevant skills.
 
 **Include in the prompt:**
 1. The implementation task (what to build)

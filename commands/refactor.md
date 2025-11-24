@@ -93,49 +93,17 @@ Use the Task tool to dispatch to the `rails-ai:developer` agent:
 
 ```
 Task tool:
-- subagent_type: general-purpose
+- subagent_type: rails-ai:developer
 - prompt: |
-    You are the `rails-ai:developer` agent in REFACTOR mode.
+    Mode: refactor
+    Task: [What to restructure]
+    Files: [Absolute paths needed]
+    Context: [Baseline status, expected outcome]
 
-    ## Instructions
-
-    1. **Load skills** based on task (use Skill tool):
-       - Models/ActiveRecord → `rails-ai:models`
-       - Controllers/routes → `rails-ai:controllers`
-       - Views/partials → `rails-ai:ui`
-       - Turbo/Stimulus → `rails-ai:hotwire`
-       - CSS/Tailwind → `rails-ai:styling`
-       - Background jobs → `rails-ai:jobs`
-       - Email → `rails-ai:mailers`
-       - Security → `rails-ai:security`
-       - Tests (ALWAYS) → `rails-ai:testing`
-
-    2. **REFACTOR MODE CONSTRAINTS**:
-       - Baseline verified: tests pass BEFORE you start
-       - You are RESTRUCTURING, not changing behavior
-       - All existing tests must continue to pass
-       - Make incremental changes, run tests after each
-       - If tests fail, revert and try smaller steps
-
-    3. **Critical rules** (violations rejected):
-       - Rule #1: SolidQueue/SolidCache only (NO Sidekiq/Redis)
-       - Rule #2: Minitest only (NO RSpec)
-       - Rule #3: RESTful actions only (no custom routes)
-       - Rule #4: TDD always
-
-    4. **Verify**: Run `bin/ci` before reporting done
-
-    ## Task
-    - Mode: refactor
-    - Task: [What to restructure]
-    - Files: [Absolute paths needed]
-    - Context: [Baseline status, expected outcome]
-
-    ## Output
-    Report: status, tests passing, bin_ci result, files changed, behavior_changed: false
-
-    CRITICAL: behavior_changed MUST be false. If behavior changed, stop and report immediately.
+    CRITICAL: Behavior must NOT change. Report behavior_changed: false.
 ```
+
+The `rails-ai:developer` agent will automatically load its instructions and relevant skills.
 
 **Include in the prompt:**
 1. Baseline status: `bin/ci` passed before starting

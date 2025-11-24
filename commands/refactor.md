@@ -44,23 +44,23 @@ Use this workflow when:
 
 ## Process
 
-### Step 1: Create Isolated Workspace
+### Step 1: Verify Baseline (CRITICAL - HARD STOP)
 
-Use `superpowers:using-git-worktrees` to create isolated branch for refactor work.
-
-### Step 2: Verify Baseline (CRITICAL)
-
-**Before dispatching any agent, YOU must verify tests pass:**
+**Before anything else, verify tests pass:**
 
 ```bash
 bin/ci
 ```
 
-**If tests fail:** Stop. Fix them first (use `/rails-ai:feature` with fix mode). Do not dispatch agent to refactor broken code.
+**If tests fail:** STOP. Do not proceed. Refactoring requires a green baseline.
 
-**If tests pass:** Document the baseline — agent will compare against this.
+Tell the user: "Cannot refactor - `bin/ci` is failing. Fix the failing tests first with `/rails-ai:debug`, then retry `/rails-ai:refactor`."
 
-This step is MANDATORY. Refactoring assumes a green baseline.
+**If tests pass:** Continue to Step 2.
+
+### Step 2: Create Isolated Workspace
+
+Use `superpowers:using-git-worktrees` to create isolated branch for refactor work.
 
 ### Step 3: Plan the Refactor
 

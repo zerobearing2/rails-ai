@@ -69,37 +69,42 @@ Use the Task tool to dispatch 5 `@agent-rails-ai:reviewer` agents **in parallel*
 
 **Agent 1: Security**
 ```
-Role: security
-Files Changed: [list of changed files]
-Diff: [diff content]
+Mode: security
+Task: Review for security vulnerabilities
+Files: [list of changed files]
+Context: [diff content]
 ```
 
 **Agent 2: Rules + Quality**
 ```
-Role: rules
-Files Changed: [list of changed files]
-Diff: [diff content]
+Mode: rules
+Task: Review against TEAM_RULES and code quality
+Files: [list of changed files]
+Context: [diff content]
 ```
 
 **Agent 3: Domain**
 ```
-Role: domain
-Files Changed: [list of changed files]
-Diff: [diff content]
+Mode: domain
+Task: Review domain patterns (models, controllers, jobs, mailers)
+Files: [list of changed files]
+Context: [diff content]
 ```
 
 **Agent 4: Testing**
 ```
-Role: testing
-Files Changed: [list of changed files]
-Diff: [diff content]
+Mode: testing
+Task: Review test quality and TDD compliance
+Files: [list of changed files]
+Context: [diff content]
 ```
 
 **Agent 5: UI/Hotwire** (only if frontend files changed)
 ```
-Role: ui
-Files Changed: [list of changed files]
-Diff: [diff content]
+Mode: ui
+Task: Review UI patterns (views, Hotwire, styling)
+Files: [list of changed files]
+Context: [diff content]
 Skip if: No files in app/views, app/components, app/javascript, or CSS files
 ```
 
@@ -108,14 +113,15 @@ Skip if: No files in app/views, app/components, app/javascript, or CSS files
 For each agent, use the Task tool with:
 - subagent_type: `@agent-rails-ai:reviewer`
 - prompt: |
-    Role: [security | rules | domain | testing | ui]
-    Files Changed: [list of changed files]
-    Diff:
+    Mode: [security | rules | domain | testing | ui]
+    Task: [what to review]
+    Files: [list of changed files]
+    Context:
     ```diff
     [diff content]
     ```
 
-The `@agent-rails-ai:reviewer` agent will automatically load its instructions and relevant skills based on the role.
+The `@agent-rails-ai:reviewer` agent will automatically load its instructions and relevant skills based on the mode.
 
 ### Step 4: Consolidate Findings
 

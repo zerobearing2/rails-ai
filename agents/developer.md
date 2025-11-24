@@ -124,49 +124,47 @@ bin/ci
 
 ## Input
 
-The coordinator will provide these values in the prompt:
+The coordinator provides:
 
 - **Mode:** feature | refactor | fix
 - **Task:** What to implement/refactor/fix
-- **Files:** Absolute paths to work with
+- **Files:** Relevant file paths
 - **Context:** Additional details, requirements, constraints
 
 ---
 
-## Output Format
+## Output
 
-When complete, report:
+Return structured YAML:
 
 ```yaml
 status: success | failed | blocked
 mode: feature | refactor | fix
 
+summary: "Brief description of what was done"
+
+files:
+  created:
+    - path/to/new_file.rb
+  modified:
+    - path/to/changed_file.rb
+
 tests:
   written:
     - test/models/user_test.rb (3 new tests)
-    - test/controllers/users_controller_test.rb (5 new tests)
   passing: true | false
 
 verification:
   bin_ci: pass | fail
-  behavior_changed: true | false  # For refactor mode, must be false
 
-files:
-  created:
-    - app/models/user.rb
-    - test/models/user_test.rb
-  modified:
-    - app/controllers/users_controller.rb
-
-issues:
-  - description: "Any blockers or issues encountered"
-    resolution: "How it was resolved or why it's blocked"
+issues:  # Only if status is failed or blocked
+  - "Description of blocker or failure"
 ```
 
 <mode-refactor>
 **CRITICAL for Refactor Mode:**
-- `behavior_changed` MUST be `false`
-- If behavior changed, report immediately — do not continue
+- If behavior changed (tests fail), report `status: failed` immediately
+- Do not continue if tests fail after refactoring
 </mode-refactor>
 
 ---

@@ -173,14 +173,9 @@ class DeveloperAgentTest < Minitest::Test
                  "Agent should specify files in output")
   end
 
-  def test_agent_tracks_behavior_changed
-    assert_match(/behavior_changed/i, @content,
-                 "Agent should track behavior_changed")
-  end
-
   def test_refactor_mode_requires_behavior_unchanged
-    # Check that refactor mode has critical requirement for behavior_changed
-    assert_match(/CRITICAL.*Refactor.*behavior_changed.*false/im, @content,
-                 "Refactor mode should require behavior_changed: false")
+    # Check that refactor mode has critical requirement about behavior change
+    assert_match(/CRITICAL.*Refactor.*behavior changed.*status: failed/im, @content,
+                 "Refactor mode should fail if behavior changed")
   end
 end

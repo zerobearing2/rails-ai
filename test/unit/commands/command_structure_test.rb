@@ -90,20 +90,20 @@ class CommandStructureTest < Minitest::Test
                  "Review command should use Task tool for agent dispatch")
   end
 
-  def test_review_command_has_all_five_roles
+  def test_review_command_has_all_five_modes
     review = @command_files.find { |f| f.include?("review.md") }
     content = File.read(review)
 
-    assert_match(/Role: security/i, content,
-                 "Review command should have security role")
-    assert_match(/Role: rules/i, content,
-                 "Review command should have rules role")
-    assert_match(/Role: domain/i, content,
-                 "Review command should have domain role")
-    assert_match(/Role: testing/i, content,
-                 "Review command should have testing role")
-    assert_match(/Role: ui/i, content,
-                 "Review command should have ui role")
+    assert_match(/Mode: security/i, content,
+                 "Review command should have security mode")
+    assert_match(/Mode: rules/i, content,
+                 "Review command should have rules mode")
+    assert_match(/Mode: domain/i, content,
+                 "Review command should have domain mode")
+    assert_match(/Mode: testing/i, content,
+                 "Review command should have testing mode")
+    assert_match(/Mode: ui/i, content,
+                 "Review command should have ui mode")
   end
 
   def test_review_command_has_smart_scope_detection

@@ -67,11 +67,31 @@ rails-ai/
 | Agent | Description | Used By |
 |-------|-------------|---------|
 | `developer.md` | Implementation agent with 3 modes | feature, refactor, debug commands |
-| `reviewer.md` | Multi-role code reviewer with 5 roles | review command |
+| `reviewer.md` | Code reviewer with 5 modes | review command |
+
+### Unified Agent Interface
+
+All agents share the same input/output structure for consistency:
+
+**Input (from coordinator):**
+```
+Mode: <variant>
+Task: <what to do>
+Files: <relevant paths>
+Context: <additional details>
+```
+
+**Output (from agent):**
+```yaml
+status: success | failed | blocked
+mode: <variant used>
+summary: "Brief description"
+# Agent-specific fields...
+issues:  # Only if status is failed or blocked
+  - "Description of blocker"
+```
 
 ### Developer Agent Modes
-
-The developer agent accepts a `mode` parameter:
 
 | Mode | Baseline Required | Behavior Change OK | Use Case |
 |------|-------------------|-------------------|----------|
@@ -87,11 +107,9 @@ The developer agent accepts a `mode` parameter:
 
 Critical rules (1-4, 17, 18) are embedded in the agent. Domain-specific rules come from skills. This minimizes context usage per task.
 
-### Reviewer Agent Roles
+### Reviewer Agent Modes
 
-The reviewer agent accepts a `role` parameter and performs specialized reviews:
-
-| Role | Checks | Tags |
+| Mode | Checks | Tags |
 |------|--------|------|
 | `security` | XSS, SQL injection, CSRF, file uploads, command injection | `[SECURITY]` |
 | `rules` | All 20 TEAM_RULES + general code quality | `[RULE #N]`, `[QUALITY]` |
@@ -99,7 +117,7 @@ The reviewer agent accepts a `role` parameter and performs specialized reviews:
 | `testing` | TDD compliance, fixtures, WebMock, Minitest | `[TESTING]` |
 | `ui` | Turbo, Stimulus, ViewComponent, accessibility | `[UI]`, `[HOTWIRE]`, `[STYLING]` |
 
-The review command dispatches 5 agents in parallel (one per role) and consolidates findings by severity.
+The review command dispatches 5 agents in parallel (one per mode) and consolidates findings by severity.
 
 ## Skills
 

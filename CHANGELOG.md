@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Developer agent (`agents/developer.md`) with 3 modes for centralized implementation:
+  - `feature` mode: Implement new functionality (no baseline required)
+  - `refactor` mode: Improve existing code (baseline required, no behavior change)
+  - `fix` mode: Fix bugs or review findings (no baseline required)
+  - Reads TEAM_RULES and relevant skills based on task
+  - Implements with TDD (RED-GREEN-REFACTOR)
+  - Structured completion reporting
 - 6 workflow commands replacing single architect coordinator:
   - `/rails-ai:setup` — Project configuration, gem setup, validation
   - `/rails-ai:plan` — Brainstorm ideas, create implementation plans
@@ -34,8 +41,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **BREAKING**: Superpowers workflows now hardcoded per command (deterministic) instead of dynamically selected
 - **BREAKING**: Renamed `rails-ai:views` skill to `rails-ai:ui` (unified frontend workflow)
 - Skills refactored to pure domain knowledge (removed superpowers references)
-- Feature and Refactor workflows now mandate subagent dispatch (coordinator-only pattern)
-- Implementation work happens in subagent context, keeping user context clean
+- Feature and Refactor workflows now use `rails-ai:developer` agent (coordinator-only pattern)
+- Implementation work delegated to developer agent, keeping user context clean
+- Skill loading, TDD patterns, and verification centralized in developer agent
 - Auto-retry on failure (3 attempts max) before escalating to user
 - Feature and Refactor require `/rails-ai:review` before completion
 - Each workflow command mirrors real Rails developer workflows

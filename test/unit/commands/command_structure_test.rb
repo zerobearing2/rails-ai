@@ -124,8 +124,8 @@ class CommandStructureTest < Minitest::Test
                  "Feature command should reference Task tool for subagent dispatch")
     assert_match(/Retry Logic/i, content,
                  "Feature command should have Retry Logic section")
-    assert_match(/Context Package/i, content,
-                 "Feature command should have Context Package section")
+    assert_match(%r{agents/developer\.md}i, content,
+                 "Feature command should reference developer agent")
   end
 
   def test_refactor_command_has_coordinator_pattern
@@ -142,8 +142,10 @@ class CommandStructureTest < Minitest::Test
                  "Refactor command should have Retry Logic section")
     assert_match(/Verify Baseline/i, content,
                  "Refactor command should have baseline verification step")
-    assert_match(/Behavior Changed/i, content,
-                 "Refactor command should include critical behavior change check")
+    assert_match(/behavior.changed/i, content,
+                 "Refactor command should include behavior change check")
+    assert_match(%r{agents/developer\.md}i, content,
+                 "Refactor command should reference developer agent")
   end
 
   def test_debug_command_has_completion_checklist
@@ -164,13 +166,25 @@ class CommandStructureTest < Minitest::Test
                  "Setup command should reference setup skill")
   end
 
-  def test_commands_describe_rails_ai_skill_loading
-    %w[feature refactor debug].each do |command|
+  def test_debug_command_describes_rails_ai_skill_loading
+    # Debug command still loads skills directly (no developer agent yet)
+    debug = @command_files.find { |f| f.include?("debug.md") }
+    content = File.read(debug)
+
+    assert_match(/Rails-AI Skills/i, content,
+                 "Debug command should describe loading Rails-AI skills")
+  end
+
+  def test_feature_and_refactor_delegate_to_developer_agent
+    # Feature and refactor delegate skill loading to developer agent
+    %w[feature refactor].each do |command|
       file = @command_files.find { |f| f.include?("#{command}.md") }
       content = File.read(file)
 
-      assert_match(/Rails-AI Skills/i, content,
-                   "#{command} command should describe loading Rails-AI skills")
+      assert_match(/rails-ai:developer/i, content,
+                   "#{command} command should reference rails-ai:developer agent")
+      assert_match(/mode.*#{command}/i, content,
+                   "#{command} command should specify mode")
     end
   end
 

@@ -32,6 +32,7 @@ Use this workflow when:
 
 **Always:**
 - `superpowers:using-git-worktrees` — isolate feature work
+- `superpowers:dispatching-parallel-agents` — run independent tasks concurrently
 - `superpowers:verification-before-completion` — evidence before claims
 - `superpowers:finishing-a-development-branch` — merge/PR options
 
@@ -67,7 +68,20 @@ Read the agent definition first:
 Read: agents/developer.md
 ```
 
-Then dispatch with mode `feature`:
+#### Parallel Dispatch for Independent Tasks
+
+Use `superpowers:dispatching-parallel-agents` when the plan has **3+ independent tasks** that:
+- Don't share state or dependencies
+- Can be implemented without waiting for each other
+- Touch different files/domains
+
+**Parallel dispatch example:** If implementing a feature that needs a model, controller, and mailer — and they're independent — dispatch 3 developer agents concurrently in a single message with multiple Task tool calls.
+
+**Sequential dispatch:** If tasks depend on each other (e.g., controller depends on model), dispatch one at a time.
+
+#### Dispatch Parameters
+
+Dispatch with mode `feature`:
 
 ```
 Task tool parameters:

@@ -34,6 +34,7 @@ Use this workflow when:
 
 **Always:**
 - `superpowers:using-git-worktrees` — isolate refactor work
+- `superpowers:dispatching-parallel-agents` — run independent refactors concurrently
 - `superpowers:verification-before-completion` — verify tests pass BEFORE and AFTER refactoring
 - `superpowers:finishing-a-development-branch` — merge/PR options
 
@@ -78,7 +79,22 @@ Read the agent definition first:
 Read: agents/developer.md
 ```
 
-Then dispatch with mode `refactor`:
+#### Parallel Dispatch for Independent Refactors
+
+Use `superpowers:dispatching-parallel-agents` when the refactor scope includes **3+ independent areas** that:
+- Don't share state or dependencies
+- Can be refactored without affecting each other
+- Touch different files/domains
+
+**Parallel dispatch example:** If refactoring involves extracting 3 different concerns from a large model — and they're independent — dispatch 3 developer agents concurrently in a single message with multiple Task tool calls.
+
+**Sequential dispatch:** If refactors depend on each other (e.g., extracting a concern then using it elsewhere), dispatch one at a time.
+
+**IMPORTANT for refactor mode:** Even with parallel dispatch, each agent must independently verify `behavior_changed: false`. If ANY agent reports behavior changed, stop all work and escalate.
+
+#### Dispatch Parameters
+
+Dispatch with mode `refactor`:
 
 ```
 Task tool parameters:

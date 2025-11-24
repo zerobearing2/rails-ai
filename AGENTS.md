@@ -54,10 +54,10 @@ rails-ai/
 | `/rails-ai:plan` | Brainstorm ideas, create implementation plans | No |
 | `/rails-ai:feature` | Implement new functionality (uses developer agent) | **Yes** |
 | `/rails-ai:refactor` | Improve existing code (uses developer agent) | **Yes** |
-| `/rails-ai:debug` | Fix bugs with systematic debugging | No |
+| `/rails-ai:debug` | Fix bugs (investigates, then uses developer agent) | **Yes** |
 | `/rails-ai:review` | Review code/PRs against TEAM_RULES | No |
 
-**Coordinator-only** means the command dispatches the developer agent for implementation work, keeping user context clean.
+**Coordinator-only** means the command dispatches the `rails-ai:developer` agent for implementation work, keeping user context clean.
 
 ## Agents
 
@@ -65,7 +65,7 @@ rails-ai/
 
 | Agent | Description | Used By |
 |-------|-------------|---------|
-| `developer.md` | Implementation agent with 3 modes | feature, refactor commands |
+| `developer.md` | Implementation agent with 3 modes | feature, refactor, debug commands |
 
 ### Developer Agent Modes
 
@@ -78,12 +78,12 @@ The developer agent accepts a `mode` parameter:
 | `fix` | No | Yes | Fixing bugs or review findings |
 
 **What the developer agent does:**
-1. Reads TEAM_RULES and relevant skills based on task
+1. Loads relevant skills based on task (skills contain domain rules)
 2. Implements with TDD (RED-GREEN-REFACTOR)
 3. Runs `bin/ci` to verify
 4. Reports completion with structured output
 
-This centralizes skill loading, TDD patterns, and verification in one place.
+Critical rules (1-4, 17, 18) are embedded in the agent. Domain-specific rules come from skills. This minimizes context usage per task.
 
 ## Skills
 

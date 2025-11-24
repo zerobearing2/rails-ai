@@ -12,9 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `feature` mode: Implement new functionality (no baseline required)
   - `refactor` mode: Improve existing code (baseline required, no behavior change)
   - `fix` mode: Fix bugs or review findings (no baseline required)
-  - Reads TEAM_RULES and relevant skills based on task
+  - Loads relevant skills based on task (critical rules embedded, domain rules from skills)
   - Implements with TDD (RED-GREEN-REFACTOR)
   - Structured completion reporting
+- Parallel agent dispatch via `superpowers:dispatching-parallel-agents` in feature, refactor, and debug commands
 - 6 workflow commands replacing single architect coordinator:
   - `/rails-ai:setup` — Project configuration, gem setup, validation
   - `/rails-ai:plan` — Brainstorm ideas, create implementation plans
@@ -41,11 +42,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **BREAKING**: Superpowers workflows now hardcoded per command (deterministic) instead of dynamically selected
 - **BREAKING**: Renamed `rails-ai:views` skill to `rails-ai:ui` (unified frontend workflow)
 - Skills refactored to pure domain knowledge (removed superpowers references)
-- Feature and Refactor workflows now use `rails-ai:developer` agent (coordinator-only pattern)
+- Feature, Refactor, and Debug workflows now use `rails-ai:developer` agent (coordinator-only pattern)
 - Implementation work delegated to developer agent, keeping user context clean
 - Skill loading, TDD patterns, and verification centralized in developer agent
 - Auto-retry on failure (3 attempts max) before escalating to user
 - Feature and Refactor require `/rails-ai:review` before completion
+- Debug command now separates investigation (coordinator) from fixes (developer agent)
+- Refactor command verifies baseline (`bin/ci`) as Step 1 with hard stop if failing
 - Each workflow command mirrors real Rails developer workflows
 - README completely rewritten for new architecture
 

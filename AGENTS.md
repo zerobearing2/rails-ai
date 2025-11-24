@@ -1,7 +1,7 @@
 # Rails AI Agent System
 
 **Status:** Experimental - Phase 2 of 4
-**Architecture:** 6 workflow commands + 11 domain skills
+**Architecture:** 6 workflow commands + 2 agents + 11 domain skills
 
 This document is internal documentation for contributors.
 
@@ -22,10 +22,11 @@ rails-ai/
 │   ├── plan.md                # /rails-ai:plan
 │   ├── feature.md             # /rails-ai:feature (uses developer agent)
 │   ├── refactor.md            # /rails-ai:refactor (uses developer agent)
-│   ├── debug.md               # /rails-ai:debug
-│   └── review.md              # /rails-ai:review
+│   ├── debug.md               # /rails-ai:debug (uses developer agent)
+│   └── review.md              # /rails-ai:review (uses reviewer agent)
 ├── agents/                    # Reusable agent definitions
-│   └── developer.md           # Implementation agent with feature/refactor/fix modes
+│   ├── developer.md           # Implementation agent with feature/refactor/fix modes
+│   └── reviewer.md            # Multi-role code reviewer agent
 ├── skills/                    # 11 domain skills
 │   ├── setup/
 │   ├── controllers/
@@ -55,9 +56,9 @@ rails-ai/
 | `/rails-ai:feature` | Implement new functionality (uses developer agent) | **Yes** |
 | `/rails-ai:refactor` | Improve existing code (uses developer agent) | **Yes** |
 | `/rails-ai:debug` | Fix bugs (investigates, then uses developer agent) | **Yes** |
-| `/rails-ai:review` | Review code/PRs against TEAM_RULES | No |
+| `/rails-ai:review` | Multi-agent review (uses 3 parallel reviewer agents) | **Yes** |
 
-**Coordinator-only** means the command dispatches the `@agent-rails-ai:developer` agent for implementation work, keeping user context clean.
+**Coordinator-only** means the command dispatches agents for implementation/review work, keeping user context clean.
 
 ## Agents
 
@@ -66,10 +67,31 @@ rails-ai/
 | Agent | Description | Used By |
 |-------|-------------|---------|
 | `developer.md` | Implementation agent with 3 modes | feature, refactor, debug commands |
+| `reviewer.md` | Code reviewer with 3 modes | review command |
+
+### Unified Agent Interface
+
+All agents share the same input/output structure for consistency:
+
+**Input (from coordinator):**
+```
+Mode: <variant>
+Task: <what to do>
+Files: <relevant paths>
+Context: <additional details>
+```
+
+**Output (from agent):**
+```yaml
+status: success | failed | blocked
+mode: <variant used>
+summary: "Brief description"
+# Agent-specific fields...
+issues:  # Only if status is failed or blocked
+  - "Description of blocker"
+```
 
 ### Developer Agent Modes
-
-The developer agent accepts a `mode` parameter:
 
 | Mode | Baseline Required | Behavior Change OK | Use Case |
 |------|-------------------|-------------------|----------|
@@ -84,6 +106,16 @@ The developer agent accepts a `mode` parameter:
 4. Reports completion with structured output
 
 Critical rules (1-4, 17, 18) are embedded in the agent. Domain-specific rules come from skills. This minimizes context usage per task.
+
+### Reviewer Agent Modes
+
+| Mode | Checks | Tags |
+|------|--------|------|
+| `security-and-rules` | Security vulnerabilities + TEAM_RULES + code quality | `[SECURITY]`, `[RULE #N]`, `[QUALITY]` |
+| `implementation` | Model, controller, job, mailer, testing patterns | `[MODELS]`, `[CONTROLLERS]`, `[JOBS]`, `[MAILERS]`, `[TESTING]` |
+| `ui` | Views, Turbo, Stimulus, ViewComponent, styling, accessibility | `[UI]`, `[HOTWIRE]`, `[STYLING]` |
+
+The review command dispatches 3 agents in parallel (one per mode) and consolidates findings by severity. This streamlined approach reduces cost by 40% while maintaining comprehensive coverage.
 
 ## Skills
 
@@ -133,6 +165,7 @@ See TEAM_RULES.md for all 20 rules with enforcement levels.
 rake test:unit              # All unit tests
 rake test:unit:skills       # Skills only
 rake test:unit:commands     # Commands only
+rake test:unit:agents       # Agents only
 rake test:unit:rules        # Rules only
 bin/ci                      # Full check (lint + tests)
 ```
@@ -140,6 +173,7 @@ bin/ci                      # Full check (lint + tests)
 **Unit tests validate:**
 
 - Command structure and content
+- Agent structure and roles
 - Skill structure and metadata
 - Rules consistency and mappings
 - No integration tests (removed)
@@ -167,10 +201,10 @@ bin/ci                      # Full check (lint + tests)
 1. Edit `commands/<workflow>.md`
 2. Maintain YAML front matter structure
 3. Reference Superpowers workflows correctly
-4. For coordinator-only commands (feature, refactor):
-   - Ensure subagent dispatch is mandatory
+4. For coordinator-only commands (feature, refactor, debug, review):
+   - Ensure agent dispatch is mandatory
    - Include context package assembly
-   - Include retry logic
+   - Include retry logic (for developer agent)
 5. Run `bin/ci`
 
 ### Updating Domain Skills

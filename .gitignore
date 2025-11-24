@@ -39,5 +39,6 @@ tmp/
 # local worktrees
 .worktrees
 
-# Planning documents (AI-generated, not source controlled)
-docs/plans/
+# Planning documents
+# Note: Tracked in feature branches for PR context, cleaned up after merge
+# docs/plans/

@@ -79,6 +79,15 @@ namespace :test do
     puts "  Unit Tests: #{command_unit_tests}"
     puts ""
 
+    # Agents
+    total_agents = Dir.glob("agents/*.md").count
+    agent_unit_tests = Dir.glob("test/unit/agents/**/*_test.rb").count
+
+    puts "Agents:"
+    puts "  Total: #{total_agents}"
+    puts "  Unit Tests: #{agent_unit_tests}"
+    puts ""
+
     # Rules
     total_rules_files = Dir.glob("rules/*.{md,yml}").count
     rules_unit_tests = Dir.glob("test/unit/rules/**/*_test.rb").count
@@ -89,7 +98,7 @@ namespace :test do
     puts ""
 
     # Overall
-    total_unit = skill_unit_tests + command_unit_tests + rules_unit_tests
+    total_unit = skill_unit_tests + command_unit_tests + agent_unit_tests + rules_unit_tests
 
     puts "Overall:"
     puts "  Unit Tests: #{total_unit}"
@@ -98,6 +107,7 @@ namespace :test do
     puts "  rake test:unit           # All unit tests"
     puts "  rake test:unit:skills    # Skills unit tests only"
     puts "  rake test:unit:commands  # Commands unit tests only"
+    puts "  rake test:unit:agents    # Agents unit tests only"
     puts "  rake test:unit:rules     # Rules unit tests only"
     puts ""
   end

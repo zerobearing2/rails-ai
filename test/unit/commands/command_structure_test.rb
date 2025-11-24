@@ -80,12 +80,116 @@ class CommandStructureTest < Minitest::Test
                  "Refactor command should reference TDD superpowers workflow")
   end
 
-  def test_review_command_references_superpowers
+  def test_review_command_has_parallel_agent_architecture
     review = @command_files.find { |f| f.include?("review.md") }
     content = File.read(review)
 
-    assert_match(/superpowers:requesting-code-review/i, content,
-                 "Review command should reference requesting-code-review superpowers workflow")
+    assert_match(/3 Parallel/i, content,
+                 "Review command should dispatch 3 parallel agents")
+    assert_match(/Task tool/i, content,
+                 "Review command should use Task tool for agent dispatch")
+  end
+
+  def test_review_command_has_all_three_modes
+    review = @command_files.find { |f| f.include?("review.md") }
+    content = File.read(review)
+
+    assert_match(/Mode: security-and-rules/i, content,
+                 "Review command should have security-and-rules mode")
+    assert_match(/Mode: implementation/i, content,
+                 "Review command should have implementation mode")
+    assert_match(/Mode: ui/i, content,
+                 "Review command should have ui mode")
+  end
+
+  def test_review_command_has_smart_scope_detection
+    review = @command_files.find { |f| f.include?("review.md") }
+    content = File.read(review)
+
+    assert_match(/PR URL/i, content,
+                 "Review command should detect PR URLs")
+    assert_match(/branch/i, content,
+                 "Review command should detect branch names")
+    assert_match(/uncommitted/i, content,
+                 "Review command should handle uncommitted changes")
+    assert_match(/git diff/i, content,
+                 "Review command should use git diff")
+  end
+
+  def test_review_command_has_file_analysis
+    review = @command_files.find { |f| f.include?("review.md") }
+    content = File.read(review)
+
+    assert_match(%r{app/models}i, content,
+                 "Review command should analyze model files")
+    assert_match(%r{app/controllers}i, content,
+                 "Review command should analyze controller files")
+    assert_match(%r{app/views}i, content,
+                 "Review command should analyze view files")
+    assert_match(%r{test/}i, content,
+                 "Review command should analyze test files")
+  end
+
+  def test_review_command_has_consolidation_step
+    review = @command_files.find { |f| f.include?("review.md") }
+    content = File.read(review)
+
+    assert_match(/Consolidate/i, content,
+                 "Review command should consolidate findings")
+    assert_match(/Dedupe/i, content,
+                 "Review command should deduplicate findings")
+    assert_match(/severity/i, content,
+                 "Review command should sort by severity")
+  end
+
+  def test_review_command_has_verdict_generation
+    review = @command_files.find { |f| f.include?("review.md") }
+    content = File.read(review)
+
+    assert_match(/Verdict/i, content,
+                 "Review command should generate verdict")
+    assert_match(/Ready to merge/i, content,
+                 "Review command should include merge readiness")
+    assert_match(/Critical/i, content,
+                 "Review command should classify critical issues")
+    assert_match(/Important/i, content,
+                 "Review command should classify important issues")
+    assert_match(/Minor/i, content,
+                 "Review command should classify minor issues")
+  end
+
+  def test_review_command_has_next_actions
+    review = @command_files.find { |f| f.include?("review.md") }
+    content = File.read(review)
+
+    assert_match(/Next Actions/i, content,
+                 "Review command should present next actions")
+    assert_match(/Fix issues/i, content,
+                 "Review command should offer fix option")
+    assert_match(/finishing-a-development-branch/i, content,
+                 "Review command should use finishing-a-development-branch workflow for completion options")
+  end
+
+  def test_review_command_defines_all_tags
+    review = @command_files.find { |f| f.include?("review.md") }
+    content = File.read(review)
+
+    tags = %w[SECURITY RULE QUALITY MODELS CONTROLLERS JOBS MAILERS TESTING UI HOTWIRE STYLING]
+
+    tags.each do |tag|
+      assert_match(/\[#{tag}/i, content,
+                   "Review command should define [#{tag}] tag")
+    end
+  end
+
+  def test_review_command_references_reviewer_agent
+    review = @command_files.find { |f| f.include?("review.md") }
+    content = File.read(review)
+
+    assert_match(/@agent-rails-ai:reviewer/i, content,
+                 "Review command should reference @agent-rails-ai:reviewer agent")
+    assert_match(/subagent_type:.*@agent-rails-ai:reviewer/i, content,
+                 "Review command should dispatch via subagent_type")
   end
 
   def test_feature_command_has_completion_checklist

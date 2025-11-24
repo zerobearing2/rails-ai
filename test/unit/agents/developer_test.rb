@@ -64,54 +64,54 @@ class DeveloperAgentTest < Minitest::Test
   end
 
   # Skill loading tests
-  def test_agent_references_team_rules
-    assert_match(%r{rules/TEAM_RULES\.md}i, @content,
-                 "Agent should reference rules/TEAM_RULES.md")
+  def test_agent_instructs_skill_tool_usage
+    assert_match(/Skill tool/i, @content,
+                 "Agent should instruct using the Skill tool to load skills")
   end
 
   def test_agent_references_models_skill
-    assert_match(%r{skills/models/SKILL\.md}i, @content,
-                 "Agent should reference skills/models/SKILL.md")
+    assert_match(/rails-ai:models/i, @content,
+                 "Agent should reference rails-ai:models skill")
   end
 
   def test_agent_references_controllers_skill
-    assert_match(%r{skills/controllers/SKILL\.md}i, @content,
-                 "Agent should reference skills/controllers/SKILL.md")
+    assert_match(/rails-ai:controllers/i, @content,
+                 "Agent should reference rails-ai:controllers skill")
   end
 
   def test_agent_references_testing_skill
-    assert_match(%r{skills/testing/SKILL\.md}i, @content,
-                 "Agent should reference skills/testing/SKILL.md")
+    assert_match(/rails-ai:testing/i, @content,
+                 "Agent should reference rails-ai:testing skill")
   end
 
   def test_agent_references_ui_skill
-    assert_match(%r{skills/ui/SKILL\.md}i, @content,
-                 "Agent should reference skills/ui/SKILL.md")
+    assert_match(/rails-ai:ui/i, @content,
+                 "Agent should reference rails-ai:ui skill")
   end
 
   def test_agent_references_hotwire_skill
-    assert_match(%r{skills/hotwire/SKILL\.md}i, @content,
-                 "Agent should reference skills/hotwire/SKILL.md")
+    assert_match(/rails-ai:hotwire/i, @content,
+                 "Agent should reference rails-ai:hotwire skill")
   end
 
   def test_agent_references_styling_skill
-    assert_match(%r{skills/styling/SKILL\.md}i, @content,
-                 "Agent should reference skills/styling/SKILL.md")
+    assert_match(/rails-ai:styling/i, @content,
+                 "Agent should reference rails-ai:styling skill")
   end
 
   def test_agent_references_jobs_skill
-    assert_match(%r{skills/jobs/SKILL\.md}i, @content,
-                 "Agent should reference skills/jobs/SKILL.md")
+    assert_match(/rails-ai:jobs/i, @content,
+                 "Agent should reference rails-ai:jobs skill")
   end
 
   def test_agent_references_mailers_skill
-    assert_match(%r{skills/mailers/SKILL\.md}i, @content,
-                 "Agent should reference skills/mailers/SKILL.md")
+    assert_match(/rails-ai:mailers/i, @content,
+                 "Agent should reference rails-ai:mailers skill")
   end
 
   def test_agent_references_security_skill
-    assert_match(%r{skills/security/SKILL\.md}i, @content,
-                 "Agent should reference skills/security/SKILL.md")
+    assert_match(/rails-ai:security/i, @content,
+                 "Agent should reference rails-ai:security skill")
   end
 
   def test_testing_skill_is_always_required

@@ -18,23 +18,28 @@ Modes determine constraints and expectations:
 
 ### Step 1: Load Required Skills
 
-Load skills based on files you'll be working with:
+**Use the Skill tool** to load skills based on what the task involves:
 
-| If task involves | Read this skill |
-|------------------|-----------------|
-| Models, ActiveRecord, validations | `skills/models/SKILL.md` |
-| Controllers, routes, REST | `skills/controllers/SKILL.md` |
-| Views, components, partials | `skills/ui/SKILL.md` |
-| JavaScript, Turbo, Stimulus | `skills/hotwire/SKILL.md` |
-| CSS, Tailwind, DaisyUI | `skills/styling/SKILL.md` |
-| Background jobs, caching | `skills/jobs/SKILL.md` |
-| Email functionality | `skills/mailers/SKILL.md` |
-| Security concerns | `skills/security/SKILL.md` |
-| Tests (ALWAYS) | `skills/testing/SKILL.md` |
+| If task involves | Load this skill (Skill tool) |
+|------------------|------------------------------|
+| Models, ActiveRecord, validations | `rails-ai:models` |
+| Controllers, routes, REST | `rails-ai:controllers` |
+| Views, components, partials | `rails-ai:ui` |
+| JavaScript, Turbo, Stimulus | `rails-ai:hotwire` |
+| CSS, Tailwind, DaisyUI | `rails-ai:styling` |
+| Background jobs, caching | `rails-ai:jobs` |
+| Email functionality | `rails-ai:mailers` |
+| Security concerns | `rails-ai:security` |
+| Tests (ALWAYS) | `rails-ai:testing` |
 
 **Testing skill is ALWAYS required** — TDD is non-negotiable.
 
-Skills reference TEAM_RULES by number. If you need clarification on a specific rule, read `rules/TEAM_RULES.md`.
+**Example:** If implementing a model with a controller, use the Skill tool to load:
+1. `rails-ai:testing` (always first)
+2. `rails-ai:models`
+3. `rails-ai:controllers`
+
+Skills contain domain-specific rules and patterns. Follow what they say.
 
 ### Step 2: Mode-Specific Setup
 

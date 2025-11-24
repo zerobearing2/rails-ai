@@ -74,11 +74,6 @@ Assess what needs to be refactored:
 
 **You MUST dispatch refactoring to the developer agent using the Task tool.**
 
-Read the agent definition first:
-```
-Read: agents/developer.md
-```
-
 #### Parallel Dispatch for Independent Refactors
 
 Use `superpowers:dispatching-parallel-agents` when the refactor scope includes **3+ independent areas** that:
@@ -99,21 +94,24 @@ Dispatch with mode `refactor`:
 ```
 Task tool parameters:
 - subagent_type: general-purpose
-- prompt: [Include full developer agent content with placeholders filled]
+- prompt: |
+    Read and follow: agents/developer.md
 
-Placeholders to fill:
-- {{MODE}}: refactor
-- {{TASK}}: The refactoring task (what to restructure)
-- {{FILES}}: Absolute paths to files the agent will need
-- {{CONTEXT}}: Additional context (baseline status, expected outcome)
+    Mode: refactor
+    Task: [The refactoring task - what to restructure]
+    Files: [Absolute paths to files the agent will need]
+    Context: [Baseline status, expected outcome]
+
+    CRITICAL: Behavior must NOT change. Report behavior_changed: false.
 ```
 
-**Context to include:**
+**Context to include in prompt:**
 1. Baseline status: `bin/ci` passed before starting
 2. Refactor scope: What code is being restructured and why
 3. File paths the agent will need
 4. Expected outcome (structure change, NOT behavior change)
-5. **CRITICAL:** Behavior must NOT change
+
+The subagent reads its own instructions - don't load them into coordinator context.
 
 ### Step 5: Handle Developer Agent Response
 

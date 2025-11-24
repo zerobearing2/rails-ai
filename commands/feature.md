@@ -63,11 +63,6 @@ Use `superpowers:using-git-worktrees` to create isolated branch for feature work
 
 **You MUST dispatch implementation to the developer agent using the Task tool.**
 
-Read the agent definition first:
-```
-Read: agents/developer.md
-```
-
 #### Parallel Dispatch for Independent Tasks
 
 Use `superpowers:dispatching-parallel-agents` when the plan has **3+ independent tasks** that:
@@ -86,20 +81,22 @@ Dispatch with mode `feature`:
 ```
 Task tool parameters:
 - subagent_type: general-purpose
-- prompt: [Include full developer agent content with placeholders filled]
+- prompt: |
+    Read and follow: agents/developer.md
 
-Placeholders to fill:
-- {{MODE}}: feature
-- {{TASK}}: The implementation task from the plan
-- {{FILES}}: Absolute paths to files the agent will need
-- {{CONTEXT}}: Additional context (plan, requirements, dependencies)
+    Mode: feature
+    Task: [The implementation task from the plan]
+    Files: [Absolute paths to files the agent will need]
+    Context: [Additional context - plan, requirements, dependencies]
 ```
 
-**Context to include:**
+**Context to include in prompt:**
 1. The implementation task (what to build)
 2. File paths the agent will need to read
 3. Any dependencies or related code
 4. Completion requirements
+
+The subagent reads its own instructions - don't load them into coordinator context.
 
 ### Step 4: Handle Developer Agent Response
 

@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Implements with TDD (RED-GREEN-REFACTOR)
   - Structured completion reporting
 - Enhanced `/rails-ai:review` command with parallel multi-agent architecture:
-  - 5 specialized review modes: security, rules+quality, domain, testing, ui
+  - 3 specialized review modes: security-and-rules, implementation, ui (40% cost savings vs 5 modes)
   - Single `agents/reviewer.md` agent with mode-based checklists
   - Smart git range detection (PR URL, branch name, feature branch, uncommitted changes)
   - Comprehensive security checks (XSS, SQL injection, CSRF, file uploads, command injection)
@@ -56,7 +56,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **BREAKING**: Renamed `rails-ai:views` skill to `rails-ai:ui` (unified frontend workflow)
 - Skills refactored to pure domain knowledge (removed superpowers references)
 - Feature, Refactor, and Debug workflows now use `@agent-rails-ai:developer` agent (coordinator-only pattern)
-- Review workflow now uses `@agent-rails-ai:reviewer` agent with 5 parallel modes
+- Review workflow now uses `@agent-rails-ai:reviewer` agent with 3 parallel modes (security-and-rules, implementation, ui)
 - Unified agent interface: both developer and reviewer agents use same input/output structure (Mode, Task, Files, Context → status, mode, summary)
 - Implementation work delegated to developer agent, keeping user context clean
 - Skill loading, TDD patterns, and verification centralized in developer agent

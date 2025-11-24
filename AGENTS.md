@@ -56,7 +56,7 @@ rails-ai/
 | `/rails-ai:feature` | Implement new functionality (uses developer agent) | **Yes** |
 | `/rails-ai:refactor` | Improve existing code (uses developer agent) | **Yes** |
 | `/rails-ai:debug` | Fix bugs (investigates, then uses developer agent) | **Yes** |
-| `/rails-ai:review` | Multi-agent review (uses 5 parallel reviewer agents) | **Yes** |
+| `/rails-ai:review` | Multi-agent review (uses 3 parallel reviewer agents) | **Yes** |
 
 **Coordinator-only** means the command dispatches agents for implementation/review work, keeping user context clean.
 
@@ -67,7 +67,7 @@ rails-ai/
 | Agent | Description | Used By |
 |-------|-------------|---------|
 | `developer.md` | Implementation agent with 3 modes | feature, refactor, debug commands |
-| `reviewer.md` | Code reviewer with 5 modes | review command |
+| `reviewer.md` | Code reviewer with 3 modes | review command |
 
 ### Unified Agent Interface
 
@@ -111,13 +111,11 @@ Critical rules (1-4, 17, 18) are embedded in the agent. Domain-specific rules co
 
 | Mode | Checks | Tags |
 |------|--------|------|
-| `security` | XSS, SQL injection, CSRF, file uploads, command injection | `[SECURITY]` |
-| `rules` | All 20 TEAM_RULES + general code quality | `[RULE #N]`, `[QUALITY]` |
-| `domain` | Model, controller, job, mailer patterns | `[MODELS]`, `[CONTROLLERS]`, etc. |
-| `testing` | TDD compliance, fixtures, WebMock, Minitest | `[TESTING]` |
-| `ui` | Turbo, Stimulus, ViewComponent, accessibility | `[UI]`, `[HOTWIRE]`, `[STYLING]` |
+| `security-and-rules` | Security vulnerabilities + TEAM_RULES + code quality | `[SECURITY]`, `[RULE #N]`, `[QUALITY]` |
+| `implementation` | Model, controller, job, mailer, testing patterns | `[MODELS]`, `[CONTROLLERS]`, `[JOBS]`, `[MAILERS]`, `[TESTING]` |
+| `ui` | Views, Turbo, Stimulus, ViewComponent, styling, accessibility | `[UI]`, `[HOTWIRE]`, `[STYLING]` |
 
-The review command dispatches 5 agents in parallel (one per mode) and consolidates findings by severity.
+The review command dispatches 3 agents in parallel (one per mode) and consolidates findings by severity. This streamlined approach reduces cost by 40% while maintaining comprehensive coverage.
 
 ## Skills
 

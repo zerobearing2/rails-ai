@@ -14,8 +14,8 @@ class ReviewerAgentTest < Minitest::Test
 
   # Input documentation tests (matching developer_test.rb pattern)
   def test_agent_documents_input_format
-    assert_match(/Mode:.*security.*rules.*domain.*testing.*ui/im, @content,
-                 "Agent should document Mode input")
+    assert_match(/Mode:.*security-and-rules.*implementation.*ui/im, @content,
+                 "Agent should document Mode input with 3 modes")
     assert_match(/Task:/i, @content,
                  "Agent should document Task input")
     assert_match(/Files:/i, @content,
@@ -26,37 +26,23 @@ class ReviewerAgentTest < Minitest::Test
 
   # XML mode tags tests (matching developer_test.rb pattern)
   def test_agent_uses_xml_mode_tags
-    assert_match(/<mode-security>/i, @content,
-                 "Agent should have <mode-security> XML tag")
-    assert_match(/<mode-rules>/i, @content,
-                 "Agent should have <mode-rules> XML tag")
-    assert_match(/<mode-domain>/i, @content,
-                 "Agent should have <mode-domain> XML tag")
-    assert_match(/<mode-testing>/i, @content,
-                 "Agent should have <mode-testing> XML tag")
+    assert_match(/<mode-security-and-rules>/i, @content,
+                 "Agent should have <mode-security-and-rules> XML tag")
+    assert_match(/<mode-implementation>/i, @content,
+                 "Agent should have <mode-implementation> XML tag")
     assert_match(/<mode-ui>/i, @content,
                  "Agent should have <mode-ui> XML tag")
   end
 
   # Mode tests
-  def test_agent_defines_security_mode
-    assert_match(/mode.*security/i, @content,
-                 "Agent should define security mode")
+  def test_agent_defines_security_and_rules_mode
+    assert_match(/mode.*security-and-rules/i, @content,
+                 "Agent should define security-and-rules mode")
   end
 
-  def test_agent_defines_rules_mode
-    assert_match(/mode.*rules/i, @content,
-                 "Agent should define rules mode")
-  end
-
-  def test_agent_defines_domain_mode
-    assert_match(/mode.*domain/i, @content,
-                 "Agent should define domain mode")
-  end
-
-  def test_agent_defines_testing_mode
-    assert_match(/mode.*testing/i, @content,
-                 "Agent should define testing mode")
+  def test_agent_defines_implementation_mode
+    assert_match(/mode.*implementation/i, @content,
+                 "Agent should define implementation mode")
   end
 
   def test_agent_defines_ui_mode
@@ -68,8 +54,8 @@ class ReviewerAgentTest < Minitest::Test
   def test_agent_has_unified_output_format
     assert_match(/status:.*success.*failed.*blocked/im, @content,
                  "Agent should have status field in output")
-    assert_match(/mode:.*security.*rules.*domain.*testing.*ui/im, @content,
-                 "Agent should have mode field in output")
+    assert_match(/mode:.*security-and-rules.*implementation.*ui/im, @content,
+                 "Agent should have mode field in output with 3 modes")
     assert_match(/summary:/i, @content,
                  "Agent should have summary field in output")
   end
@@ -235,14 +221,10 @@ class ReviewerAgentTest < Minitest::Test
 
   # Mode announcement tests (matching developer_test.rb pattern)
   def test_agent_announces_mode
-    assert_match(/@agent-rails-ai:reviewer.*SECURITY.*mode/i, @content,
-                 "Agent should announce security mode")
-    assert_match(/@agent-rails-ai:reviewer.*RULES.*mode/i, @content,
-                 "Agent should announce rules mode")
-    assert_match(/@agent-rails-ai:reviewer.*DOMAIN.*mode/i, @content,
-                 "Agent should announce domain mode")
-    assert_match(/@agent-rails-ai:reviewer.*TESTING.*mode/i, @content,
-                 "Agent should announce testing mode")
+    assert_match(/@agent-rails-ai:reviewer.*SECURITY-AND-RULES.*mode/i, @content,
+                 "Agent should announce security-and-rules mode")
+    assert_match(/@agent-rails-ai:reviewer.*IMPLEMENTATION.*mode/i, @content,
+                 "Agent should announce implementation mode")
     assert_match(/@agent-rails-ai:reviewer.*UI.*mode/i, @content,
                  "Agent should announce ui mode")
   end

@@ -5,7 +5,7 @@ allowed-tools: Bash(git *), Bash(gh *), Glob, Grep, Read, Task
 
 # Rails-AI Code Review
 
-Multi-agent code review checking security, TEAM_RULES, domain patterns, testing, and UI/Hotwire.
+Multi-agent code review with 3 parallel reviewers: security-and-rules, implementation, and UI/Hotwire.
 
 ## Superpowers Workflows
 
@@ -63,43 +63,27 @@ Categorize files to determine which agents/skills are needed:
 | `**/*.css`, `**/*.scss` | styling | rails-ai:styling |
 | `test/**` | testing | rails-ai:testing |
 
-### Step 3: Dispatch 5 Parallel Review Agents
+### Step 3: Dispatch 3 Parallel Review Agents
 
-Use the Task tool to dispatch 5 `@agent-rails-ai:reviewer` agents **in parallel** (single message with 5 Task tool calls):
+Use the Task tool to dispatch 3 `@agent-rails-ai:reviewer` agents **in parallel** (single message with 3 Task tool calls):
 
-**Agent 1: Security**
+**Agent 1: Security-and-Rules**
 ```
-Mode: security
-Task: Review for security vulnerabilities
+Mode: security-and-rules
+Task: Review for security vulnerabilities, TEAM_RULES violations, and code quality
 Files: [list of changed files]
 Context: [diff content]
 ```
 
-**Agent 2: Rules + Quality**
+**Agent 2: Implementation**
 ```
-Mode: rules
-Task: Review against TEAM_RULES and code quality
+Mode: implementation
+Task: Review domain patterns (models, controllers, jobs, mailers) and testing
 Files: [list of changed files]
 Context: [diff content]
 ```
 
-**Agent 3: Domain**
-```
-Mode: domain
-Task: Review domain patterns (models, controllers, jobs, mailers)
-Files: [list of changed files]
-Context: [diff content]
-```
-
-**Agent 4: Testing**
-```
-Mode: testing
-Task: Review test quality and TDD compliance
-Files: [list of changed files]
-Context: [diff content]
-```
-
-**Agent 5: UI/Hotwire** (only if frontend files changed)
+**Agent 3: UI/Hotwire** (only if frontend files changed)
 ```
 Mode: ui
 Task: Review UI patterns (views, Hotwire, styling)
@@ -113,7 +97,7 @@ Skip if: No files in app/views, app/components, app/javascript, or CSS files
 For each agent, use the Task tool with:
 - subagent_type: `@agent-rails-ai:reviewer`
 - prompt: |
-    Mode: [security | rules | domain | testing | ui]
+    Mode: [security-and-rules | implementation | ui]
     Task: [what to review]
     Files: [list of changed files]
     Context:

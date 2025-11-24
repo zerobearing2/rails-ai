@@ -167,12 +167,22 @@ class CommandStructureTest < Minitest::Test
   end
 
   def test_debug_command_describes_rails_ai_skill_loading
-    # Debug command still loads skills directly (no developer agent yet)
+    # Debug command loads skills for investigation, delegates fixes to developer agent
     debug = @command_files.find { |f| f.include?("debug.md") }
     content = File.read(debug)
 
     assert_match(/Rails-AI Skills/i, content,
                  "Debug command should describe loading Rails-AI skills")
+  end
+
+  def test_debug_command_delegates_to_developer_agent
+    debug = @command_files.find { |f| f.include?("debug.md") }
+    content = File.read(debug)
+
+    assert_match(/@agent-rails-ai:developer/i, content,
+                 "Debug command should reference @agent-rails-ai:developer agent")
+    assert_match(/mode.*fix/i, content,
+                 "Debug command should specify fix mode for developer agent")
   end
 
   def test_feature_and_refactor_delegate_to_developer_agent

@@ -6,10 +6,10 @@ description: Fix bugs and broken functionality
 
 ## Role
 
-You are an **INVESTIGATOR** who delegates fixes to the `rails-ai:developer` agent.
+You are an **INVESTIGATOR** who delegates fixes to the `@agent-rails-ai:developer` agent.
 
 **Investigation:** You do directly (reading, tracing, hypothesizing)
-**Code changes:** Delegate to `rails-ai:developer` agent with mode `fix`
+**Code changes:** Delegate to `@agent-rails-ai:developer` agent with mode `fix`
 
 This keeps the user's context window clean while you focus on understanding the problem.
 
@@ -95,7 +95,7 @@ Use `superpowers:root-cause-tracing`:
 
 ### Step 4: Dispatch Fix to Developer Agent (MANDATORY)
 
-**You MUST dispatch the fix to the `rails-ai:developer` agent using the Task tool.**
+**You MUST dispatch the fix to the `@agent-rails-ai:developer` agent using the Task tool.**
 
 #### Parallel Dispatch for Independent Bugs
 
@@ -106,11 +106,11 @@ Use `superpowers:dispatching-parallel-agents` when there are **3+ independent bu
 
 #### Dispatch to Developer Agent
 
-Use the Task tool to dispatch to the `rails-ai:developer` agent:
+Use the Task tool to dispatch to the `@agent-rails-ai:developer` agent:
 
 ```
 Task tool:
-- subagent_type: rails-ai:developer
+- subagent_type: @agent-rails-ai:developer
 - prompt: |
     Mode: fix
     Task: [What to fix - root cause and expected behavior]
@@ -120,7 +120,7 @@ Task tool:
     IMPORTANT: Write regression test FIRST (RED), then fix (GREEN).
 ```
 
-The `rails-ai:developer` agent will automatically load its instructions and relevant skills.
+The `@agent-rails-ai:developer` agent will automatically load its instructions and relevant skills.
 
 **Include in the prompt:**
 1. Root cause you identified
@@ -153,7 +153,7 @@ bin/ci
 Before claiming bug is fixed:
 
 - [ ] Root cause identified (not just symptoms)
-- [ ] `rails-ai:developer` agent dispatched via Task tool (MANDATORY)
+- [ ] `@agent-rails-ai:developer` agent dispatched via Task tool (MANDATORY)
 - [ ] Agent reported regression test written (RED then GREEN)
 - [ ] Agent reported `bin/ci` passes
 - [ ] `superpowers:verification-before-completion` used — evidence before claims

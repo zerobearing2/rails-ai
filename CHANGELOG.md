@@ -42,7 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **BREAKING**: Superpowers workflows now hardcoded per command (deterministic) instead of dynamically selected
 - **BREAKING**: Renamed `rails-ai:views` skill to `rails-ai:ui` (unified frontend workflow)
 - Skills refactored to pure domain knowledge (removed superpowers references)
-- Feature, Refactor, and Debug workflows now use `rails-ai:developer` agent (coordinator-only pattern)
+- Feature, Refactor, and Debug workflows now use `@agent-rails-ai:developer` agent (coordinator-only pattern)
 - Implementation work delegated to developer agent, keeping user context clean
 - Skill loading, TDD patterns, and verification centralized in developer agent
 - Auto-retry on failure (3 attempts max) before escalating to user

@@ -57,7 +57,7 @@ rails-ai/
 | `/rails-ai:debug` | Fix bugs (investigates, then uses developer agent) | **Yes** |
 | `/rails-ai:review` | Review code/PRs against TEAM_RULES | No |
 
-**Coordinator-only** means the command dispatches the `rails-ai:developer` agent for implementation work, keeping user context clean.
+**Coordinator-only** means the command dispatches the `@agent-rails-ai:developer` agent for implementation work, keeping user context clean.
 
 ## Agents
 

@@ -8,7 +8,7 @@ description: Improve existing code and fill test gaps
 
 You are a **COORDINATOR ONLY** for refactoring work. You **NEVER implement directly**.
 
-**MANDATORY:** All implementation work is delegated to the `rails-ai:developer` agent via the Task tool. This keeps the user's context window clean.
+**MANDATORY:** All implementation work is delegated to the `@agent-rails-ai:developer` agent via the Task tool. This keeps the user's context window clean.
 
 ## Coordinator vs Developer Agent Responsibilities
 
@@ -16,7 +16,7 @@ You are a **COORDINATOR ONLY** for refactoring work. You **NEVER implement direc
 |-------------------|----------------------------|
 | Verify baseline passes | Load skills and TEAM_RULES |
 | Plan the refactor scope | Write code with TDD |
-| Dispatch `rails-ai:developer` agent | Run verification commands |
+| Dispatch `@agent-rails-ai:developer` agent | Run verification commands |
 | Verify behavior unchanged | Report completion status |
 | Handle retries/escalation | Make incremental changes |
 | Update CHANGELOG | Apply domain patterns |
@@ -72,7 +72,7 @@ Assess what needs to be refactored:
 
 ### Step 4: Dispatch Developer Agent (MANDATORY)
 
-**You MUST dispatch refactoring to the `rails-ai:developer` agent using the Task tool.**
+**You MUST dispatch refactoring to the `@agent-rails-ai:developer` agent using the Task tool.**
 
 #### Parallel Dispatch for Independent Refactors
 
@@ -81,7 +81,7 @@ Use `superpowers:dispatching-parallel-agents` when the refactor scope includes *
 - Can be refactored without affecting each other
 - Touch different files/domains
 
-**Parallel dispatch example:** If refactoring involves extracting 3 different concerns from a large model — and they're independent — dispatch 3 `rails-ai:developer` agents concurrently in a single message with multiple Task tool calls.
+**Parallel dispatch example:** If refactoring involves extracting 3 different concerns from a large model — and they're independent — dispatch 3 `@agent-rails-ai:developer` agents concurrently in a single message with multiple Task tool calls.
 
 **Sequential dispatch:** If refactors depend on each other (e.g., extracting a concern then using it elsewhere), dispatch one at a time.
 
@@ -89,11 +89,11 @@ Use `superpowers:dispatching-parallel-agents` when the refactor scope includes *
 
 #### Dispatch to Developer Agent
 
-Use the Task tool to dispatch to the `rails-ai:developer` agent:
+Use the Task tool to dispatch to the `@agent-rails-ai:developer` agent:
 
 ```
 Task tool:
-- subagent_type: rails-ai:developer
+- subagent_type: @agent-rails-ai:developer
 - prompt: |
     Mode: refactor
     Task: [What to restructure]
@@ -103,7 +103,7 @@ Task tool:
     CRITICAL: Behavior must NOT change. Report behavior_changed: false.
 ```
 
-The `rails-ai:developer` agent will automatically load its instructions and relevant skills.
+The `@agent-rails-ai:developer` agent will automatically load its instructions and relevant skills.
 
 **Include in the prompt:**
 1. Baseline status: `bin/ci` passed before starting
@@ -133,7 +133,7 @@ When agent returns:
 
 ### Retry Logic
 
-If `rails-ai:developer` agent fails or returns incomplete work (but behavior was not changed):
+If `@agent-rails-ai:developer` agent fails or returns incomplete work (but behavior was not changed):
 
 1. **Attempt 1:** Re-dispatch with clarified instructions
 2. **Attempt 2:** Re-dispatch with more context/file contents
@@ -153,7 +153,7 @@ Before finalizing, run `/rails-ai:review`:
 3. Verify behavior was truly preserved
 4. Address any blockers found
 
-**If blockers found:** Dispatch `rails-ai:developer` agent with mode `fix` to address issues, then re-review.
+**If blockers found:** Dispatch `@agent-rails-ai:developer` agent with mode `fix` to address issues, then re-review.
 
 **If clean:** Continue to Step 7.
 

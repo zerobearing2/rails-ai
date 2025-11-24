@@ -18,12 +18,7 @@ Modes determine constraints and expectations:
 
 ### Step 1: Load Required Skills
 
-**First, read the TEAM_RULES:**
-```
-Read: rules/TEAM_RULES.md
-```
-
-**Then load skills based on files you'll be working with:**
+Load skills based on files you'll be working with:
 
 | If task involves | Read this skill |
 |------------------|-----------------|
@@ -38,6 +33,8 @@ Read: rules/TEAM_RULES.md
 | Tests (ALWAYS) | `skills/testing/SKILL.md` |
 
 **Testing skill is ALWAYS required** — TDD is non-negotiable.
+
+Skills reference TEAM_RULES by number. If you need clarification on a specific rule, read `rules/TEAM_RULES.md`.
 
 ### Step 2: Mode-Specific Setup
 
@@ -86,9 +83,9 @@ bin/rails test [test_file]  # Verify it passes (GREEN)
 bin/ci  # Verify everything passes
 ```
 
-### Step 4: Apply TEAM_RULES
+### Step 4: Critical Rules (Embedded)
 
-Critical rules (REJECT violations):
+These rules are non-negotiable — violations are rejected:
 
 - **Rule #1**: Solid Stack only — NO Sidekiq, NO Redis → Use SolidQueue, SolidCache
 - **Rule #2**: Minitest only — NO RSpec → Use Minitest (ActiveSupport::TestCase)
@@ -97,7 +94,7 @@ Critical rules (REJECT violations):
 - **Rule #17**: `bin/ci` must pass before completion
 - **Rule #18**: WebMock required — Mock ALL external HTTP in tests
 
-Refer to `rules/TEAM_RULES.md` for complete list and severity levels.
+Skills contain additional domain-specific rules. Follow what the skills say.
 
 ### Step 5: Verify Completion
 
@@ -164,7 +161,7 @@ issues:
 
 ## Process Summary
 
-1. Read TEAM_RULES and relevant skills
+1. Load relevant skills (they contain domain rules)
 2. Apply mode-specific constraints
 3. Implement with TDD (RED-GREEN-REFACTOR)
 4. Run `bin/ci` to verify

@@ -20,10 +20,12 @@ rails-ai/
 ├── commands/                  # 6 workflow commands
 │   ├── setup.md               # /rails-ai:setup
 │   ├── plan.md                # /rails-ai:plan
-│   ├── feature.md             # /rails-ai:feature (coordinator-only)
-│   ├── refactor.md            # /rails-ai:refactor (coordinator-only)
+│   ├── feature.md             # /rails-ai:feature (uses developer agent)
+│   ├── refactor.md            # /rails-ai:refactor (uses developer agent)
 │   ├── debug.md               # /rails-ai:debug
 │   └── review.md              # /rails-ai:review
+├── agents/                    # Reusable agent definitions
+│   └── developer.md           # Implementation agent with feature/refactor/fix modes
 ├── skills/                    # 11 domain skills
 │   ├── setup/
 │   ├── controllers/
@@ -50,12 +52,38 @@ rails-ai/
 |---------|---------|-------------------|
 | `/rails-ai:setup` | Project configuration, gem setup, validation | No |
 | `/rails-ai:plan` | Brainstorm ideas, create implementation plans | No |
-| `/rails-ai:feature` | Implement new functionality with TDD | **Yes** |
-| `/rails-ai:refactor` | Improve existing code, fill test gaps | **Yes** |
-| `/rails-ai:debug` | Fix bugs with systematic debugging | No |
+| `/rails-ai:feature` | Implement new functionality (uses developer agent) | **Yes** |
+| `/rails-ai:refactor` | Improve existing code (uses developer agent) | **Yes** |
+| `/rails-ai:debug` | Fix bugs (investigates, then uses developer agent) | **Yes** |
 | `/rails-ai:review` | Review code/PRs against TEAM_RULES | No |
 
-**Coordinator-only** means the command dispatches subagents for implementation work, keeping user context clean.
+**Coordinator-only** means the command dispatches the `@agent-rails-ai:developer` agent for implementation work, keeping user context clean.
+
+## Agents
+
+**Reusable agent definitions** in `agents/`:
+
+| Agent | Description | Used By |
+|-------|-------------|---------|
+| `developer.md` | Implementation agent with 3 modes | feature, refactor, debug commands |
+
+### Developer Agent Modes
+
+The developer agent accepts a `mode` parameter:
+
+| Mode | Baseline Required | Behavior Change OK | Use Case |
+|------|-------------------|-------------------|----------|
+| `feature` | No | Yes | Implementing new features |
+| `refactor` | Yes (tests must pass) | No | Improving existing code |
+| `fix` | No | Yes | Fixing bugs or review findings |
+
+**What the developer agent does:**
+1. Loads relevant skills based on task (skills contain domain rules)
+2. Implements with TDD (RED-GREEN-REFACTOR)
+3. Runs `bin/ci` to verify
+4. Reports completion with structured output
+
+Critical rules (1-4, 17, 18) are embedded in the agent. Domain-specific rules come from skills. This minimizes context usage per task.
 
 ## Skills
 

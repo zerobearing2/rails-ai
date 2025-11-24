@@ -8,18 +8,18 @@ description: Implement new functionality with or without a pre-written plan
 
 You are a **COORDINATOR ONLY** for feature implementation. You **NEVER implement directly**.
 
-**MANDATORY:** Use `superpowers:subagent-driven-development` — all implementation work is delegated to subagents via the Task tool. This keeps the user's context window clean.
+**MANDATORY:** All implementation work is delegated to the `@agent-rails-ai:developer` agent via the Task tool. This keeps the user's context window clean.
 
-## Coordinator vs Subagent Responsibilities
+## Coordinator vs Developer Agent Responsibilities
 
-| Coordinator (You) | Subagent (Task tool) |
-|-------------------|----------------------|
-| Plan the work | Execute the implementation |
-| Assemble context package | Write code and tests |
-| Dispatch subagent | Run verification commands |
-| Review subagent results | Report completion status |
-| Handle retries/escalation | Follow TDD cycle |
-| Update CHANGELOG | Load domain skills |
+| Coordinator (You) | Developer Agent (Task tool) |
+|-------------------|----------------------------|
+| Plan the work | Load skills and TEAM_RULES |
+| Assemble context | Write code with TDD |
+| Dispatch `@agent-rails-ai:developer` agent | Run verification commands |
+| Review agent results | Report completion status |
+| Handle retries/escalation | Follow RED-GREEN-REFACTOR |
+| Update CHANGELOG | Apply domain patterns |
 
 ## Purpose
 
@@ -32,9 +32,11 @@ Use this workflow when:
 
 **Always:**
 - `superpowers:using-git-worktrees` — isolate feature work
-- `superpowers:subagent-driven-development` — dispatch fresh subagent for implementation (MANDATORY)
 - `superpowers:verification-before-completion` — evidence before claims
 - `superpowers:finishing-a-development-branch` — merge/PR options
+
+**If plan has 3+ independent tasks:**
+- `superpowers:dispatching-parallel-agents` — run independent tasks concurrently
 
 **If no plan provided:**
 - `superpowers:brainstorming` — refine the feature design
@@ -42,44 +44,6 @@ Use this workflow when:
 
 **If plan provided:**
 - `superpowers:executing-plans` — execute in controlled batches
-
-## Rails-AI Skills (for Subagent)
-
-The subagent loads these based on feature scope:
-
-| Feature involves | Subagent loads |
-|------------------|----------------|
-| Models, databases, ActiveRecord | `rails-ai:models` |
-| Controllers, routes, REST | `rails-ai:controllers` |
-| **UI work (see detection below)** | `rails-ai:ui` (orchestrates frontend flow) |
-| Background jobs, caching | `rails-ai:jobs` |
-| Email functionality | `rails-ai:mailers` |
-| Security concerns | `rails-ai:security` |
-| Tests (always) | `rails-ai:testing` |
-
-**Subagent always uses `rails-ai:testing`** — TDD is non-negotiable.
-
-### UI Detection
-
-**Detect frontend work by looking for these signals:**
-
-| Signal Type | Keywords/Patterns |
-|-------------|-------------------|
-| View-related | page, form, UI, interface, dashboard, layout, modal, component, view |
-| User-facing | display, show, render, present, list, table, card, grid |
-| Interaction | click, submit, toggle, filter, search, drag, dropdown, button |
-| File paths | `app/views/`, `app/javascript/controllers/`, `app/helpers/` |
-
-**If UI work detected:**
-1. Include `rails-ai:ui` in the subagent's skills to use
-2. The UI skill orchestrates the full frontend workflow:
-   - Step 1: Assess scope (new vs tweak)
-   - Step 2: Use `frontend-design:frontend-design` for creative direction (new UI only)
-   - Step 3: Use `rails-ai:styling` for Tailwind/DaisyUI
-   - Step 4: Use `rails-ai:hotwire` for interactivity
-   - Step 5: Implement with accessibility (WCAG 2.1 AA)
-
-**Note:** When UI is detected, subagent uses `rails-ai:ui` which handles using `styling` and `hotwire` as dependencies. Do NOT list them separately.
 
 ## Process
 
@@ -97,85 +61,58 @@ Use `superpowers:using-git-worktrees` to create isolated branch for feature work
 - Use `superpowers:brainstorming` to refine the design
 - Use `superpowers:writing-plans` to create implementation tasks
 
-### Step 3: Assemble Context Package
+### Step 3: Dispatch Developer Agent (MANDATORY)
 
-Before dispatching subagent, assemble complete context:
+**You MUST dispatch implementation to the `@agent-rails-ai:developer` agent using the Task tool.**
 
-**Required Context:**
-1. **Plan** — The implementation plan (tasks, order, dependencies)
-2. **File Paths** — Absolute paths to all files subagent will need
-3. **TEAM_RULES Summary** — Critical rules subagent must follow:
-   - Rule #1: Solid Stack only (NO Sidekiq/Redis)
-   - Rule #2: Minitest only (NO RSpec)
-   - Rule #3: RESTful actions only (friendly URLs allowed)
-   - Rule #4: TDD always (RED-GREEN-REFACTOR)
-   - Rule #17: `bin/ci` must pass before completion
-   - Rule #20: Use `Hash#dig` for nested hash access
-4. **Skills to Load** — Which rails-ai skills subagent should load
-5. **Completion Requirements** — What "done" looks like:
-   - All tests pass
-   - `bin/ci` passes
-   - Feature works as specified
+#### Parallel Dispatch for Independent Tasks
 
-### Step 4: Dispatch Subagent (MANDATORY)
+Use `superpowers:dispatching-parallel-agents` when the plan has **3+ independent tasks** that:
+- Don't share state or dependencies
+- Can be implemented without waiting for each other
+- Touch different files/domains
 
-**You MUST dispatch implementation to a subagent using the Task tool.**
+**Parallel dispatch example:** If implementing a feature that needs a model, controller, and mailer — and they're independent — dispatch 3 `@agent-rails-ai:developer` agents concurrently in a single message with multiple Task tool calls.
+
+**Sequential dispatch:** If tasks depend on each other (e.g., controller depends on model), dispatch one at a time.
+
+#### Dispatch to Developer Agent
+
+Use the Task tool to dispatch to the `@agent-rails-ai:developer` agent:
 
 ```
-Task tool prompt structure:
-
-## Implementation Task: [Feature Name]
-
-### Context
-[Brief description of what we're building]
-
-### Plan
-[The implementation plan with numbered tasks]
-
-### Files to Read
-[List absolute file paths the subagent needs]
-
-### TEAM_RULES (MUST FOLLOW)
-- #1: Solid Stack only — NO Sidekiq, NO Redis
-- #2: Minitest only — NO RSpec
-- #3: RESTful actions only — no custom controller actions, friendly URLs allowed
-- #4: TDD always — write test first, watch it fail, then implement
-- #17: bin/ci must pass — run before claiming done
-- #20: Hash#dig — use for all nested hash access
-
-### Skills to Load
-Use Skill tool to use:
-- rails-ai:testing (ALWAYS)
-- [other relevant skills]
-
-### Completion Requirements
-1. All tests pass (verified RED-GREEN)
-2. bin/ci passes
-3. [Feature-specific requirements]
-
-### Verification Report
-When complete, report:
-- Tests written and passing (list them)
-- bin/ci output (pass/fail)
-- Files created/modified
-- Any issues encountered
+Task tool:
+- subagent_type: @agent-rails-ai:developer
+- prompt: |
+    Mode: feature
+    Task: [What to implement]
+    Files: [Absolute paths needed]
+    Context: [Plan details, requirements, dependencies]
 ```
 
-### Step 5: Handle Subagent Response
+The `@agent-rails-ai:developer` agent will automatically load its instructions and relevant skills.
 
-When subagent returns:
+**Include in the prompt:**
+1. The implementation task (what to build)
+2. File paths the agent will need
+3. Dependencies or related code
+4. Completion requirements
+
+### Step 4: Handle Developer Agent Response
+
+When agent returns:
 
 **If successful:**
-- Verify subagent ran `bin/ci`
+- Verify agent ran `bin/ci`
 - Verify tests are passing
-- Continue to Step 6
+- Continue to Step 5
 
 **If failed or incomplete:**
 - Apply retry logic (see below)
 
 ### Retry Logic
 
-If subagent fails or returns incomplete work:
+If `@agent-rails-ai:developer` agent fails or returns incomplete work:
 
 1. **Attempt 1:** Re-dispatch with clarified instructions
 2. **Attempt 2:** Re-dispatch with more context/file contents
@@ -186,28 +123,28 @@ If subagent fails or returns incomplete work:
 - What failed
 - Specific blocker requiring human input
 
-### Step 6: Code Review
+### Step 5: Code Review
 
-Before finalizing, get a code review using `/rails-ai:review`:
+Before finalizing, run `/rails-ai:review`:
 
 1. Review the implementation against TEAM_RULES
 2. Check for security issues, missing tests, pattern violations
 3. Address any blockers found
 
-**If blockers found:** Dispatch subagent to fix issues, then re-review.
+**If blockers found:** Dispatch `@agent-rails-ai:developer` agent with mode `fix` to address issues, then re-review.
 
-**If clean:** Continue to Step 7.
+**If clean:** Continue to Step 6.
 
-### Step 7: Update CHANGELOG
+### Step 6: Update CHANGELOG
 
-Add entry under `## [Unreleased]` with appropriate section:
+Add entry under `## [Unreleased]`:
 
 ```markdown
 ### Added
 - [Description of new feature]
 ```
 
-### Step 8: Complete Branch
+### Step 7: Complete Branch
 
 Use `superpowers:finishing-a-development-branch`:
 - Verify all tests pass
@@ -218,9 +155,9 @@ Use `superpowers:finishing-a-development-branch`:
 
 Before claiming feature is complete:
 
-- [ ] Subagent was dispatched via Task tool (MANDATORY)
-- [ ] Subagent reported `bin/ci` passes
-- [ ] All tests pass (RED-GREEN verified by subagent)
+- [ ] Developer agent was dispatched via Task tool (MANDATORY)
+- [ ] Agent reported `bin/ci` passes
+- [ ] All tests pass (RED-GREEN verified by agent)
 - [ ] `/rails-ai:review` completed — blockers addressed
 - [ ] CHANGELOG.md updated under `## [Unreleased]`
 - [ ] `superpowers:verification-before-completion` used — evidence before claims

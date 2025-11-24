@@ -8,19 +8,18 @@ description: Improve existing code and fill test gaps
 
 You are a **COORDINATOR ONLY** for refactoring work. You **NEVER implement directly**.
 
-**MANDATORY:** Use `superpowers:subagent-driven-development` — all implementation work is delegated to subagents via the Task tool. This keeps the user's context window clean.
+**MANDATORY:** All implementation work is delegated to the `@agent-rails-ai:developer` agent via the Task tool. This keeps the user's context window clean.
 
-## Coordinator vs Subagent Responsibilities
+## Coordinator vs Developer Agent Responsibilities
 
-| Coordinator (You) | Subagent (Task tool) |
-|-------------------|----------------------|
-| Verify baseline passes | Execute the refactoring |
-| Plan the refactor scope | Write code and tests |
-| Assemble context package | Run verification commands |
-| Dispatch subagent | Report completion status |
-| Verify behavior unchanged | Follow TDD cycle |
-| Handle retries/escalation | Load domain skills |
-| Update CHANGELOG | Make incremental changes |
+| Coordinator (You) | Developer Agent (Task tool) |
+|-------------------|----------------------------|
+| Verify baseline passes | Load skills and TEAM_RULES |
+| Plan the refactor scope | Write code with TDD |
+| Dispatch `@agent-rails-ai:developer` agent | Run verification commands |
+| Verify behavior unchanged | Report completion status |
+| Handle retries/escalation | Make incremental changes |
+| Update CHANGELOG | Apply domain patterns |
 
 ## Purpose
 
@@ -35,71 +34,35 @@ Use this workflow when:
 
 **Always:**
 - `superpowers:using-git-worktrees` — isolate refactor work
-- `superpowers:subagent-driven-development` — dispatch fresh subagent for implementation (MANDATORY)
 - `superpowers:verification-before-completion` — verify tests pass BEFORE and AFTER refactoring
 - `superpowers:finishing-a-development-branch` — merge/PR options
+
+**If refactor has 3+ independent areas:**
+- `superpowers:dispatching-parallel-agents` — run independent refactors concurrently
 
 **For test gaps:**
 - `superpowers:test-driven-development` — fill test coverage gaps
 - `superpowers:testing-anti-patterns` — avoid test mistakes
 
-## Rails-AI Skills (for Subagent)
-
-The subagent loads these based on refactor scope:
-
-| Refactoring involves | Subagent loads |
-|----------------------|----------------|
-| Models, ActiveRecord | `rails-ai:models` |
-| Controllers | `rails-ai:controllers` |
-| **UI work (see detection below)** | `rails-ai:ui` (orchestrates frontend flow) |
-| Background jobs | `rails-ai:jobs` |
-| Mailers | `rails-ai:mailers` |
-| Security improvements | `rails-ai:security` |
-| Tests (always) | `rails-ai:testing` |
-
-**Subagent always uses `rails-ai:testing`** — refactoring without tests is gambling.
-
-### UI Detection
-
-**Detect frontend work by looking for these signals:**
-
-| Signal Type | Keywords/Patterns |
-|-------------|-------------------|
-| View-related | page, form, UI, interface, dashboard, layout, modal, component, view, partial |
-| User-facing | display, show, render, present, list, table, card, grid |
-| Interaction | click, submit, toggle, filter, search, drag, dropdown, button |
-| File paths | `app/views/`, `app/javascript/controllers/`, `app/helpers/` |
-
-**If UI work detected:**
-1. Include `rails-ai:ui` in the subagent's skills to use
-2. The UI skill orchestrates the full frontend workflow:
-   - Step 1: Assess scope (new vs tweak)
-   - Step 2: Use `frontend-design:frontend-design` for creative direction (new UI only)
-   - Step 3: Use `rails-ai:styling` for Tailwind/DaisyUI
-   - Step 4: Use `rails-ai:hotwire` for interactivity
-   - Step 5: Implement with accessibility (WCAG 2.1 AA)
-
-**Note:** When UI is detected, subagent uses `rails-ai:ui` which handles using `styling` and `hotwire` as dependencies. Do NOT list them separately.
-
 ## Process
 
-### Step 1: Create Isolated Workspace
+### Step 1: Verify Baseline (CRITICAL - HARD STOP)
 
-Use `superpowers:using-git-worktrees` to create isolated branch for refactor work.
-
-### Step 2: Verify Baseline (CRITICAL)
-
-**Before dispatching any subagent, YOU must verify tests pass:**
+**Before anything else, verify tests pass:**
 
 ```bash
 bin/ci
 ```
 
-**If tests fail:** Stop. Fix them first. Do not dispatch subagent to refactor broken code.
+**If tests fail:** STOP. Do not proceed. Refactoring requires a green baseline.
 
-**If tests pass:** Document the baseline — subagent will compare against this.
+Tell the user: "Cannot refactor - `bin/ci` is failing. Fix the failing tests first with `/rails-ai:debug`, then retry `/rails-ai:refactor`."
 
-This step is MANDATORY. Refactoring assumes a green baseline.
+**If tests pass:** Continue to Step 2.
+
+### Step 2: Create Isolated Workspace
+
+Use `superpowers:using-git-worktrees` to create isolated branch for refactor work.
 
 ### Step 3: Plan the Refactor
 
@@ -109,90 +72,56 @@ Assess what needs to be refactored:
 - Do test gaps need filling first?
 - What is the expected outcome?
 
-### Step 4: Assemble Context Package
+### Step 4: Dispatch Developer Agent (MANDATORY)
 
-Before dispatching subagent, assemble complete context:
+**You MUST dispatch refactoring to the `@agent-rails-ai:developer` agent using the Task tool.**
 
-**Required Context:**
-1. **Baseline Status** — Confirm `bin/ci` passes (you verified in Step 2)
-2. **Refactor Scope** — What code is being restructured and why
-3. **File Paths** — Absolute paths to all files subagent will need
-4. **TEAM_RULES Summary** — Critical rules subagent must follow:
-   - Rule #1: Solid Stack only (NO Sidekiq/Redis)
-   - Rule #2: Minitest only (NO RSpec)
-   - Rule #4: TDD always (RED-GREEN-REFACTOR)
-   - Rule #9: Don't over-abstract — extract only when there's proven duplication
-   - Rule #17: `bin/ci` must pass before completion
-5. **Skills to Load** — Which rails-ai skills subagent should load
-6. **Completion Requirements** — What "done" looks like:
-   - All tests pass
-   - `bin/ci` passes
-   - Behavior NOT changed (same tests, same outcomes)
+#### Parallel Dispatch for Independent Refactors
 
-### Step 5: Dispatch Subagent (MANDATORY)
+Use `superpowers:dispatching-parallel-agents` when the refactor scope includes **3+ independent areas** that:
+- Don't share state or dependencies
+- Can be refactored without affecting each other
+- Touch different files/domains
 
-**You MUST dispatch refactoring to a subagent using the Task tool.**
+**Parallel dispatch example:** If refactoring involves extracting 3 different concerns from a large model — and they're independent — dispatch 3 `@agent-rails-ai:developer` agents concurrently in a single message with multiple Task tool calls.
+
+**Sequential dispatch:** If refactors depend on each other (e.g., extracting a concern then using it elsewhere), dispatch one at a time.
+
+**IMPORTANT for refactor mode:** Even with parallel dispatch, each agent must independently verify `behavior_changed: false`. If ANY agent reports behavior changed, stop all work and escalate.
+
+#### Dispatch to Developer Agent
+
+Use the Task tool to dispatch to the `@agent-rails-ai:developer` agent:
 
 ```
-Task tool prompt structure:
+Task tool:
+- subagent_type: @agent-rails-ai:developer
+- prompt: |
+    Mode: refactor
+    Task: [What to restructure]
+    Files: [Absolute paths needed]
+    Context: [Baseline status, expected outcome]
 
-## Refactoring Task: [Description]
-
-### Context
-[Brief description of what we're refactoring and why]
-
-### Baseline Status
-bin/ci passed before starting. Behavior must NOT change.
-
-### Refactor Scope
-[What code is being restructured]
-[Expected outcome]
-
-### Files to Read
-[List absolute file paths the subagent needs]
-
-### TEAM_RULES (MUST FOLLOW)
-- #1: Solid Stack only — NO Sidekiq, NO Redis
-- #2: Minitest only — NO RSpec
-- #4: TDD always — fill test gaps before refactoring
-- #9: Don't over-abstract — extract only with proven duplication
-- #17: bin/ci must pass — run before claiming done
-
-### Skills to Load
-Use Skill tool to use:
-- rails-ai:testing (ALWAYS)
-- [other relevant skills]
-
-### Refactoring Rules
-1. Make incremental changes
-2. Run tests after each change
-3. Do NOT change behavior — restructuring only
-4. If tests fail, revert and try smaller steps
-
-### Completion Requirements
-1. All existing tests still pass
-2. Any new tests pass (if gaps were filled)
-3. bin/ci passes
-4. Behavior is UNCHANGED
-
-### Verification Report
-When complete, report:
-- Tests passing (list them)
-- bin/ci output (pass/fail)
-- Behavior Changed: no | yes
-- Files modified
-- Any issues encountered
+    CRITICAL: Behavior must NOT change. Report behavior_changed: false.
 ```
 
-### Step 6: Handle Subagent Response
+The `@agent-rails-ai:developer` agent will automatically load its instructions and relevant skills.
 
-When subagent returns:
+**Include in the prompt:**
+1. Baseline status: `bin/ci` passed before starting
+2. Refactor scope: What code is being restructured and why
+3. File paths the agent will need
+4. Expected outcome (structure change, NOT behavior change)
+
+### Step 5: Handle Developer Agent Response
+
+When agent returns:
 
 **If successful AND behavior unchanged:**
-- Verify subagent ran `bin/ci`
+- Verify agent ran `bin/ci`
 - Verify tests are passing
-- Confirm "Behavior Changed: no"
-- Continue to Step 7
+- Confirm `behavior_changed: false` in report
+- Continue to Step 6
 
 **If behavior changed:**
 - **DO NOT RETRY** — This is not a retry situation
@@ -206,7 +135,7 @@ When subagent returns:
 
 ### Retry Logic
 
-If subagent fails or returns incomplete work (but behavior was not changed):
+If `@agent-rails-ai:developer` agent fails or returns incomplete work (but behavior was not changed):
 
 1. **Attempt 1:** Re-dispatch with clarified instructions
 2. **Attempt 2:** Re-dispatch with more context/file contents
@@ -217,20 +146,20 @@ If subagent fails or returns incomplete work (but behavior was not changed):
 - What failed
 - Specific blocker requiring human input
 
-### Step 7: Code Review
+### Step 6: Code Review
 
-Before finalizing, get a code review using `/rails-ai:review`:
+Before finalizing, run `/rails-ai:review`:
 
 1. Review the refactoring against TEAM_RULES
 2. Check for over-abstraction, pattern violations
 3. Verify behavior was truly preserved
 4. Address any blockers found
 
-**If blockers found:** Dispatch subagent to fix issues, then re-review.
+**If blockers found:** Dispatch `@agent-rails-ai:developer` agent with mode `fix` to address issues, then re-review.
 
-**If clean:** Continue to Step 8.
+**If clean:** Continue to Step 7.
 
-### Step 8: Update CHANGELOG
+### Step 7: Update CHANGELOG
 
 Add entry under `## [Unreleased]`:
 
@@ -246,7 +175,7 @@ Or if fixing issues:
 - [Description of what was fixed]
 ```
 
-### Step 9: Complete Branch
+### Step 8: Complete Branch
 
 Use `superpowers:finishing-a-development-branch`:
 - Verify all tests pass
@@ -258,9 +187,9 @@ Use `superpowers:finishing-a-development-branch`:
 Before claiming refactor is complete:
 
 - [ ] Baseline verified (`bin/ci` passed BEFORE dispatching)
-- [ ] Subagent was dispatched via Task tool (MANDATORY)
-- [ ] Subagent reported `bin/ci` passes
-- [ ] Behavior NOT changed (same tests, same outcomes)
+- [ ] Developer agent was dispatched via Task tool (MANDATORY)
+- [ ] Agent reported `bin/ci` passes
+- [ ] Behavior NOT changed (`behavior_changed: false`)
 - [ ] `/rails-ai:review` completed — blockers addressed
 - [ ] CHANGELOG.md updated under `## [Unreleased]`
 - [ ] `superpowers:verification-before-completion` used — evidence before claims

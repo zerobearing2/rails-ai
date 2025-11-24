@@ -4,6 +4,15 @@ description: Fix bugs and broken functionality
 
 # Rails Debug Workflow
 
+## Role
+
+You are an **INVESTIGATOR** who delegates fixes to the `@agent-rails-ai:developer` agent.
+
+**Investigation:** You do directly (reading, tracing, hypothesizing)
+**Code changes:** Delegate to `@agent-rails-ai:developer` agent with mode `fix`
+
+This keeps the user's context window clean while you focus on understanding the problem.
+
 ## Purpose
 
 Use this workflow when:
@@ -14,20 +23,20 @@ Use this workflow when:
 
 ## Superpowers Workflows
 
-This workflow uses:
-
 **Always:**
 - `superpowers:systematic-debugging` — four-phase investigation before fixing
 - `superpowers:root-cause-tracing` — trace errors to their source
-- `superpowers:test-driven-development` — write regression test for the fix
 - `superpowers:verification-before-completion` — verify fix works
+
+**If multiple independent bugs:**
+- `superpowers:dispatching-parallel-agents` — fix independent bugs concurrently
 
 **If flaky tests:**
 - `superpowers:condition-based-waiting` — replace timeouts with condition polling
 
 ## Rails-AI Skills
 
-Load based on where the bug is:
+Load based on where the bug is (for your investigation):
 
 | Bug location | Load these skills |
 |--------------|-------------------|
@@ -45,15 +54,15 @@ Load based on where the bug is:
 
 ## Process
 
-### Step 1: Load Debugging Skills
+### Step 1: Load Debugging Skills (You Do This)
 
 ```
-Use Skill tool to use:
+Use Skill tool:
 - rails-ai:debugging
 - rails-ai:[domain-skill based on bug location]
 ```
 
-### Step 2: Systematic Investigation
+### Step 2: Systematic Investigation (You Do This)
 
 Use `superpowers:systematic-debugging` — four phases:
 
@@ -72,37 +81,60 @@ Use `superpowers:systematic-debugging` — four phases:
 - Test each hypothesis with evidence
 - Narrow down to root cause
 
-**Phase 4: Implementation**
-- Only now propose a fix
-- Fix the root cause, not symptoms
+**Phase 4: Prepare Fix Context**
+- Document the root cause
+- Identify files that need to change
+- Prepare context for developer agent
 
-### Step 3: Trace to Root Cause
+### Step 3: Trace to Root Cause (You Do This)
 
 Use `superpowers:root-cause-tracing`:
 - Trace errors backward through call stack
 - Add instrumentation if needed
 - Identify the source of invalid data or behavior
 
-### Step 4: Write Regression Test
+### Step 4: Dispatch Fix to Developer Agent (MANDATORY)
 
-Use `superpowers:test-driven-development`:
+**You MUST dispatch the fix to the `@agent-rails-ai:developer` agent using the Task tool.**
 
-1. **Write a test that reproduces the bug** (should FAIL)
-2. **Verify the test fails** — proves test catches the bug
-3. **Fix the bug**
-4. **Verify the test passes** — proves fix works
-5. **Verify test fails if you revert the fix** — proves test is valid
+#### Parallel Dispatch for Independent Bugs
 
-**This is non-negotiable.** A bug fix without a regression test is incomplete.
+Use `superpowers:dispatching-parallel-agents` when there are **3+ independent bugs** that:
+- Don't share root causes
+- Can be fixed without affecting each other
+- Touch different files/domains
+
+#### Dispatch to Developer Agent
+
+Use the Task tool to dispatch to the `@agent-rails-ai:developer` agent:
+
+```
+Task tool:
+- subagent_type: @agent-rails-ai:developer
+- prompt: |
+    Mode: fix
+    Task: [What to fix - root cause and expected behavior]
+    Files: [Absolute paths to files that need changes]
+    Context: [Investigation findings - evidence, root cause analysis]
+
+    IMPORTANT: Write regression test FIRST (RED), then fix (GREEN).
+```
+
+The `@agent-rails-ai:developer` agent will automatically load its instructions and relevant skills.
+
+**Include in the prompt:**
+1. Root cause you identified
+2. Files that need to change
+3. Expected behavior after fix
+4. Any relevant evidence (error messages, stack traces)
 
 ### Step 5: Handle Flaky Tests (If Applicable)
 
-If the bug involves flaky/intermittent test failures:
+If the bug involves flaky/intermittent test failures, include in the developer agent context:
 
-Use `superpowers:condition-based-waiting`:
+- Use `superpowers:condition-based-waiting` pattern
 - Replace arbitrary `sleep` calls with condition polling
 - Wait for actual state changes, not time
-- Eliminate race conditions
 
 ### Step 6: Verify Fix
 
@@ -112,7 +144,7 @@ Use `superpowers:verification-before-completion`:
 bin/ci
 ```
 
-- Original bug test now passes
+- Regression test now passes
 - All other tests still pass
 - No regressions introduced
 
@@ -121,8 +153,9 @@ bin/ci
 Before claiming bug is fixed:
 
 - [ ] Root cause identified (not just symptoms)
-- [ ] Regression test written and verified (RED then GREEN)
-- [ ] `bin/ci` passes (all linters and tests)
+- [ ] `@agent-rails-ai:developer` agent dispatched via Task tool (MANDATORY)
+- [ ] Agent reported regression test written (RED then GREEN)
+- [ ] Agent reported `bin/ci` passes
 - [ ] `superpowers:verification-before-completion` used — evidence before claims
 
 **No CHANGELOG entry required for bug fixes** — unless it's a significant fix worth documenting.

@@ -7,6 +7,14 @@ allowed-tools: Bash(git *), Bash(gh *), Glob, Grep, Read, Task
 
 Multi-agent code review checking security, TEAM_RULES, domain patterns, testing, and UI/Hotwire.
 
+## Superpowers Workflows
+
+**Always:**
+- `superpowers:finishing-a-development-branch` — present merge/PR/cleanup options after review
+
+**If Critical or Important issues found:**
+- `superpowers:dispatching-parallel-agents` — fix multiple independent issues concurrently (via `/rails-ai:feature`)
+
 ## Process
 
 ### Step 1: Detect Review Scope
@@ -170,11 +178,13 @@ Format the consolidated review:
 
 ### Step 7: Present Next Actions
 
-Based on the verdict, present options:
+Use `superpowers:finishing-a-development-branch` to guide next steps.
 
 **If Critical or Important issues found:**
 
-> What would you like to do next?
+Present fix options first:
+
+> **Issues to address:**
 >
 > 1. **Fix issues** - Use `/rails-ai:feature` to fix with proper skill loading
 > 2. **Help me fix [issue]** - Get help fixing a specific issue
@@ -190,12 +200,11 @@ Note: Use `feature` not `refactor` since refactor expects stable baseline (passi
 
 **If only Minor issues or clean:**
 
-> What would you like to do next?
->
-> 1. **Create PR** - Run `gh pr create --draft`
-> 2. **Commit changes** - Commit the reviewed changes
-> 3. **Mark PR ready** - Run `gh pr ready`
-> 4. **Run bin/ci** - Final verification before merge
+Use `superpowers:finishing-a-development-branch` to present completion options:
+- Merge to main
+- Create PR (draft or ready)
+- Continue working
+- Cleanup/abandon
 
 ---
 

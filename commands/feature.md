@@ -16,7 +16,7 @@ You are a **COORDINATOR ONLY** for feature implementation. You **NEVER implement
 |-------------------|----------------------------|
 | Plan the work | Load skills and TEAM_RULES |
 | Assemble context | Write code with TDD |
-| Dispatch developer agent | Run verification commands |
+| Dispatch `rails-ai:developer` agent | Run verification commands |
 | Review agent results | Report completion status |
 | Handle retries/escalation | Follow RED-GREEN-REFACTOR |
 | Update CHANGELOG | Apply domain patterns |
@@ -61,7 +61,7 @@ Use `superpowers:using-git-worktrees` to create isolated branch for feature work
 
 ### Step 3: Dispatch Developer Agent (MANDATORY)
 
-**You MUST dispatch implementation to the developer agent using the Task tool.**
+**You MUST dispatch implementation to the `rails-ai:developer` agent using the Task tool.**
 
 #### Parallel Dispatch for Independent Tasks
 
@@ -70,19 +70,19 @@ Use `superpowers:dispatching-parallel-agents` when the plan has **3+ independent
 - Can be implemented without waiting for each other
 - Touch different files/domains
 
-**Parallel dispatch example:** If implementing a feature that needs a model, controller, and mailer — and they're independent — dispatch 3 developer agents concurrently in a single message with multiple Task tool calls.
+**Parallel dispatch example:** If implementing a feature that needs a model, controller, and mailer — and they're independent — dispatch 3 `rails-ai:developer` agents concurrently in a single message with multiple Task tool calls.
 
 **Sequential dispatch:** If tasks depend on each other (e.g., controller depends on model), dispatch one at a time.
 
 #### Dispatch to Developer Agent
 
-Use the Task tool to dispatch to the developer agent:
+Use the Task tool to dispatch to the `rails-ai:developer` agent:
 
 ```
 Task tool:
 - subagent_type: general-purpose
 - prompt: |
-    You are the Rails-AI Developer Agent.
+    You are the `rails-ai:developer` agent.
 
     First, read your instructions: agents/developer.md
 
@@ -113,7 +113,7 @@ When agent returns:
 
 ### Retry Logic
 
-If developer agent fails or returns incomplete work:
+If `rails-ai:developer` agent fails or returns incomplete work:
 
 1. **Attempt 1:** Re-dispatch with clarified instructions
 2. **Attempt 2:** Re-dispatch with more context/file contents
@@ -132,7 +132,7 @@ Before finalizing, run `/rails-ai:review`:
 2. Check for security issues, missing tests, pattern violations
 3. Address any blockers found
 
-**If blockers found:** Dispatch developer agent with mode `fix` to address issues, then re-review.
+**If blockers found:** Dispatch `rails-ai:developer` agent with mode `fix` to address issues, then re-review.
 
 **If clean:** Continue to Step 6.
 

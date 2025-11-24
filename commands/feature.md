@@ -32,9 +32,11 @@ Use this workflow when:
 
 **Always:**
 - `superpowers:using-git-worktrees` — isolate feature work
-- `superpowers:dispatching-parallel-agents` — run independent tasks concurrently
 - `superpowers:verification-before-completion` — evidence before claims
 - `superpowers:finishing-a-development-branch` — merge/PR options
+
+**If plan has 3+ independent tasks:**
+- `superpowers:dispatching-parallel-agents` — run independent tasks concurrently
 
 **If no plan provided:**
 - `superpowers:brainstorming` — refine the feature design

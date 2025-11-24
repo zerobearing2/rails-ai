@@ -34,9 +34,11 @@ Use this workflow when:
 
 **Always:**
 - `superpowers:using-git-worktrees` — isolate refactor work
-- `superpowers:dispatching-parallel-agents` — run independent refactors concurrently
 - `superpowers:verification-before-completion` — verify tests pass BEFORE and AFTER refactoring
 - `superpowers:finishing-a-development-branch` — merge/PR options
+
+**If refactor has 3+ independent areas:**
+- `superpowers:dispatching-parallel-agents` — run independent refactors concurrently
 
 **For test gaps:**
 - `superpowers:test-driven-development` — fill test coverage gaps

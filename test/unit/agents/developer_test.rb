@@ -12,25 +12,26 @@ class DeveloperAgentTest < Minitest::Test
     assert_path_exists @agent_file, "developer.md agent should exist"
   end
 
-  # Placeholder tests
-  def test_agent_has_mode_placeholder
-    assert_match(/\{\{MODE\}\}/i, @content,
-                 "Agent should have {{MODE}} placeholder")
+  # Input documentation tests
+  def test_agent_documents_input_format
+    assert_match(/Mode:.*feature.*refactor.*fix/im, @content,
+                 "Agent should document Mode input")
+    assert_match(/Task:/i, @content,
+                 "Agent should document Task input")
+    assert_match(/Files:/i, @content,
+                 "Agent should document Files input")
+    assert_match(/Context:/i, @content,
+                 "Agent should document Context input")
   end
 
-  def test_agent_has_task_placeholder
-    assert_match(/\{\{TASK\}\}/i, @content,
-                 "Agent should have {{TASK}} placeholder")
-  end
-
-  def test_agent_has_files_placeholder
-    assert_match(/\{\{FILES\}\}/i, @content,
-                 "Agent should have {{FILES}} placeholder")
-  end
-
-  def test_agent_has_context_placeholder
-    assert_match(/\{\{CONTEXT\}\}/i, @content,
-                 "Agent should have {{CONTEXT}} placeholder")
+  # XML mode tags tests
+  def test_agent_uses_xml_mode_tags
+    assert_match(/<mode-feature>/i, @content,
+                 "Agent should have <mode-feature> XML tag")
+    assert_match(/<mode-refactor>/i, @content,
+                 "Agent should have <mode-refactor> XML tag")
+    assert_match(/<mode-fix>/i, @content,
+                 "Agent should have <mode-fix> XML tag")
   end
 
   # Mode tests

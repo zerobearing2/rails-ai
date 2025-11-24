@@ -168,11 +168,9 @@ Format the consolidated review:
 
 ### Step 7: Present Next Actions
 
-Use `superpowers:finishing-a-development-branch` to guide next steps.
-
 **If Critical or Important issues found:**
 
-Present fix options first:
+Present fix options to the user:
 
 > **Issues to address:**
 >
@@ -180,7 +178,7 @@ Present fix options first:
 > 2. **Help me fix [issue]** - Get help fixing a specific issue
 > 3. **Discuss [issue]** - Challenge or clarify a finding
 
-If user chooses option 1, invoke `/rails-ai:feature` with a summary of issues to fix:
+Wait for the user to respond. If they choose option 1, invoke `/rails-ai:feature` with a summary of issues:
 ```
 /rails-ai:feature Fix review findings: [list critical/important issues]
 ```
@@ -190,11 +188,7 @@ Note: Use `feature` not `refactor` since refactor expects stable baseline (passi
 
 **If only Minor issues or clean:**
 
-Use `superpowers:finishing-a-development-branch` to present completion options:
-- Merge to main
-- Create PR (draft or ready)
-- Continue working
-- Cleanup/abandon
+Use `superpowers:finishing-a-development-branch` to present completion options (merge, PR, continue working, cleanup)
 
 ---
 

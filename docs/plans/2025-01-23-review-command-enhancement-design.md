@@ -22,12 +22,14 @@ Replace the current review command with a parallel multi-agent architecture:
 |----------|--------|-----------|
 | Scope coverage | Both rails-ai skills AND TEAM_RULES | Comprehensive review |
 | Agent architecture | Parallel specialized agents | Thoroughness over simplicity |
-| Number of agents | 5 (security, rules, domain, testing, ui) | Maximum coverage |
+| Number of agents | 3 (security-and-rules, implementation, ui) | **FINAL: 40% cost savings while maintaining coverage** |
 | Output format | Severity-based with category tags | Easy prioritization + clear source |
 | Trigger method | `/rails-ai:review` standalone | Self-contained, simple |
 | Git range detection | Smart detection with fallbacks | Flexible, minimal user input |
-| Agent structure | 1 agent with role parameter | Clean, reusable, minimal files |
+| Agent structure | 1 agent with mode parameter | Clean, reusable, minimal files |
 | Post-review flow | Present next actions | Guided workflow closure |
+
+**Note:** Initial design specified 5 agents (security, rules, domain, testing, ui) for maximum coverage. During implementation, consolidated to 3 modes for 40% cost reduction: security-and-rules (combines security + TEAM_RULES + quality), implementation (combines domain + testing patterns), and ui (unchanged). This maintains comprehensive coverage while significantly reducing review costs.
 
 ---
 
@@ -37,10 +39,10 @@ Replace the current review command with a parallel multi-agent architecture:
 
 ```
 agents/
-└── reviewer.md        # Single agent, accepts role parameter
+└── reviewer.md        # Single agent, accepts mode parameter
 
 commands/
-└── review.md          # Orchestrates 5 parallel reviewer calls
+└── review.md          # Orchestrates 3 parallel reviewer calls
 ```
 
 ### Flow

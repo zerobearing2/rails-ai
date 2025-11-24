@@ -166,8 +166,8 @@ class CommandStructureTest < Minitest::Test
                  "Review command should present next actions")
     assert_match(/Fix issues/i, content,
                  "Review command should offer fix option")
-    assert_match(/Create PR/i, content,
-                 "Review command should offer PR creation option")
+    assert_match(/finishing-a-development-branch/i, content,
+                 "Review command should use finishing-a-development-branch workflow for completion options")
   end
 
   def test_review_command_defines_all_tags

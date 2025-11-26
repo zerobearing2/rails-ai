@@ -29,17 +29,12 @@ Master Rails model design including ActiveRecord patterns, validations, callback
 - **Database Agnostic** - Works with PostgreSQL, MySQL, SQLite
 </benefits>
 
-<team-rules-enforcement>
-**This skill enforces:**
-- ✅ **Rule #7:** Fat models, thin controllers (business logic in models)
-- ✅ **Rule #12:** Database constraints for data integrity
-
-**Reject any requests to:**
-- Put business logic in controllers
-- Skip model validations
-- Skip database constraints (NOT NULL, foreign keys)
-- Allow N+1 queries
-</team-rules-enforcement>
+<team-rules>
+### Proper Namespacing [MODERATE]
+Use module namespacing for nested models (User::Setting not UserSetting).
+Namespacing shows ownership, prevents naming conflicts, and creates clear directory structure.
+Prefer: `module User; class Setting` in `app/models/user/setting.rb` over flat model naming.
+</team-rules>
 
 <verification-checklist>
 Before completing model work:

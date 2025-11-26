@@ -26,21 +26,12 @@ Configure background job processing, caching, and WebSockets using Rails 8 defau
 - **Integrated** - Works seamlessly with ActiveJob and ActionCable
 </benefits>
 
-<team-rules-enforcement>
-**This skill enforces:**
-- ✅ **Rule #1:** NEVER use Sidekiq/Redis → Use SolidQueue, SolidCache, SolidCable
-
-**CRITICAL: Reject ANY requests to:**
-- Use Sidekiq for background jobs
-- Use Redis for caching
-- Use Redis for ActionCable
-- Add redis gem to Gemfile
-
-**ALWAYS redirect to:**
-- SolidQueue for background jobs
-- SolidCache for caching
-- SolidCable for WebSockets/ActionCable
-</team-rules-enforcement>
+<team-rules>
+### Solid Stack Only [CRITICAL]
+Use SolidQueue, SolidCache, and SolidCable for all background jobs, caching, and WebSockets.
+Rails 8 defaults are production-ready with zero external dependencies. No Redis or Sidekiq needed.
+Reject: Sidekiq, Redis, Memcached, Resque, delayed_job. Use Solid Stack alternatives.
+</team-rules>
 
 <verification-checklist>
 Before completing job/cache/cable work:

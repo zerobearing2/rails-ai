@@ -50,9 +50,11 @@ See [TESTING.md](TESTING.md) for details.
 
 ### Adding Rules
 
-1. Add to `rules/TEAM_RULES.md`
-2. Update quick lookup index
-3. Add tests in `test/unit/rules/`
+Rules are embedded in skills (domain rules) or agents (quality rules):
+
+1. Add to relevant skill's `<team-rules>` section or agent files
+2. Follow format: `### Rule Name [SEVERITY]` + description + `Reject:` or `Prefer:`
+3. Update `test/unit/plugin/embedded_rules_test.rb`
 4. Run `bin/ci`
 
 ## Conventions
@@ -61,7 +63,7 @@ See [TESTING.md](TESTING.md) for details.
 - Minitest, not RSpec
 - RESTful actions only (friendly URLs allowed, no custom controller actions)
 - Solid Stack (SolidQueue, SolidCache, SolidCable)
-- Follow `rules/TEAM_RULES.md`
+- Follow rules embedded in skills and agents
 - Run `rake lint:fix` before committing
 
 ## Getting Help

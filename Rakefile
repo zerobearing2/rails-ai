@@ -44,14 +44,6 @@ namespace :test do
       t.verbose = true
       t.warning = false
     end
-
-    desc "Run rules unit tests only"
-    Rake::TestTask.new(:rules) do |t|
-      t.libs << "test"
-      t.test_files = FileList["test/unit/rules/**/*_test.rb"]
-      t.verbose = true
-      t.warning = false
-    end
   end
 
   # Test coverage reports
@@ -88,17 +80,8 @@ namespace :test do
     puts "  Unit Tests: #{agent_unit_tests}"
     puts ""
 
-    # Rules
-    total_rules_files = Dir.glob("rules/*.{md,yml}").count
-    rules_unit_tests = Dir.glob("test/unit/rules/**/*_test.rb").count
-
-    puts "Rules:"
-    puts "  Total Files: #{total_rules_files}"
-    puts "  Unit Tests: #{rules_unit_tests}"
-    puts ""
-
     # Overall
-    total_unit = skill_unit_tests + command_unit_tests + agent_unit_tests + rules_unit_tests
+    total_unit = skill_unit_tests + command_unit_tests + agent_unit_tests
 
     puts "Overall:"
     puts "  Unit Tests: #{total_unit}"
@@ -108,7 +91,6 @@ namespace :test do
     puts "  rake test:unit:skills    # Skills unit tests only"
     puts "  rake test:unit:commands  # Commands unit tests only"
     puts "  rake test:unit:agents    # Agents unit tests only"
-    puts "  rake test:unit:rules     # Rules unit tests only"
     puts ""
   end
 
@@ -189,8 +171,8 @@ namespace :lint do
   desc "Lint Ruby files with Rubocop"
   task :ruby do
     puts "Running Rubocop..."
-    # --fail-level error: Only fail on actual errors/fatal, allow warnings (W:) and conventions (C:)
-    abort unless system("bundle exec rubocop --fail-level error")
+    # Fail on any offense (convention, warning, or error)
+    abort unless system("bundle exec rubocop")
   end
 
   desc "Lint Markdown skill files"
@@ -198,7 +180,6 @@ namespace :lint do
     puts "Linting Markdown files..."
     # Lint all markdown files except docs/maintenance/, docs/optimization/, docs/archive/, and docs/plans/ (internal/historical/planning documentation)
     md_files = Dir.glob("skills/**/*.md") +
-               Dir.glob("rules/**/*.md") +
                Dir.glob("docs/**/*.md").reject do |f|
                  f.start_with?("docs/maintenance/", "docs/optimization/", "docs/archive/", "docs/plans/")
                end +

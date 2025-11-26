@@ -70,7 +70,7 @@ Use the Task tool to dispatch 3 `@agent-rails-ai:reviewer` agents **in parallel*
 **Agent 1: Security-and-Rules**
 ```
 Mode: security-and-rules
-Task: Review for security vulnerabilities, TEAM_RULES violations, and code quality
+Task: Review for security vulnerabilities, quality rule violations, and code quality
 Files: [list of changed files]
 Context: [diff content]
 ```
@@ -196,8 +196,8 @@ Use `superpowers:finishing-a-development-branch` to present completion options (
 
 **Tags used in findings:**
 - `[SECURITY]` - Security vulnerabilities
-- `[RULE #N]` - TEAM_RULES violations (with rule number)
-- `[QUALITY]` - General code quality issues
+- `[QUALITY]` - Quality rule violations (embedded in agents)
+- `[CODE]` - General code quality issues
 - `[MODELS]` - Model pattern violations
 - `[CONTROLLERS]` - Controller pattern violations
 - `[JOBS]` - Background job issues

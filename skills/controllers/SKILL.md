@@ -25,18 +25,22 @@ Rails controllers following REST conventions with 7 standard actions, nested res
 - **Maintainable** - Clear separation of HTTP concerns from business logic
 </benefits>
 
-<team-rules-enforcement>
-**This skill enforces:**
-- ✅ **Rule #3:** NEVER add custom controller actions → RESTful actions only (friendly URLs allowed)
-- ✅ **Rule #7:** Thin controllers (delegate to models/services)
-- ✅ **Rule #10:** Strong parameters for all user input
+<team-rules>
+### RESTful Actions Only [CRITICAL]
+Use only the 7 standard REST actions: index, show, new, create, edit, update, destroy.
+Custom actions violate REST principles and make routing unpredictable. Create child controllers for additional actions.
+Reject: Custom controller actions (def publish, def archive), member/collection routes.
 
-**Reject any requests to:**
-- Add custom route actions (use child controllers instead)
-- Put business logic in controllers
-- Skip strong parameters
-- Use `params` directly without filtering
-</team-rules-enforcement>
+### Thin Controllers [MODERATE]
+Keep controllers under 50 lines. Actions should be 5-10 lines max.
+Controllers coordinate HTTP concerns only. Business logic belongs in models or service objects.
+Reject: Business logic in controllers, validations in controllers, API calls in actions.
+
+### Proper Namespacing [MODERATE]
+Use module namespacing for nested controllers (Feedbacks::ResponsesController not FeedbackResponsesController).
+Namespacing shows ownership, prevents conflicts, and creates clear directory structure.
+Prefer: `module Feedbacks; class ResponsesController` over flat controller naming.
+</team-rules>
 
 <verification-checklist>
 Before completing controller work:

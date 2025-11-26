@@ -88,17 +88,17 @@ Use this skill's patterns (below) for:
 - **Flexibility** - Nested forms handle complex relationships elegantly
 </benefits>
 
-<team-rules-enforcement>
-**This skill enforces:**
-- ✅ **Rule #8:** Accessibility (WCAG 2.1 AA compliance)
+<team-rules>
+### Partials for Fragments [MODERATE]
+Use partials for simple, one-off view fragments only.
+Components (or helpers) are better for reusable UI with logic or variants.
+Reject: Partials with complex conditionals, partials used as components.
 
-**Reject any requests to:**
-- Skip accessibility features (keyboard navigation, screen readers, ARIA)
-- Use non-semantic HTML (divs instead of proper elements)
-- Skip form labels or alt text
-- Use insufficient color contrast
-- Build inaccessible forms or navigation
-</team-rules-enforcement>
+### Semantic HTML [MODERATE]
+Use proper HTML elements for their semantic meaning.
+Semantic HTML improves accessibility, SEO, and maintainability.
+Prefer: `<nav>`, `<article>`, `<section>`, `<button>` over generic `<div>` with roles.
+</team-rules>
 
 <verification-checklist>
 Before completing view work:

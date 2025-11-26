@@ -24,6 +24,18 @@ Send transactional and notification emails using ActionMailer, integrated with S
 - **Attachments** - Send files (PDFs, images) with emails
 </benefits>
 
+<team-rules>
+### Async Delivery [HIGH]
+Send all emails asynchronously via SolidQueue (deliver_later).
+Synchronous email sending blocks requests and degrades user experience.
+Reject: deliver_now in controllers, synchronous email in request cycle.
+
+### Dual Format [MODERATE]
+Always provide both HTML and plain text versions of emails.
+Plain text ensures accessibility and compatibility with all email clients.
+Prefer: ActionMailer multipart emails with both formats.
+</team-rules>
+
 <verification-checklist>
 Before completing mailer work:
 - ✅ Async delivery used (deliver_later, not deliver_now)

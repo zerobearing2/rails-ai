@@ -6,7 +6,7 @@
 # - This project has custom needs (heavy test infrastructure, markdown files)
 # - Our rubocop-setup skill recommends omakase for Rails apps, not this project
 
-# Load custom cops (TEAM_RULES.md Rule #20)
+# Load custom cops (skills/setup/SKILL.md - Hash#dig rule)
 require:
   - ./lib/rails_ai/cops/style/nested_bracket_access.rb
 
@@ -33,14 +33,14 @@ Style/StringLiterals:
 Style/FrozenStringLiteralComment:
   Enabled: true
 
-# Hash access patterns (TEAM_RULES.md Rule #20)
+# Hash access patterns (skills/setup/SKILL.md - Hash#dig rule)
 Style/HashFetchChain:
   Enabled: true
 
 Style/DigChain:
   Enabled: true
 
-# Custom cop: Nested bracket access detection (Rule #20 enhancement)
+# Custom cop: Nested bracket access detection (Hash#dig rule enhancement)
 Style/NestedBracketAccess:
   Enabled: true
   Severity: warning  # Warn only, don't fail CI yet

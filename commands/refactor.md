@@ -14,7 +14,7 @@ You are a **COORDINATOR ONLY** for refactoring work. You **NEVER implement direc
 
 | Coordinator (You) | Developer Agent (Task tool) |
 |-------------------|----------------------------|
-| Verify baseline passes | Load skills and TEAM_RULES |
+| Verify baseline passes | Load skills (with embedded rules) |
 | Plan the refactor scope | Write code with TDD |
 | Dispatch `@agent-rails-ai:developer` agent | Run verification commands |
 | Verify behavior unchanged | Report completion status |
@@ -150,7 +150,7 @@ If `@agent-rails-ai:developer` agent fails or returns incomplete work (but behav
 
 Before finalizing, run `/rails-ai:review`:
 
-1. Review the refactoring against TEAM_RULES
+1. Review the refactoring against team rules (embedded in skills/agents)
 2. Check for over-abstraction, pattern violations
 3. Verify behavior was truly preserved
 4. Address any blockers found

@@ -13,9 +13,9 @@ Read the `Mode:` value from your input below. Follow ONLY the instructions in th
 
 Modes determine what to check:
 
-| Mode | Focus Area | Primary Skill/Source |
-|------|------------|---------------------|
-| `security-and-rules` | Security vulnerabilities + TEAM_RULES + code quality | rails-ai:security, rules/TEAM_RULES.md |
+| Mode | Focus Area | Primary Skills |
+|------|------------|----------------|
+| `security-and-rules` | Security vulnerabilities + quality rules | rails-ai:security + quality rules below |
 | `implementation` | Model/controller/job/mailer/testing patterns | rails-ai:models, controllers, jobs, mailers, testing |
 | `ui` | Views, Hotwire, styling | rails-ai:ui, hotwire, styling |
 
@@ -39,12 +39,29 @@ Review the diff for security vulnerabilities documented in that skill:
 - File Upload Security
 - Command Injection
 
-Then, read the file: `rules/TEAM_RULES.md`
+Then, review against the Quality Rules below:
 
-Review the diff against ALL rules in that file. Pay special attention to:
-- Critical severity rules (REJECT violations)
-- High severity rules
-- Rule enforcement triggers listed in the file
+<team-rules>
+### Be Concise [MODERATE]
+Prefer fewer lines over more. Every line must justify its existence.
+Less code = fewer bugs, easier review, simpler maintenance.
+Prefer: Extract helper if logic repeats 3+ times. Delete unused code immediately.
+
+### Don't Over-Engineer [HIGH]
+Solve TODAY's problem with the simplest solution that works.
+Premature abstraction creates maintenance burden without value.
+Reject: Generic frameworks for specific needs, "just in case" code, unused extensibility.
+
+### Reduce Complexity [MODERATE]
+Flatten nested conditionals. Break complex methods into smaller pieces.
+Deep nesting obscures logic and increases bug surface area.
+Prefer: Early returns, guard clauses, single-purpose methods under 20 lines.
+
+### No Premature Optimization [MODERATE]
+Write clear code first. Optimize only with profiling data showing bottlenecks.
+"Optimized" code is harder to read and often solves the wrong problem.
+Reject: Caching without benchmarks, complex algorithms for small datasets.
+</team-rules>
 
 **Also check general code quality:**
 - Clean separation of concerns
@@ -53,7 +70,7 @@ Review the diff against ALL rules in that file. Pay special attention to:
 - Edge cases handled
 - No obvious bugs
 
-Tag findings as: `[SECURITY]` for security issues, `[RULE #N]` for rule violations (use the actual rule number), `[QUALITY]` for general quality issues
+Tag findings as: `[SECURITY]` for security issues, `[QUALITY]` for quality rule violations, `[CODE]` for general quality issues
 </mode-security-and-rules>
 
 <mode-implementation>
@@ -148,9 +165,9 @@ issues:  # Only if status is failed or blocked
 ```
 
 **Severity Guidelines:**
-- **critical**: Security vulnerabilities, critical TEAM_RULES violations, bugs that will cause failures
-- **important**: High-severity rule violations, missing tests, poor error handling, architecture problems
-- **minor**: Style issues, suggestions for improvement
+- **critical**: Security vulnerabilities, critical rule violations (marked [CRITICAL]), bugs that will cause failures
+- **important**: High-severity rule violations (marked [HIGH]), missing tests, poor error handling, architecture problems
+- **minor**: Moderate rule violations, style issues, suggestions for improvement
 
 **Rules:**
 - Load the relevant skill(s) FIRST using the Skill tool before reviewing

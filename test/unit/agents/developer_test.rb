@@ -137,20 +137,26 @@ class DeveloperAgentTest < Minitest::Test
                  "Agent should describe REFACTOR phase")
   end
 
-  # Critical rules tests
-  def test_agent_mentions_critical_rules
-    assert_match(/Rule #1.*Solid Stack/i, @content,
-                 "Agent should mention Rule #1 (Solid Stack)")
-    assert_match(/Rule #2.*Minitest/i, @content,
-                 "Agent should mention Rule #2 (Minitest)")
-    assert_match(/Rule #3.*RESTful/i, @content,
-                 "Agent should mention Rule #3 (RESTful)")
-    assert_match(/Rule #4.*TDD/i, @content,
-                 "Agent should mention Rule #4 (TDD)")
-    assert_match(/Rule #17.*bin.ci/i, @content,
-                 "Agent should mention Rule #17 (bin/ci)")
-    assert_match(/Rule #18.*WebMock/i, @content,
-                 "Agent should mention Rule #18 (WebMock)")
+  # Quality rules tests - rules are now embedded in agents via <team-rules>
+  def test_agent_has_embedded_team_rules
+    assert_match(/<team-rules>/i, @content,
+                 "Agent should have embedded <team-rules> section")
+  end
+
+  def test_agent_mentions_quality_rules
+    assert_match(/Be Concise/i, @content,
+                 "Agent should mention Be Concise rule")
+    assert_match(/Don't Over-Engineer/i, @content,
+                 "Agent should mention Don't Over-Engineer rule")
+    assert_match(/Reduce Complexity/i, @content,
+                 "Agent should mention Reduce Complexity rule")
+    assert_match(/No Premature Optimization/i, @content,
+                 "Agent should mention No Premature Optimization rule")
+  end
+
+  def test_agent_references_domain_rules_in_skills
+    assert_match(/Domain rules are in skills/i, @content,
+                 "Agent should reference that domain rules are in skills")
   end
 
   # Verification tests

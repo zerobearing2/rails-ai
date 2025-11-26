@@ -1,6 +1,6 @@
 # Rails-AI Test Suite
 
-This directory contains all tests for Rails-AI skills, commands, and rules.
+This directory contains all tests for Rails-AI skills, commands, agents, and plugin configuration.
 
 ## Structure
 
@@ -12,22 +12,27 @@ test/
 │   ├── agent_integration_test_case.rb  # Base class for agent tests
 │   └── llm_adapter.rb          # LLM integration for agent tests
 ├── unit/
+│   ├── agents/                 # Agent tests
+│   │   ├── developer_test.rb
+│   │   └── reviewer_test.rb
 │   ├── commands/               # Workflow command tests
 │   │   └── command_structure_test.rb
-│   ├── skills/                 # 11 domain skill test files
-│   │   ├── controllers_test.rb
-│   │   ├── debugging_test.rb
-│   │   ├── hotwire_test.rb
-│   │   ├── jobs_test.rb
-│   │   ├── mailers_test.rb
-│   │   ├── models_test.rb
-│   │   ├── project_setup_test.rb
-│   │   ├── security_test.rb
-│   │   ├── styling_test.rb
-│   │   ├── testing_test.rb
-│   │   └── views_test.rb
-│   └── rules/                  # Team rules tests
-└── integration/                # Agent integration scenarios
+│   ├── plugin/                 # Plugin configuration tests
+│   │   ├── embedded_rules_test.rb  # Validates rules in skills/agents
+│   │   └── plugin_config_test.rb
+│   └── skills/                 # 11 domain skill test files
+│       ├── controllers_test.rb
+│       ├── debugging_test.rb
+│       ├── hotwire_test.rb
+│       ├── jobs_test.rb
+│       ├── mailers_test.rb
+│       ├── models_test.rb
+│       ├── project_setup_test.rb
+│       ├── security_test.rb
+│       ├── styling_test.rb
+│       ├── testing_test.rb
+│       └── ui_test.rb
+└── skills/                     # Skill testing scenarios (manual)
 ```
 
 ## Running Tests
@@ -83,12 +88,23 @@ Each skill test validates:
 
 3. **Content Structure**
    - Has required XML sections: `<when-to-use>`, `<benefits>`, `<standards>`
+   - Has `<team-rules>` section (for skills with domain rules)
    - XML tags are properly matched (opening/closing)
    - Has code examples
 
 4. **Quality**
    - Description is not empty
    - Code examples are not empty
+
+### Embedded Rules Tests
+
+The `embedded_rules_test.rb` validates:
+
+1. **Skills with rules** have correct `<team-rules>` sections
+2. **Agents** have quality rules embedded
+3. **Rules format** follows `### Rule Name [SEVERITY]` pattern
+4. **Rules have guidance** (either `Reject:` or `Prefer:` line)
+5. **Severity levels** are valid (CRITICAL, HIGH, MODERATE, LOW)
 
 ### Command Tests
 
@@ -134,10 +150,11 @@ The `SkillTestCase` base class provides:
 
 ## Test Statistics
 
-- **Total unit test files**: 15
+- **Total unit test files**: 16
 - **Skill test files**: 11
 - **Command test files**: 1
-- **Rules test files**: 3
+- **Agent test files**: 2
+- **Plugin test files**: 2 (config + embedded rules)
 - **Skill coverage**: 100% (11/11 skills tested)
 - **Command coverage**: 100% (6/6 commands tested)
 

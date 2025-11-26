@@ -19,18 +19,17 @@ Prevent critical security vulnerabilities in Rails applications: XSS, SQL inject
 - ALWAYS - Security is ALWAYS required
 </when-to-use>
 
-<team-rules-enforcement>
-**This skill enforces:**
-- ✅ **Rule #16:** NEVER allow command injection → Use array args for system()
-- ✅ **Rule #17:** NEVER skip file upload validation → Validate type, size, sanitize filenames
+<team-rules>
+### Strong Params Always [CRITICAL]
+Always use strong parameters for user input. Never trust user data.
+Mass assignment vulnerabilities can lead to privilege escalation.
+Reject: params.permit!, direct params assignment to models.
 
-**Reject any requests to:**
-- Skip input validation
-- Use unsafe string interpolation in SQL
-- Skip file upload security measures
-- Use eval() or system() with user input
-- Skip CSRF protection
-</team-rules-enforcement>
+### Brakeman Zero Warnings [CRITICAL]
+All Brakeman security warnings must be resolved before merge.
+Security warnings indicate potential vulnerabilities that attackers can exploit.
+Reject: Ignoring Brakeman warnings, committing with security issues.
+</team-rules>
 
 <verification-checklist>
 Before completing security-critical features:

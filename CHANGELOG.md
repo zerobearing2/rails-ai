@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- `/rails-ai:plan` now forces implementation through `/rails-ai:feature` or `/rails-ai:refactor` workflows
+  - Skills loaded BEFORE brainstorming (not just referenced) to inject domain rules into context
+  - Removed option to "implement now" directly in main context (bypassed skill pipeline)
+  - Auto-dispatch to feature/refactor after plan agreement (mode inferred from plan content)
+  - Ensures all implementation goes through developer agent with proper skill loading
+
 ### Changed
 - **BREAKING**: Removed `rules/TEAM_RULES.md` - rules now embedded directly in skills and agents
   - Domain rules in skills via `<team-rules>` sections (testing, controllers, models, hotwire, jobs, setup, ui, mailers, security)

@@ -238,6 +238,7 @@ rake lint:fix           # Auto-fix Ruby
 1. Run `bin/ci` - must pass
 2. Update documentation if needed
 3. Use draft PR for review
+4. **Open PRs against `develop` branch** (not `main`)
 
 ## Philosophy
 

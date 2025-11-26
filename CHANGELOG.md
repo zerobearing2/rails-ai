@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **BREAKING**: Removed `rules/TEAM_RULES.md` - rules now embedded directly in skills and agents
+  - Domain rules in skills via `<team-rules>` sections (testing, controllers, models, hotwire, jobs, setup, ui, mailers, security)
+  - Quality rules in agents (Be Concise, Don't Over-Engineer, Reduce Complexity, No Premature Optimization)
+  - Skills without rules: styling, debugging
+  - Test coverage moved to `test/unit/plugin/embedded_rules_test.rb`
+- Removed `rules/` directory entirely
+- Removed `rake test:unit:rules` task
+- RuboCop now fails on any offense (removed `--fail-level error`)
+
 ### Added
 - Developer agent (`agents/developer.md`) with 3 modes for centralized implementation:
   - `feature` mode: Implement new functionality (no baseline required)

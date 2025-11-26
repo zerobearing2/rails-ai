@@ -23,20 +23,27 @@ description: Use when testing Rails applications - TDD, Minitest, fixtures, mode
 - **Comprehensive** - Complete testing story from unit to system
 </benefits>
 
-<team-rules-enforcement>
-**This skill enforces:**
-- ✅ **Rule #2:** NEVER use RSpec → Use Minitest only
-- ✅ **Rule #4:** NEVER skip TDD → Write tests first (RED-GREEN-REFACTOR)
-- ✅ **Rule #18:** NEVER make live HTTP requests → Use WebMock
-- ✅ **Rule #19:** NEVER use system tests → Use integration tests
+<team-rules>
+### Minitest Only [CRITICAL]
+Use Minitest (ActiveSupport::TestCase) for all tests.
+Minitest is simple, fast, and part of Ruby stdlib. RSpec adds unnecessary complexity.
+Reject: RSpec, describe blocks, let/subject syntax, FactoryBot.
 
-**Reject any requests to:**
-- Use RSpec instead of Minitest
-- Skip writing tests
-- Write implementation before tests
-- Make live HTTP requests in tests
-- Use Capybara system tests
-</team-rules-enforcement>
+### TDD Required [CRITICAL]
+Write tests first using RED-GREEN-REFACTOR cycle.
+Tests written first are better tests. Tests written after are often skipped or incomplete.
+Reject: Code without tests, skipping test step, writing tests after implementation.
+
+### WebMock Required [CRITICAL]
+Mock all external HTTP requests in tests using WebMock.
+Tests must be fast, reliable, and not dependent on external services.
+Reject: Live HTTP calls, WebMock.allow_net_connect!, disabling WebMock.
+
+### No System Tests [MODERATE]
+Use integration tests with Capybara instead of system tests (ApplicationSystemTestCase).
+Integration tests provide same coverage with better performance and simpler setup.
+Prefer: ActionDispatch::IntegrationTest with Capybara::DSL.
+</team-rules>
 
 <verification-checklist>
 Before completing any task, verify:

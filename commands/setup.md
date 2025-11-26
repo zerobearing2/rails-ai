@@ -9,7 +9,7 @@ description: Project configuration, gem setup, and validation
 Use this workflow when:
 - Setting up a new Rails project
 - Configuring gems and dependencies
-- Validating project structure against TEAM_RULES
+- Validating project structure against team conventions
 - Setting up environment, credentials, Docker, or RuboCop
 
 ## Superpowers Workflows
@@ -52,7 +52,7 @@ Use Skill tool to use:
 
 Follow the patterns in `rails-ai:setup`:
 - Use Rails 8+ defaults (SolidQueue, SolidCache, SolidCable)
-- Follow TEAM_RULES.md conventions
+- Follow team conventions (rules embedded in skills)
 - Configure according to project standards
 
 ### Step 5: Validate Setup

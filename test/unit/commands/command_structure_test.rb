@@ -174,7 +174,7 @@ class CommandStructureTest < Minitest::Test
     review = @command_files.find { |f| f.include?("review.md") }
     content = File.read(review)
 
-    tags = %w[SECURITY RULE QUALITY MODELS CONTROLLERS JOBS MAILERS TESTING UI HOTWIRE STYLING]
+    tags = %w[SECURITY QUALITY CODE MODELS CONTROLLERS JOBS MAILERS TESTING UI HOTWIRE STYLING]
 
     tags.each do |tag|
       assert_match(/\[#{tag}/i, content,

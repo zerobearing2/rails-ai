@@ -29,18 +29,17 @@ Set up new Rails 8+ projects with required dependencies, configure environments 
 - **Container-Ready** - Docker and Kamal support for modern deployment
 </benefits>
 
-<team-rules-enforcement>
-**This skill enforces:**
-- ✅ **Rule #13:** Encrypted credentials for secrets
-- ✅ **Rule #14:** Environment-specific config
+<team-rules>
+### Double Quotes [LOW]
+Use double quotes for all Ruby strings. Enforced by RuboCop.
+Consistency reduces cognitive load. One less decision to make.
+Prefer: `"Hello world"` over `'Hello world'`. Exception: strings containing double quotes.
 
-**Reject any requests to:**
-- Store secrets in plain text or environment variables
-- Hardcode API keys, passwords, or tokens in code
-- Use same config for all environments (dev, test, prod)
-- Commit credentials or .env files to git
-- Skip encryption for sensitive data
-</team-rules-enforcement>
+### Hash#dig [MODERATE]
+Use Hash#dig for safe nested hash access where intermediate keys might be nil.
+Prevents NoMethodError on nil and is more readable than chained brackets.
+Prefer: `user.dig(:profile, :settings, :theme)` over `user[:profile][:settings][:theme]`.
+</team-rules>
 
 <verification-checklist>
 Before completing configuration work:

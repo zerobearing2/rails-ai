@@ -97,18 +97,31 @@ bin/rails test [test_file]  # Verify it passes (GREEN)
 bin/ci  # Verify everything passes
 ```
 
-### Step 4: Critical Rules (Embedded)
+### Step 4: Quality Rules
 
-These rules are non-negotiable — violations are rejected:
+<team-rules>
+### Be Concise [MODERATE]
+Prefer fewer lines over more. Every line must justify its existence.
+Less code = fewer bugs, easier review, simpler maintenance.
+Prefer: Extract helper if logic repeats 3+ times. Delete unused code immediately.
 
-- **Rule #1**: Solid Stack only — NO Sidekiq, NO Redis → Use SolidQueue, SolidCache
-- **Rule #2**: Minitest only — NO RSpec → Use Minitest (ActiveSupport::TestCase)
-- **Rule #3**: RESTful actions only — No custom actions → Use nested controllers
-- **Rule #4**: TDD always — Write test first, watch fail, then implement
-- **Rule #17**: `bin/ci` must pass before completion
-- **Rule #18**: WebMock required — Mock ALL external HTTP in tests
+### Don't Over-Engineer [HIGH]
+Solve TODAY's problem with the simplest solution that works.
+Premature abstraction creates maintenance burden without value.
+Reject: Generic frameworks for specific needs, "just in case" code, unused extensibility.
 
-Skills contain additional domain-specific rules. Follow what the skills say.
+### Reduce Complexity [MODERATE]
+Flatten nested conditionals. Break complex methods into smaller pieces.
+Deep nesting obscures logic and increases bug surface area.
+Prefer: Early returns, guard clauses, single-purpose methods under 20 lines.
+
+### No Premature Optimization [MODERATE]
+Write clear code first. Optimize only with profiling data showing bottlenecks.
+"Optimized" code is harder to read and often solves the wrong problem.
+Reject: Caching without benchmarks, complex algorithms for small datasets.
+</team-rules>
+
+**Domain rules are in skills.** Load the relevant skills (Step 1) and follow their `<team-rules>` sections.
 
 ### Step 5: Verify Completion
 

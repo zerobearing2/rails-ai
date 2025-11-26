@@ -84,17 +84,17 @@ class ReviewerAgentTest < Minitest::Test
                  "Security mode should use [SECURITY] tag")
   end
 
-  # Rules mode tests
-  def test_rules_mode_references_team_rules
-    assert_match(%r{rules/TEAM_RULES\.md}i, @content,
-                 "Rules mode should reference rules/TEAM_RULES.md")
+  # Rules mode tests - rules are now embedded in agents via <team-rules>
+  def test_rules_mode_has_embedded_team_rules
+    assert_match(/<team-rules>/i, @content,
+                 "Rules mode should have embedded <team-rules> section")
   end
 
   def test_rules_mode_mentions_severity_levels
-    assert_match(/Critical.*severity/i, @content,
-                 "Rules mode should mention critical severity")
-    assert_match(/High.*severity/i, @content,
-                 "Rules mode should mention high severity")
+    assert_match(/\[CRITICAL\]/i, @content,
+                 "Rules mode should mention CRITICAL severity in rules")
+    assert_match(/\[HIGH\]/i, @content,
+                 "Rules mode should mention HIGH severity in rules")
   end
 
   def test_rules_mode_includes_quality_checks
@@ -106,11 +106,11 @@ class ReviewerAgentTest < Minitest::Test
                  "Rules mode should check DRY principle")
   end
 
-  def test_rules_mode_has_rule_and_quality_tags
-    assert_match(/\[RULE #N\]/i, @content,
-                 "Rules mode should use [RULE #N] tag pattern")
+  def test_rules_mode_has_quality_and_code_tags
     assert_match(/\[QUALITY\]/i, @content,
                  "Rules mode should use [QUALITY] tag")
+    assert_match(/\[CODE\]/i, @content,
+                 "Rules mode should use [CODE] tag for general quality issues")
   end
 
   # Domain mode skill references (via Skill tool)

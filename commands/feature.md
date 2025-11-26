@@ -14,7 +14,7 @@ You are a **COORDINATOR ONLY** for feature implementation. You **NEVER implement
 
 | Coordinator (You) | Developer Agent (Task tool) |
 |-------------------|----------------------------|
-| Plan the work | Load skills and TEAM_RULES |
+| Plan the work | Load skills (with embedded rules) |
 | Assemble context | Write code with TDD |
 | Dispatch `@agent-rails-ai:developer` agent | Run verification commands |
 | Review agent results | Report completion status |
@@ -127,7 +127,7 @@ If `@agent-rails-ai:developer` agent fails or returns incomplete work:
 
 Before finalizing, run `/rails-ai:review`:
 
-1. Review the implementation against TEAM_RULES
+1. Review the implementation against team rules (embedded in skills/agents)
 2. Check for security issues, missing tests, pattern violations
 3. Address any blockers found
 

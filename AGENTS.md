@@ -10,8 +10,8 @@ This document is internal documentation for contributors.
 Rails-AI uses a **workflow command architecture** where each command loads:
 
 - **Superpowers workflows** - Process layer (brainstorming, TDD, debugging, code review)
-- **Rails-AI skills** - Domain expertise (11 Rails-specific skills)
-- **Team rules** - 20 conventions from TEAM_RULES.md
+- **Rails-AI skills** - Domain expertise (11 Rails-specific skills with embedded rules)
+- **Quality rules** - Embedded in agents (Be Concise, Don't Over-Engineer, etc.)
 
 ### Structure
 
@@ -27,7 +27,7 @@ rails-ai/
 ├── agents/                    # Reusable agent definitions
 │   ├── developer.md           # Implementation agent with feature/refactor/fix modes
 │   └── reviewer.md            # Multi-role code reviewer agent
-├── skills/                    # 11 domain skills
+├── skills/                    # 11 domain skills (each with embedded <team-rules>)
 │   ├── setup/
 │   ├── controllers/
 │   ├── debugging/
@@ -39,8 +39,6 @@ rails-ai/
 │   ├── styling/
 │   ├── testing/
 │   └── ui/                    # Unified frontend (orchestrates design → styling → hotwire)
-├── rules/
-│   └── TEAM_RULES.md          # 20 team conventions
 └── test/
     └── unit/                  # Fast unit tests only
 ```
@@ -105,15 +103,15 @@ issues:  # Only if status is failed or blocked
 3. Runs `bin/ci` to verify
 4. Reports completion with structured output
 
-Critical rules (1-4, 17, 18) are embedded in the agent. Domain-specific rules come from skills. This minimizes context usage per task.
+Quality rules are embedded in the agent. Domain-specific rules come from skills via `<team-rules>` sections. This minimizes context usage per task.
 
 ### Reviewer Agent Modes
 
 | Mode | Checks | Tags |
 |------|--------|------|
-| `security-and-rules` | Security vulnerabilities + TEAM_RULES + code quality | `[SECURITY]`, `[RULE #N]`, `[QUALITY]` |
+| `security-and-rules` | Security vulnerabilities + quality rules + code quality | `[SECURITY]`, `[QUALITY]`, `[CODE]` |
 | `implementation` | Model, controller, job, mailer, testing patterns | `[MODELS]`, `[CONTROLLERS]`, `[JOBS]`, `[MAILERS]`, `[TESTING]` |
-| `ui` | Views, Turbo, Stimulus, ViewComponent, styling, accessibility | `[UI]`, `[HOTWIRE]`, `[STYLING]` |
+| `ui` | Views, Turbo, Stimulus, styling, accessibility | `[UI]`, `[HOTWIRE]`, `[STYLING]` |
 
 The review command dispatches 3 agents in parallel (one per mode) and consolidates findings by severity. This streamlined approach reduces cost by 40% while maintaining comprehensive coverage.
 
@@ -138,24 +136,29 @@ The review command dispatches 3 agents in parallel (one per mode) and consolidat
 Each skill includes:
 
 - YAML front matter (name, description)
+- `<team-rules>` section with domain-specific rules
 - When to use
 - Patterns and examples
 - Anti-patterns to avoid
 
-## Team Rules
+## Rules Architecture
 
-**20 conventions** in `rules/TEAM_RULES.md`:
+Rules are **embedded directly in skills and agents** for efficient context usage:
 
-**Critical rules (REJECT violations):**
+**Domain rules in skills** (loaded only when skill is used):
+- Testing: Minitest Only, TDD Required, WebMock Required, No System Tests
+- Controllers: RESTful Actions Only, Thin Controllers, Proper Namespacing
+- Jobs: Solid Stack Only (NO Sidekiq/Redis)
+- Security: Strong Params Always, Brakeman Zero Warnings
+- etc.
 
-1. NEVER Sidekiq/Redis → SolidQueue/SolidCache
-2. NEVER RSpec → Minitest only
-3. NEVER custom routes → RESTful resources
-4. NEVER skip TDD → RED-GREEN-REFACTOR
-5. NEVER merge without review → Draft PRs
-6. NEVER WebMock bypass → Mock all HTTP
+**Quality rules in agents** (always available):
+- Be Concise
+- Don't Over-Engineer
+- Reduce Complexity
+- No Premature Optimization
 
-See TEAM_RULES.md for all 20 rules with enforcement levels.
+This architecture loads only relevant rules per task, minimizing context window usage.
 
 ## Development
 
@@ -166,7 +169,6 @@ rake test:unit              # All unit tests
 rake test:unit:skills       # Skills only
 rake test:unit:commands     # Commands only
 rake test:unit:agents       # Agents only
-rake test:unit:rules        # Rules only
 bin/ci                      # Full check (lint + tests)
 ```
 
@@ -175,26 +177,32 @@ bin/ci                      # Full check (lint + tests)
 - Command structure and content
 - Agent structure and roles
 - Skill structure and metadata
-- Rules consistency and mappings
+- Embedded rules presence and format
 - No integration tests (removed)
 
 ### Adding Skills
 
 1. Create `skills/domain/SKILL.md` with YAML front matter
-2. Add unit tests in `test/unit/skills/domain_test.rb`
-3. **Update `skills/setup/SKILL.md`** if the new skill affects project verification
-4. Update workflow commands if needed
-5. Run `bin/ci`
+2. Add `<team-rules>` section with domain-specific rules if applicable
+3. Add unit tests in `test/unit/skills/domain_test.rb`
+4. **Update `skills/setup/SKILL.md`** if the new skill affects project verification
+5. Update workflow commands if needed
+6. Run `bin/ci`
 
 ### Adding Rules
 
-1. Add to `rules/TEAM_RULES.md`
-2. Update quick lookup index
-3. Set enforcement severity
-4. Add tests in `test/unit/rules/`
-5. **Update `skills/setup/SKILL.md`** if the rule affects project setup verification
-6. Update domain skills that enforce the rule
-7. Run `bin/ci`
+Rules are embedded directly in skills or agents:
+
+**Domain rules** (add to relevant skill's `<team-rules>` section):
+1. Add rule to the skill's `<team-rules>` section
+2. Follow format: `### Rule Name [SEVERITY]` + description + `Reject:` or `Prefer:`
+3. Update `test/unit/plugin/embedded_rules_test.rb` to validate the rule
+4. Run `bin/ci`
+
+**Quality rules** (add to agents):
+1. Add rule to `agents/developer.md` and `agents/reviewer.md` `<team-rules>` sections
+2. Update `test/unit/plugin/embedded_rules_test.rb`
+3. Run `bin/ci`
 
 ### Modifying Workflow Commands
 
@@ -236,6 +244,7 @@ rake lint:fix           # Auto-fix Ruby
 - Workflow commands coordinate all work
 - Superpowers = HOW to work (process)
 - Rails-AI = WHAT you're building (domain)
+- Rules embedded in skills/agents for efficient context usage
 - TDD always (RED-GREEN-REFACTOR)
 - Minitest, not RSpec
 - RESTful actions only (friendly URLs allowed)

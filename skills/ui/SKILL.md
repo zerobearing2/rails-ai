@@ -89,6 +89,13 @@ Use this skill's patterns (below) for:
 </benefits>
 
 <team-rules>
+### No Complex Logic in Views [HIGH]
+Views should contain HTML/CSS for presentation only, not business or display logic.
+Complex conditionals, data transformations, and setup code make views hard to test and violate DRY.
+Simple checks OK: `if user.admin?`, `if record.pending?`, `if items.any?`
+Reject: Multi-condition logic, calculations, ERB setup blocks, method chains for derived data.
+Prefer: Helpers for stateless formatting, Presenters (PORO) for model-specific display logic.
+
 ### Partials for Fragments [MODERATE]
 Use partials for simple, one-off view fragments only.
 Components (or helpers) are better for reusable UI with logic or variants.
@@ -306,6 +313,117 @@ end
 def render_html(content)
   sanitize(content, tags: %w[p br strong])
 end
+```
+
+</good-example>
+</antipattern>
+
+---
+
+## Presenters
+
+Presenters are POROs that encapsulate display logic for models. They keep views clean and make display logic testable. Place them in `app/presenters/`.
+
+### When to Use Presenters vs Helpers
+
+| Use Case | Solution |
+|----------|----------|
+| Stateless formatting (dates, currency, badges) | Helper |
+| Model-specific display logic | Presenter |
+| Logic needing multiple model attributes | Presenter |
+| Conditional display based on state | Presenter |
+| Reusable across different models | Helper |
+
+### Basic Presenter
+
+<pattern name="basic-presenter">
+<description>PORO presenter wrapping a model with display methods</description>
+
+```ruby
+# app/presenters/order_presenter.rb
+class OrderPresenter
+  def initialize(order, user, view_context)
+    @order = order
+    @user = user
+    @h = view_context
+  end
+
+  def customer_name
+    @user.name.presence || @user.email.split("@").first
+  end
+
+  def can_approve?
+    @user.admin? && @order.pending? && !@order.locked?
+  end
+
+  def formatted_total
+    @h.number_to_currency(total + tax - discount)
+  end
+
+  def priority_badge
+    @h.content_tag(:span, @order.priority.titleize, class: "badge badge-#{priority_color}")
+  end
+
+  private
+
+  def total
+    @order.items.sum(&:price)
+  end
+
+  def tax
+    total * 0.1
+  end
+
+  def discount
+    @user.premium? ? total * 0.15 : 0
+  end
+
+  def priority_color
+    { "high" => "error", "medium" => "warning" }.fetch(@order.priority, "info")
+  end
+end
+```
+
+**Usage:**
+
+```ruby
+# Controller
+@order = OrderPresenter.new(Order.find(params[:id]), current_user, view_context)
+```
+
+```erb
+<%# View - clean, no logic %>
+<h2><%= @order.customer_name %></h2>
+<%= link_to "Approve", approve_path if @order.can_approve? %>
+<p><%= @order.formatted_total %></p>
+<%= @order.priority_badge %>
+```
+
+</pattern>
+
+<antipattern>
+<description>Complex logic and setup code in views</description>
+<reason>Hard to test, violates DRY, mixes presentation with business logic</reason>
+<bad-example>
+
+```erb
+<%# ❌ BAD - Setup blocks, calculations, complex conditionals %>
+<% total = @order.items.sum(&:price); tax = total * 0.1 %>
+<h2><%= @user.name.present? ? @user.name : @user.email.split('@').first %></h2>
+<% if @user.admin? && @order.pending? && !@order.locked? && @order.items.any? %>
+  <%= link_to "Approve", approve_path %>
+<% end %>
+<p><%= number_to_currency(total + tax) %></p>
+```
+
+</bad-example>
+<good-example>
+
+```erb
+<%# ✅ GOOD - All logic moved to presenter (see pattern above) %>
+<h2><%= @order.customer_name %></h2>
+<%= link_to "Approve", approve_path if @order.can_approve? %>
+<p><%= @order.formatted_total %></p>
 ```
 
 </good-example>
@@ -644,6 +762,30 @@ button:focus, a:focus, input:focus {
 ---
 
 <testing>
+**Presenter Tests:**
+
+```ruby
+# test/presenters/order_presenter_test.rb
+class OrderPresenterTest < ActiveSupport::TestCase
+  setup do
+    @presenter = OrderPresenter.new(orders(:pending), users(:admin),
+                                    ApplicationController.new.view_context)
+  end
+
+  test "can_approve? true for admin with pending order" do
+    assert @presenter.can_approve?
+  end
+
+  test "can_approve? false for non-admin" do
+    presenter = OrderPresenter.new(orders(:pending), users(:regular),
+                                   ApplicationController.new.view_context)
+    assert_not presenter.can_approve?
+  end
+end
+```
+
+**Why test presenters?** Display logic is now in testable Ruby objects — fast unit tests, no slow system tests needed.
+
 **System Tests with Accessibility:**
 
 ```ruby

@@ -236,7 +236,9 @@ rake lint:fix           # Auto-fix Ruby
 **Before committing:**
 
 1. Run `bin/ci` - must pass
-2. Update documentation if needed
+2. Update documentation if needed:
+   - `AGENTS.md` — architecture, workflows, agents, skills, development guidelines
+   - `CLAUDE.md` — quick reference for Claude Code (commands, conventions, how to add content)
 3. Use draft PR for review
 4. **Open PRs against `develop` branch** (not `main`)
 

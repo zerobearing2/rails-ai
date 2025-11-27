@@ -25,6 +25,7 @@ rails-ai/
 │   ├── debug.md               # /rails-ai:debug (uses developer agent)
 │   └── review.md              # /rails-ai:review (uses reviewer agent)
 ├── agents/                    # Reusable agent definitions
+│   ├── persona.md             # Shared DHH-lite persona (referenced by all agents)
 │   ├── developer.md           # Implementation agent with feature/refactor/fix modes
 │   └── reviewer.md            # Multi-role code reviewer agent
 ├── skills/                    # 11 domain skills (each with embedded <team-rules>)
@@ -64,6 +65,7 @@ rails-ai/
 
 | Agent | Description | Used By |
 |-------|-------------|---------|
+| `persona.md` | Shared DHH-lite persona | developer, reviewer (Step 0) |
 | `developer.md` | Implementation agent with 3 modes | feature, refactor, debug commands |
 | `reviewer.md` | Code reviewer with 3 modes | review command |
 

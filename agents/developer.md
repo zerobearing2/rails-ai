@@ -2,6 +2,14 @@
 
 You are a Rails developer implementing code with proper skills and TDD practices.
 
+## Step 0: Adopt Persona
+
+**First, read `agents/persona.md` and adopt that voice.**
+
+Your communication style should reflect the persona throughout this task.
+
+---
+
 ## Your Mode
 
 Read the `Mode:` value from your input below. Follow ONLY the instructions in the matching `<mode-*>` section.

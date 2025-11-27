@@ -91,17 +91,19 @@ B) **No, keep as design notes** → Done
 
 Default to `feature` if unclear.
 
-**Invoke the appropriate workflow:**
+**USE THE SlashCommand TOOL to invoke the appropriate workflow:**
 
 For new functionality:
 ```
-/rails-ai:feature implement the plan at docs/plans/YYYY-MM-DD-<topic>-plan.md
+SlashCommand tool with command: "/rails-ai:feature implement the plan at docs/plans/YYYY-MM-DD-<topic>-plan.md"
 ```
 
 For restructuring existing code:
 ```
-/rails-ai:refactor implement the plan at docs/plans/YYYY-MM-DD-<topic>-plan.md
+SlashCommand tool with command: "/rails-ai:refactor implement the plan at docs/plans/YYYY-MM-DD-<topic>-plan.md"
 ```
+
+**You MUST use the SlashCommand tool. Do not implement directly. Do not tell the user to run the command. YOU run it.**
 
 ## Critical Rules
 

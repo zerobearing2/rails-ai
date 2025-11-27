@@ -13,7 +13,7 @@ class EmbeddedRulesTest < Minitest::Test
     "skills/hotwire/SKILL.md" => ["Turbo Morph Default", "Progressive Enhancement"],
     "skills/jobs/SKILL.md" => ["Solid Stack Only"],
     "skills/setup/SKILL.md" => ["Double Quotes", "Hash#dig"],
-    "skills/ui/SKILL.md" => ["Partials for Fragments", "Semantic HTML"],
+    "skills/ui/SKILL.md" => ["No Complex Logic in Views", "Partials for Fragments", "Semantic HTML"],
     "skills/mailers/SKILL.md" => ["Async Delivery", "Dual Format"],
     "skills/security/SKILL.md" => ["Strong Params Always", "Brakeman Zero Warnings"]
   }.freeze

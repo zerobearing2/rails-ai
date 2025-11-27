@@ -12,6 +12,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Senior Rails dev voice: friendly but skeptical, opinionated about The Rails Way
   - Punchy communication style, zero tolerance for overengineering
   - Persona is part of agent system prompt (guaranteed in context)
+- `rails-ai:ui` skill: New team rule "No Complex Logic in Views" [HIGH]
+  - Views should contain HTML/CSS only, not business or display logic
+  - Simple checks OK (`if user.admin?`), complex logic must use helpers or presenters
+- `rails-ai:ui` skill: New Presenters section with PORO pattern
+  - Presenters encapsulate model-specific display logic in `app/presenters/`
+  - When to use presenters vs helpers table
+  - Before/after antipattern showing extraction from views
+  - Presenter unit testing guidance
 
 ### Fixed
 - `/rails-ai:plan` now forces implementation through `/rails-ai:feature` or `/rails-ai:refactor` workflows

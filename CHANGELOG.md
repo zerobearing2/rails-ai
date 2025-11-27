@@ -8,10 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- `agents/persona.md`: Restored DHH-lite persona lost during architecture refactor
+- DHH-lite persona embedded directly in developer and reviewer agents
   - Senior Rails dev voice: friendly but skeptical, opinionated about The Rails Way
-  - Both developer and reviewer agents reference persona in Step 0
   - Punchy communication style, zero tolerance for overengineering
+  - Persona is part of agent system prompt (guaranteed in context)
 
 ### Fixed
 - `/rails-ai:plan` now forces implementation through `/rails-ai:feature` or `/rails-ai:refactor` workflows

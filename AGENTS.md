@@ -64,8 +64,8 @@ rails-ai/
 
 | Agent | Description | Used By |
 |-------|-------------|---------|
-| `developer.md` | Implementation agent with 3 modes | feature, refactor, debug commands |
-| `reviewer.md` | Code reviewer with 3 modes | review command |
+| `developer.md` | Implementation agent with 3 modes + DHH-lite persona | feature, refactor, debug commands |
+| `reviewer.md` | Code reviewer with 3 modes + DHH-lite persona | review command |
 
 ### Unified Agent Interface
 

@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- DHH-lite persona embedded directly in developer and reviewer agents
+  - Senior Rails dev voice: friendly but skeptical, opinionated about The Rails Way
+  - Punchy communication style, zero tolerance for overengineering
+  - Persona is part of agent system prompt (guaranteed in context)
+
 ### Fixed
 - `/rails-ai:plan` now forces implementation through `/rails-ai:feature` or `/rails-ai:refactor` workflows
   - Skills loaded BEFORE brainstorming (not just referenced) to inject domain rules into context

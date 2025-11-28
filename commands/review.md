@@ -13,7 +13,7 @@ Multi-agent code review with 3 parallel reviewers: security-and-rules, implement
 - `superpowers:finishing-a-development-branch` — present merge/PR/cleanup options after review
 
 **If Critical or Important issues found:**
-- `superpowers:dispatching-parallel-agents` — fix multiple independent issues concurrently (via `/rails-ai:feature`)
+- `superpowers:dispatching-parallel-agents` — fix multiple independent issues concurrently (via `/rails-ai:fix`)
 
 ## Process
 
@@ -174,17 +174,16 @@ Present fix options to the user:
 
 > **Issues to address:**
 >
-> 1. **Fix issues** - Use `/rails-ai:feature` to fix with proper skill loading
+> 1. **Fix issues** - Use `/rails-ai:fix` to fix with proper skill loading
 > 2. **Help me fix [issue]** - Get help fixing a specific issue
 > 3. **Discuss [issue]** - Challenge or clarify a finding
 
-Wait for the user to respond. If they choose option 1, invoke `/rails-ai:feature` with a summary of issues:
+Wait for the user to respond. If they choose option 1, invoke `/rails-ai:fix` with a summary of issues:
 ```
-/rails-ai:feature Fix review findings: [list critical/important issues]
+/rails-ai:fix Fix review findings: [list critical/important issues]
 ```
 
 This ensures fixes are done via subagents with proper Rails-AI skills loaded.
-Note: Use `feature` not `refactor` since refactor expects stable baseline (passing tests).
 
 **If only Minor issues or clean:**
 

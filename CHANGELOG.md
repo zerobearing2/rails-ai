@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Renamed `/rails-ai:refactor` to `/rails-ai:fix` for broader scope
+- Developer agent now has 2 modes (feature, fix) instead of 3
+- `/fix` command no longer requires passing baseline
+- `/fix` command allows behavior changes (unlike old `/refactor`)
+
 ### Added
 - DHH-lite persona embedded directly in developer and reviewer agents
   - Senior Rails dev voice: friendly but skeptical, opinionated about The Rails Way
@@ -22,10 +28,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Presenter unit testing guidance
 
 ### Fixed
-- `/rails-ai:plan` now forces implementation through `/rails-ai:feature` or `/rails-ai:refactor` workflows
+- `/rails-ai:plan` now forces implementation through `/rails-ai:feature` or `/rails-ai:fix` workflows
   - Skills loaded BEFORE brainstorming (not just referenced) to inject domain rules into context
   - Removed option to "implement now" directly in main context (bypassed skill pipeline)
-  - Auto-dispatch to feature/refactor after plan agreement (mode inferred from plan content)
+  - Auto-dispatch to feature/fix after plan agreement (mode inferred from plan content)
   - Ensures all implementation goes through developer agent with proper skill loading
 
 ### Changed

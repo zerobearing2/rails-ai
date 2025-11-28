@@ -241,6 +241,12 @@ rake lint:fix           # Auto-fix Ruby
 3. Use draft PR for review
 4. **Open PRs against `develop` branch** (not `main`)
 
+### No Git Worktrees
+
+**Do not use git worktrees on this project.** Work directly on feature branches instead.
+
+This allows the plugin to be tested locally from the current repo while development is in progress.
+
 ## Philosophy
 
 - Workflow commands coordinate all work

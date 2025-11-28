@@ -24,3 +24,4 @@ rake lint:fix               # Auto-fix Ruby style issues
 - **Minitest only** — no RSpec
 - **Solid Stack** — SolidQueue, SolidCache, SolidCable (NO Redis/Sidekiq)
 - **PRs target `develop` branch** — not `main`
+- **No git worktrees** — work directly on feature branches (plugin tested locally from this repo)

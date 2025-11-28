@@ -21,11 +21,11 @@ rails-ai/
 │   ├── setup.md               # /rails-ai:setup
 │   ├── plan.md                # /rails-ai:plan
 │   ├── feature.md             # /rails-ai:feature (uses developer agent)
-│   ├── refactor.md            # /rails-ai:refactor (uses developer agent)
+│   ├── fix.md                 # /rails-ai:fix (uses developer agent)
 │   ├── debug.md               # /rails-ai:debug (uses developer agent)
 │   └── review.md              # /rails-ai:review (uses reviewer agent)
 ├── agents/                    # Reusable agent definitions
-│   ├── developer.md           # Implementation agent with feature/refactor/fix modes
+│   ├── developer.md           # Implementation agent with feature/fix modes
 │   └── reviewer.md            # Multi-role code reviewer agent
 ├── skills/                    # 11 domain skills (each with embedded <team-rules>)
 │   ├── setup/
@@ -52,7 +52,7 @@ rails-ai/
 | `/rails-ai:setup` | Project configuration, gem setup, validation | No |
 | `/rails-ai:plan` | Brainstorm ideas, create implementation plans | No |
 | `/rails-ai:feature` | Implement new functionality (uses developer agent) | **Yes** |
-| `/rails-ai:refactor` | Improve existing code (uses developer agent) | **Yes** |
+| `/rails-ai:fix` | Fix or improve existing code (uses developer agent) | **Yes** |
 | `/rails-ai:debug` | Fix bugs (investigates, then uses developer agent) | **Yes** |
 | `/rails-ai:review` | Multi-agent review (uses 3 parallel reviewer agents) | **Yes** |
 
@@ -64,7 +64,7 @@ rails-ai/
 
 | Agent | Description | Used By |
 |-------|-------------|---------|
-| `developer.md` | Implementation agent with 3 modes + DHH-lite persona | feature, refactor, debug commands |
+| `developer.md` | Implementation agent with 2 modes + DHH-lite persona | feature, fix, debug commands |
 | `reviewer.md` | Code reviewer with 3 modes + DHH-lite persona | review command |
 
 ### Unified Agent Interface
@@ -94,8 +94,7 @@ issues:  # Only if status is failed or blocked
 | Mode | Baseline Required | Behavior Change OK | Use Case |
 |------|-------------------|-------------------|----------|
 | `feature` | No | Yes | Implementing new features |
-| `refactor` | Yes (tests must pass) | No | Improving existing code |
-| `fix` | No | Yes | Fixing bugs or review findings |
+| `fix` | No | Yes | Fixing bugs, improving code, addressing review findings |
 
 **What the developer agent does:**
 1. Loads relevant skills based on task (skills contain domain rules)
@@ -209,7 +208,7 @@ Rules are embedded directly in skills or agents:
 1. Edit `commands/<workflow>.md`
 2. Maintain YAML front matter structure
 3. Reference Superpowers workflows correctly
-4. For coordinator-only commands (feature, refactor, debug, review):
+4. For coordinator-only commands (feature, fix, debug, review):
    - Ensure agent dispatch is mandatory
    - Include context package assembly
    - Include retry logic (for developer agent)

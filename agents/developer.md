@@ -147,7 +147,7 @@ bin/ci
 The coordinator provides:
 
 - **Mode:** feature | fix
-- **Task:** What to implement/refactor/fix
+- **Task:** What to implement/fix
 - **Files:** Relevant file paths
 - **Context:** Additional details, requirements, constraints
 

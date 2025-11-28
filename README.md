@@ -15,7 +15,7 @@ Provides Rails-specific workflows and domain skills for Claude Code: ActiveRecor
 | `/rails-ai:setup` | Project configuration, gem setup, validation |
 | `/rails-ai:plan` | Brainstorm ideas, create implementation plans |
 | `/rails-ai:feature` | Implement new functionality |
-| `/rails-ai:refactor` | Improve existing code, fill test gaps |
+| `/rails-ai:fix` | Fix or improve existing code |
 | `/rails-ai:debug` | Fix bugs and broken functionality |
 | `/rails-ai:review` | Multi-agent code review (security, rules, patterns, tests, UI) |
 
@@ -75,8 +75,8 @@ bin/ci
 # Implement from a plan
 /rails-ai:feature implement the authentication plan
 
-# Refactor existing code
-/rails-ai:refactor extract service object from UsersController
+# Fix or improve existing code
+/rails-ai:fix extract service object from UsersController
 
 # Debug an issue
 /rails-ai:debug tests failing in user_test.rb
@@ -103,7 +103,7 @@ Each workflow command combines the right superpowers workflows with the relevant
 | `setup` | verification-before-completion |
 | `plan` | brainstorming, writing-plans |
 | `feature` | using-git-worktrees, brainstorming, writing-plans, executing-plans, verification-before-completion, finishing-a-development-branch, dispatching-parallel-agents (when 3+ tasks) |
-| `refactor` | using-git-worktrees, test-driven-development, testing-anti-patterns, verification-before-completion, finishing-a-development-branch, dispatching-parallel-agents (when 3+ areas) |
+| `fix` | using-git-worktrees, verification-before-completion, finishing-a-development-branch, dispatching-parallel-agents (when 3+ areas) |
 | `debug` | systematic-debugging, root-cause-tracing, condition-based-waiting, verification-before-completion, dispatching-parallel-agents (when multiple bugs) |
 | `review` | finishing-a-development-branch, 3 parallel reviewer agents (security-and-rules, implementation, ui) |
 

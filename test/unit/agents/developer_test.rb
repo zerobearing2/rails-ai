@@ -14,7 +14,7 @@ class DeveloperAgentTest < Minitest::Test
 
   # Input documentation tests
   def test_agent_documents_input_format
-    assert_match(/Mode:.*feature.*refactor.*fix/im, @content,
+    assert_match(/Mode:.*feature.*fix/im, @content,
                  "Agent should document Mode input")
     assert_match(/Task:/i, @content,
                  "Agent should document Task input")
@@ -28,8 +28,6 @@ class DeveloperAgentTest < Minitest::Test
   def test_agent_uses_xml_mode_tags
     assert_match(/<mode-feature>/i, @content,
                  "Agent should have <mode-feature> XML tag")
-    assert_match(/<mode-refactor>/i, @content,
-                 "Agent should have <mode-refactor> XML tag")
     assert_match(/<mode-fix>/i, @content,
                  "Agent should have <mode-fix> XML tag")
   end
@@ -38,11 +36,6 @@ class DeveloperAgentTest < Minitest::Test
   def test_agent_defines_feature_mode
     assert_match(/mode.*feature/i, @content,
                  "Agent should define feature mode")
-  end
-
-  def test_agent_defines_refactor_mode
-    assert_match(/mode.*refactor/i, @content,
-                 "Agent should define refactor mode")
   end
 
   def test_agent_defines_fix_mode
@@ -55,12 +48,8 @@ class DeveloperAgentTest < Minitest::Test
     assert_match(/feature.*No.*Yes.*new functionality/im, @content,
                  "Feature mode should not require baseline, allow behavior change")
 
-    # Refactor: baseline required, no behavior change (check table)
-    assert_match(/refactor.*Yes.*tests must pass.*No.*restructuring/im, @content,
-                 "Refactor mode should require baseline, not allow behavior change")
-
-    # Fix: no baseline, fixes issues (check table)
-    assert_match(/fix.*No.*Yes.*fixing/im, @content,
+    # Fix: no baseline, behavior change allowed (check table)
+    assert_match(/fix.*No.*Yes.*Fixing bugs.*improving code/im, @content,
                  "Fix mode should not require baseline, allow behavior change")
   end
 
@@ -177,11 +166,5 @@ class DeveloperAgentTest < Minitest::Test
                  "Agent should specify verification in output")
     assert_match(/files:/i, @content,
                  "Agent should specify files in output")
-  end
-
-  def test_refactor_mode_requires_behavior_unchanged
-    # Check that refactor mode has critical requirement about behavior change
-    assert_match(/CRITICAL.*Refactor.*behavior changed.*status: failed/im, @content,
-                 "Refactor mode should fail if behavior changed")
   end
 end

@@ -25,16 +25,14 @@ Read the `Mode:` value from your input below. Follow ONLY the instructions in th
 
 **FIRST: Announce your mode to the user:**
 - If feature mode: "🚀 Running @agent-rails-ai:developer in FEATURE mode"
-- If refactor mode: "🔧 Running @agent-rails-ai:developer in REFACTOR mode"
-- If fix mode: "🐛 Running @agent-rails-ai:developer in FIX mode"
+- If fix mode: "🔧 Running @agent-rails-ai:developer in FIX mode"
 
 Modes determine constraints and expectations:
 
 | Mode | Baseline Required | Behavior Change OK | Use Case |
 |------|-------------------|-------------------|----------|
 | `feature` | No | Yes (new functionality) | Implementing new features |
-| `refactor` | Yes (tests must pass) | No (restructuring only) | Improving existing code |
-| `fix` | No | Yes (fixing issues) | Fixing bugs or review findings |
+| `fix` | No | Yes | Fixing bugs, improving code, addressing review findings |
 
 ---
 
@@ -77,21 +75,13 @@ Follow ONLY the section matching your mode:
 - New behavior is expected
 </mode-feature>
 
-<mode-refactor>
-**Refactor Mode:**
-- Baseline was verified by coordinator (tests pass)
-- You are restructuring, NOT changing behavior
-- All existing tests must continue to pass
-- Make incremental changes, run tests after each
-- If tests fail, revert and try smaller steps
-</mode-refactor>
-
 <mode-fix>
 **Fix Mode:**
-- No baseline verification needed (things may be broken)
-- You're fixing specific issues
-- Follow TDD: write test that exposes the bug, then fix
-- Changed behavior is expected (that's the fix)
+- No baseline verification needed
+- You're fixing or improving existing code
+- For bugs: write test that exposes the bug, then fix
+- For improvements: ensure tests cover the change, then implement
+- Changed behavior is allowed when it's the intended improvement
 </mode-fix>
 
 ### Step 3: Implement with TDD
@@ -156,7 +146,7 @@ bin/ci
 
 The coordinator provides:
 
-- **Mode:** feature | refactor | fix
+- **Mode:** feature | fix
 - **Task:** What to implement/refactor/fix
 - **Files:** Relevant file paths
 - **Context:** Additional details, requirements, constraints
@@ -169,7 +159,7 @@ Return structured YAML:
 
 ```yaml
 status: success | failed | blocked
-mode: feature | refactor | fix
+mode: feature | fix
 
 summary: "Brief description of what was done"
 
@@ -190,12 +180,6 @@ verification:
 issues:  # Only if status is failed or blocked
   - "Description of blocker or failure"
 ```
-
-<mode-refactor>
-**CRITICAL for Refactor Mode:**
-- If behavior changed (tests fail), report `status: failed` immediately
-- Do not continue if tests fail after refactoring
-</mode-refactor>
 
 ---
 

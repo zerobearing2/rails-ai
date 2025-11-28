@@ -12,7 +12,7 @@ Use this workflow when:
 - Creating a formal implementation plan for later execution
 - Exploring approaches before committing to implementation
 
-**This workflow produces plans, not code. Implementation is handed off to `/rails-ai:feature` or `/rails-ai:refactor`.**
+**This workflow produces plans, not code. Implementation is handed off to `/rails-ai:feature` or `/rails-ai:fix`.**
 
 ## Superpowers Workflows
 
@@ -83,10 +83,10 @@ B) **No, keep as design notes** → Done
 
 ### Step 6: Auto-Dispatch to Implementation
 
-**Do NOT implement directly in this context.** The feature/refactor workflow ensures proper skill loading and developer agent dispatch.
+**Do NOT implement directly in this context.** The feature/fix workflow ensures proper skill loading and developer agent dispatch.
 
 **Determine mode** by scanning plan content:
-- **Refactor signals:** restructure, extract, improve, clean up, move, rename, refactor, reorganize
+- **Fix signals:** restructure, extract, improve, clean up, move, rename, refactor, reorganize, fix, address
 - **Feature signals:** add, create, new, implement, build, introduce
 
 Default to `feature` if unclear.
@@ -98,9 +98,9 @@ For new functionality:
 SlashCommand tool with command: "/rails-ai:feature implement the plan at docs/plans/YYYY-MM-DD-<topic>-plan.md"
 ```
 
-For restructuring existing code:
+For fixing or improving existing code:
 ```
-SlashCommand tool with command: "/rails-ai:refactor implement the plan at docs/plans/YYYY-MM-DD-<topic>-plan.md"
+SlashCommand tool with command: "/rails-ai:fix implement the plan at docs/plans/YYYY-MM-DD-<topic>-plan.md"
 ```
 
 **You MUST use the SlashCommand tool. Do not implement directly. Do not tell the user to run the command. YOU run it.**
@@ -108,7 +108,7 @@ SlashCommand tool with command: "/rails-ai:refactor implement the plan at docs/p
 ## Critical Rules
 
 1. **Skills before brainstorming** — Load domain skills BEFORE proposing approaches
-2. **No direct implementation** — Always hand off to `/rails-ai:feature` or `/rails-ai:refactor`
+2. **No direct implementation** — Always hand off to `/rails-ai:feature` or `/rails-ai:fix`
 3. **Plan reflects patterns** — Plans must use patterns from loaded skills, not generic code
 
 ---

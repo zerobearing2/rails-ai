@@ -4,7 +4,7 @@ require_relative "../../test_helper"
 require "yaml"
 
 class CommandStructureTest < Minitest::Test
-  WORKFLOW_COMMANDS = %w[setup plan feature refactor debug review].freeze
+  WORKFLOW_COMMANDS = %w[setup plan feature fix debug review].freeze
 
   def setup
     @command_files = Dir.glob("commands/*.md")
@@ -70,14 +70,14 @@ class CommandStructureTest < Minitest::Test
                  "Plan command should reference writing-plans superpowers workflow")
   end
 
-  def test_refactor_command_references_superpowers
-    refactor = @command_files.find { |f| f.include?("refactor.md") }
-    content = File.read(refactor)
+  def test_fix_command_references_superpowers
+    fix = @command_files.find { |f| f.include?("fix.md") }
+    content = File.read(fix)
 
     assert_match(/superpowers:verification-before-completion/i, content,
-                 "Refactor command should reference verification superpowers workflow")
-    assert_match(/superpowers:test-driven-development/i, content,
-                 "Refactor command should reference TDD superpowers workflow")
+                 "Fix command should reference verification superpowers workflow")
+    assert_match(/superpowers:finishing-a-development-branch/i, content,
+                 "Fix command should reference finishing-a-development-branch superpowers workflow")
   end
 
   def test_review_command_has_parallel_agent_architecture
@@ -204,16 +204,16 @@ class CommandStructureTest < Minitest::Test
                  "Feature command should require CHANGELOG update")
   end
 
-  def test_refactor_command_has_completion_checklist
-    refactor = @command_files.find { |f| f.include?("refactor.md") }
-    content = File.read(refactor)
+  def test_fix_command_has_completion_checklist
+    fix = @command_files.find { |f| f.include?("fix.md") }
+    content = File.read(fix)
 
     assert_match(/completion checklist/i, content,
-                 "Refactor command should have completion checklist")
+                 "Fix command should have completion checklist")
     assert_match(%r{bin/ci}i, content,
-                 "Refactor command should require bin/ci")
+                 "Fix command should require bin/ci")
     assert_match(/CHANGELOG/i, content,
-                 "Refactor command should require CHANGELOG update")
+                 "Fix command should require CHANGELOG update")
   end
 
   def test_feature_command_has_coordinator_pattern
@@ -232,24 +232,20 @@ class CommandStructureTest < Minitest::Test
                  "Feature command should dispatch to @agent-rails-ai:developer agent")
   end
 
-  def test_refactor_command_has_coordinator_pattern
-    refactor = @command_files.find { |f| f.include?("refactor.md") }
-    content = File.read(refactor)
+  def test_fix_command_has_coordinator_pattern
+    fix = @command_files.find { |f| f.include?("fix.md") }
+    content = File.read(fix)
 
     assert_match(/COORDINATOR ONLY/i, content,
-                 "Refactor command should declare COORDINATOR ONLY role")
+                 "Fix command should declare COORDINATOR ONLY role")
     assert_match(/NEVER implement directly/i, content,
-                 "Refactor command should prohibit direct implementation")
+                 "Fix command should prohibit direct implementation")
     assert_match(/Task tool/i, content,
-                 "Refactor command should reference Task tool for subagent dispatch")
+                 "Fix command should reference Task tool for subagent dispatch")
     assert_match(/Retry Logic/i, content,
-                 "Refactor command should have Retry Logic section")
-    assert_match(/Verify Baseline/i, content,
-                 "Refactor command should have baseline verification step")
-    assert_match(/behavior.changed/i, content,
-                 "Refactor command should include behavior change check")
+                 "Fix command should have Retry Logic section")
     assert_match(/subagent_type.*@agent-rails-ai:developer/im, content,
-                 "Refactor command should dispatch to @agent-rails-ai:developer agent")
+                 "Fix command should dispatch to @agent-rails-ai:developer agent")
   end
 
   def test_debug_command_has_completion_checklist
@@ -289,16 +285,16 @@ class CommandStructureTest < Minitest::Test
                  "Debug command should specify fix mode for developer agent")
   end
 
-  def test_feature_and_refactor_delegate_to_developer_agent
-    # Feature and refactor delegate skill loading to developer agent
-    %w[feature refactor].each do |command|
+  def test_feature_and_fix_delegate_to_developer_agent
+    # Feature uses feature mode, fix uses fix mode
+    { "feature" => "feature", "fix" => "fix" }.each do |command, mode|
       file = @command_files.find { |f| f.include?("#{command}.md") }
       content = File.read(file)
 
       assert_match(/@agent-rails-ai:developer/i, content,
                    "#{command} command should reference @agent-rails-ai:developer agent")
-      assert_match(/mode.*#{command}/i, content,
-                   "#{command} command should specify mode")
+      assert_match(/mode.*#{mode}/i, content,
+                   "#{command} command should specify #{mode} mode")
     end
   end
 

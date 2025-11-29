@@ -38,6 +38,28 @@ claude
 /plugin install rails-ai
 ```
 
+### Recommended: Context7 MCP Server
+
+Rails-AI uses [Context7](https://context7.com) to fetch up-to-date Rails documentation at generation time, ensuring code follows Rails 8+ patterns instead of falling back to outdated training data.
+
+```bash
+# Remote server (simplest)
+claude mcp add context7 --transport http https://mcp.context7.com/mcp
+
+# Or local server (faster)
+claude mcp add context7 -- npx -y @upstash/context7-mcp
+```
+
+For higher rate limits, get an API key from [context7.com/dashboard](https://context7.com/dashboard):
+
+```bash
+# With API key (remote)
+claude mcp add context7 --transport http https://mcp.context7.com/mcp --header "CONTEXT7_API_KEY: YOUR_KEY"
+
+# With API key (local)
+claude mcp add context7 -- npx -y @upstash/context7-mcp --api-key YOUR_KEY
+```
+
 ### Local Development Install
 
 ```bash
@@ -166,6 +188,8 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) and [TESTING.md](TESTING.md).
 Built on [Superpowers](https://github.com/obra/superpowers) by [@obra](https://github.com/obra).
 
 UI workflow integrates [frontend-design](https://github.com/anthropics/claude-code-plugins/tree/main/plugins/frontend-design) from [Claude Code Plugins](https://github.com/anthropics/claude-code-plugins) by Anthropic.
+
+Documentation lookup powered by [Context7](https://context7.com) by [Upstash](https://upstash.com).
 
 ## License
 

@@ -129,6 +129,8 @@ Turbo Drive intercepts links and forms automatically. Control with `data` attrib
 
 ```ruby
 class FeedbacksController < ApplicationController
+  before_action :set_feedback, only: %i[show edit update destroy]
+
   def index
     @feedbacks = Feedback.all
   end
@@ -153,6 +155,16 @@ class FeedbacksController < ApplicationController
   def destroy
     @feedback.destroy
     redirect_to feedbacks_path, notice: "Feedback deleted"
+  end
+
+  private
+
+  def set_feedback
+    @feedback = Feedback.find(params[:id])
+  end
+
+  def feedback_params
+    params.expect(feedback: [:content, :author])
   end
 end
 ```
@@ -244,7 +256,9 @@ end
 ```ruby
 # Controller - respond with Turbo Stream using morph
 def create
-  @feedback = Feedback.new(feedback_params)
+  # Rails 8: params.expect() for stronger validation
+  @feedback = Feedback.new(params.expect(feedback: [:content, :author]))
+
   if @feedback.save
     respond_to do |format|
       format.turbo_stream do
@@ -361,6 +375,9 @@ end
 
 ```ruby
 def create
+  # Rails 8: params.expect() for stronger validation
+  @feedback = Feedback.new(params.expect(feedback: [:content, :author]))
+
   if @feedback.save
     respond_to do |format|
       format.turbo_stream do

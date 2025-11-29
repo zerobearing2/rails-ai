@@ -496,10 +496,10 @@ end
 ```ruby
 class FeedbackTest < ActiveSupport::TestCase
   test "defines status enum with correct values" do
-    assert_equal "pending", Feedback.statuses[:status_pending]
-    assert_equal "delivered", Feedback.statuses[:status_delivered]
-    assert_equal "read", Feedback.statuses[:status_read]
-    assert_equal "responded", Feedback.statuses[:status_responded]
+    assert_equal "pending", Feedback.statuses[:pending]
+    assert_equal "delivered", Feedback.statuses[:delivered]
+    assert_equal "read", Feedback.statuses[:read]
+    assert_equal "responded", Feedback.statuses[:responded]
   end
 
   test "enum provides predicate methods with prefix" do
@@ -1602,15 +1602,17 @@ end
 **test/test_helper.rb:**
 
 ```ruby
-class ActiveSupport::TestCase
-  parallelize(workers: :number_of_processors)
+module ActiveSupport
+  class TestCase
+    parallelize(workers: :number_of_processors)
 
-  parallelize_setup do |worker|
-    # Rails handles database setup automatically
-  end
+    parallelize_setup do |worker|
+      # Rails handles database setup automatically
+    end
 
-  parallelize_teardown do |worker|
-    FileUtils.rm_rf(Rails.root.join("tmp", "test_worker_#{worker}"))
+    parallelize_teardown do |worker|
+      FileUtils.rm_rf(Rails.root.join("tmp", "test_worker_#{worker}"))
+    end
   end
 end
 
@@ -1875,31 +1877,82 @@ end
 
 ---
 
+## Local CI DSL (Rails 8+)
+
+<pattern name="local-ci-dsl">
+<description>Define CI pipeline in config/ci.rb for consistent local and CI execution</description>
+
+**config/ci.rb:**
+
+```ruby
+# Rails 8+ Local CI DSL
+# Run with: bin/ci
+
+step "Setup" do
+  run "bundle install"
+  run "bin/rails db:prepare"
+end
+
+step "Style: Ruby" do
+  run "bundle exec rubocop"
+end
+
+step "Tests: Rails" do
+  run "bin/rails test"
+end
+
+step "Tests: System" do
+  run "bin/rails test:system"
+end if success?
+
+step "Security: Brakeman" do
+  run "bundle exec brakeman --no-pager"
+end if success?
+
+```
+
+**Run CI locally:**
+
+```bash
+bin/ci              # Run full CI pipeline
+bin/ci --continue   # Continue from failed step
+bin/ci --step 3     # Run specific step
+
+```
+
+**Why:** Single source of truth for CI steps. Same commands run locally and in CI. The `if success?` conditional skips steps when earlier steps fail.
+</pattern>
+
+---
+
 ## Running Tests
 
 <testing>
 
 ```bash
-# Run all tests
-rails test
+# Run all tests (Rails 8+ preferred)
+bin/ci
+
+# Or run tests directly
+bin/rails test
 
 # Run specific test file
-rails test test/models/feedback_test.rb
+bin/rails test test/models/feedback_test.rb
 
 # Run specific test by line number
-rails test test/models/feedback_test.rb:12
+bin/rails test test/models/feedback_test.rb:12
 
 # Run tests matching pattern
-rails test -n /validation/
+bin/rails test -n /validation/
 
 # Run in parallel (faster)
-rails test --parallel
+bin/rails test --parallel
 
 # Run all model tests
-rails test test/models/
+bin/rails test test/models/
 
 # Run system tests
-rails test:system
+bin/rails test:system
 
 ```
 </testing>

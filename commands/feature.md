@@ -31,12 +31,8 @@ Use this workflow when:
 ## Superpowers Workflows
 
 **Always:**
-- `superpowers:using-git-worktrees` — isolate feature work
 - `superpowers:verification-before-completion` — evidence before claims
 - `superpowers:finishing-a-development-branch` — merge/PR options
-
-**If plan has 3+ independent tasks:**
-- `superpowers:dispatching-parallel-agents` — run independent tasks concurrently
 
 **If no plan provided:**
 - `superpowers:brainstorming` — refine the feature design
@@ -47,9 +43,17 @@ Use this workflow when:
 
 ## Process
 
-### Step 1: Create Isolated Workspace
+### Step 1: Check Branch State
 
-Use `superpowers:using-git-worktrees` to create isolated branch for feature work.
+**If on main/develop:**
+- Create feature branch: `git checkout -b feature/short-description`
+- Branch name derived from task (e.g., "Add user auth" → `feature/user-auth`)
+
+**If already on feature branch:**
+- Use current branch
+
+**If dirty working tree:**
+- Ask user: stash, commit, or abort
 
 ### Step 2: Determine Plan Status
 
@@ -65,18 +69,7 @@ Use `superpowers:using-git-worktrees` to create isolated branch for feature work
 
 **You MUST dispatch implementation to the `@agent-rails-ai:developer` agent using the Task tool.**
 
-#### Parallel Dispatch for Independent Tasks
-
-Use `superpowers:dispatching-parallel-agents` when the plan has **3+ independent tasks** that:
-- Don't share state or dependencies
-- Can be implemented without waiting for each other
-- Touch different files/domains
-
-**Parallel dispatch example:** If implementing a feature that needs a model, controller, and mailer — and they're independent — dispatch 3 `@agent-rails-ai:developer` agents concurrently in a single message with multiple Task tool calls.
-
-**Sequential dispatch:** If tasks depend on each other (e.g., controller depends on model), dispatch one at a time.
-
-#### Dispatch to Developer Agent
+Always dispatch sequentially — one task at a time. This keeps things simple and avoids conflicts.
 
 Use the Task tool to dispatch to the `@agent-rails-ai:developer` agent:
 
@@ -149,7 +142,6 @@ Add entry under `## [Unreleased]`:
 Use `superpowers:finishing-a-development-branch`:
 - Verify all tests pass
 - Present merge/PR options
-- Clean up worktree
 
 ## Completion Checklist
 

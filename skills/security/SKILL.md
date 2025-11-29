@@ -133,12 +133,12 @@ Browser displays the text, doesn't execute it.
 # config/initializers/content_security_policy.rb
 Rails.application.config.content_security_policy do |policy|
   policy.default_src :self, :https
-  policy.font_src :self, :https, :data
-  policy.img_src :self, :https, :data
+  policy.font_src    :self, :https, :data
+  policy.img_src     :self, :https, :data
   policy.frame_ancestors :none
-  policy.object_src :none
-  policy.script_src :self, :https
-  policy.style_src :self, :https
+  policy.object_src  :none
+  policy.script_src  :self, :https
+  policy.style_src   :self, :https
   policy.report_uri "/csp-violation-report"
 end
 
@@ -708,6 +708,44 @@ Rails.application.config.session_store :cookie_store,
 - `:none` - Allows all cross-site requests (requires secure: true)
 
 **Why Use SameSite:** Defense-in-depth complements CSRF tokens, blocks many attacks without token.
+</pattern>
+
+### Browser Version Requirements
+
+<pattern name="allow-browser-modern">
+<description>Use allow_browser to enforce minimum browser versions (Rails 8)</description>
+
+```ruby
+# app/controllers/application_controller.rb
+class ApplicationController < ActionController::Base
+  # Allow only browsers natively supporting modern features:
+  # webp images, web push, badges, import maps, CSS nesting + :has
+  allow_browser versions: :modern
+end
+
+```
+
+**Specific Version Requirements:**
+
+```ruby
+class SecureController < ApplicationController
+  # Require specific browser versions for security features
+  allow_browser versions: { safari: 16.4, firefox: 121, chrome: 119, ie: false }
+end
+
+```
+
+**Action-Specific Requirements:**
+
+```ruby
+class PaymentsController < ApplicationController
+  # Require newer browsers only for payment processing
+  allow_browser versions: { safari: 17.0, chrome: 120 }, only: [:create, :confirm]
+end
+
+```
+
+**Why Use allow_browser:** Prevents security vulnerabilities in outdated browsers, ensures modern security features are available, blocks IE which has known security issues.
 </pattern>
 
 ## Secure File Uploads
@@ -1313,6 +1351,179 @@ send_file file_path if File.exist?(file_path)
 </good-example>
 </antipattern>
 
+## Secure Authentication Patterns
+
+### Password Authentication
+
+<pattern name="has-secure-password">
+<description>Use has_secure_password for secure password storage</description>
+
+```ruby
+# app/models/user.rb
+class User < ApplicationRecord
+  has_secure_password
+  # Requires: password_digest column (string)
+  # Provides: password, password_confirmation attributes
+  # Adds: BCrypt encryption, password validations
+end
+
+```
+
+**Controller with authenticate_by (Rails 7.1+):**
+
+```ruby
+# app/controllers/sessions_controller.rb
+class SessionsController < ApplicationController
+  def create
+    if user = User.authenticate_by(email: params[:email], password: params[:password])
+      reset_session
+      session[:user_id] = user.id
+      redirect_to root_path, notice: "Signed in successfully"
+    else
+      flash.now[:alert] = "Invalid email or password"
+      render :new, status: :unprocessable_entity
+    end
+  end
+end
+
+```
+
+**Why authenticate_by:** Prevents timing attacks (constant-time comparison), simpler than find_by + authenticate, built-in security best practices.
+</pattern>
+
+### Password Reset Tokens
+
+<pattern name="generates-token-for">
+<description>Use generates_token_for for secure, expiring password reset tokens (Rails 7.1+)</description>
+
+```ruby
+# app/models/user.rb
+class User < ApplicationRecord
+  has_secure_password
+
+  generates_token_for :password_reset, expires_in: 15.minutes do
+    # Include password salt so token expires when password changes
+    password_salt&.last(10)
+  end
+
+  generates_token_for :email_confirmation, expires_in: 24.hours do
+    email
+  end
+end
+
+```
+
+**Sending Reset Email:**
+
+```ruby
+# app/controllers/password_resets_controller.rb
+class PasswordResetsController < ApplicationController
+  def create
+    if user = User.find_by(email: params[:email])
+      token = user.generate_token_for(:password_reset)
+      PasswordResetMailer.with(user: user, token: token).reset_email.deliver_later
+    end
+    # Always show same message (prevent email enumeration)
+    redirect_to root_path, notice: "If that email exists, reset instructions sent"
+  end
+
+  def update
+    @user = User.find_by_token_for(:password_reset, params[:token])
+
+    if @user.nil?
+      redirect_to new_password_reset_path, alert: "Invalid or expired reset link"
+    elsif @user.update(password_params)
+      reset_session
+      session[:user_id] = @user.id
+      redirect_to root_path, notice: "Password updated successfully"
+    else
+      render :edit, status: :unprocessable_entity
+    end
+  end
+
+  private
+
+  def password_params
+    params.expect(user: [:password, :password_confirmation])
+  end
+end
+
+```
+
+**Why generates_token_for:** Tokens auto-expire, invalidate when password changes, no database storage needed, cryptographically signed.
+</pattern>
+
+### API Token Authentication
+
+<pattern name="api-token-auth">
+<description>Secure API authentication with Bearer tokens</description>
+
+```ruby
+# app/controllers/api/base_controller.rb
+class Api::BaseController < ApplicationController
+  skip_before_action :verify_authenticity_token
+  before_action :authenticate_api_token
+
+  private
+
+  def authenticate_api_token
+    token = request.headers["Authorization"]&.remove("Bearer ")
+    @current_api_user = User.find_by(api_token: token) if token.present?
+
+    head :unauthorized unless @current_api_user
+  end
+end
+
+```
+
+**Generating Secure Tokens:**
+
+```ruby
+# app/models/user.rb
+class User < ApplicationRecord
+  has_secure_token :api_token, length: 36
+
+  def regenerate_api_token
+    update!(api_token: SecureRandom.urlsafe_base64(32))
+  end
+end
+
+```
+
+**Why Secure:** Tokens are long and random, stored as index for fast lookup, can be revoked, no CSRF needed for stateless APIs.
+</pattern>
+
+### Session Security
+
+<pattern name="session-reset">
+<description>Always reset session after authentication changes</description>
+
+```ruby
+# app/controllers/sessions_controller.rb
+class SessionsController < ApplicationController
+  def create
+    if user = User.authenticate_by(email: params[:email], password: params[:password])
+      # CRITICAL: Reset session to prevent session fixation
+      reset_session
+      session[:user_id] = user.id
+      redirect_to root_path
+    else
+      flash.now[:alert] = "Invalid credentials"
+      render :new, status: :unprocessable_entity
+    end
+  end
+
+  def destroy
+    reset_session
+    redirect_to root_path, notice: "Signed out successfully"
+  end
+end
+
+```
+
+**Why reset_session:** Prevents session fixation attacks where attacker sets victim's session ID before login.
+</pattern>
+
 ## Testing Security Patterns
 
 <testing>
@@ -1520,6 +1731,20 @@ end
 - [ ] Ruby methods preferred over shell commands
 - [ ] Path validation prevents directory traversal
 - [ ] Test with `; rm -rf /` in file paths
+
+**Authentication Security:**
+- [ ] `has_secure_password` used for password storage
+- [ ] `authenticate_by` used (prevents timing attacks)
+- [ ] `generates_token_for` used for password resets
+- [ ] `reset_session` called after login/logout
+- [ ] Password reset tokens expire (15 minutes max)
+- [ ] API tokens use Bearer authentication
+- [ ] Session cookies use `httponly: true` and `secure: true`
+
+**Browser Security (Rails 8):**
+- [ ] `allow_browser versions: :modern` enforced where appropriate
+- [ ] Outdated browsers blocked from sensitive operations
+- [ ] IE explicitly blocked (`ie: false`)
 
 ### Security Headers
 

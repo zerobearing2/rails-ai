@@ -1,6 +1,6 @@
 ---
 name: rails-ai:debugging
-description: Use when debugging Rails issues - provides Rails-specific debugging tools (logs, console, byebug, SQL logging) and browser debugging with Playwright
+description: Use when debugging Rails issues - provides Rails-specific debugging tools (logs, console, debugger, SQL logging) and browser debugging with Playwright
 ---
 
 # Rails Debugging Tools & Techniques
@@ -9,7 +9,7 @@ description: Use when debugging Rails issues - provides Rails-specific debugging
 **WORKFLOW:** `superpowers:systematic-debugging` defines the four-phase investigation process.
 
 **TOOLS:** This skill provides Rails-specific tools to execute that workflow:
-- **Phase 1 (Root Cause):** Rails logs, console, byebug, SQL logging
+- **Phase 1 (Root Cause):** Rails logs, console, debugger, SQL logging
 - **Phase 2 (Pattern Analysis):** Routes, migrations, schema inspection
 - **Phase 3 (Hypothesis Testing):** Rails runner, targeted queries
 - **Phase 4 (Implementation):** Verbose tests, fix verification
@@ -68,7 +68,7 @@ grep "Started GET" log/development.log
 
 ```ruby
 # Start console
-rails console
+bin/rails console
 
 # Or production console (Kamal)
 kamal app exec 'bin/rails console'
@@ -85,23 +85,31 @@ User.includes(:posts).where(posts: { published: true })  # Avoid N+1
 ```
 </tool>
 
-<tool name="byebug">
-<description>Breakpoint debugger for stepping through code</description>
+<tool name="debugger">
+<description>Breakpoint debugger for stepping through code (uses debug gem in Rails 8+)</description>
 
 ```ruby
-# Add to any Rails file
+# Add to any Rails file (Rails 8+ uses debug gem)
 def some_method
-  byebug  # Execution stops here
+  debugger  # Execution stops here
+  # Or use: binding.break
   # ... rest of method
 end
 
-# Byebug commands:
-# n  - next line
-# s  - step into method
-# c  - continue execution
+# Debugger commands:
+# n (next)     - next line
+# s (step)     - step into method
+# c (continue) - continue execution
+# p variable   - print variable
 # pp variable  - pretty print
-# var local  - show local variables
-# exit  - quit debugger
+# i (info)     - show local variables
+# bt (backtrace) - show stack trace
+# q (quit)     - quit debugger
+
+# Advanced features:
+# break <line>      - set breakpoint at line
+# catch <Exception> - break on exception
+# watch @ivar       - break when instance variable changes
 
 ```
 </tool>
@@ -118,6 +126,117 @@ User.all
 # => SELECT "users".* FROM "users"
 
 ```
+</tool>
+
+<tool name="error-reporting">
+<description>Use Rails.error for error reporting and handling (Rails 7+)</description>
+
+```ruby
+# Report and continue execution (swallow error)
+Rails.error.handle do
+  risky_operation
+end
+
+# Report and re-raise error
+Rails.error.record do
+  risky_operation
+end
+
+# Manually report an error
+begin
+  risky_operation
+rescue => e
+  Rails.error.report(e, context: { user_id: current_user.id })
+  # Handle error gracefully
+end
+
+# Report with severity and context
+Rails.error.handle(severity: :warning, context: { user_id: user.id }) do
+  experimental_feature
+end
+
+# Set global context for all error reports
+Rails.error.set_context(section: "checkout", user_id: @user.id)
+
+# Report unexpected errors (production: report, dev/test: raise)
+def edit
+  if published?
+    Rails.error.unexpected("[BUG] Editing published article - shouldn't be possible")
+    return false
+  end
+  # ...
+end
+
+# Custom error subscriber for external services
+class ErrorSubscriber
+  def report(error, handled:, severity:, context:, source: nil)
+    Sentry.capture_exception(error, context: context, level: severity)
+  end
+end
+
+Rails.error.subscribe(ErrorSubscriber.new)
+
+```
+
+**Benefits over rescue blocks:**
+- Automatic reporting to error tracking services
+- Consistent error context and metadata
+- Graceful degradation with fallback values
+- Centralized error handling configuration
+
+</tool>
+
+<tool name="structured-events">
+<description>Use Rails 8.1+ structured event reporting for debugging and monitoring</description>
+
+```ruby
+# Emit structured events (Rails 8.1+)
+Rails.event.notify("user.signup", user_id: user.id, email: user.email)
+Rails.event.notify("payment.failed", amount: 99.99, error: "Card declined")
+
+# Tag events with context
+Rails.event.tagged(request_id: request.uuid, user_id: current_user&.id) do
+  Rails.event.notify("order.created", order_id: order.id)
+end
+
+# Subscribe to events for custom handling
+Rails.event.subscribe("user.signup") do |event|
+  # event = { name: "user.signup", user_id: 123, email: "..." }
+  ExternalMonitoring.track(event)
+end
+
+# In application code
+class OrdersController < ApplicationController
+  def create
+    @order = Order.create!(order_params)
+    Rails.event.notify("order.created", order_id: @order.id, total: @order.total)
+    redirect_to @order
+  rescue => e
+    Rails.event.notify("order.failed", error: e.message, params: order_params.to_h)
+    raise
+  end
+end
+
+```
+
+**Why use events over logs:**
+- Machine-readable (JSON, not strings)
+- Structured data for filtering/querying
+- Easy integration with monitoring systems
+- Tags propagate context automatically
+
+</tool>
+
+<tool name="verbose-redirects">
+<description>Enable verbose redirect logging in development (Rails 8.1+)</description>
+
+```ruby
+# config/environments/development.rb
+config.action_dispatch.verbose_redirect_logs = true
+
+```
+
+Shows detailed redirect chain information in development logs for debugging redirect loops or unexpected navigation.
 </tool>
 
 </phase1-root-cause-investigation>
@@ -420,13 +539,13 @@ npx playwright show-trace "$SESSION/trace.zip"
 
 ```bash
 # List all routes
-rails routes
+bin/rails routes
 
 # Filter routes
-rails routes | grep users
+bin/rails routes | grep users
 
 # Show routes for controller
-rails routes -c users
+bin/rails routes -c users
 
 ```
 </tool>
@@ -436,13 +555,13 @@ rails routes -c users
 
 ```bash
 # Migration status
-rails db:migrate:status
+bin/rails db:migrate:status
 
 # Show schema version
-rails db:version
+bin/rails db:version
 
 # Check pending migrations
-rails db:abort_if_pending_migrations
+bin/rails db:abort_if_pending_migrations
 
 ```
 </tool>
@@ -456,13 +575,13 @@ rails db:abort_if_pending_migrations
 
 ```bash
 # Run one-liner
-rails runner "puts User.count"
+bin/rails runner "puts User.count"
 
 # Run script
-rails runner scripts/investigate_users.rb
+bin/rails runner scripts/investigate_users.rb
 
 # Production environment
-RAILS_ENV=production rails runner "User.pluck(:email)"
+RAILS_ENV=production bin/rails runner "User.pluck(:email)"
 
 ```
 </tool>
@@ -476,13 +595,13 @@ RAILS_ENV=production rails runner "User.pluck(:email)"
 
 ```bash
 # Run single test with backtrace
-rails test test/models/user_test.rb --verbose
+bin/rails test test/models/user_test.rb --verbose
 
 # Run with warnings enabled
-RUBYOPT=-W rails test
+RUBYOPT=-W bin/rails test
 
 # Run with seed for reproducibility
-rails test --seed 12345
+bin/rails test --seed 12345
 
 ```
 </tool>
@@ -526,14 +645,14 @@ Error: "ActiveRecord::StatementInvalid: no such column"
 
 ```bash
 # Check migration status
-rails db:migrate:status
+bin/rails db:migrate:status
 
 # Run pending migrations
-rails db:migrate
+bin/rails db:migrate
 
 # Or rollback and retry
-rails db:rollback
-rails db:migrate
+bin/rails db:rollback
+bin/rails db:migrate
 
 ```
 </solution>
@@ -558,7 +677,7 @@ rails db:migrate
 - [Playwright CLI Reference](https://playwright.dev/docs/test-cli)
 
 **Gems & Libraries:**
-- [byebug](https://github.com/deivid-rodriguez/byebug) - Ruby debugger
+- [debug](https://github.com/ruby/debug) - Ruby debugger (default in Rails 8+)
 - [bullet](https://github.com/flyerhzm/bullet) - N+1 query detection
 
 **Tools:**

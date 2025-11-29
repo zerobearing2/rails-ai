@@ -64,6 +64,50 @@ Before completing model work:
 
 ## Associations
 
+<pattern name="deprecated-associations">
+<description>Mark legacy associations as deprecated (Rails 8.1+)</description>
+
+<implementation>
+
+```ruby
+class Author < ApplicationRecord
+  # Deprecate an association to warn developers during migration
+  has_many :posts, deprecated: true
+  has_many :articles  # New preferred association
+
+  # With custom deprecation message
+  has_many :old_comments, deprecated: "Use Author#reactions instead"
+
+  # Raise error instead of warning (for strict enforcement)
+  has_many :legacy_posts, deprecated: { message: "Removed in v3", mode: :raise }
+
+  # Notify via Rails instrumentation (for logging/monitoring)
+  has_many :tracked_posts, deprecated: { mode: :notify }
+end
+
+```
+
+**Usage Warnings:**
+
+```ruby
+author = Author.first
+
+# Triggers deprecation warning
+author.posts
+# DEPRECATION WARNING: The `posts` association on `Author` is deprecated.
+
+# Also triggers on indirect access
+Author.preload(:posts)
+Author.includes(:posts)
+
+```
+</implementation>
+
+<why>
+Deprecated associations help teams migrate away from legacy relationships without breaking existing code immediately. Use `:warn` during transition periods, `:raise` when ready to enforce removal, and `:notify` for production monitoring without breaking functionality.
+</why>
+</pattern>
+
 <pattern name="basic-associations">
 <description>Standard ActiveRecord associations for model relationships</description>
 
@@ -88,7 +132,7 @@ end
 **Migration:**
 
 ```ruby
-class CreateFeedbacks < ActiveRecord::Migration[8.1]
+class CreateFeedbacks < ActiveRecord::Migration[8.0]
   def change
     create_table :feedbacks do |t|
       t.references :recipient, foreign_key: { to_table: :users }, null: true
@@ -134,7 +178,7 @@ end
 **Migration:**
 
 ```ruby
-class CreateComments < ActiveRecord::Migration[8.1]
+class CreateComments < ActiveRecord::Migration[8.0]
   def change
     create_table :comments do |t|
       t.references :commentable, polymorphic: true, null: false
@@ -173,18 +217,17 @@ class Feedback < ApplicationRecord
   validate :recipient_can_receive_feedback, on: :create
 
   private
+    def content_not_spam
+      return if content.blank?
+      spam_keywords = %w[viagra cialis lottery]
+      errors.add(:content, "appears to contain spam") if spam_keywords.any? { |k| content.downcase.include?(k) }
+    end
 
-  def content_not_spam
-    return if content.blank?
-    spam_keywords = %w[viagra cialis lottery]
-    errors.add(:content, "appears to contain spam") if spam_keywords.any? { |k| content.downcase.include?(k) }
-  end
-
-  def recipient_can_receive_feedback
-    return if recipient_email.blank?
-    user = User.find_by(email: recipient_email)
-    errors.add(:recipient_email, "has disabled feedback") if user&.feedback_disabled?
-  end
+    def recipient_can_receive_feedback
+      return if recipient_email.blank?
+      user = User.find_by(email: recipient_email)
+      errors.add(:recipient_email, "has disabled feedback") if user&.feedback_disabled?
+    end
 end
 
 ```
@@ -210,30 +253,29 @@ class Feedback < ApplicationRecord
   after_update_commit :notify_recipient_of_response, if: :response_added?
 
   private
+    def normalize_email
+      self.recipient_email = recipient_email&.downcase&.strip
+    end
 
-  def normalize_email
-    self.recipient_email = recipient_email&.downcase&.strip
-  end
+    def strip_whitespace
+      self.content = content&.strip
+    end
 
-  def strip_whitespace
-    self.content = content&.strip
-  end
+    def generate_tracking_code
+      self.tracking_code = SecureRandom.alphanumeric(10).upcase
+    end
 
-  def generate_tracking_code
-    self.tracking_code = SecureRandom.alphanumeric(10).upcase
-  end
+    def enqueue_delivery_job
+      SendFeedbackJob.perform_later(id)
+    end
 
-  def enqueue_delivery_job
-    SendFeedbackJob.perform_later(id)
-  end
+    def response_added?
+      saved_change_to_response? && response.present?
+    end
 
-  def response_added?
-    saved_change_to_response? && response.present?
-  end
-
-  def notify_recipient_of_response
-    FeedbackMailer.notify_of_response(self).deliver_later
-  end
+    def notify_recipient_of_response
+      FeedbackMailer.notify_of_response(self).deliver_later
+    end
 end
 
 ```
@@ -320,7 +362,7 @@ feedback.status_before_last_save      # Track changes
 **Migration:**
 
 ```ruby
-class CreateFeedbacks < ActiveRecord::Migration[8.1]
+class CreateFeedbacks < ActiveRecord::Migration[8.0]
   def change
     create_table :feedbacks do |t|
       t.string :status, default: "pending", null: false
@@ -671,10 +713,9 @@ class ContactsController < ApplicationController
   end
 
   private
-
-  def contact_params
-    params.expect(contact_form: [:name, :email, :message, :subject])
-  end
+    def contact_params
+      params.expect(contact_form: [ :name, :email, :message, :subject ])
+    end
 end
 
 ```
@@ -730,11 +771,10 @@ class UserRegistrationForm
   attr_reader :user, :company, :membership
 
   private
-
-  def passwords_match
-    return if password.blank?
-    errors.add(:password_confirmation, "doesn't match password") unless password == password_confirmation
-  end
+    def passwords_match
+      return if password.blank?
+      errors.add(:password_confirmation, "doesn't match password") unless password == password_confirmation
+    end
 end
 
 ```
@@ -822,9 +862,9 @@ class Feedback < ApplicationRecord
   after_create_commit :enqueue_creation_job
 
   private
-  def enqueue_creation_job
-    ProcessFeedbackCreationJob.perform_later(id)
-  end
+    def enqueue_creation_job
+      ProcessFeedbackCreationJob.perform_later(id)
+    end
 end
 
 # Service handles all side effects explicitly
@@ -946,6 +986,39 @@ end
 </good-example>
 <why-bad>
 Duplicated validations are hard to maintain and lead to inconsistencies. Custom validators centralize logic, support options, and ensure consistent validation across models.
+</why-bad>
+</antipattern>
+
+<antipattern>
+<description>Using order-dependent finders without explicit order (deprecated in Rails 8.1)</description>
+<bad-example>
+
+```ruby
+# ❌ BAD - Relies on implicit database ordering (deprecated)
+Feedback.first
+Feedback.last
+Feedback.take
+
+# ❌ BAD - Still implicit ordering
+Feedback.where(status: "pending").first
+
+```
+</bad-example>
+<good-example>
+
+```ruby
+# ✅ GOOD - Explicit ordering
+Feedback.order(:created_at).first
+Feedback.order(created_at: :desc).first  # Same as .last
+Feedback.order(:id).take
+
+# ✅ GOOD - Or use find_by for single record
+Feedback.find_by(status: "pending")
+
+```
+</good-example>
+<why-bad>
+Rails 8.1 deprecates order-dependent finder methods (first, last, take, etc.) without explicit order. Database ordering without ORDER BY is undefined and can vary between queries. Always specify explicit ordering for predictable, consistent results.
 </why-bad>
 </antipattern>
 

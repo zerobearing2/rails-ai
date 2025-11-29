@@ -24,4 +24,12 @@ rake lint:fix               # Auto-fix Ruby style issues
 - **Minitest only** — no RSpec
 - **Solid Stack** — SolidQueue, SolidCache, SolidCable (NO Redis/Sidekiq)
 - **PRs target `develop` branch** — not `main`
-- **No git worktrees** — work directly on feature branches (plugin tested locally from this repo)
+
+## Context7 for Documentation
+
+**Always use Context7 MCP tools** when generating code, setup/configuration steps, or working with library/API documentation. This ensures modern, accurate patterns instead of stale training data.
+
+1. Use `mcp__context7__resolve-library-id` to find the library ID
+2. Use `mcp__context7__get-library-docs` to fetch current documentation
+
+Query Context7 for: Rails, Hotwire (Turbo/Stimulus), Tailwind CSS, DaisyUI, SolidQueue, and any gems being configured.

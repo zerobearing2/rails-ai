@@ -150,24 +150,23 @@ end
 
 **New Rails 8+ app with rails-ai stack:**
 ```bash
-# Create new Rails 8 app
+# Create new Rails 8 app (includes Solid Stack, Kamal, Propshaft by default)
 rails new myapp
 
 cd myapp
 
-# Add required gems
-bundle add solid_queue solid_cache solid_cable
+# Add frontend gems
 bundle add tailwindcss-rails daisyui-rails
 
-# Add recommended gems
-bundle add --group development rubocop-rails-omakase
+# Add recommended gems (RuboCop already included in Rails 8)
 bundle add --group development brakeman bundler-audit
-bundle add kamal --skip-install
 
 # Generate configurations
 rails tailwindcss:install
-rails generate solid_queue:install
-bin/rails db:create db:migrate
+
+# Solid Queue already installed and configured by Rails 8
+# Run migrations for Solid Queue, Cache, Cable
+bin/rails db:prepare
 
 # Verify setup
 bin/ci
@@ -456,6 +455,15 @@ bin/rails credentials:edit
 ```bash
 bin/rails credentials:edit --environment production
 bin/rails credentials:edit --environment development
+bin/rails credentials:edit --environment staging
+
+```
+
+**View credentials without editing:**
+
+```bash
+bin/rails credentials:show
+bin/rails credentials:show --environment production
 
 ```
 
@@ -584,13 +592,21 @@ export RAILS_MASTER_KEY=abc123def456...
 
 ```
 
-**Kamal:**
+**Kamal 2 (Rails 8 default):**
 
 ```yaml
 # config/deploy.yml
 env:
   secret:
     - RAILS_MASTER_KEY
+
+```
+
+**Kamal 2.8+ can fetch from Rails credentials:**
+
+```bash
+# .kamal/secrets
+RAILS_MASTER_KEY=$(bin/rails credentials:show --key MASTER_KEY)
 
 ```
 
@@ -945,18 +961,34 @@ docker run -p 3000:3000 --env RAILS_MASTER_KEY=<key> app
 ### Kamal Deployment
 
 <pattern name="kamal-rails-8">
-<description>Kamal is Rails 8's default deployment tool</description>
+<description>Kamal 2 is Rails 8's default deployment tool</description>
 
-**Rails 8 includes Kamal by default** with `config/deploy.yml`:
+**Rails 8 includes Kamal 2 by default** with `config/deploy.yml`:
 
 ```bash
-kamal deploy                              # Deploy to production
-kamal app logs                            # Check logs
-kamal app exec 'bin/rails db:migrate'    # Remote commands
+# Initial setup (configures server, installs Docker)
+bin/kamal setup
+
+# Subsequent deployments
+bin/kamal deploy
+
+# Check logs
+bin/kamal app logs
+
+# Remote commands
+bin/kamal app exec 'bin/rails db:migrate'
 
 ```
 
-**Already configured:** Dockerfile, health check at `/up`, zero-downtime deploys
+**Kamal 2 Features:**
+- Zero-downtime deployments
+- Health check at `/up` endpoint
+- Docker-based containerization
+- Solid Queue support via `SOLID_QUEUE_IN_PUMA: true`
+- Kamal 2.8+ supports registry-free deploys (local registry for simple setups)
+- Can fetch secrets from Rails credentials (`.kamal/secrets`)
+
+**Already configured:** Dockerfile, Thruster for asset serving, production-ready defaults
 </pattern>
 
 <antipatterns>
@@ -1093,7 +1125,7 @@ Style/DigChain:
 <pattern name="rubocop-bin-ci">
 <description>Integrate RuboCop into CI pipeline (TEAM_RULES.md Rule #17)</description>
 
-**Add RuboCop to bin/ci:**
+**Traditional bin/ci (bash script):**
 
 ```bash
 #!/usr/bin/env bash
@@ -1101,6 +1133,24 @@ set -e
 bin/rails test
 bin/rubocop              # Add this line
 bin/brakeman -q
+
+```
+
+**Rails 8.1+ DSL (config/ci.rb):**
+
+```ruby
+# config/ci.rb
+step "Style: Ruby" do
+  run "bundle exec rubocop"
+end
+
+step "Security: Brakeman" do
+  run "bundle exec brakeman --no-pager"
+end if success?
+
+step "Tests: Rails" do
+  run "bin/rails test"
+end if success?
 
 ```
 
@@ -1256,6 +1306,67 @@ bin/brakeman -q
 </good-example>
 </antipattern>
 </antipatterns>
+
+---
+
+## Local CI DSL (Rails 8.1+)
+
+Rails 8.1 introduces a declarative DSL for defining CI pipelines locally via `config/ci.rb`.
+
+<pattern name="local-ci-dsl">
+<description>Define CI pipeline in config/ci.rb for consistent local and CI execution</description>
+
+**config/ci.rb (Rails 8.1+ DSL):**
+
+```ruby
+# Rails 8.1+ Local CI DSL
+# Run with: bin/ci
+
+step "Setup" do
+  run "bundle install"
+  run "bin/rails db:prepare"
+end
+
+step "Style: Ruby" do
+  run "bundle exec rubocop"
+end
+
+step "Security: Gem Audit" do
+  run "bundle exec bundler-audit --update"
+end if success?
+
+step "Security: Brakeman" do
+  run "bundle exec brakeman --no-pager"
+end if success?
+
+step "Tests: Rails" do
+  run "bin/rails test"
+end if success?
+
+step "Tests: System" do
+  run "bin/rails test:system"
+end if success?
+
+```
+
+**Run CI locally:**
+
+```bash
+bin/ci              # Run full CI pipeline
+bin/ci --continue   # Continue from failed step
+bin/ci --step 3     # Run specific step
+
+```
+
+**Benefits:**
+- Single source of truth for CI steps
+- Same commands run locally and in CI
+- Conditional execution with `if success?`
+- No need to maintain separate bash scripts
+- Better error reporting and step isolation
+
+**Migration from bash:** If you have an existing `bin/ci` bash script, create `config/ci.rb` instead. Rails 8.1+ automatically uses the DSL when `config/ci.rb` exists.
+</pattern>
 
 ---
 

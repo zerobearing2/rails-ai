@@ -38,6 +38,28 @@ claude
 /plugin install rails-ai
 ```
 
+### Recommended: Context7 MCP Server
+
+Rails-AI uses [Context7](https://context7.com) to fetch up-to-date Rails documentation at generation time, ensuring code follows Rails 8+ patterns instead of falling back to outdated training data.
+
+```bash
+# Remote server (simplest)
+claude mcp add context7 --transport http https://mcp.context7.com/mcp
+
+# Or local server (faster)
+claude mcp add context7 -- npx -y @upstash/context7-mcp
+```
+
+For higher rate limits, get an API key from [context7.com/dashboard](https://context7.com/dashboard):
+
+```bash
+# With API key (remote)
+claude mcp add context7 --transport http https://mcp.context7.com/mcp --header "CONTEXT7_API_KEY: YOUR_KEY"
+
+# With API key (local)
+claude mcp add context7 -- npx -y @upstash/context7-mcp --api-key YOUR_KEY
+```
+
 ### Local Development Install
 
 ```bash
@@ -102,9 +124,9 @@ Each workflow command combines the right superpowers workflows with the relevant
 |----------|------------------|
 | `setup` | verification-before-completion |
 | `plan` | brainstorming, writing-plans |
-| `feature` | using-git-worktrees, brainstorming, writing-plans, executing-plans, verification-before-completion, finishing-a-development-branch, dispatching-parallel-agents (when 3+ tasks) |
-| `fix` | using-git-worktrees, verification-before-completion, finishing-a-development-branch, dispatching-parallel-agents (when 3+ areas) |
-| `debug` | systematic-debugging, root-cause-tracing, condition-based-waiting, verification-before-completion, dispatching-parallel-agents (when multiple bugs) |
+| `feature` | brainstorming, writing-plans, executing-plans, verification-before-completion, finishing-a-development-branch |
+| `fix` | verification-before-completion, finishing-a-development-branch, test-driven-development |
+| `debug` | systematic-debugging, root-cause-tracing, condition-based-waiting, verification-before-completion |
 | `review` | finishing-a-development-branch, 3 parallel reviewer agents (security-and-rules, implementation, ui) |
 
 ### Rails-AI Skills (11 total)
@@ -166,6 +188,8 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) and [TESTING.md](TESTING.md).
 Built on [Superpowers](https://github.com/obra/superpowers) by [@obra](https://github.com/obra).
 
 UI workflow integrates [frontend-design](https://github.com/anthropics/claude-code-plugins/tree/main/plugins/frontend-design) from [Claude Code Plugins](https://github.com/anthropics/claude-code-plugins) by Anthropic.
+
+Documentation lookup powered by [Context7](https://context7.com) by [Upstash](https://upstash.com).
 
 ## License
 

@@ -69,21 +69,21 @@ Before completing controller work:
 ## RESTful Actions
 
 <pattern name="restful-crud">
-<description>Complete RESTful controller with all 7 standard actions</description>
+<description>Complete RESTful controller with all 7 standard actions (Rails 8 scaffold style)</description>
 
 **Controller:**
 
 ```ruby
 # app/controllers/feedbacks_controller.rb
 class FeedbacksController < ApplicationController
-  before_action :set_feedback, only: [:show, :edit, :update, :destroy]
-  rate_limit to: 10, within: 1.minute, only: [:create, :update]
+  before_action :set_feedback, only: %i[ show edit update destroy ]
 
   def index
-    @feedbacks = Feedback.includes(:recipient).recent
+    @feedbacks = Feedback.all
   end
 
-  def show; end  # @feedback set by before_action
+  def show
+  end
 
   def new
     @feedback = Feedback.new
@@ -93,36 +93,37 @@ class FeedbacksController < ApplicationController
     @feedback = Feedback.new(feedback_params)
 
     if @feedback.save
-      redirect_to @feedback, notice: "Feedback was successfully created."
+      redirect_to @feedback
     else
       render :new, status: :unprocessable_entity
     end
   end
 
-  def edit; end  # @feedback set by before_action
+  def edit
+  end
 
   def update
     if @feedback.update(feedback_params)
-      redirect_to @feedback, notice: "Feedback was successfully updated."
+      redirect_to @feedback
     else
       render :edit, status: :unprocessable_entity
     end
   end
 
   def destroy
-    @feedback.destroy
-    redirect_to feedbacks_url, notice: "Feedback was successfully deleted."
+    @feedback.destroy!
+    redirect_to feedbacks_path
   end
 
   private
 
-  def set_feedback
-    @feedback = Feedback.find(params[:id])
-  end
+    def set_feedback
+      @feedback = Feedback.find(params[:id])
+    end
 
-  def feedback_params
-    params.require(:feedback).permit(:content, :recipient_email, :sender_name)
-  end
+    def feedback_params
+      params.expect(feedback: [ :content, :recipient_email, :sender_name ])
+    end
 end
 
 ```
@@ -179,7 +180,7 @@ end
 </pattern>
 
 <pattern name="api-controller">
-<description>RESTful API controller with JSON responses</description>
+<description>RESTful API controller with JSON responses (Rails 8 style)</description>
 
 **Controller:**
 
@@ -187,10 +188,11 @@ end
 # app/controllers/api/v1/feedbacks_controller.rb
 module Api::V1
   class FeedbacksController < ApiController
-    before_action :set_feedback, only: [:show, :update, :destroy]
+    before_action :set_feedback, only: %i[ show update destroy ]
 
     def index
-      render json: Feedback.includes(:recipient).recent
+      @feedbacks = Feedback.all
+      render json: @feedbacks
     end
 
     def show
@@ -216,21 +218,19 @@ module Api::V1
     end
 
     def destroy
-      @feedback.destroy
+      @feedback.destroy!
       head :no_content
     end
 
     private
 
-    def set_feedback
-      @feedback = Feedback.find(params[:id])
-    rescue ActiveRecord::RecordNotFound
-      render json: { error: "Feedback not found" }, status: :not_found
-    end
+      def set_feedback
+        @feedback = Feedback.find(params[:id])
+      end
 
-    def feedback_params
-      params.require(:feedback).permit(:content, :recipient_email, :sender_name)
-    end
+      def feedback_params
+        params.expect(feedback: [ :content, :recipient_email, :sender_name ])
+      end
   end
 end
 
@@ -313,7 +313,7 @@ end
 module Feedbacks
   class ResponsesController < ApplicationController
     before_action :set_feedback
-    before_action :set_response, only: [:destroy]
+    before_action :set_response, only: %i[ destroy ]
 
     def index
       @responses = @feedback.responses.order(created_at: :desc)
@@ -321,31 +321,32 @@ module Feedbacks
 
     def create
       @response = @feedback.responses.build(response_params)
+
       if @response.save
-        redirect_to feedback_responses_path(@feedback), notice: "Response added"
+        redirect_to feedback_responses_path(@feedback)
       else
         render :index, status: :unprocessable_entity
       end
     end
 
     def destroy
-      @response.destroy
-      redirect_to feedback_responses_path(@feedback), notice: "Response deleted"
+      @response.destroy!
+      redirect_to feedback_responses_path(@feedback)
     end
 
     private
 
-    def set_feedback
-      @feedback = Feedback.find(params[:feedback_id])
-    end
+      def set_feedback
+        @feedback = Feedback.find(params[:feedback_id])
+      end
 
-    def set_response
-      @response = @feedback.responses.find(params[:id])  # Scoped to parent
-    end
+      def set_response
+        @response = @feedback.responses.find(params[:id])
+      end
 
-    def response_params
-      params.require(:response).permit(:content, :author_name)
-    end
+      def response_params
+        params.expect(response: [ :content, :author_name ])
+      end
   end
 end
 
@@ -396,17 +397,18 @@ end
 # app/controllers/projects/tasks_controller.rb
 module Projects
   class TasksController < ApplicationController
-    before_action :set_project, only: [:index, :create]
-    before_action :set_task, only: [:show, :update, :destroy]
+    before_action :set_project, only: %i[ index create ]
+    before_action :set_task, only: %i[ show update destroy ]
 
     def index
-      @tasks = @project.tasks.includes(:assignee)
+      @tasks = @project.tasks
     end
 
     def create
       @task = @project.tasks.build(task_params)
+
       if @task.save
-        redirect_to @task, notice: "Task created"
+        redirect_to @task
       else
         render :index, status: :unprocessable_entity
       end
@@ -414,23 +416,23 @@ module Projects
 
     def destroy
       project = @task.project
-      @task.destroy
-      redirect_to project_tasks_path(project), notice: "Task deleted"
+      @task.destroy!
+      redirect_to project_tasks_path(project)
     end
 
     private
 
-    def set_project
-      @project = Project.find(params[:project_id])
-    end
+      def set_project
+        @project = Project.find(params[:project_id])
+      end
 
-    def set_task
-      @task = Task.find(params[:id])
-    end
+      def set_task
+        @task = Task.find(params[:id])
+      end
 
-    def task_params
-      params.require(:task).permit(:title, :description)
-    end
+      def task_params
+        params.expect(task: [ :title, :description ])
+      end
   end
 end
 
@@ -597,14 +599,14 @@ end
 **Controller (HTTP concerns only):**
 
 ```ruby
-# ✅ GOOD - 10 lines, only HTTP concerns
+# ✅ GOOD - Thin controller, only HTTP concerns
 class FeedbacksController < ApplicationController
   def create
     @feedback = Feedback.new(feedback_params)
 
     if @feedback.save
       FeedbackAiProcessingJob.perform_later(@feedback.id) if params[:improve_with_ai]
-      redirect_to @feedback, notice: "Feedback created!"
+      redirect_to @feedback
     else
       render :new, status: :unprocessable_entity
     end
@@ -612,9 +614,9 @@ class FeedbacksController < ApplicationController
 
   private
 
-  def feedback_params
-    params.require(:feedback).permit(:content, :recipient_email, :sender_name)
-  end
+    def feedback_params
+      params.expect(feedback: [ :content, :recipient_email, :sender_name ])
+    end
 end
 
 ```
@@ -750,6 +752,12 @@ class Api::FeedbacksController < Api::BaseController
     feedback = Feedback.create!(feedback_params)
     render_success(feedback, status: :created, message: "Feedback created")
   end
+
+  private
+
+    def feedback_params
+      params.expect(feedback: [ :content, :recipient_email ])
+    end
 end
 
 ```
@@ -795,24 +803,28 @@ end
 
 ## Strong Parameters
 
-<pattern name="expect-method-strict">
-<description>Use expect() for strict parameter validation (Rails 8+, preferred)</description>
+<pattern name="expect-method">
+<description>Use params.expect() for strong parameters (Rails 8+ default)</description>
 
 **Basic Usage:**
 
 ```ruby
-# ✅ SECURE - Raises if :feedback key missing or wrong structure
 class FeedbacksController < ApplicationController
   def create
     @feedback = Feedback.new(feedback_params)
-    # ... save and respond ...
+
+    if @feedback.save
+      redirect_to @feedback
+    else
+      render :new, status: :unprocessable_entity
+    end
   end
 
   private
 
-  def feedback_params
-    params.expect(feedback: [:content, :recipient_email, :sender_name, :ai_enabled])
-  end
+    def feedback_params
+      params.expect(feedback: [ :content, :recipient_email, :sender_name ])
+    end
 end
 
 ```
@@ -820,14 +832,12 @@ end
 **Nested Attributes:**
 
 ```ruby
-# ✅ SECURE - Permit nested attributes
 def person_params
-  params.expect(
-    person: [
-      :name, :age,
-      addresses_attributes: [:id, :street, :city, :state, :_destroy]
-    ]
-  )
+  params.expect(person: [
+    :name,
+    :age,
+    addresses_attributes: [ :id, :street, :city, :state, :_destroy ]
+  ])
 end
 # Model: accepts_nested_attributes_for :addresses, allow_destroy: true
 
@@ -836,93 +846,102 @@ end
 **Array of Scalars:**
 
 ```ruby
-# ✅ SECURE - Allow array of strings
-def tag_params
-  params.expect(post: [:title, :body, tags: []])
+def post_params
+  params.expect(post: [ :title, :body, tags: [] ])
 end
 # Accepts: { post: { title: "...", body: "...", tags: ["rails", "ruby"] } }
 
 ```
 
-**Why:** Strict validation, raises `ActionController::ParameterMissing` if required key missing, better for APIs.
+**Complex Nested Structures:**
+
+```ruby
+# Given params with nested arrays of hashes:
+params.expect(
+  :name,                 # permitted scalar
+  emails: [],            # array of permitted scalars
+  friends: [[            # array of hashes
+    :name,
+    family: [ :name ],   # nested hash
+    hobbies: []          # array of scalars
+  ]]
+)
+
+```
+
+**Why:** `expect()` is the Rails 8 default. It raises `ActionController::ParameterMissing` if the required key is missing, making it safer for APIs.
 </pattern>
 
-<pattern name="require-permit-method">
-<description>Use require().permit() for more lenient validation</description>
-
-**Basic Usage:**
+<pattern name="require-permit-legacy">
+<description>Legacy require().permit() syntax (pre-Rails 8)</description>
 
 ```ruby
-# ✅ SECURE - Returns empty hash if :feedback missing
+# Legacy syntax - still works but prefer expect() for new code
 def feedback_params
-  params.require(:feedback).permit(:content, :recipient_email, :sender_name, :ai_enabled)
+  params.require(:feedback).permit(:content, :recipient_email, :sender_name)
 end
 
 ```
 
-**Nested with permit():**
-
-```ruby
-# ✅ SECURE
-def article_params
-  params.require(:article).permit(
-    :title, :body, :published,
-    tag_ids: [],
-    comments_attributes: [:id, :body, :author_name, :_destroy]
-  )
-end
-
-```
-
-**Why:** More lenient, returns empty hash if key missing (no exception), traditional Rails approach.
+**When to use:** Only when maintaining existing codebases. New code should use `expect()`.
 </pattern>
 
 <pattern name="context-specific-permissions">
 <description>Use different parameter methods for different user roles</description>
 
-**Different Permissions by Role:**
-
 ```ruby
-# ✅ SECURE - Different permissions by role
 class UsersController < ApplicationController
+  before_action :set_user, only: %i[ show edit update destroy ]
+
   def create
     @user = User.new(user_params)
-    # ... save and respond ...
+
+    if @user.save
+      redirect_to @user
+    else
+      render :new, status: :unprocessable_entity
+    end
   end
 
-  def admin_update
-    authorize_admin!
-    @user = User.find(params[:id])
-    @user.update(admin_user_params)
-    # ... respond ...
+  def update
+    permitted = current_user.admin? ? admin_user_params : user_params
+
+    if @user.update(permitted)
+      redirect_to @user
+    else
+      render :edit, status: :unprocessable_entity
+    end
   end
 
   private
 
-  def user_params
-    # Regular users can only set basic attributes
-    params.expect(user: [:name, :email, :password, :password_confirmation])
-  end
+    def set_user
+      @user = User.find(params[:id])
+    end
 
-  def admin_user_params
+    # Regular users can only set basic attributes
+    def user_params
+      params.expect(user: [ :name, :email, :password, :password_confirmation ])
+    end
+
     # Admins can set additional privileged attributes
-    params.expect(user: [
-      :name, :email, :password, :password_confirmation,
-      :role, :confirmed_at, :banned_at, :admin_notes
-    ])
-  end
+    def admin_user_params
+      params.expect(user: [
+        :name, :email, :password, :password_confirmation,
+        :role, :confirmed_at, :banned_at, :admin_notes
+      ])
+    end
 end
 
 ```
 
-**Why:** Prevents privilege escalation, different permissions for different contexts.
+**Why:** Prevents privilege escalation by limiting which attributes different user roles can modify.
 </pattern>
 
 <antipattern>
 <description>Passing params directly to model (CRITICAL SECURITY VULNERABILITY)</description>
 <reason>Allows mass assignment of any attribute including admin flags</reason>
-
-**Bad Example:**
+<bad-example>
 
 ```ruby
 # ❌ CRITICAL - Raises ForbiddenAttributesError
@@ -930,40 +949,42 @@ def create
   @feedback = Feedback.create(params[:feedback])
 end
 
-# Attack: POST /feedbacks
-# params[:feedback] = {
-#   content: "Great job!",
-#   admin: true,              # Attacker sets admin flag
-#   user_id: other_user_id    # Attacker changes ownership
-# }
+# Attack: POST /feedbacks with malicious params
+# { feedback: { content: "...", admin: true, user_id: other_user_id } }
 
 ```
-
-**Good Example:**
+</bad-example>
+<good-example>
 
 ```ruby
-# ✅ SECURE - Use strong parameters
+# ✅ SECURE - Use params.expect()
 def create
   @feedback = Feedback.new(feedback_params)
-  # ... save and respond ...
+
+  if @feedback.save
+    redirect_to @feedback
+  else
+    render :new, status: :unprocessable_entity
+  end
 end
 
 private
 
-def feedback_params
-  params.expect(feedback: [:content, :recipient_email, :sender_name])
-end
+  def feedback_params
+    params.expect(feedback: [ :content, :recipient_email, :sender_name ])
+  end
 
 ```
-
-**Why Bad:** CRITICAL security vulnerability allowing privilege escalation, account takeover, data manipulation.
+</good-example>
+<why-bad>
+CRITICAL security vulnerability allowing privilege escalation, account takeover, data manipulation.
+</why-bad>
 </antipattern>
 
 <antipattern>
 <description>Using permit! on user input (CRITICAL SECURITY VULNERABILITY)</description>
 <reason>Bypasses all security checks, allows setting ANY attribute</reason>
-
-**Bad Example:**
+<bad-example>
 
 ```ruby
 # ❌ CRITICAL - Allows EVERYTHING
@@ -971,23 +992,21 @@ def user_params
   params.require(:user).permit!
 end
 
-# Attack: Attacker can set ANY attribute
-# params[:user][:admin] = true
-# params[:user][:confirmed_at] = Time.now
-
 ```
-
-**Good Example:**
+</bad-example>
+<good-example>
 
 ```ruby
-# ✅ SECURE - Explicitly permit attributes
+# ✅ SECURE - Explicitly permit attributes with expect()
 def user_params
-  params.require(:user).permit(:name, :email, :password, :password_confirmation)
+  params.expect(user: [ :name, :email, :password, :password_confirmation ])
 end
 
 ```
-
-**Why Bad:** Complete security bypass, allows privilege escalation, data manipulation, account takeover.
+</good-example>
+<why-bad>
+Complete security bypass, allows privilege escalation, data manipulation, account takeover.
+</why-bad>
 </antipattern>
 
 ---

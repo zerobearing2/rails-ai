@@ -257,5 +257,23 @@ This allows the plugin to be tested locally from the current repo while developm
 - Minitest, not RSpec
 - RESTful actions only (friendly URLs allowed)
 - Solid Stack (Rails 8)
+- **Context7 for current docs** — always query before generating code
+
+## Context7 Documentation Lookup
+
+**Always use Context7 MCP tools** when generating code, setup/configuration steps, or working with library/API documentation. This ensures modern Rails 8+ patterns instead of stale training data.
+
+**When to query Context7:**
+- Before generating Rails code (models, controllers, views, jobs)
+- Before configuring gems or frameworks
+- When implementing Hotwire (Turbo, Stimulus)
+- When using Tailwind CSS or DaisyUI
+- When setting up Solid Stack (SolidQueue, SolidCache, SolidCable)
+
+**How to use:**
+1. `mcp__context7__resolve-library-id` — Find the library ID (e.g., "rails", "hotwired/turbo-rails")
+2. `mcp__context7__get-library-docs` — Fetch current documentation with topic focus
+
+This prevents Claude from falling back to outdated syntax or deprecated patterns from training data.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for full guidelines.

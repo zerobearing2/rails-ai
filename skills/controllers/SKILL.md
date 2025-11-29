@@ -796,7 +796,7 @@ end
 ## Strong Parameters
 
 <pattern name="expect-method-strict">
-<description>Use expect() for strict parameter validation (Rails 8.1+)</description>
+<description>Use expect() for strict parameter validation (Rails 8+, preferred)</description>
 
 **Basic Usage:**
 
@@ -1045,6 +1045,6 @@ end
 - [Rails Guides - Routing](https://guides.rubyonrails.org/routing.html)
 - [Rails Guides - Strong Parameters](https://guides.rubyonrails.org/action_controller_overview.html#strong-parameters)
 - [Rails API - ActiveSupport::Concern](https://api.rubyonrails.org/classes/ActiveSupport/Concern.html)
-- [Rails Edge Guides - Parameters expect()](https://edgeguides.rubyonrails.org/action_controller_overview.html#parameters-expect) - Rails 8.1+
+- [Rails Guides - Parameters expect()](https://guides.rubyonrails.org/action_controller_overview.html#parameters-expect) - Rails 8+ preferred method
 
 </resources>

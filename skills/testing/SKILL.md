@@ -1875,12 +1875,63 @@ end
 
 ---
 
+## Local CI DSL (Rails 8.1+)
+
+<pattern name="local-ci-dsl">
+<description>Define CI pipeline in config/ci.rb for consistent local and CI execution</description>
+
+**config/ci.rb:**
+
+```ruby
+# Rails 8.1+ Local CI DSL
+# Run with: bin/ci
+
+step "Setup" do
+  run "bundle install"
+  run "bin/rails db:prepare"
+end
+
+step "Style: Ruby" do
+  run "bundle exec rubocop"
+end
+
+step "Tests: Rails" do
+  run "bin/rails test"
+end
+
+step "Tests: System" do
+  run "bin/rails test:system"
+end if success?
+
+step "Security: Brakeman" do
+  run "bundle exec brakeman --no-pager"
+end if success?
+
+```
+
+**Run CI locally:**
+
+```bash
+bin/ci              # Run full CI pipeline
+bin/ci --continue   # Continue from failed step
+bin/ci --step 3     # Run specific step
+
+```
+
+**Why:** Single source of truth for CI steps. Same commands run locally and in CI. The `if success?` conditional skips steps when earlier steps fail.
+</pattern>
+
+---
+
 ## Running Tests
 
 <testing>
 
 ```bash
-# Run all tests
+# Run all tests (Rails 8.1+ preferred)
+bin/ci
+
+# Or run tests directly
 rails test
 
 # Run specific test file

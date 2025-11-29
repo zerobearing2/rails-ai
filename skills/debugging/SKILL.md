@@ -120,6 +120,59 @@ User.all
 ```
 </tool>
 
+<tool name="structured-events">
+<description>Use Rails 8.1+ structured event reporting for debugging and monitoring</description>
+
+```ruby
+# Emit structured events (Rails 8.1+)
+Rails.event.notify("user.signup", user_id: user.id, email: user.email)
+Rails.event.notify("payment.failed", amount: 99.99, error: "Card declined")
+
+# Tag events with context
+Rails.event.tagged(request_id: request.uuid, user_id: current_user&.id) do
+  Rails.event.notify("order.created", order_id: order.id)
+end
+
+# Subscribe to events for custom handling
+Rails.event.subscribe("user.signup") do |event|
+  # event = { name: "user.signup", user_id: 123, email: "..." }
+  ExternalMonitoring.track(event)
+end
+
+# In application code
+class OrdersController < ApplicationController
+  def create
+    @order = Order.create!(order_params)
+    Rails.event.notify("order.created", order_id: @order.id, total: @order.total)
+    redirect_to @order
+  rescue => e
+    Rails.event.notify("order.failed", error: e.message, params: order_params.to_h)
+    raise
+  end
+end
+
+```
+
+**Why use events over logs:**
+- Machine-readable (JSON, not strings)
+- Structured data for filtering/querying
+- Easy integration with monitoring systems
+- Tags propagate context automatically
+
+</tool>
+
+<tool name="verbose-redirects">
+<description>Enable verbose redirect logging in development (Rails 8.1+)</description>
+
+```ruby
+# config/environments/development.rb
+config.action_dispatch.verbose_redirect_logs = true
+
+```
+
+Shows detailed redirect chain information in development logs for debugging redirect loops or unexpected navigation.
+</tool>
+
 </phase1-root-cause-investigation>
 
 <phase-browser-debugging>

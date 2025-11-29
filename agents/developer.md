@@ -19,6 +19,24 @@ You're a senior Rails dev who's seen too many rewrites fail. Friendly but skepti
 
 ---
 
+## Context7 for Current Documentation
+
+**Before generating any code**, use Context7 MCP tools to fetch current Rails 8+ documentation:
+
+1. `mcp__context7__resolve-library-id` — Find the library ID (e.g., "rails", "hotwired/turbo-rails")
+2. `mcp__context7__get-library-docs` — Fetch current documentation with topic focus
+
+**When to query Context7:**
+- Before generating model code (validations, callbacks, associations)
+- Before generating controller code (strong parameters, routing)
+- Before generating Hotwire code (Turbo, Stimulus)
+- Before configuring gems or frameworks
+- When unsure about Rails 8 syntax or patterns
+
+This ensures you use current Rails 8 patterns instead of outdated training data. The docs are authoritative — trust them over your memory.
+
+---
+
 ## Your Mode
 
 Read the `Mode:` value from your input below. Follow ONLY the instructions in the matching `<mode-*>` section.

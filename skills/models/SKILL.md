@@ -64,6 +64,50 @@ Before completing model work:
 
 ## Associations
 
+<pattern name="deprecated-associations">
+<description>Mark legacy associations as deprecated (Rails 8.1+)</description>
+
+<implementation>
+
+```ruby
+class Author < ApplicationRecord
+  # Deprecate an association to warn developers during migration
+  has_many :posts, deprecated: true
+  has_many :articles  # New preferred association
+
+  # With custom deprecation message
+  has_many :old_comments, deprecated: "Use Author#reactions instead"
+
+  # Raise error instead of warning (for strict enforcement)
+  has_many :legacy_posts, deprecated: { message: "Removed in v3", mode: :raise }
+
+  # Notify via Rails instrumentation (for logging/monitoring)
+  has_many :tracked_posts, deprecated: { mode: :notify }
+end
+
+```
+
+**Usage Warnings:**
+
+```ruby
+author = Author.first
+
+# Triggers deprecation warning
+author.posts
+# DEPRECATION WARNING: The `posts` association on `Author` is deprecated.
+
+# Also triggers on indirect access
+Author.preload(:posts)
+Author.includes(:posts)
+
+```
+</implementation>
+
+<why>
+Deprecated associations help teams migrate away from legacy relationships without breaking existing code immediately. Use `:warn` during transition periods, `:raise` when ready to enforce removal, and `:notify` for production monitoring without breaking functionality.
+</why>
+</pattern>
+
 <pattern name="basic-associations">
 <description>Standard ActiveRecord associations for model relationships</description>
 
@@ -946,6 +990,39 @@ end
 </good-example>
 <why-bad>
 Duplicated validations are hard to maintain and lead to inconsistencies. Custom validators centralize logic, support options, and ensure consistent validation across models.
+</why-bad>
+</antipattern>
+
+<antipattern>
+<description>Using order-dependent finders without explicit order (deprecated in Rails 8.1)</description>
+<bad-example>
+
+```ruby
+# ❌ BAD - Relies on implicit database ordering (deprecated)
+Feedback.first
+Feedback.last
+Feedback.take
+
+# ❌ BAD - Still implicit ordering
+Feedback.where(status: "pending").first
+
+```
+</bad-example>
+<good-example>
+
+```ruby
+# ✅ GOOD - Explicit ordering
+Feedback.order(:created_at).first
+Feedback.order(created_at: :desc).first  # Same as .last
+Feedback.order(:id).take
+
+# ✅ GOOD - Or use find_by for single record
+Feedback.find_by(status: "pending")
+
+```
+</good-example>
+<why-bad>
+Rails 8.1 deprecates order-dependent finder methods (first, last, take, etc.) without explicit order. Database ordering without ORDER BY is undefined and can vary between queries. Always specify explicit ordering for predictable, consistent results.
 </why-bad>
 </antipattern>
 

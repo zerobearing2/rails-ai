@@ -178,6 +178,81 @@ ReportGenerationJob.set(priority: 10).perform_later(user.id, "important")
 **Why:** Background jobs prevent blocking HTTP requests. Always pass IDs (not objects) to avoid serialization issues.
 </pattern>
 
+<pattern name="job-continuations">
+<description>Break long-running jobs into resumable steps (Rails 8.1+)</description>
+
+Active Job Continuations allow jobs to resume from the last completed step after restarts, deployments, or interruptions.
+
+**Block Format:**
+
+```ruby
+class DataProcessingJob < ApplicationJob
+  include ActiveJob::Continuable
+
+  queue_as :default
+
+  def perform(import_id)
+    @import = Import.find(import_id)
+
+    step :validate_data do
+      @import.validate_records!
+    end
+
+    step :process_records do |cursor|
+      @import.records.where("id > ?", cursor || 0).find_each do |record|
+        record.process!
+        step.advance!(record.id)  # Save progress
+      end
+    end
+
+    step :send_notification do
+      ImportMailer.completed(@import).deliver_later
+    end
+  end
+end
+```
+
+**Method Format:**
+
+```ruby
+class ReportGenerationJob < ApplicationJob
+  include ActiveJob::Continuable
+
+  queue_as :default
+
+  def perform(report_id)
+    @report = Report.find(report_id)
+
+    step :fetch_data
+    step :generate_report
+    step :upload_to_storage
+    step :notify_user
+  end
+
+  private
+
+  def fetch_data
+    @data = ExternalApi.fetch_all(@report.criteria)
+    @report.update!(data: @data)
+  end
+
+  def generate_report
+    @report.generate_pdf!
+  end
+
+  def upload_to_storage
+    @report.upload_to_s3!
+  end
+
+  def notify_user
+    ReportMailer.ready(@report).deliver_later
+  end
+end
+```
+
+**Why:** Long-running jobs survive deployments (Kamal gives 30 seconds to shut down). Steps provide automatic checkpointing - if interrupted, job resumes from last completed step. Use `step.advance!` for progress within iterative operations.
+</pattern>
+
 <pattern name="job-retry-strategy">
 <description>Configure retry behavior for failed jobs</description>
 
@@ -684,7 +759,8 @@ end
 
 **Official Documentation:**
 - [Rails Guides - Active Job Basics](https://guides.rubyonrails.org/active_job_basics.html)
-- [Rails 8 Release Notes](https://edgeguides.rubyonrails.org/8_0_release_notes.html) - Solid Stack introduction
+- [Rails 8.1 Release Notes](https://guides.rubyonrails.org/8_1_release_notes.html) - Active Job Continuations
+- [Rails 8.0 Release Notes](https://guides.rubyonrails.org/8_0_release_notes.html) - Solid Stack introduction
 
 **Gems & Libraries:**
 - [SolidQueue](https://github.com/rails/solid_queue) - DB-backed job queue (Rails 8+)

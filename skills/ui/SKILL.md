@@ -289,6 +289,28 @@ end
 
 </pattern>
 
+<pattern name="markdown-rendering">
+<description>Native markdown rendering in controllers (Rails 8.1+)</description>
+
+Rails 8.1 adds native markdown rendering for responding to markdown requests.
+
+```ruby
+class DocumentsController < ApplicationController
+  def show
+    @document = Document.find(params[:id])
+
+    respond_to do |format|
+      format.html
+      format.md { render plain: @document.markdown_content }
+    end
+  end
+end
+
+```
+
+**Why:** AI tools increasingly use markdown as their primary format. Rails 8.1 makes it easy to respond with markdown content directly.
+</pattern>
+
 <antipattern>
 <description>Using html_safe on user input</description>
 <reason>XSS vulnerability - allows script execution</reason>

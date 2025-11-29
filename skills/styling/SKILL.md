@@ -64,6 +64,8 @@ Before completing styling work:
 
 Tailwind CSS is a utility-first CSS framework for building custom designs without writing custom CSS.
 
+**Rails Integration:** The `tailwindcss-rails` gem provides seamless integration with Rails 8+, using the standalone Tailwind CLI for zero Node.js dependencies. Configuration is done via CSS-based `@theme` blocks in Tailwind v4, or `tailwind.config.js` for v3.
+
 ### Core Utilities
 
 <pattern name="spacing-layout">
@@ -142,7 +144,7 @@ Tailwind CSS is a utility-first CSS framework for building custom designs withou
 <description>Complete feedback card using Tailwind utilities</description>
 
 ```erb
-<div class="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow p-6">
+<div class="bg-white rounded-lg shadow-sm hover:shadow-lg transition-shadow p-6">
   <%# Header %>
   <div class="flex items-start justify-between mb-4">
     <div class="flex items-center gap-3">
@@ -202,6 +204,15 @@ Tailwind CSS is a utility-first CSS framework for building custom designs withou
 
 Semantic component library built on Tailwind providing 70+ accessible components with built-in theming and dark mode.
 
+**Installation with Rails:** Add DaisyUI as a Tailwind plugin in `app/assets/stylesheets/application.tailwind.css`:
+
+```css
+@import "tailwindcss";
+@plugin "daisyui";
+```
+
+Then install via npm/yarn: `yarn add daisyui` or configure it via `tailwind.config.js` plugins array for Tailwind v3.
+
 ### Buttons & Forms
 
 <pattern name="daisyui-buttons">
@@ -234,7 +245,7 @@ Semantic component library built on Tailwind providing 70+ accessible components
 <description>Use card component for content containers</description>
 
 ```erb
-<div class="card bg-base-100 shadow-xl">
+<div class="card bg-base-100 shadow-sm">
   <div class="card-body">
     <div class="flex items-start justify-between">
       <h2 class="card-title"><%= @feedback.title %></h2>
@@ -309,25 +320,30 @@ Semantic component library built on Tailwind providing 70+ accessible components
 ### Theme Switching
 
 <pattern name="daisyui-theme-toggle">
-<description>Implement dark mode and theme switching</description>
+<description>Implement dark mode and theme switching with DaisyUI themes</description>
 
 ```javascript
 // app/javascript/controllers/theme_controller.js
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
+  static values = {
+    current: { type: String, default: "light" }
+  }
+
   connect() {
     const savedTheme = localStorage.getItem("theme") || "light"
-    this.setTheme(savedTheme)
+    this.currentValue = savedTheme
+    this.applyTheme(savedTheme)
   }
 
   toggle() {
-    const currentTheme = document.documentElement.getAttribute("data-theme")
-    const newTheme = currentTheme === "light" ? "dark" : "light"
-    this.setTheme(newTheme)
+    const newTheme = this.currentValue === "light" ? "dark" : "light"
+    this.currentValue = newTheme
+    this.applyTheme(newTheme)
   }
 
-  setTheme(theme) {
+  applyTheme(theme) {
     document.documentElement.setAttribute("data-theme", theme)
     localStorage.setItem("theme", theme)
   }
@@ -339,8 +355,11 @@ export default class extends Controller {
 <html data-theme="light">
   <body>
     <div data-controller="theme">
-      <button class="btn btn-ghost btn-circle" data-action="click->theme#toggle">
-        Toggle Theme
+      <button class="btn btn-ghost btn-circle" data-action="theme#toggle">
+        <span class="sr-only">Toggle Theme</span>
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+        </svg>
       </button>
     </div>
   </body>
@@ -382,32 +401,52 @@ export default class extends Controller {
 class StylingTest < ApplicationSystemTestCase
   test "responsive layout changes at breakpoints" do
     visit feedbacks_path
-    # Desktop
-    page.driver.browser.manage.window.resize_to(1280, 800)
+
+    # Desktop view
+    page.current_window.resize_to(1280, 800)
     assert_selector ".hidden.md\\:flex"  # Desktop nav visible
 
-    # Mobile
-    page.driver.browser.manage.window.resize_to(375, 667)
+    # Mobile view
+    page.current_window.resize_to(375, 667)
     assert_selector ".block.md\\:hidden"  # Mobile menu visible
   end
 
-  test "dark mode toggle works" do
+  test "dark mode toggle persists theme preference" do
     visit root_path
-    assert_equal "light", page.evaluate_script("document.documentElement.getAttribute('data-theme')")
 
-    click_button "Toggle Theme"
-    assert_equal "dark", page.evaluate_script("document.documentElement.getAttribute('data-theme')")
+    # Verify initial light theme
+    assert_equal "light", evaluate_script("document.documentElement.getAttribute('data-theme')")
+    assert_equal "light", evaluate_script("localStorage.getItem('theme')")
+
+    # Toggle to dark mode
+    find("button[data-action='theme#toggle']").click
+    assert_equal "dark", evaluate_script("document.documentElement.getAttribute('data-theme')")
+    assert_equal "dark", evaluate_script("localStorage.getItem('theme')")
+
+    # Reload page and verify persistence
+    visit root_path
+    assert_equal "dark", evaluate_script("document.documentElement.getAttribute('data-theme')")
+  end
+
+  test "daisyui components render with correct classes" do
+    visit new_feedback_path
+
+    # Verify DaisyUI form components
+    assert_selector "input.input.input-bordered"
+    assert_selector "button.btn.btn-primary"
+    assert_selector ".form-control .label"
   end
 end
 ```
 
 **Manual Testing Checklist:**
 - Test responsive breakpoints (375px, 640px, 768px, 1024px, 1280px)
-- Verify color contrast ratios (use browser DevTools or axe)
-- Test dark mode theme
-- Check focus states on all interactive elements
+- Verify color contrast ratios (use browser DevTools or axe DevTools)
+- Test dark mode theme switching and persistence
+- Check focus states on all interactive elements (keyboard navigation)
 - Validate against W3C HTML validator
-- Test browser zoom (200%, 400%)
+- Test browser zoom levels (200%, 400%)
+- Verify touch targets are at least 44x44px on mobile
 </testing>
 
 ---

@@ -63,13 +63,31 @@ SolidQueue is a database-backed Active Job adapter for background job processing
 <pattern name="solidqueue-basic-setup">
 <description>Configure SolidQueue for background job processing</description>
 
+**Installation (Rails 8+):**
+
+```bash
+# SolidQueue is included by default in Rails 8+
+# If needed, install manually:
+bin/rails solid_queue:install
+
+# Run migrations
+bin/rails db:migrate
+```
+
 **Environment Configuration:**
 
 ```ruby
-# config/environments/{development,production}.rb
+# config/environments/production.rb
 Rails.application.configure do
   config.active_job.queue_adapter = :solid_queue
   config.solid_queue.connects_to = { database: { writing: :queue } }
+
+  # Optional configuration
+  config.solid_queue.use_skip_locked = true
+  config.solid_queue.process_heartbeat_interval = 60.seconds
+  config.solid_queue.shutdown_timeout = 5.seconds
+  config.solid_queue.preserve_finished_jobs = true
+  config.solid_queue.clear_finished_jobs_after = 1.day
 end
 ```
 
@@ -97,6 +115,11 @@ production:
 ```yaml
 # config/queue.yml
 production:
+  dispatchers:
+    - polling_interval: 1
+      batch_size: 500
+      concurrency_maintenance_interval: 300
+
   workers:
     - queues: [critical, mailers]
       threads: 5
@@ -176,6 +199,35 @@ ReportGenerationJob.set(priority: 10).perform_later(user.id, "important")
 ```
 
 **Why:** Background jobs prevent blocking HTTP requests. Always pass IDs (not objects) to avoid serialization issues.
+</pattern>
+
+<pattern name="job-transaction-safety">
+<description>Ensure jobs are enqueued after transaction commits</description>
+
+```ruby
+# app/jobs/application_job.rb
+class ApplicationJob < ActiveJob::Base
+  # Enqueue jobs only after transaction commits
+  self.enqueue_after_transaction_commit = true
+end
+```
+
+**Usage in Models:**
+
+```ruby
+class User < ApplicationRecord
+  after_create_commit :send_welcome_email
+
+  private
+
+  def send_welcome_email
+    # Job will only enqueue if transaction commits successfully
+    WelcomeEmailJob.perform_later(id)
+  end
+end
+```
+
+**Why:** Prevents jobs from running before database changes are committed. Critical when Solid Queue uses a separate database - job might run before primary database transaction completes. Rails 8+ defaults to `true`.
 </pattern>
 
 <pattern name="job-continuations">
@@ -260,14 +312,20 @@ end
 class EmailDeliveryJob < ApplicationJob
   queue_as :mailers
 
-  # Retry up to 5 times with exponential backoff
-  retry_on StandardError, wait: :exponentially_longer, attempts: 5
+  # Retry with default settings (3s wait, 5 attempts)
+  retry_on StandardError
+
+  # Retry with custom settings
+  retry_on ApiError, wait: 5.minutes, attempts: 3
+
+  # Retry with exponential backoff
+  retry_on NetworkError, wait: :exponentially_longer, attempts: 5
 
   # Don't retry certain errors
   discard_on ActiveJob::DeserializationError
 
-  # Custom retry logic
-  retry_on ApiError, wait: 5.minutes, attempts: 3 do |job, error|
+  # Custom retry logic with block
+  retry_on TransientError, wait: 1.minute, attempts: 3 do |job, error|
     Rails.logger.error("Job #{job.class} failed: #{error.message}")
   end
 
@@ -278,7 +336,94 @@ class EmailDeliveryJob < ApplicationJob
 end
 ```
 
-**Why:** Automatic retries with exponential backoff handle transient failures. Discard jobs that will never succeed (deserialization errors).
+**Why:** Automatic retries with exponential backoff handle transient failures. Discard jobs that will never succeed (deserialization errors). Default retry is 3s wait, 5 attempts.
+</pattern>
+
+<pattern name="job-concurrency-controls">
+<description>Limit concurrent job execution with Solid Queue</description>
+
+**Prevent Overlapping Jobs:**
+
+```ruby
+class GenerateReportJob < ApplicationJob
+  queue_as :reports
+
+  # Only 1 report per account at a time
+  limits_concurrency to: 1,
+                     key: ->(account_id) { "report:#{account_id}" },
+                     duration: 30.minutes
+
+  def perform(account_id)
+    account = Account.find(account_id)
+    report = ReportGenerator.new(account).generate
+    ReportMailer.send_report(account, report).deliver_now
+  end
+end
+```
+
+**Rate Limiting External APIs:**
+
+```ruby
+class ApiCallJob < ApplicationJob
+  queue_as :api
+
+  # Maximum 5 concurrent API calls
+  limits_concurrency to: 5,
+                     key: :api_calls,
+                     duration: 1.minute
+
+  def perform(endpoint, params)
+    response = HTTP.post("https://api.example.com#{endpoint}", json: params)
+    Result.create!(data: response.parse)
+  end
+end
+```
+
+**Conflict Handling:**
+
+```ruby
+class UserSyncJob < ApplicationJob
+  # Discard duplicates instead of blocking
+  limits_concurrency to: 1,
+                     key: ->(user_id) { "sync:#{user_id}" },
+                     duration: 5.minutes,
+                     on_conflict: :discard  # or :block (default)
+
+  def perform(user_id)
+    user = User.find(user_id)
+    ExternalAPI.sync_user(user)
+  end
+end
+```
+
+**Grouping Jobs:**
+
+```ruby
+class DatabaseMaintenanceJob < ApplicationJob
+  limits_concurrency to: 2,
+                     key: :maintenance,
+                     group: :database_operations,
+                     duration: 10.minutes
+
+  def perform(table_name)
+    ActiveRecord::Base.connection.execute("VACUUM ANALYZE #{table_name}")
+  end
+end
+
+class IndexRebuildJob < ApplicationJob
+  # Shares concurrency pool with DatabaseMaintenanceJob
+  limits_concurrency to: 2,
+                     key: :maintenance,
+                     group: :database_operations,
+                     duration: 10.minutes
+
+  def perform(index_name)
+    ActiveRecord::Base.connection.execute("REINDEX INDEX #{index_name}")
+  end
+end
+```
+
+**Why:** Solid Queue's concurrency controls prevent resource exhaustion, API rate limiting, and race conditions. Use `on_conflict: :block` to queue jobs (default) or `on_conflict: :discard` to drop duplicates. Groups allow different job classes to share concurrency limits.
 </pattern>
 
 <antipattern>

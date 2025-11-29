@@ -132,7 +132,7 @@ end
 **Migration:**
 
 ```ruby
-class CreateFeedbacks < ActiveRecord::Migration[8.1]
+class CreateFeedbacks < ActiveRecord::Migration[8.0]
   def change
     create_table :feedbacks do |t|
       t.references :recipient, foreign_key: { to_table: :users }, null: true
@@ -178,7 +178,7 @@ end
 **Migration:**
 
 ```ruby
-class CreateComments < ActiveRecord::Migration[8.1]
+class CreateComments < ActiveRecord::Migration[8.0]
   def change
     create_table :comments do |t|
       t.references :commentable, polymorphic: true, null: false
@@ -217,18 +217,17 @@ class Feedback < ApplicationRecord
   validate :recipient_can_receive_feedback, on: :create
 
   private
+    def content_not_spam
+      return if content.blank?
+      spam_keywords = %w[viagra cialis lottery]
+      errors.add(:content, "appears to contain spam") if spam_keywords.any? { |k| content.downcase.include?(k) }
+    end
 
-  def content_not_spam
-    return if content.blank?
-    spam_keywords = %w[viagra cialis lottery]
-    errors.add(:content, "appears to contain spam") if spam_keywords.any? { |k| content.downcase.include?(k) }
-  end
-
-  def recipient_can_receive_feedback
-    return if recipient_email.blank?
-    user = User.find_by(email: recipient_email)
-    errors.add(:recipient_email, "has disabled feedback") if user&.feedback_disabled?
-  end
+    def recipient_can_receive_feedback
+      return if recipient_email.blank?
+      user = User.find_by(email: recipient_email)
+      errors.add(:recipient_email, "has disabled feedback") if user&.feedback_disabled?
+    end
 end
 
 ```
@@ -254,30 +253,29 @@ class Feedback < ApplicationRecord
   after_update_commit :notify_recipient_of_response, if: :response_added?
 
   private
+    def normalize_email
+      self.recipient_email = recipient_email&.downcase&.strip
+    end
 
-  def normalize_email
-    self.recipient_email = recipient_email&.downcase&.strip
-  end
+    def strip_whitespace
+      self.content = content&.strip
+    end
 
-  def strip_whitespace
-    self.content = content&.strip
-  end
+    def generate_tracking_code
+      self.tracking_code = SecureRandom.alphanumeric(10).upcase
+    end
 
-  def generate_tracking_code
-    self.tracking_code = SecureRandom.alphanumeric(10).upcase
-  end
+    def enqueue_delivery_job
+      SendFeedbackJob.perform_later(id)
+    end
 
-  def enqueue_delivery_job
-    SendFeedbackJob.perform_later(id)
-  end
+    def response_added?
+      saved_change_to_response? && response.present?
+    end
 
-  def response_added?
-    saved_change_to_response? && response.present?
-  end
-
-  def notify_recipient_of_response
-    FeedbackMailer.notify_of_response(self).deliver_later
-  end
+    def notify_recipient_of_response
+      FeedbackMailer.notify_of_response(self).deliver_later
+    end
 end
 
 ```
@@ -364,7 +362,7 @@ feedback.status_before_last_save      # Track changes
 **Migration:**
 
 ```ruby
-class CreateFeedbacks < ActiveRecord::Migration[8.1]
+class CreateFeedbacks < ActiveRecord::Migration[8.0]
   def change
     create_table :feedbacks do |t|
       t.string :status, default: "pending", null: false
@@ -715,10 +713,9 @@ class ContactsController < ApplicationController
   end
 
   private
-
-  def contact_params
-    params.expect(contact_form: [:name, :email, :message, :subject])
-  end
+    def contact_params
+      params.expect(contact_form: [ :name, :email, :message, :subject ])
+    end
 end
 
 ```
@@ -774,11 +771,10 @@ class UserRegistrationForm
   attr_reader :user, :company, :membership
 
   private
-
-  def passwords_match
-    return if password.blank?
-    errors.add(:password_confirmation, "doesn't match password") unless password == password_confirmation
-  end
+    def passwords_match
+      return if password.blank?
+      errors.add(:password_confirmation, "doesn't match password") unless password == password_confirmation
+    end
 end
 
 ```
@@ -866,9 +862,9 @@ class Feedback < ApplicationRecord
   after_create_commit :enqueue_creation_job
 
   private
-  def enqueue_creation_job
-    ProcessFeedbackCreationJob.perform_later(id)
-  end
+    def enqueue_creation_job
+      ProcessFeedbackCreationJob.perform_later(id)
+    end
 end
 
 # Service handles all side effects explicitly

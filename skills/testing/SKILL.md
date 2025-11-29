@@ -496,10 +496,10 @@ end
 ```ruby
 class FeedbackTest < ActiveSupport::TestCase
   test "defines status enum with correct values" do
-    assert_equal "pending", Feedback.statuses[:status_pending]
-    assert_equal "delivered", Feedback.statuses[:status_delivered]
-    assert_equal "read", Feedback.statuses[:status_read]
-    assert_equal "responded", Feedback.statuses[:status_responded]
+    assert_equal "pending", Feedback.statuses[:pending]
+    assert_equal "delivered", Feedback.statuses[:delivered]
+    assert_equal "read", Feedback.statuses[:read]
+    assert_equal "responded", Feedback.statuses[:responded]
   end
 
   test "enum provides predicate methods with prefix" do
@@ -1602,15 +1602,17 @@ end
 **test/test_helper.rb:**
 
 ```ruby
-class ActiveSupport::TestCase
-  parallelize(workers: :number_of_processors)
+module ActiveSupport
+  class TestCase
+    parallelize(workers: :number_of_processors)
 
-  parallelize_setup do |worker|
-    # Rails handles database setup automatically
-  end
+    parallelize_setup do |worker|
+      # Rails handles database setup automatically
+    end
 
-  parallelize_teardown do |worker|
-    FileUtils.rm_rf(Rails.root.join("tmp", "test_worker_#{worker}"))
+    parallelize_teardown do |worker|
+      FileUtils.rm_rf(Rails.root.join("tmp", "test_worker_#{worker}"))
+    end
   end
 end
 
@@ -1875,7 +1877,7 @@ end
 
 ---
 
-## Local CI DSL (Rails 8.1+)
+## Local CI DSL (Rails 8+)
 
 <pattern name="local-ci-dsl">
 <description>Define CI pipeline in config/ci.rb for consistent local and CI execution</description>
@@ -1883,7 +1885,7 @@ end
 **config/ci.rb:**
 
 ```ruby
-# Rails 8.1+ Local CI DSL
+# Rails 8+ Local CI DSL
 # Run with: bin/ci
 
 step "Setup" do
@@ -1928,29 +1930,29 @@ bin/ci --step 3     # Run specific step
 <testing>
 
 ```bash
-# Run all tests (Rails 8.1+ preferred)
+# Run all tests (Rails 8+ preferred)
 bin/ci
 
 # Or run tests directly
-rails test
+bin/rails test
 
 # Run specific test file
-rails test test/models/feedback_test.rb
+bin/rails test test/models/feedback_test.rb
 
 # Run specific test by line number
-rails test test/models/feedback_test.rb:12
+bin/rails test test/models/feedback_test.rb:12
 
 # Run tests matching pattern
-rails test -n /validation/
+bin/rails test -n /validation/
 
 # Run in parallel (faster)
-rails test --parallel
+bin/rails test --parallel
 
 # Run all model tests
-rails test test/models/
+bin/rails test test/models/
 
 # Run system tests
-rails test:system
+bin/rails test:system
 
 ```
 </testing>

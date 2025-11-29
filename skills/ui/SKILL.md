@@ -196,7 +196,9 @@ Partials are reusable view fragments. Layouts define page structure. Together th
 <head>
   <title><%= content_for?(:title) ? yield(:title) : "App Name" %></title>
   <%= csrf_meta_tags %>
-  <%= stylesheet_link_tag "application" %>
+  <%= csp_meta_tag %>
+  <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+  <%= javascript_importmap_tags %>
   <%= yield :head %>
 </head>
 <body>
@@ -490,12 +492,7 @@ class FeedbacksController < ApplicationController
   def feedback_params
     params.expect(feedback: [
       :content,
-      attachments_attributes: [
-        :id,        # Required for updating existing records
-        :file,
-        :caption,
-        :_destroy   # Required for marking records for deletion
-      ]
+      attachments_attributes: [[ :id, :file, :caption, :_destroy ]]
     ])
   end
 end
@@ -509,12 +506,15 @@ end
 
   <div class="space-y-4">
     <h3>Attachments</h3>
-    <%= form.fields_for :attachments do |f| %>
+    <%= form.fields_for :attachments do |attachment_form| %>
       <div class="nested-fields card">
-        <%= f.file_field :file, class: "file-input" %>
-        <%= f.text_field :caption, class: "input" %>
-        <%= f.hidden_field :id if f.object.persisted? %>
-        <%= f.check_box :_destroy %> <%= f.label :_destroy, "Remove" %>
+        <%= attachment_form.file_field :file, class: "file-input" %>
+        <%= attachment_form.text_field :caption, class: "input" %>
+        <% if attachment_form.object.persisted? %>
+          <%= attachment_form.hidden_field :id %>
+          <%= attachment_form.check_box :_destroy %>
+          <%= attachment_form.label :_destroy, "Remove" %>
+        <% end %>
       </div>
     <% end %>
   </div>
@@ -531,11 +531,11 @@ end
 <bad-example>
 
 ```ruby
-# ❌ BAD - Missing :id
+# ❌ BAD - Missing :id and :_destroy
 def feedback_params
   params.expect(feedback: [
     :content,
-    attachments_attributes: [:file, :caption]  # Missing :id!
+    attachments_attributes: [[ :file, :caption ]]  # Missing :id and :_destroy!
   ])
 end
 ```
@@ -544,11 +544,11 @@ end
 <good-example>
 
 ```ruby
-# ✅ GOOD - Include :id for existing records
+# ✅ GOOD - Include :id for existing records and :_destroy for deletions
 def feedback_params
   params.expect(feedback: [
     :content,
-    attachments_attributes: [:id, :file, :caption, :_destroy]
+    attachments_attributes: [[ :id, :file, :caption, :_destroy ]]
   ])
 end
 ```

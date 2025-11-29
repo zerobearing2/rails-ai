@@ -76,16 +76,16 @@ end
 
 # app/mailers/notification_mailer.rb
 class NotificationMailer < ApplicationMailer
-  def welcome_email(user)
-    @user = user
+  def welcome_email
+    @user = params[:user]
     @login_url = login_url
-    mail(to: user.email, subject: "Welcome to Our App")
+    mail(to: @user.email, subject: "Welcome to Our App")
   end
 
-  def password_reset(user)
-    @user = user
-    @reset_url = password_reset_url(user.reset_token)
-    mail(to: user.email, subject: "Password Reset Instructions")
+  def password_reset
+    @user = params[:user]
+    @reset_url = password_reset_url(@user.reset_token)
+    mail(to: @user.email, subject: "Password Reset Instructions")
   end
 end
 ```
@@ -113,8 +113,8 @@ Thanks for signing up. Get started by logging in:
 
 ```ruby
 # In controller or service
-NotificationMailer.welcome_email(@user).deliver_later
-NotificationMailer.password_reset(@user).deliver_later(queue: :mailers)
+NotificationMailer.with(user: @user).welcome_email.deliver_later
+NotificationMailer.with(user: @user).password_reset.deliver_later(queue: :mailers)
 ```
 
 **Why:** ActionMailer integrates seamlessly with SolidQueue for async delivery. Always use deliver_later to avoid blocking requests. Provide both HTML and text versions for compatibility.
@@ -128,7 +128,7 @@ NotificationMailer.password_reset(@user).deliver_later(queue: :mailers)
 # ❌ WRONG - Blocks HTTP request thread
 def create
   @user = User.create!(user_params)
-  NotificationMailer.welcome_email(@user).deliver_now  # Blocks!
+  NotificationMailer.with(user: @user).welcome_email.deliver_now  # Blocks!
   redirect_to @user
 end
 ```
@@ -140,7 +140,7 @@ end
 # ✅ CORRECT - Async delivery via SolidQueue
 def create
   @user = User.create!(user_params)
-  NotificationMailer.welcome_email(@user).deliver_later  # Non-blocking
+  NotificationMailer.with(user: @user).welcome_email.deliver_later  # Non-blocking
   redirect_to @user
 end
 ```
@@ -256,8 +256,9 @@ YOUR APP
 
 ```ruby
 class ReportMailer < ApplicationMailer
-  def monthly_report(user, data)
-    @user = user
+  def monthly_report
+    @user = params[:user]
+    data = params[:data]
 
     # Regular attachment
     attachments["report.pdf"] = {
@@ -270,7 +271,7 @@ class ReportMailer < ApplicationMailer
       Rails.root.join("app/assets/images/logo.png")
     )
 
-    mail(to: user.email, subject: "Monthly Report")
+    mail(to: @user.email, subject: "Monthly Report")
   end
 end
 ```
@@ -291,10 +292,10 @@ end
 
 ```ruby
 # ❌ WRONG - Relative path doesn't work in emails
-def welcome_email(user)
-  @user = user
+def welcome_email
+  @user = params[:user]
   @login_url = login_path  # => "/login" (relative path)
-  mail(to: user.email, subject: "Welcome")
+  mail(to: @user.email, subject: "Welcome")
 end
 ```
 
@@ -303,10 +304,10 @@ end
 
 ```ruby
 # ✅ CORRECT - Full URL works in emails
-def welcome_email(user)
-  @user = user
+def welcome_email
+  @user = params[:user]
   @login_url = login_url  # => "https://example.com/login" (absolute URL)
-  mail(to: user.email, subject: "Welcome")
+  mail(to: @user.email, subject: "Welcome")
 end
 
 # Required configuration
@@ -363,19 +364,19 @@ class NotificationMailerPreview < ActionMailer::Preview
   # Preview at http://localhost:3000/rails/mailers/notification_mailer/welcome_email
   def welcome_email
     user = User.first || User.new(name: "Test User", email: "test@example.com")
-    NotificationMailer.welcome_email(user)
+    NotificationMailer.with(user: user).welcome_email
   end
 
   def password_reset
     user = User.first || User.new(name: "Test User", email: "test@example.com")
     user.reset_token = "sample_token_123"
-    NotificationMailer.password_reset(user)
+    NotificationMailer.with(user: user).password_reset
   end
 
   # Preview with different data
   def welcome_email_long_name
     user = User.new(name: "Christopher Alexander Montgomery III", email: "long@example.com")
-    NotificationMailer.welcome_email(user)
+    NotificationMailer.with(user: user).welcome_email
   end
 end
 ```
@@ -391,7 +392,7 @@ end
 class NotificationMailerTest < ActionMailer::TestCase
   test "welcome_email sends with correct attributes" do
     user = users(:alice)
-    email = NotificationMailer.welcome_email(user)
+    email = NotificationMailer.with(user: user).welcome_email
 
     # Test delivery
     assert_emails 1 do
@@ -413,14 +414,22 @@ class NotificationMailerTest < ActionMailer::TestCase
     user = users(:alice)
 
     assert_enqueued_with(job: ActionMailer::MailDeliveryJob, queue: "mailers") do
-      NotificationMailer.welcome_email(user).deliver_later(queue: :mailers)
+      NotificationMailer.with(user: user).welcome_email.deliver_later(queue: :mailers)
+    end
+  end
+
+  test "delivers via background job with params" do
+    user = users(:alice)
+
+    assert_enqueued_email_with NotificationMailer.with(user: user), :welcome_email do
+      NotificationMailer.with(user: user).welcome_email.deliver_later
     end
   end
 
   test "password_reset includes reset link" do
     user = users(:alice)
     user.update!(reset_token: "test_token_123")
-    email = NotificationMailer.password_reset(user)
+    email = NotificationMailer.with(user: user).password_reset
 
     assert_includes email.html_part.body.to_s, "test_token_123"
     assert_includes email.html_part.body.to_s, "password_reset"
@@ -493,7 +502,7 @@ class NotificationMailerTest < ActionMailer::TestCase
   end
 
   test "welcome_email" do
-    email = NotificationMailer.welcome_email(@user)
+    email = NotificationMailer.with(user: @user).welcome_email
 
     assert_emails 1 { email.deliver_now }
     assert_equal [@user.email], email.to
@@ -504,13 +513,19 @@ class NotificationMailerTest < ActionMailer::TestCase
 
   test "enqueues for async delivery" do
     assert_enqueued_with(job: ActionMailer::MailDeliveryJob) do
-      NotificationMailer.welcome_email(@user).deliver_later
+      NotificationMailer.with(user: @user).welcome_email.deliver_later
     end
   end
 
   test "uses correct queue" do
     assert_enqueued_with(job: ActionMailer::MailDeliveryJob, queue: "mailers") do
-      NotificationMailer.welcome_email(@user).deliver_later(queue: :mailers)
+      NotificationMailer.with(user: @user).welcome_email.deliver_later(queue: :mailers)
+    end
+  end
+
+  test "enqueues with correct mailer params" do
+    assert_enqueued_email_with NotificationMailer.with(user: @user), :welcome_email do
+      NotificationMailer.with(user: @user).welcome_email.deliver_later
     end
   end
 end

@@ -28,9 +28,6 @@ Use this workflow when:
 - `superpowers:root-cause-tracing` — trace errors to their source
 - `superpowers:verification-before-completion` — verify fix works
 
-**If multiple independent bugs:**
-- `superpowers:dispatching-parallel-agents` — fix independent bugs concurrently
-
 **If flaky tests:**
 - `superpowers:condition-based-waiting` — replace timeouts with condition polling
 
@@ -97,14 +94,7 @@ Use `superpowers:root-cause-tracing`:
 
 **You MUST dispatch the fix to the `@agent-rails-ai:developer` agent using the Task tool.**
 
-#### Parallel Dispatch for Independent Bugs
-
-Use `superpowers:dispatching-parallel-agents` when there are **3+ independent bugs** that:
-- Don't share root causes
-- Can be fixed without affecting each other
-- Touch different files/domains
-
-#### Dispatch to Developer Agent
+Always dispatch sequentially — one bug fix at a time. This keeps things simple and avoids conflicts.
 
 Use the Task tool to dispatch to the `@agent-rails-ai:developer` agent:
 

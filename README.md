@@ -124,9 +124,9 @@ Each workflow command combines the right superpowers workflows with the relevant
 |----------|------------------|
 | `setup` | verification-before-completion |
 | `plan` | brainstorming, writing-plans |
-| `feature` | using-git-worktrees, brainstorming, writing-plans, executing-plans, verification-before-completion, finishing-a-development-branch, dispatching-parallel-agents (when 3+ tasks) |
-| `fix` | using-git-worktrees, verification-before-completion, finishing-a-development-branch, dispatching-parallel-agents (when 3+ areas) |
-| `debug` | systematic-debugging, root-cause-tracing, condition-based-waiting, verification-before-completion, dispatching-parallel-agents (when multiple bugs) |
+| `feature` | brainstorming, writing-plans, executing-plans, verification-before-completion, finishing-a-development-branch |
+| `fix` | verification-before-completion, finishing-a-development-branch, test-driven-development |
+| `debug` | systematic-debugging, root-cause-tracing, condition-based-waiting, verification-before-completion |
 | `review` | finishing-a-development-branch, 3 parallel reviewer agents (security-and-rules, implementation, ui) |
 
 ### Rails-AI Skills (11 total)

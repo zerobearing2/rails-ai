@@ -44,8 +44,6 @@ class CommandStructureTest < Minitest::Test
 
     assert_match(/superpowers:verification-before-completion/i, content,
                  "Feature command should reference verification superpowers workflow")
-    assert_match(/superpowers:using-git-worktrees/i, content,
-                 "Feature command should reference git-worktrees superpowers workflow")
     assert_match(/superpowers:finishing-a-development-branch/i, content,
                  "Feature command should reference finishing-a-development-branch superpowers workflow")
   end

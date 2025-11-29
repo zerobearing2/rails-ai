@@ -33,12 +33,8 @@ Use this workflow when:
 ## Superpowers Workflows
 
 **Always:**
-- `superpowers:using-git-worktrees` — isolate fix work
 - `superpowers:verification-before-completion` — verify tests pass after changes
 - `superpowers:finishing-a-development-branch` — merge/PR options
-
-**If fix has 3+ independent areas:**
-- `superpowers:dispatching-parallel-agents` — run independent fixes concurrently
 
 **For test gaps:**
 - `superpowers:test-driven-development` — fill test coverage gaps
@@ -46,9 +42,17 @@ Use this workflow when:
 
 ## Process
 
-### Step 1: Create Isolated Workspace
+### Step 1: Check Branch State
 
-Use `superpowers:using-git-worktrees` to create isolated branch for fix work.
+**If on main/develop:**
+- Create fix branch: `git checkout -b fix/short-description`
+- Branch name derived from task (e.g., "Extract service object" → `fix/extract-service`)
+
+**If already on feature/fix branch:**
+- Use current branch
+
+**If dirty working tree:**
+- Ask user: stash, commit, or abort
 
 ### Step 2: Plan the Fix
 
@@ -62,18 +66,7 @@ Assess what needs to be fixed or improved:
 
 **You MUST dispatch fixes to the `@agent-rails-ai:developer` agent using the Task tool.**
 
-#### Parallel Dispatch for Independent Fixes
-
-Use `superpowers:dispatching-parallel-agents` when the fix scope includes **3+ independent areas** that:
-- Don't share state or dependencies
-- Can be fixed without affecting each other
-- Touch different files/domains
-
-**Parallel dispatch example:** If fixing involves 3 different areas — and they're independent — dispatch 3 `@agent-rails-ai:developer` agents concurrently in a single message with multiple Task tool calls.
-
-**Sequential dispatch:** If fixes depend on each other, dispatch one at a time.
-
-#### Dispatch to Developer Agent
+Always dispatch sequentially — one fix at a time. This keeps things simple and avoids conflicts.
 
 Use the Task tool to dispatch to the `@agent-rails-ai:developer` agent:
 
@@ -152,7 +145,6 @@ Or if changing functionality:
 Use `superpowers:finishing-a-development-branch`:
 - Verify all tests pass
 - Present merge/PR options
-- Clean up worktree
 
 ## Completion Checklist
 

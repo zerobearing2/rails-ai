@@ -1,3 +1,5 @@
+
+
 # rails-ai 🚂
 
 > **⚠️ EXPERIMENTAL:** Under active development. APIs and architecture may change. Phase 2 of 4.
@@ -88,7 +90,7 @@ bin/ci
 **Local Development Note:** If you're developing rails-ai locally (installed from a local directory), SessionStart hooks don't execute due to a [Claude Code limitation](https://github.com/anthropics/claude-code/issues/11939). Manually use the skill once per session:
 
 ```text
-Use the skill: using-rails-ai
+Use the skill: rails-ai:using-rails-ai
 ```
 
 This uses the full protocol including Superpowers integration and skill-loading enforcement. Not needed when installed from GitHub.
